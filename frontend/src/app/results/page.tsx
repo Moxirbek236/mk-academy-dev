@@ -26,7 +26,7 @@ export default function Results() {
           <div>
             <p className="text-4xl font-black text-gray-900 tracking-tight">12<span className="text-xl">s</span></p>
             <p className="text-xs text-gray-500 font-bold mt-1.5">
-              Umumiy sarflangan
+              Umumiy sarflanga1n
             </p>
           </div>
         </div>
