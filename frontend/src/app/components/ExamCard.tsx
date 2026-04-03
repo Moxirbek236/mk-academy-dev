@@ -1,3 +1,4 @@
+'use client';
 import { CheckSquare, Clock } from 'lucide-react';
 
 export function ExamCard() {
