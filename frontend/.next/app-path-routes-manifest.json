@@ -1,0 +1,9 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/page": "/",
+  "/unit/[id]/vocabulary/page": "/unit/[id]/vocabulary",
+  "/settings/page": "/settings",
+  "/start/page": "/start",
+  "/results/page": "/results",
+  "/unit/[id]/tasks/page": "/unit/[id]/tasks"
+}
