@@ -1,4 +1,3 @@
-'use client';
 import { Play, Award, Target, Zap, ChevronRight } from 'lucide-react';
 
 export default function StartHere() {

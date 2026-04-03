@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
@@ -14,6 +14,19 @@ if (typeof window === 'undefined') {
 export const metadata: Metadata = {
   title: 'MK Academy - CEFR Platform',
   description: 'Learn vocabulary and complete tasks',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'MK Academy',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#3D855A',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({

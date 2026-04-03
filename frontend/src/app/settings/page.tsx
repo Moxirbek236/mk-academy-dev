@@ -1,4 +1,3 @@
-'use client';
 import { User, Bell, Shield, Moon, LogOut, ChevronRight } from 'lucide-react';
 
 export default function Settings() {
