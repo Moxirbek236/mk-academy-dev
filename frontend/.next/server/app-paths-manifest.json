@@ -1,3 +1,9 @@
 {
-  "/page": "app/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/start/page": "app/start/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/page": "app/page.js",
+  "/results/page": "app/results/page.js",
+  "/unit/[id]/tasks/page": "app/unit/[id]/tasks/page.js",
+  "/unit/[id]/vocabulary/page": "app/unit/[id]/vocabulary/page.js"
 }
