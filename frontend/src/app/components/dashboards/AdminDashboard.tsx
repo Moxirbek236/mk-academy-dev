@@ -50,7 +50,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-10">
-        {stats.map((stat, idx) => (
+        {stats.map((stat: any, idx: number) => (
           <div key={idx} className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm group hover:border-[#3D855A]/30 hover:shadow-xl transition-all cursor-default">
             <div className="flex justify-between items-start mb-6">
                <div className={`p-4 rounded-[22px] ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform shadow-sm`}>

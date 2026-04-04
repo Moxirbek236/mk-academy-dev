@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { BookOpen, ListTodo, X, Loader2, Sparkles, Trophy, Zap, Clock, ChevronRight } from 'lucide-react';
+import { BookOpen, ListTodo, X, Loader2, Sparkles, Trophy, Zap, Clock, ChevronRight, Target, BrainCircuit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ExamCard } from '../ExamCard';
 import { LessonCard } from '../LessonCard';
@@ -31,30 +31,30 @@ export function StudentDashboard() {
     fetchData();
   }, []);
 
+  const stats = [
+    { label: 'Ranking', value: data?.rank || 'Top 10%', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50', trend: '+2%' },
+    { label: 'Streak', value: `${data?.streak || 0} Days`, icon: Zap, color: 'text-orange-500', bg: 'bg-orange-50', trend: 'Active' },
+    { label: 'Accuracy', value: '94%', icon: Target, color: 'text-blue-500', bg: 'bg-blue-50', trend: '+5%' },
+    { label: 'Mastery', value: '12/40', icon: BrainCircuit, color: 'text-purple-500', bg: 'bg-purple-50', trend: 'Good' },
+  ];
+
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-      {/* Gamification / Progress Bar */}
-      <div className="flex gap-4 mb-8">
-         <div className="flex-1 bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-4 group hover:border-[#3D855A]/30 hover:shadow-md transition-all active:scale-[0.98]">
-            <div className="p-3 bg-amber-50 text-amber-500 rounded-2xl group-hover:scale-110 transition-transform">
-               <Trophy size={20} strokeWidth={2.5} />
+      {/* Gamification / Progress Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+         {stats.map((stat, idx) => (
+            <div key={idx} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-4 group hover:border-[#3D855A]/30 hover:shadow-md transition-all active:scale-[0.98]">
+               <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
+                  <stat.icon size={20} strokeWidth={2.5} />
+               </div>
+               <div>
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">{stat.label}</p>
+                  <p className="text-sm font-black text-[#111827] mt-1 tracking-tight">{stat.value}</p>
+               </div>
             </div>
-            <div>
-               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">RANKING</p>
-               <p className="text-sm font-black text-[#111827] mt-1 tracking-tight">{data?.rank || 'Top 10%'}</p>
-            </div>
-         </div>
-         <div className="flex-1 bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-4 group hover:border-amber-100 hover:shadow-md transition-all active:scale-[0.98]">
-            <div className="p-3 bg-orange-50 text-orange-500 rounded-2xl group-hover:scale-110 transition-transform">
-               <Zap size={20} strokeWidth={2.5} />
-            </div>
-            <div>
-               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">STREAK</p>
-               <p className="text-sm font-black text-[#111827] mt-1 tracking-tight">{data?.streak || 0} Days</p>
-            </div>
-         </div>
+         ))}
       </div>
 
       <h2 className="text-[12px] font-black text-[#1A1A1A]/30 tracking-[0.15em] uppercase mb-4 px-2 flex items-center gap-2">
@@ -69,11 +69,11 @@ export function StudentDashboard() {
          </button>
       </div>
       
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {loading ? (
-           <div className="flex justify-center p-10"><Loader2 className="animate-spin text-[#3D855A] opacity-50" size={32} /></div>
+           <div className="flex justify-center p-10 col-span-full"><Loader2 className="animate-spin text-[#3D855A] opacity-50" size={32} /></div>
         ) : tasks.length > 0 ? (
-           tasks.map((task, idx) => (
+           tasks.map((task: any, idx: number) => (
              <LessonCard 
                 key={task.id}
                 unit={(idx + 1).toString()} 

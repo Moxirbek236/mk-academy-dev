@@ -3,6 +3,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
+import { Sidebar } from './components/Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -42,9 +43,12 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const hideNav = isPublicRoute;
 
   return (
-    <div className={`min-h-screen ${role === 'superadmin' ? 'bg-[#0A0A0A]' : 'bg-gray-50/50'}`}>
-      {!hideNav && <Header role={role} />}
-      <main className={`${!hideNav ? 'pt-24 pb-32 max-w-7xl mx-auto px-6' : ''}`}>
+    <div className={`min-h-screen flex ${role === 'superadmin' ? 'bg-[#0A0A0A]' : 'bg-gray-50/50'}`}>
+      {!hideNav && <Sidebar role={role} />}
+      
+      <div className={`flex-1 flex flex-col min-h-screen ${!hideNav ? 'lg:pl-72' : ''}`}>
+        {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
+        <main className={`${!hideNav ? 'pt-24 lg:pt-12 pb-32 max-w-7xl mx-auto px-6 w-full' : ''}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
@@ -57,7 +61,8 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
           </motion.div>
         </AnimatePresence>
       </main>
-      {!hideNav && <BottomNav role={role} />}
+      {!hideNav && <div className="lg:hidden"><BottomNav role={role} /></div>}
+      </div>
     </div>
   );
 }

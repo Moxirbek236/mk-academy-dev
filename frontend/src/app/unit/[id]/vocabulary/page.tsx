@@ -4,6 +4,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowLeft, Volume2, Search, PlusCircle, Lock, Loader2 } from 'lucide-react';
 
+export const generateStaticParams = () => [];
+
 export default function Vocabulary() {
   const router = useRouter();
   const { id } = useParams();
@@ -75,38 +77,38 @@ export default function Vocabulary() {
       </div>
 
       {/* Word List */}
-      <div className="flex flex-col gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 pb-12">
         {words.map((word, idx) => (
           <div 
             key={idx} 
-            className="group bg-white p-4 rounded-3xl shadow-[0_4px_16px_-8px_rgba(0,0,0,0.05)] border border-gray-100 flex items-center gap-4 hover:border-gray-200 transition-colors"
+            className="group bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
           >
             {/* Play Button */}
             <button 
-              onClick={() => handlePlay(idx)}
-              className={`p-3.5 rounded-[18px] shrink-0 transition-all active:scale-90 ${
+              onClick={(e) => { e.stopPropagation(); handlePlay(idx); }}
+              className={`p-4 rounded-[22px] shrink-0 transition-all active:scale-90 shadow-inner ${
                 playing === idx 
-                  ? 'bg-[#3D855A] text-white shadow-md scale-110' 
-                  : 'bg-[#F2F8F5] text-[#3D855A] group-hover:bg-[#E3EFE8]'
+                  ? 'bg-[#3D855A] text-white shadow-xl scale-110 rotate-6' 
+                  : 'bg-[#F2F8F5] text-[#3D855A] group-hover:bg-[#3D855A] group-hover:text-white'
               }`}
             >
-              <Volume2 size={20} strokeWidth={2.5} className={playing === idx ? 'animate-pulse' : ''} />
+              <Volume2 size={24} strokeWidth={2.5} className={playing === idx ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'} />
             </button>
 
             {/* Word Content */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-extrabold text-gray-900 text-base truncate">{word.en}</h3>
-                <span className="text-[9px] px-1.5 py-0.5 rounded flex-shrink-0 bg-gray-100 text-gray-500 font-bold uppercase tracking-widest">
+              <div className="flex items-center gap-3 mb-1.5">
+                <h3 className="font-extrabold text-[#111827] text-lg tracking-tight truncate">{word.en}</h3>
+                <span className="text-[9px] px-2 py-0.5 rounded-md flex-shrink-0 bg-gray-50 text-gray-400 font-black uppercase tracking-widest border border-gray-100">
                   {word.type}
                 </span>
               </div>
-              <p className="text-sm text-gray-500 font-medium truncate">{word.uz}</p>
+              <p className="text-sm text-gray-500 font-bold truncate tracking-tight">{word.uz}</p>
             </div>
 
             {/* Add to favorites */}
-            <button className="text-gray-300 hover:text-[#C78736] transition-colors p-2">
-              <PlusCircle size={20} strokeWidth={2.5} />
+            <button className="text-gray-200 hover:text-amber-500 transition-all p-2 group-hover:scale-110 active:scale-90 shrink-0">
+               <PlusCircle size={24} strokeWidth={2.5} className="drop-shadow-sm" />
             </button>
           </div>
         ))}

@@ -52,32 +52,32 @@ export default function UsersPage() {
         </button>
       </div>
 
-      <div className="flex flex-col gap-3.5 pb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 pb-20">
         {loading ? (
-          <div className="flex justify-center p-20 opacity-20"><User size={40} className="animate-pulse" /></div>
+          <div className="flex justify-center p-20 opacity-20 col-span-full"><User size={40} className="animate-pulse" /></div>
         ) : users.map((user, idx) => (
-          <div key={user.id || idx} className="bg-white p-4 rounded-[28px] border border-gray-50 shadow-sm flex items-center gap-4 hover:border-gray-200 group transition-all">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg shadow-inner ${
+          <div key={user.id || idx} className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl group transition-all cursor-pointer overflow-hidden active:scale-[0.98]">
+            <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-xl shadow-inner transition-all group-hover:scale-110 shrink-0 ${
               user.role === 'SUPERADMIN' ? 'bg-[#FFEBEC] text-[#E54D2E]' : 
-              user.role === 'TEACHER' ? 'bg-[#3D855A]/10 text-[#3D855A]' : 
+              user.role === 'TEACHER' ? 'bg-[#F2F8F5] text-[#3D855A]' : 
               'bg-blue-50 text-blue-600'
             }`}>
               {user.fullName?.charAt(0)}
             </div>
-            <div className="flex-1 truncate">
-              <h3 className="font-extrabold text-gray-900 text-[15px] truncate">{user.fullName}</h3>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[9px] font-black uppercase tracking-tighter opacity-50">{user.role}</span>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-extrabold text-[#111827] text-base truncate tracking-tight">{user.fullName || 'New User'}</h3>
+              <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
+                <span className="text-[9px] font-black uppercase tracking-widest border border-gray-100 px-2 py-0.5 rounded-md text-gray-400 whitespace-nowrap">{user.role}</span>
                 {user.cefrLevel && (
                    <>
-                     <span className="w-1 h-1 rounded-full bg-gray-300" />
-                     <span className="text-[9px] font-black text-[#3D855A] uppercase">{user.cefrLevel}</span>
+                     <span className="w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0" />
+                     <span className="text-[9px] font-black text-[#3D855A] uppercase tracking-widest whitespace-nowrap">{user.cefrLevel}</span>
                    </>
                 )}
               </div>
             </div>
-            <button className="p-2 text-gray-300 hover:text-gray-900 transition-colors">
-              <MoreVertical size={18} strokeWidth={2.5} />
+            <button className="p-3 text-gray-300 hover:text-gray-900 transition-all shrink-0">
+               <MoreVertical size={20} strokeWidth={3} />
             </button>
           </div>
         ))}

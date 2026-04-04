@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { BookOpen, ArrowLeft, CheckCircle2, Lock, ChevronRight, Loader2, Sparkles } from 'lucide-react';
 import api from '@/lib/api';
 
+export const generateStaticParams = () => [];
+
 export default function CourseDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -53,25 +55,25 @@ export default function CourseDetailPage() {
 
       <h2 className="text-[12px] font-black text-gray-400 tracking-[0.15em] uppercase mb-6 px-1">CURRICULUM UNITS</h2>
 
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {lessons.length > 0 ? lessons.map((unit, idx) => (
           <div 
             key={unit.id}
             onClick={() => router.push(`/unit/${unit.id}/tasks`)}
-            className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group cursor-pointer"
+            className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group cursor-pointer"
           >
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-lg transition-all shadow-inner bg-gray-50 text-gray-400 group-hover:bg-[#F2F8F5] group-hover:text-[#3D855A]`}>
+            <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-lg transition-all shadow-inner bg-gray-50 text-gray-400 group-hover:bg-[#F2F8F5] group-hover:text-[#3D855A] shrink-0`}>
               {idx + 1}
             </div>
-            <div className="flex-1 truncate">
-               <h3 className="font-extrabold text-[#111827] text-[15px] leading-tight truncate">{unit.title}</h3>
-               <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">{unit.type || 'Lesson'}</p>
+            <div className="flex-1 min-w-0">
+               <h3 className="font-extrabold text-[#111827] text-base leading-tight tracking-tight truncate">{unit.title}</h3>
+               <p className="text-[10px] font-bold text-gray-400 mt-1.5 uppercase tracking-widest">{unit.type || 'Lesson'}</p>
             </div>
-            <ChevronRight size={18} className="text-gray-300 group-hover:translate-x-1 transition-transform" />
+            <ChevronRight size={20} className="text-gray-300 group-hover:translate-x-1 transition-transform shrink-0" />
           </div>
         )) : (
-          <div className="p-10 text-center bg-gray-50 rounded-[34px] border border-dashed border-gray-200">
-             <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Bu kursga hali darslar qo&apos;shilmagan</p>
+          <div className="p-16 text-center bg-gray-50 rounded-[46px] border border-dashed border-gray-200 col-span-full">
+             <p className="text-gray-400 font-black uppercase tracking-widest text-[11px]">Bu kursga hali darslar qo&apos;shilmagan</p>
           </div>
         )}
       </div>

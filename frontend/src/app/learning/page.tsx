@@ -50,9 +50,9 @@ export default function LearningPage() {
         />
       </div>
 
-      <div className="flex flex-col gap-4 pb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 pb-20">
         {loading ? (
-           <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={36} /></div>
+           <div className="flex justify-center p-20 col-span-full"><Loader2 className="animate-spin text-[#3D855A]" size={36} /></div>
         ) : courses.length > 0 ? (
            courses.map((course, idx) => (
              <div 
@@ -60,21 +60,21 @@ export default function LearningPage() {
                onClick={() => course.isActive && router.push(`/course/${course.id}`)}
                className={`bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group overflow-hidden cursor-pointer ${!course.isActive ? 'opacity-60 grayscale cursor-not-allowed' : ''}`}
              >
-                <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-xl transition-all shadow-inner bg-[#F2F8F5] text-[#3D855A] group-hover:bg-[#3D855A] group-hover:text-white group-hover:rotate-6`}>
+                <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-xl transition-all shadow-inner bg-[#F2F8F5] text-[#3D855A] group-hover:bg-[#3D855A] group-hover:text-white group-hover:rotate-6 shrink-0`}>
                   {course.isActive ? <BookOpen size={24} strokeWidth={2.5} /> : <Lock size={24} strokeWidth={2.5} />}
                 </div>
-                <div className="flex-1 truncate">
+                <div className="flex-1 min-w-0">
                   <h3 className="font-extrabold text-[#111827] text-lg tracking-tight truncate">{course.title}</h3>
-                  <div className="flex items-center gap-3 mt-1.5 overflow-x-auto no-scrollbar">
-                    <span className="text-[9px] font-black uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-md text-gray-500">{course.level}</span>
-                    <span className="text-[9px] font-black uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-md text-[#3D855A]">{(course._count?.tasks || 0) + (course._count?.tests || 0)} Units</span>
+                  <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
+                    <span className="text-[9px] font-black uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-md text-gray-500 whitespace-nowrap">{course.level}</span>
+                    <span className="text-[9px] font-black uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-md text-[#3D855A] whitespace-nowrap">{(course._count?.tasks || 0) + (course._count?.tests || 0)} Units</span>
                   </div>
                 </div>
-                <ChevronRight size={20} className="text-gray-300 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight size={20} className="text-gray-300 group-hover:translate-x-1 transition-transform shrink-0" />
              </div>
            ))
         ) : (
-          <div className="p-16 text-center bg-gray-50 rounded-[46px] border border-dashed border-gray-200">
+          <div className="p-16 text-center bg-gray-50 rounded-[46px] border border-dashed border-gray-200 col-span-full">
              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
                 <BookOpen size={30} className="text-gray-200" />
              </div>

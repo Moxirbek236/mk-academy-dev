@@ -74,24 +74,26 @@ export default function FinancePage() {
          <button className="text-[10px] font-black text-[#3D855A] hover:underline uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-full">History</button>
       </div>
 
-      <div className="flex flex-col gap-4 pb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 pb-20">
         {transactions.map((t, idx) => (
-          <div key={idx} className="bg-white p-5 rounded-[32px] border border-gray-100/50 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group">
-            <div className={`p-4 rounded-[22px] transition-all group-hover:rotate-[10deg] ${
-               t.type === 'income' ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'
+          <div key={idx} className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group overflow-hidden cursor-default">
+            <div className={`p-4 rounded-[24px] transition-all group-hover:rotate-[10deg] shrink-0 ${
+               t.type === 'INCOME' ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'
             }`}>
-               <CreditCard size={26} strokeWidth={2.5} />
+               <CreditCard size={28} strokeWidth={2.5} />
             </div>
-            <div className="flex-1">
-               <h3 className="font-extrabold text-[#111827] text-[15px] leading-tight group-hover:translate-x-1 transition-transform">{t.user?.fullName || 'Tizim'}</h3>
-               <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-gray-50 text-gray-500 tracking-tighter uppercase">{t.method}</span>
-                  <p className="text-[11px] font-bold text-gray-400 tracking-tight">{new Date(t.createdAt).toLocaleTimeString()}</p>
+            <div className="flex-1 min-w-0">
+               <h3 className="font-extrabold text-[#111827] text-base leading-tight tracking-tight truncate group-hover:translate-x-1 transition-transform">{t.user?.fullName || 'System Transaction'}</h3>
+               <div className="flex items-center gap-3 mt-2 overflow-hidden">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-gray-50 text-gray-500 tracking-tighter uppercase whitespace-nowrap">{t.method || 'Transfer'}</span>
+                  <p className="text-[11px] font-bold text-gray-400 tracking-tight whitespace-nowrap">{new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                </div>
             </div>
-            <p className={`font-black text-[15px] tracking-tight ${
-              t.type === 'INCOME' ? 'text-emerald-550' : 'text-red-500'
-            }`}>{t.type === 'INCOME' ? '+' : '-'}{t.amount?.toLocaleString()} UZS</p>
+            <div className="text-right shrink-0">
+              <p className={`font-black text-lg tracking-tighter ${
+                t.type === 'INCOME' ? 'text-emerald-550' : 'text-red-500'
+              }`}>{t.type === 'INCOME' ? '+' : '-'}{t.amount?.toLocaleString()} UZS</p>
+            </div>
           </div>
         ))}
       </div>

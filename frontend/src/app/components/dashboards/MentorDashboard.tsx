@@ -68,14 +68,14 @@ export function MentorDashboard() {
          <button className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Schedule</button>
       </div>
 
-      <div className="flex flex-col gap-4 mb-8">
-        {groups.map((group, idx) => (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {groups.map((group: any, idx: number) => (
           <div key={idx} className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group cursor-pointer focus:ring-2 ring-[#3D855A]/10">
-            <div className="w-16 h-16 rounded-[24px] bg-[#F2F8F5] text-[#3D855A] flex items-center justify-center font-black text-xl group-hover:bg-[#3D855A] group-hover:text-white transition-all shadow-inner group-hover:rotate-3">
-              {group.name.charAt(0)}
+            <div className="w-16 h-16 rounded-[24px] bg-[#F2F8F5] text-[#3D855A] flex items-center justify-center font-black text-xl group-hover:bg-[#3D855A] group-hover:text-white transition-all shadow-inner group-hover:rotate-3 shrink-0">
+              {(group.name || '?').charAt(0)}
             </div>
-            <div className="flex-1">
-              <h3 className="font-extrabold text-[#111827] text-base leading-tight tracking-tight">{group.name}</h3>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-extrabold text-[#111827] text-base leading-tight tracking-tight truncate">{group.name}</h3>
               <div className="flex items-center gap-3 mt-2.5">
                 <span className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-md">
                    <Users size={12} strokeWidth={2.5} /> {group.students} students
@@ -85,7 +85,7 @@ export function MentorDashboard() {
                 </span>
               </div>
             </div>
-            <div className="flex flex-col items-end gap-1.5">
+            <div className="flex flex-col items-end gap-1.5 shrink-0">
                <span className="text-[10px] font-black text-amber-500 bg-amber-50 px-2 py-1 rounded-full uppercase tracking-widest">{group.nextLesson}</span>
                <div className="p-2.5 rounded-xl bg-gray-50 text-gray-300 group-hover:translate-x-1 transition-transform">
                   <ChevronRight size={20} strokeWidth={3} />

@@ -87,7 +87,7 @@ export function SuperadminDashboard() {
          <Activity size={16} className="text-[#3D855A]" /> REAL-TIME ANALYTICS
       </h2>
       <div className="grid grid-cols-2 gap-4 mb-10 text-gray-900">
-         {metrics.map((metric, idx) => (
+         {metrics.map((metric: any, idx: number) => (
             <div key={idx} className="bg-white p-6 rounded-[36px] shadow-sm border border-gray-100/50 hover:shadow-xl hover:border-gray-200 transition-all group cursor-default">
                <div className={`p-4 w-fit rounded-2xl mb-5 ${metric.bg} ${metric.color} group-hover:scale-110 transition-transform shadow-sm`}>
                   <metric.icon size={24} strokeWidth={2.5} />
@@ -104,7 +104,7 @@ export function SuperadminDashboard() {
       </div>
 
       <div className="flex flex-col gap-4 mb-10">
-        {alerts.map((alert, idx) => (
+        {alerts.map((alert: any, idx: number) => (
           <div key={idx} className="bg-white/80 backdrop-blur-sm p-5 rounded-[32px] border border-gray-100/80 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:bg-white transition-all group active:scale-[0.98]">
             <div className={`p-4 rounded-[20px] transition-all group-hover:rotate-[10deg] ${
                alert.status === 'Warning' ? 'bg-amber-100 text-amber-600' : 

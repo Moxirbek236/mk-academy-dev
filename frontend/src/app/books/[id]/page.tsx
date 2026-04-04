@@ -3,6 +3,8 @@ import { ArrowLeft, Share2, Download, Bookmark, Menu, ChevronLeft, ChevronRight,
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+export const generateStaticParams = () => [];
+
 export default function BookViewer() {
   const router = useRouter();
   const [page, setPage] = useState(1);
