@@ -13,6 +13,7 @@ import { LeaderboardsModule } from './modules/leaderboards/leaderboards.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import { CoursesModule } from './modules/courses/courses.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
     LeaderboardsModule,
     DashboardModule,
     FinanceModule,
+    CoursesModule,
   ],
   controllers: [],
   providers: [

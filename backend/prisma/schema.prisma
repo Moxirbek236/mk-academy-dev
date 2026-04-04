@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma-client"
 }
 
 datasource db {
@@ -81,6 +82,7 @@ model Group {
 
   members     GroupMember[]
   assignments GroupAssignment[]
+  courses     GroupCourse[]
   leaderboards Leaderboard[]
 
   @@map("groups")
@@ -112,6 +114,34 @@ model GroupAssignment {
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("group_assignments")
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  level       String   @default("A1") // CEFR level
+  imageUrl    String?  @map("image_url")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tests       Test[]
+  tasks       Task[]
+  groups      GroupCourse[]
+
+  @@map("courses")
+}
+
+model GroupCourse {
+  id        String   @id @default(uuid())
+  groupId   String   @map("group_id")
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseId  String   @map("course_id")
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  @@unique([groupId, courseId])
+  @@map("group_courses")
 }
 
 model Book {
@@ -215,6 +245,8 @@ model Task {
   studentTasks       StudentTask[]
   attachments        TaskAttachment[]
   assignments        GroupAssignment[]
+  courseId           String?  @map("course_id")
+  course             Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@map("tasks")
 }
@@ -261,12 +293,15 @@ model Test {
   maxAttempts        Int?     @map("max_attempts")
   isAdaptive         Boolean  @default(false) @map("is_adaptive")
   isPublished        Boolean  @default(false) @map("is_published")
+  timeLimit          Int?     @map("time_limit")
   createdById        String?  @map("created_by")
   createdBy          User?    @relation("CreatedTests", fields: [createdById], references: [id], onDelete: SetNull)
 
   questions          Question[]
   attempts           TestAttempt[]
   assignments        GroupAssignment[]
+  courseId           String?  @map("course_id")
+  course             Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@map("tests")
 }

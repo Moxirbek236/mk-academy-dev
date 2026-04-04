@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma-client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -6,136 +6,135 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding MK Academy English Learning Platform...');
 
-  // Clear existing data
+  // Clear existing data (in correct order to satisfy foreign keys)
+  await prisma.systemStats.deleteMany({});
+  await prisma.financeTransaction.deleteMany({});
+  await prisma.testAttempt.deleteMany({});
+  await prisma.studentTask.deleteMany({});
+  await prisma.groupMember.deleteMany({});
+  await prisma.groupAssignment.deleteMany({});
+  await prisma.groupCourse.deleteMany({});
+  await prisma.group.deleteMany({});
+  await prisma.task.deleteMany({});
+  await prisma.test.deleteMany({});
+  await prisma.course.deleteMany({});
+  await prisma.vocabularyProgress.deleteMany({});
+  await prisma.vocabulary.deleteMany({});
+  await prisma.userProfile.deleteMany({});
+  await prisma.achievement.deleteMany({});
   await prisma.user.deleteMany({});
   
   const defaultPassword = 'Password123!';
   const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-  // 1. Superadmin User
+  // 1. Users
   const superadmin = await prisma.user.create({
     data: {
-      fullName: 'Maqsud (Super Admin)',
+      fullName: 'Maqsud MK (Super Admin)',
       email: 'superadmin@mkacademy.uz',
       passwordHash: hashedPassword,
-      role: 'SUPERADMIN',
+      role: 'SUPERADMIN' as any,
       cefrLevel: 'C2',
-      isActive: true,
-      profile: {
-        create: {
-          phone: '+998901234567',
-          language: 'UZ',
-          timezone: 'Asia/Tashkent',
-        }
-      }
+      profile: { create: { phone: '+998901234567', language: 'UZ' } }
     }
   });
 
-  // 2. Admin User
-  const admin = await prisma.user.create({
-    data: {
-      fullName: 'Sardor (Admin)',
-      email: 'admin@mkacademy.uz',
-      passwordHash: hashedPassword,
-      role: 'ADMIN',
-      cefrLevel: 'C1',
-      isActive: true,
-      profile: {
-        create: {
-          phone: '+998901112233',
-        }
-      }
-    }
-  });
-
-  // 3. English Teacher
   const teacher = await prisma.user.create({
     data: {
-      fullName: 'Mr. Johnson (Teacher)',
+      fullName: 'John Smith (Senior Instructor)',
       email: 'teacher@mkacademy.uz',
       passwordHash: hashedPassword,
-      role: 'TEACHER',
-      cefrLevel: 'C2',
-      isActive: true,
-      profile: {
-        create: {
-          phone: '+998902223344',
-        }
-      }
+      role: 'TEACHER' as any,
+      cefrLevel: 'C1',
+      profile: { create: { phone: '+998910002233' } }
     }
   });
 
-  // 4. Student
   const student = await prisma.user.create({
     data: {
-      fullName: 'Odiljon (Student)',
+      fullName: 'Moxirbek Coder (Student)',
       email: 'student@mkacademy.uz',
       passwordHash: hashedPassword,
-      role: 'STUDENT',
+      role: 'STUDENT' as any,
       cefrLevel: 'A2',
-      isActive: true,
-      profile: {
-        create: {
-          phone: '+998905556677',
-        }
-      }
+      profile: { create: { phone: '+998990001122' } }
     }
   });
 
-  // 5. Demo Vocabulary (English words)
-  const words = [
-    { word: 'determine', translation: 'aniqlash, belgilash', partOfSpeech: 'verb', exampleSentence: 'We need to determine the cause of the problem.', difficulty: 3, cefrLevel: 'B1' },
-    { word: 'acknowledge', translation: "tan olish, e'tirof etish", partOfSpeech: 'verb', exampleSentence: 'She refused to acknowledge her mistake.', difficulty: 4, cefrLevel: 'B2' },
-    { word: 'significant', translation: "muhim, ahamiyatli", partOfSpeech: 'adjective', exampleSentence: 'There has been a significant improvement.', difficulty: 3, cefrLevel: 'B1' },
-    { word: 'accomplish', translation: "amalga oshirish, erishish", partOfSpeech: 'verb', exampleSentence: 'She accomplished all her goals this year.', difficulty: 4, cefrLevel: 'B2' },
-    { word: 'enthusiasm', translation: "ishtiyoq, zavq", partOfSpeech: 'noun', exampleSentence: 'He showed great enthusiasm for learning English.', difficulty: 3, cefrLevel: 'B1' },
-    { word: 'reluctant', translation: "istaksiz, xohlamagan", partOfSpeech: 'adjective', exampleSentence: 'She was reluctant to speak in public.', difficulty: 4, cefrLevel: 'B2' },
-    { word: 'elaborate', translation: "batafsil tushuntirish", partOfSpeech: 'verb', exampleSentence: 'Could you elaborate on your answer?', difficulty: 5, cefrLevel: 'C1' },
-    { word: 'persuade', translation: "ishontirish, ko'ndirish", partOfSpeech: 'verb', exampleSentence: 'I tried to persuade him to study harder.', difficulty: 3, cefrLevel: 'B1' },
-  ];
-
-  for (const w of words) {
-    await prisma.vocabulary.create({ 
-       data: { ...w, cefrLevel: w.cefrLevel as any } 
-    });
-  }
-
-  // 6. Demo Achievement
-  await prisma.achievement.create({
+  // 2. Courses
+  const ieltsCourse = await prisma.course.create({
     data: {
-      title: 'First Steps',
-      description: "Birinchi darsni muvaffaqiyatli yakunladingiz!",
-      conditionType: 'lessons_completed',
-      conditionValue: 1,
-      xpReward: 50,
-      badgeColor: '#3D855A',
+      title: 'IELTS Intensive Mastery',
+      description: 'Comprehensive preparation for the IELTS exam covering all four sections.',
+      level: 'B2-C1',
+      isActive: true
     }
   });
 
-  await prisma.achievement.create({
+  const generalEnglish = await prisma.course.create({
     data: {
-      title: 'Word Master',
-      description: "50 ta ingliz so'zini o'zlashtirdingiz!",
-      conditionType: 'words_mastered',
-      conditionValue: 50,
-      xpReward: 200,
-      badgeColor: '#FFD700',
+      title: 'General English - Essential B1',
+      description: 'Foundational grammar and speaking for everyday life.',
+      level: 'A2-B1',
+      isActive: true
     }
   });
 
-  console.log('');
-  console.log('✅ Seeding finished successfully!');
-  console.log('');
-  console.log('╔══════════════════════════════════════════════╗');
-  console.log('║     🎓 MK ACADEMY - LOGIN CREDENTIALS       ║');
-  console.log('╠══════════════════════════════════════════════╣');
-  console.log('║  🔑 Barcha parollar: Password123!            ║');
-  console.log('║                                              ║');
-  console.log('║  👑 Superadmin: superadmin@mkacademy.uz       ║');
-  console.log('║  🛠️  Admin:      admin@mkacademy.uz            ║');
-  console.log('║  👨‍🏫 Teacher:    teacher@mkacademy.uz          ║');
-  console.log('║  🎓 Student:    student@mkacademy.uz          ║');
-  console.log('╚══════════════════════════════════════════════╝');
+  // 3. Groups
+  const group1 = await prisma.group.create({
+    data: {
+      name: 'IELTS Morning Stream',
+      teacherId: teacher.id,
+      inviteCode: 'IELTS2026',
+      courses: { create: { courseId: ieltsCourse.id } }
+    }
+  });
+
+  await prisma.groupMember.create({
+    data: { groupId: group1.id, studentId: student.id }
+  });
+
+  // 4. Tasks & Tests for Courses
+  await prisma.task.create({
+    data: {
+      title: 'IELTS Writing Task 1 - Maps',
+      courseId: ieltsCourse.id,
+      type: 'WRITING',
+      maxScore: 100,
+      createdById: teacher.id
+    }
+  });
+
+  await prisma.test.create({
+     data: {
+        title: 'Mid-term IELTS Mock Test',
+        courseId: ieltsCourse.id,
+        createdById: teacher.id,
+        timeLimit: 120
+     }
+  });
+
+  // 5. Finance Transactions
+  await prisma.financeTransaction.createMany({
+    data: [
+      { amount: 1200000, type: 'INCOME', method: 'PAYME', status: 'COMPLETED', userId: student.id, reason: 'IELTS Course Tuition' },
+      { amount: 500000, type: 'INCOME', method: 'CLICK', status: 'COMPLETED', userId: student.id, reason: 'Books Purchase' },
+      { amount: 3000000, type: 'EXPENSE', method: 'CASH', status: 'COMPLETED', reason: 'Office Rent' },
+    ]
+  });
+
+  // 6. System Stats
+  await prisma.systemStats.create({
+    data: {
+      cpuUsage: 12.4,
+      ramFree: 6.8,
+      diskSpace: 124.5,
+      network: 42,
+      uptimePerc: 99.99
+    }
+  });
+
+  console.log('✅ Ultra-Realistic Seeding finished successfully!');
 }
 
 main()

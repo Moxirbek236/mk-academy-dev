@@ -5,13 +5,25 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class GroupsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.group.findMany();
+  async findAll(teacherId?: string) {
+    return this.prisma.group.findMany({
+      where: teacherId ? { teacherId } : {},
+      include: {
+        _count: { select: { members: true } },
+        teacher: { select: { fullName: true } }
+      }
+    });
   }
 
   async findOne(id: string) {
-    const item = await this.prisma.group.findUnique({ where: { id } });
-    if (!item) throw new NotFoundException('Topilmadi');
+    const item = await this.prisma.group.findUnique({ 
+      where: { id },
+      include: { 
+        members: { include: { student: true } },
+        teacher: { select: { fullName: true } }
+      }
+    });
+    if (!item) throw new NotFoundException('Guruh topilmadi');
     return item;
   }
 

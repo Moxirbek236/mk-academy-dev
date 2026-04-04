@@ -1,13 +1,30 @@
 'use client';
-import { useState } from 'react';
-import { User, Shield, Bell, Globe, LogOut, ChevronRight, Moon, LogIn, Key, Mail, Phone, BookOpen, Crown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Shield, Bell, Globe, LogOut, ChevronRight, Moon, LogIn, Key, Mail, Phone, BookOpen, Crown, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import api from '@/lib/api';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { role } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get('/auth/profile');
+        setProfile(res.data?.data || res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -17,29 +34,31 @@ export default function SettingsPage() {
 
   const sections = [
     {
-      title: 'SHAXSIY MA&apos;LUMOTLAR',
+      title: 'SHAXSIY MA\'LUMOTLAR',
       items: [
-        { icon: User, label: 'Profil sozlamalari', value: 'Ism, Familiya', path: '/settings/profile' },
-        { icon: Mail, label: 'Email manzil', value: 'moxirbek@mk.uz', path: '/settings/email' },
-        { icon: Phone, label: 'Telefon raqam', value: '+998 90 123 45 67', path: '/settings/phone' },
+        { icon: User, label: 'Profil sozlamalari', value: profile?.fullName || 'Yuklanmoqda...', path: '/settings/profile' },
+        { icon: Mail, label: 'Email manzil', value: profile?.email || 'Yuklanmoqda...', path: '/settings/email' },
+        { icon: Phone, label: 'Telefon raqam', value: profile?.profile?.phone || '+998 -- --- -- --', path: '/settings/phone' },
       ]
     },
     {
       title: 'XAVFSIZLIK',
       items: [
-        { icon: Key, label: 'Parolni o&apos;zgartirish', value: 'Ohirgi marta 2 oy oldin', path: '/settings/password' },
-        { icon: Shield, label: 'Ikki bosqichli autentifikatsiya', value: 'O&apos;chirilgan', path: '/settings/2fa' },
+        { icon: Key, label: 'Parolni o\'zgartirish', value: 'Ohirgi marta 2 oy oldin', path: '/settings/password' },
+        { icon: Shield, label: 'Ikki bosqichli autentifikatsiya', value: 'O\'chirilgan', path: '/settings/2fa' },
       ]
     },
     {
       title: 'TIZIM',
       items: [
         { icon: Bell, label: 'Bildirishnomalar', value: 'Hammasi yoqilgan', path: '/settings/notifications' },
-        { icon: Globe, label: 'Til (Language)', value: "O'zbekcha", path: '/settings/language' },
-        { icon: Moon, label: 'Tungi rejim', value: darkMode ? 'Yoqilgan' : 'O&apos;chirilgan', action: () => setDarkMode(!darkMode) },
+        { icon: Globe, label: 'Til (Language)', value: profile?.profile?.language === 'UZ' ? "O'zbekcha" : profile?.profile?.language || "O'zbekcha", path: '/settings/language' },
+        { icon: Moon, label: 'Tungi rejim', value: darkMode ? 'Yoqilgan' : 'O\'chirilgan', action: () => setDarkMode(!darkMode) },
       ]
     }
   ];
+
+  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 px-1">
@@ -48,9 +67,9 @@ export default function SettingsPage() {
           <h1 className="text-2xl font-black text-gray-900 tracking-tight">Sozlamalar</h1>
           <div className="flex items-center gap-2 mt-1">
              <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-[0.15em] ${
-               role === 'superadmin' ? 'bg-[#FFEBEC] text-[#E54D2E]' : 
-               role === 'teacher' ? 'bg-[#F2F8F5] text-[#3D855A]' : 
-               'bg-blue-50 text-blue-600'
+                role === 'superadmin' ? 'bg-[#FFEBEC] text-[#E54D2E]' : 
+                role === 'teacher' ? 'bg-[#F2F8F5] text-[#3D855A]' : 
+                'bg-blue-50 text-blue-600'
              }`}>
                {role || 'Student'} ROLE
              </span>
@@ -65,7 +84,7 @@ export default function SettingsPage() {
       <div className="flex flex-col gap-8">
         {sections.map((section, sIdx) => (
           <div key={sIdx}>
-            <h2 className="text-[11px] font-black text-gray-400 tracking-[0.15em] uppercase mb-4 px-2">{section.title}</h2>
+            <h2 className="text-[11px] font-black text-gray-400 tracking-[0.15em] uppercase mb-4 px-2" dangerouslySetInnerHTML={{ __html: section.title }} />
             <div className="bg-white rounded-[36px] border border-gray-100 shadow-sm overflow-hidden p-3 flex flex-col gap-1">
               {section.items.map((item, iIdx) => (
                 <button 

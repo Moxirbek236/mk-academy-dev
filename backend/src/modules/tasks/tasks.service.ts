@@ -5,13 +5,22 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class TasksService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.task.findMany();
+  async findAll(teacherId?: string) {
+    return this.prisma.task.findMany({
+      where: teacherId ? { createdById: teacherId } : {},
+      include: {
+        _count: { select: { studentTasks: true } },
+        course: { select: { title: true } }
+      }
+    });
   }
 
   async findOne(id: string) {
-    const item = await this.prisma.task.findUnique({ where: { id } });
-    if (!item) throw new NotFoundException('Topilmadi');
+    const item = await this.prisma.task.findUnique({
+      where: { id },
+      include: { course: true, attachments: true }
+    });
+    if (!item) throw new NotFoundException('Topshiriq topilmadi');
     return item;
   }
 

@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight, TrendingUp, Filter, Search, MoreVertical, CreditCard, Wallet, Activity, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
