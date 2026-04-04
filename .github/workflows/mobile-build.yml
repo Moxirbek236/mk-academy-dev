@@ -18,13 +18,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install Dependencies
         working-directory: ./frontend
         run: |
           rm -rf package-lock.json node_modules
-          npm install
+          npm install --include=optional
 
       - name: Build Next.js (Web)
         working-directory: ./frontend
@@ -62,13 +62,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install Dependencies
         working-directory: ./frontend
         run: |
           rm -rf package-lock.json node_modules
-          npm install
+          npm install --include=optional
 
       - name: Build Next.js (Web)
         working-directory: ./frontend
