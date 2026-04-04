@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  # Manual trigger usuli
   workflow_dispatch:
 
 jobs:
@@ -18,7 +17,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22'
+
+      - name: Verify Node version
+        run: |
+          node --version
+          npm --version
 
       - name: Install Dependencies
         working-directory: ./frontend
@@ -62,7 +66,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22'
+
+      - name: Verify Node version
+        run: |
+          node --version
+          npm --version
+          which node
 
       - name: Install Dependencies
         working-directory: ./frontend
@@ -76,7 +86,9 @@ jobs:
 
       - name: Sync Capacitor iOS
         working-directory: ./frontend
-        run: npx cap sync ios
+        run: |
+          export PATH="$(dirname $(which node)):$PATH"
+          npx cap sync ios
 
       - name: Install CocoaPods
         working-directory: ./frontend/ios/App
