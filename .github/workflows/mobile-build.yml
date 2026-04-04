@@ -1,0 +1,97 @@
+name: Mobile Apps Build (Android & iOS)
+
+on:
+  push:
+    branches:
+      - main
+  # Manual trigger usuli
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build Next.js (Web)
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Sync Capacitor Android
+        working-directory: ./frontend
+        run: npx cap sync android
+
+      - name: Build APK (Debug)
+        working-directory: ./frontend/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+
+  build-ios:
+    name: Build iOS App
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build Next.js (Web)
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Sync Capacitor iOS
+        working-directory: ./frontend
+        run: npx cap sync ios
+
+      - name: Install CocoaPods
+        working-directory: ./frontend/ios/App
+        run: pod install
+
+      - name: Build iOS App (Unsigned)
+        working-directory: ./frontend/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+      - name: Prepare IPA (Payload format)
+        working-directory: ./frontend/ios/App
+        run: |
+          mkdir -p Payload
+          cp -r build/Release-iphoneos/App.app Payload/
+          zip -r MK_Academy_iOS.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: frontend/ios/App/MK_Academy_iOS.ipa
