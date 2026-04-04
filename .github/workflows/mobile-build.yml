@@ -90,20 +90,21 @@ jobs:
           export PATH="$(dirname $(which node)):$PATH"
           npx cap sync ios
 
-      - name: Install CocoaPods
+      - name: Resolve Swift Packages
         working-directory: ./frontend/ios/App
-        run: pod install
+        run: |
+          xcodebuild -project App.xcodeproj -scheme App -resolvePackageDependencies
 
       - name: Build iOS App (Unsigned)
         working-directory: ./frontend/ios/App
         run: |
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release -sdk iphoneos -derivedDataPath ./build clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Prepare IPA (Payload format)
         working-directory: ./frontend/ios/App
         run: |
           mkdir -p Payload
-          cp -r build/Release-iphoneos/App.app Payload/
+          cp -r build/Build/Products/Release-iphoneos/App.app Payload/
           zip -r MK_Academy_iOS.ipa Payload
 
       - name: Upload IPA
