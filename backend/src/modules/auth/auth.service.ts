@@ -30,22 +30,5 @@ export class AuthService {
     };
   }
 
-  async signUp(data: any): Promise<any> {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    const user = await this.usersService.create({
-      ...data,
-      passwordHash: hashedPassword,
-    });
 
-    const payload = { id: user.id, email: user.email, role: user.role };
-    return {
-      access_token: await this.jwtService.signAsync(payload),
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-      }
-    };
-  }
 }

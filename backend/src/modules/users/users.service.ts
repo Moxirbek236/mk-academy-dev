@@ -48,4 +48,18 @@ export class UsersService {
       },
     });
   }
+
+  async update(id: string, data: any) {
+    const userToUpdate: any = {};
+    if (data.fullName) userToUpdate.fullName = data.fullName;
+    
+    // Expand here if profile fields need updating
+    // if (data.phone) { ... }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: userToUpdate,
+      include: { profile: true }
+    });
+  }
 }

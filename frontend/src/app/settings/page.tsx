@@ -15,7 +15,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await api.get('/auth/profile');
+        const res = await api.get('/users/profile');
         setProfile(res.data?.data || res.data);
       } catch (err) {
         console.error(err);
@@ -61,7 +61,7 @@ export default function SettingsPage() {
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 px-1">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 px-4 md:px-8 lg:px-12 w-full max-w-3xl mx-auto bg-white min-h-screen pt-6 sm:pt-10">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-black text-gray-900 tracking-tight">Sozlamalar</h1>
@@ -90,16 +90,16 @@ export default function SettingsPage() {
                 <button 
                   key={iIdx} 
                   onClick={item.action ? item.action : () => router.push(item.path || '/')}
-                  className="w-full flex items-center gap-4 p-4 rounded-3xl hover:bg-gray-50 transition-all group active:scale-[0.98]"
+                  className="w-full flex items-center gap-4 p-4 rounded-3xl hover:bg-[#F2F8F5] transition-colors group active:scale-[0.98]"
                 >
-                  <div className="p-3.5 bg-gray-50 rounded-[18px] text-gray-400 group-hover:bg-[#F2F8F5] group-hover:text-[#3D855A] transition-all">
+                  <div className="p-3.5 bg-[#F2F8F5] rounded-[18px] text-[#3D855A] flex-shrink-0 transition-transform group-hover:scale-105">
                      <item.icon size={20} strokeWidth={2.5} />
                   </div>
-                  <div className="flex-1 text-left">
-                     <p className="text-[13px] font-extrabold text-gray-900">{item.label}</p>
-                     <p className="text-[10px] font-bold text-gray-400 mt-1">{item.value}</p>
+                  <div className="flex-1 text-left min-w-0">
+                     <p className="text-[14px] sm:text-[15px] font-extrabold text-gray-900 group-hover:text-[#3D855A] transition-colors truncate">{item.label}</p>
+                     <p className="text-[11px] sm:text-[12px] font-bold text-gray-400 mt-0.5 truncate">{item.value}</p>
                   </div>
-                  <ChevronRight size={18} className="text-gray-300 group-hover:translate-x-1 transition-all" />
+                  <ChevronRight size={18} className="text-gray-300 group-hover:text-[#3D855A] group-hover:translate-x-1 transition-all flex-shrink-0" />
                 </button>
               ))}
             </div>

@@ -12,10 +12,7 @@ export class AuthController {
     return this.authService.signIn(signInDto.email, signInDto.password);
   }
 
-  @Post('register')
-  async signUp(@Body() signUpDto: RegisterDto) {
-    return this.authService.signUp(signUpDto);
-  }
+
 
   @Post('contact')
   @HttpCode(HttpStatus.OK)

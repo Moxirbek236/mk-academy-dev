@@ -19,7 +19,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   }, []);
 
   // Public routes that don't need auth
-  const isPublicRoute = ['/login', '/register', '/landing'].includes(pathname);
+  const isPublicRoute = ['/login', '/landing'].includes(pathname);
 
   useEffect(() => {
     if (mounted && !loading && !token && !isPublicRoute) {

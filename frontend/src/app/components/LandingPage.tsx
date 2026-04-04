@@ -40,11 +40,8 @@ export function LandingPage() {
             <a href="#features" className="hover:text-white transition-colors">Imkoniyatlar</a>
             <a href="#contact" className="hover:text-white transition-colors">Bog&apos;lanish</a>
             <div className="w-px h-4 bg-white/20"></div>
-            <button onClick={() => router.push('/login')} className="flex items-center gap-2 hover:text-white transition-colors">
-              <LogIn size={16} /> Kirish
-            </button>
-            <button onClick={() => router.push('/register')} className="flex items-center gap-2 bg-white text-black px-5 py-2.5 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105">
-              <UserPlus size={16} /> Ro&apos;yxatdan o&apos;tish
+            <button onClick={() => router.push('/login')} className="flex items-center gap-2 bg-white text-black px-5 py-2.5 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 font-bold">
+              <LogIn size={16} /> Tizimga kirish
             </button>
           </div>
         </div>
@@ -72,8 +69,8 @@ export function LandingPage() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <button onClick={() => router.push('/register')} className="flex items-center justify-center gap-2 bg-[#3D855A] hover:bg-emerald-600 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(61,133,90,0.6)]">
-            Bepul boshlash <ArrowRight size={20} />
+          <button onClick={() => router.push('/login')} className="flex items-center justify-center gap-2 bg-[#3D855A] hover:bg-emerald-600 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(61,133,90,0.6)]">
+            Tizimga kirish <ArrowRight size={20} />
           </button>
           <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 py-4 rounded-full font-bold text-lg transition-all">
             Batafsil ma&apos;lumot

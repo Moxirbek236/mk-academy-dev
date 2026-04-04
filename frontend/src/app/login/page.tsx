@@ -148,11 +148,8 @@ export default function LoginPage() {
               <span className="text-sm font-black tracking-tight">Continue with Google</span>
            </button>
 
-           <p className="text-gray-500 text-[12px] font-bold">
-             Hisobingiz yo&apos;qmi?{" "}
-             <button onClick={() => router.push('/register')} className="text-emerald-400 hover:text-emerald-300 font-black transition-colors uppercase tracking-widest ml-1">
-               Join Now
-             </button>
+           <p className="text-gray-500 text-[12px] font-bold text-center">
+             Tizimga faqat ruxsat etilgan o'quvchilar kira oladi.
            </p>
         </div>
       </motion.div>
