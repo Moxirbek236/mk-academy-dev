@@ -13,6 +13,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        role: [student, mentor, admin, superadmin]
     defaults:
       run:
         working-directory: ./frontend
@@ -31,11 +34,15 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build Next.js (Static Export)
+      - name: Build Next.js (Static Export - ${{ matrix.role }})
         run: npm run build
+        env:
+          NEXT_PUBLIC_APP_ROLE: ${{ matrix.role }}
 
-      - name: Capacitor Sync
+      - name: Capacitor Sync (${{ matrix.role }})
         run: npx cap sync android
+        env:
+          NEXT_PUBLIC_APP_ROLE: ${{ matrix.role }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -46,14 +53,16 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build APK (Debug)
+      - name: Build APK (${{ matrix.role }})
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
+        env:
+          NEXT_PUBLIC_APP_ROLE: ${{ matrix.role }}
 
-      - name: Upload APK
+      - name: Upload APK (${{ matrix.role }})
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: app-${{ matrix.role }}-debug
           path: frontend/android/app/build/outputs/apk/debug/app-debug.apk

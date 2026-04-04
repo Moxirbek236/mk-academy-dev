@@ -1,47 +1,109 @@
-import { User, Bell, Shield, Moon, LogOut, ChevronRight } from 'lucide-react';
+'use client';
+import { useState } from 'react';
+import { User, Shield, Bell, Globe, LogOut, ChevronRight, Moon, LogIn, Key, Mail, Phone, BookOpen, Crown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
-export default function Settings() {
+export default function SettingsPage() {
+  const router = useRouter();
+  const { role } = useAuth();
+  const [darkMode, setDarkMode] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    router.push('/landing');
+  };
+
+  const sections = [
+    {
+      title: 'SHAXSIY MA&apos;LUMOTLAR',
+      items: [
+        { icon: User, label: 'Profil sozlamalari', value: 'Ism, Familiya', path: '/settings/profile' },
+        { icon: Mail, label: 'Email manzil', value: 'moxirbek@mk.uz', path: '/settings/email' },
+        { icon: Phone, label: 'Telefon raqam', value: '+998 90 123 45 67', path: '/settings/phone' },
+      ]
+    },
+    {
+      title: 'XAVFSIZLIK',
+      items: [
+        { icon: Key, label: 'Parolni o&apos;zgartirish', value: 'Ohirgi marta 2 oy oldin', path: '/settings/password' },
+        { icon: Shield, label: 'Ikki bosqichli autentifikatsiya', value: 'O&apos;chirilgan', path: '/settings/2fa' },
+      ]
+    },
+    {
+      title: 'TIZIM',
+      items: [
+        { icon: Bell, label: 'Bildirishnomalar', value: 'Hammasi yoqilgan', path: '/settings/notifications' },
+        { icon: Globe, label: 'Til (Language)', value: "O'zbekcha", path: '/settings/language' },
+        { icon: Moon, label: 'Tungi rejim', value: darkMode ? 'Yoqilgan' : 'O&apos;chirilgan', action: () => setDarkMode(!darkMode) },
+      ]
+    }
+  ];
+
   return (
-    <div className="pb-8 animate-in fade-in duration-500">
-      <h2 className="text-[22px] font-extrabold text-gray-900 mb-6 tracking-tight">Sozlamalar</h2>
-
-      <div className="bg-white p-5 rounded-[28px] shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex items-center gap-4 mb-8">
-        <div className="w-[60px] h-[60px] rounded-[22px] bg-[#E5F3FF] flex items-center justify-center text-[#007AFF] shadow-inner border border-[#D1E8FF]">
-          <User size={28} strokeWidth={2.5} />
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 px-1">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Sozlamalar</h1>
+          <div className="flex items-center gap-2 mt-1">
+             <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-[0.15em] ${
+               role === 'superadmin' ? 'bg-[#FFEBEC] text-[#E54D2E]' : 
+               role === 'teacher' ? 'bg-[#F2F8F5] text-[#3D855A]' : 
+               'bg-blue-50 text-blue-600'
+             }`}>
+               {role || 'Student'} ROLE
+             </span>
+             {role === 'superadmin' && <Crown size={12} className="text-amber-500" />}
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className="font-extrabold text-gray-900 text-[18px] leading-tight">Muhammad</h3>
-          <p className="text-[13px] text-gray-500 font-medium mt-0.5">Boshlang'ich daraja</p>
+        <div className="w-14 h-14 rounded-[22px] bg-gradient-to-tr from-[#3D855A] to-[#83D1A5] flex items-center justify-center text-white shadow-xl shadow-[#3D855A]/20 border-4 border-white">
+           <User size={28} strokeWidth={2.5} />
         </div>
-        <button className="bg-gray-100 text-gray-600 px-4 py-2.5 rounded-2xl text-[13px] font-extrabold hover:bg-gray-200 active:scale-95 transition-all">
-          Tahrir
-        </button>
       </div>
 
-      <div className="flex flex-col gap-2.5">
-        {[
-          { icon: Bell, title: 'Bildirishnomalar', color: 'text-[#E88B13]', bg: 'bg-[#FFF4E5]' },
-          { icon: Shield, title: 'Xavfsizlik va Parol', color: 'text-[#3D855A]', bg: 'bg-[#F2F8F5]' },
-          { icon: Moon, title: 'Qorong\'u rejim', color: 'text-[#8A2BE2]', bg: 'bg-[#F3E8FF]', rightText: 'O\'chiq' },
-        ].map((item, idx) => (
-          <button 
-            key={idx} 
-            className="bg-white p-4.5 rounded-[24px] shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex items-center gap-4 hover:border-gray-200 active:scale-[0.98] transition-all text-left group"
-          >
-            <div className={`${item.bg} ${item.color} p-3 rounded-[18px] group-hover:scale-110 transition-transform`}>
-              <item.icon size={22} strokeWidth={2.5} />
+      <div className="flex flex-col gap-8">
+        {sections.map((section, sIdx) => (
+          <div key={sIdx}>
+            <h2 className="text-[11px] font-black text-gray-400 tracking-[0.15em] uppercase mb-4 px-2">{section.title}</h2>
+            <div className="bg-white rounded-[36px] border border-gray-100 shadow-sm overflow-hidden p-3 flex flex-col gap-1">
+              {section.items.map((item, iIdx) => (
+                <button 
+                  key={iIdx} 
+                  onClick={item.action ? item.action : () => router.push(item.path || '/')}
+                  className="w-full flex items-center gap-4 p-4 rounded-3xl hover:bg-gray-50 transition-all group active:scale-[0.98]"
+                >
+                  <div className="p-3.5 bg-gray-50 rounded-[18px] text-gray-400 group-hover:bg-[#F2F8F5] group-hover:text-[#3D855A] transition-all">
+                     <item.icon size={20} strokeWidth={2.5} />
+                  </div>
+                  <div className="flex-1 text-left">
+                     <p className="text-[13px] font-extrabold text-gray-900">{item.label}</p>
+                     <p className="text-[10px] font-bold text-gray-400 mt-1">{item.value}</p>
+                  </div>
+                  <ChevronRight size={18} className="text-gray-300 group-hover:translate-x-1 transition-all" />
+                </button>
+              ))}
             </div>
-            <span className="font-extrabold text-gray-900 flex-1 text-[15px]">{item.title}</span>
-            {item.rightText && <span className="text-[13px] font-bold text-gray-400 mr-2 bg-gray-50 px-2 py-1 rounded-lg">{item.rightText}</span>}
-            <ChevronRight size={18} strokeWidth={3} className="text-gray-300 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </div>
         ))}
-      </div>
-
-      <div className="mt-8 border-t border-gray-200/60 pt-6">
-        <button className="w-full bg-[#FFF0F0] text-[#FF3B30] p-4.5 rounded-[24px] shadow-sm border border-[#FFE5E5] flex items-center justify-center gap-2 font-extrabold hover:bg-[#FFE5E5] active:scale-[0.98] transition-all text-[15px]">
-          <LogOut size={20} strokeWidth={3} /> Profildan chiqish
+        
+        <button 
+          onClick={handleLogout}
+          className="w-full mt-4 flex items-center gap-4 p-6 bg-red-50 rounded-[36px] border border-red-100/50 hover:bg-red-100 transition-all text-red-600 group active:scale-[0.98] shadow-sm shadow-red-100/50 mb-10"
+        >
+          <div className="p-3.5 bg-white rounded-2xl text-red-500 shadow-sm transition-transform group-hover:rotate-12">
+             <LogOut size={22} strokeWidth={2.5} />
+          </div>
+          <div className="flex-1 text-left">
+             <p className="text-[15px] font-black tracking-tight uppercase">Tizimdan chiqish</p>
+             <p className="text-[10px] font-bold opacity-60 mt-1 uppercase tracking-widest">Logout from MK Academy</p>
+          </div>
+          <ChevronRight size={20} strokeWidth={3} className="opacity-30 group-hover:translate-x-1 transition-all" />
         </button>
+      </div>
+      
+      <div className="mt-6 text-center opacity-30 pb-10">
+         <p className="text-[9px] font-black uppercase tracking-[0.3em]">APP VERSION 2.4.0 • REV 102</p>
       </div>
     </div>
   );

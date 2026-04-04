@@ -1,11 +1,13 @@
 'use client';
-import { ArrowLeft, Volume2, Search, PlusCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { ArrowLeft, Volume2, Search, PlusCircle, Lock, Loader2 } from 'lucide-react';
 
 export default function Vocabulary() {
   const router = useRouter();
   const { id } = useParams();
+  const { role, loading: authLoading } = useAuth();
   const [playing, setPlaying] = useState<number | null>(null);
 
   const words = [
@@ -24,6 +26,28 @@ export default function Vocabulary() {
     setTimeout(() => setPlaying(null), 1000); // Fake play audio duration
   };
 
+  if (authLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+
+  if (role !== 'student') {
+    return (
+      <div className="pb-8 h-full flex flex-col items-center justify-center pt-20 text-center animate-in zoom-in-95 duration-500">
+        <div className="w-24 h-24 bg-red-100 text-red-600 rounded-[32px] flex items-center justify-center shadow-lg border-4 border-white mb-6">
+          <Lock size={40} strokeWidth={2.5} />
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tighter">Ruxsat Taqiqlangan</h2>
+        <p className="text-gray-500 font-bold px-12 mb-10 leading-relaxed text-sm">
+          Leksika va darsliklar faqat <span className="text-[#3D855A]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
+        </p>
+        <button 
+          onClick={() => router.push('/')}
+          className="bg-gray-900 text-white font-black py-4 px-10 rounded-[24px] shadow-xl active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
+        >
+          <ArrowLeft size={16} strokeWidth={3} /> Dashboardga Qaytish
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="pb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Top Action Bar */}
@@ -36,7 +60,7 @@ export default function Vocabulary() {
         </button>
         <div className="flex-1">
           <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">Unit {id} Words</h2>
-          <p className="text-xs font-bold text-[#3D855A] uppercase tracking-wider mt-0.5">{words.length} ta so'z</p>
+          <p className="text-xs font-bold text-[#3D855A] uppercase tracking-wider mt-0.5">{words.length} ta so&apos;z</p>
         </div>
       </div>
 
