@@ -1,0 +1,1 @@
+// INotification interface
