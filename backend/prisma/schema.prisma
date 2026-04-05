@@ -4,37 +4,29 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
-
-// =============================================
-// SQLite does NOT support enums.
-// All enum fields are stored as String with
-// default values matching the original enum.
-// =============================================
-
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  passwordHash  String   @map("password_hash")
-  role          String   @default("STUDENT")
-  fullName      String   @map("full_name")
-  avatarUrl     String?  @map("avatar_url")
-  cefrLevel     String?  @map("cefr_level")
-  isActive      Boolean  @default(true) @map("is_active")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id           Int   @id @default(autoincrement())
+  phone        String?  @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("STUDENT")
+  fullName     String   @map("full_name")
+  avatarUrl    String?  @map("avatar_url")
+  cefrLevel    String?  @map("cefr_level")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   profile             UserProfile?
   refreshTokens       RefreshToken[]
-  groupsCreated       Group[]        @relation("TeacherGroups")
+  groupsCreated       Group[]              @relation("TeacherGroups")
   groupMemberships    GroupMember[]
   vocabularyProgress  VocabularyProgress[]
   wordLists           WordList[]
   tasks               StudentTask[]
-  gradedTasks         StudentTask[]  @relation("GradedTasks")
-  createdTests        Test[]         @relation("CreatedTests")
-  createdTasks        Task[]         @relation("CreatedTasks")
+  gradedTasks         StudentTask[]        @relation("GradedTasks")
+  createdTests        Test[]               @relation("CreatedTests")
+  createdTasks        Task[]               @relation("CreatedTasks")
   testAttempts        TestAttempt[]
   achievements        StudentAchievement[]
   xpTransactions      XpTransaction[]
@@ -47,8 +39,8 @@ model User {
 }
 
 model RefreshToken {
-  id         String   @id @default(uuid())
-  userId     String   @map("user_id")
+  id         Int   @id @default(autoincrement())
+  userId     Int   @map("user_id")
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tokenHash  String   @unique @map("token_hash")
   expiresAt  DateTime @map("expires_at")
@@ -58,40 +50,40 @@ model RefreshToken {
 }
 
 model UserProfile {
-  id                   String   @id @default(uuid())
-  userId               String   @unique @map("user_id")
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  phone                String?
+  id                   Int    @id @default(autoincrement())
+  userId               Int    @unique @map("user_id")
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email                String?
   dateOfBirth          DateTime? @map("date_of_birth")
-  language             String   @default("UZ")
-  timezone             String   @default("Asia/Tashkent")
-  notificationSettings String?  @map("notification_settings")
+  language             String    @default("UZ")
+  timezone             String    @default("Asia/Tashkent")
+  notificationSettings String?   @map("notification_settings")
 
   @@map("user_profiles")
 }
 
 model Group {
-  id          String   @id @default(uuid())
+  id          Int   @id @default(autoincrement())
   name        String
   description String?
-  teacherId   String   @map("teacher_id")
+  teacherId   Int   @map("teacher_id")
   teacher     User     @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
   inviteCode  String   @unique @map("invite_code")
   createdAt   DateTime @default(now()) @map("created_at")
 
-  members     GroupMember[]
-  assignments GroupAssignment[]
-  courses     GroupCourse[]
+  members      GroupMember[]
+  assignments  GroupAssignment[]
+  courses      GroupCourse[]
   leaderboards Leaderboard[]
 
   @@map("groups")
 }
 
 model GroupMember {
-  id        String   @id @default(uuid())
-  groupId   String   @map("group_id")
+  id        Int   @id @default(autoincrement())
+  groupId   Int   @map("group_id")
   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  studentId String   @map("student_id")
+  studentId Int   @map("student_id")
   student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   joinedAt  DateTime @default(now()) @map("joined_at")
   status    String   @default("ACTIVE")
@@ -101,22 +93,22 @@ model GroupMember {
 }
 
 model GroupAssignment {
-  id          String   @id @default(uuid())
-  groupId     String   @map("group_id")
-  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  testId      String?  @map("test_id")
-  test        Test?    @relation(fields: [testId], references: [id], onDelete: Cascade)
-  taskId      String?  @map("task_id")
-  task        Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  dueDate     DateTime? @map("due_date")
-  isRequired  Boolean  @default(true) @map("is_required")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id         Int    @id @default(autoincrement())
+  groupId    Int    @map("group_id")
+  group      Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  testId     Int?   @map("test_id")
+  test       Test?     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  taskId     Int?   @map("task_id")
+  task       Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  dueDate    DateTime? @map("due_date")
+  isRequired Boolean   @default(true) @map("is_required")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   @@map("group_assignments")
 }
 
 model Course {
-  id          String   @id @default(uuid())
+  id          Int   @id @default(autoincrement())
   title       String
   description String?
   level       String   @default("A1") // CEFR level
@@ -124,19 +116,19 @@ model Course {
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
 
-  tests       Test[]
-  tasks       Task[]
-  groups      GroupCourse[]
+  tests  Test[]
+  tasks  Task[]
+  groups GroupCourse[]
 
   @@map("courses")
 }
 
 model GroupCourse {
-  id        String   @id @default(uuid())
-  groupId   String   @map("group_id")
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  courseId  String   @map("course_id")
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id         Int   @id @default(autoincrement())
+  groupId    Int   @map("group_id")
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseId   Int   @map("course_id")
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   assignedAt DateTime @default(now()) @map("assigned_at")
 
   @@unique([groupId, courseId])
@@ -144,7 +136,7 @@ model GroupCourse {
 }
 
 model Book {
-  id            String   @id @default(uuid())
+  id            Int   @id @default(autoincrement())
   title         String
   author        String?
   description   String?
@@ -157,43 +149,43 @@ model Book {
 }
 
 model Rating {
-  id          String   @id @default(uuid())
-  userId      String   @map("user_id")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  targetType  String   @map("target_type")
-  targetId    String   @map("target_id")
-  score       Int
-  reviewText  String?  @map("review_text")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id         Int   @id @default(autoincrement())
+  userId     Int   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetType String   @map("target_type")
+  targetId   String   @map("target_id")
+  score      Int
+  reviewText String?  @map("review_text")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   @@unique([userId, targetType, targetId])
   @@map("ratings")
 }
 
 model Vocabulary {
-  id                 String   @id @default(uuid())
-  word               String   @unique
+  id                 Int  @id @default(autoincrement())
+  word               String  @unique
   translation        String
   pronunciation      String?
-  partOfSpeech       String?  @map("part_of_speech")
-  exampleSentence    String?  @map("example_sentence")
-  exampleTranslation String?  @map("example_translation")
-  imageUrl           String?  @map("image_url")
-  audioUrl           String?  @map("audio_url")
-  difficulty         Int      @default(1)
-  cefrLevel          String?  @map("cefr_level")
+  partOfSpeech       String? @map("part_of_speech")
+  exampleSentence    String? @map("example_sentence")
+  exampleTranslation String? @map("example_translation")
+  imageUrl           String? @map("image_url")
+  audioUrl           String? @map("audio_url")
+  difficulty         Int     @default(1)
+  cefrLevel          String? @map("cefr_level")
 
-  progress           VocabularyProgress[]
-  wordListItems      WordListItem[]
+  progress      VocabularyProgress[]
+  wordListItems WordListItem[]
 
   @@map("vocabularies")
 }
 
 model VocabularyProgress {
-  id             String     @id @default(uuid())
-  studentId      String     @map("student_id")
+  id             Int     @id @default(autoincrement())
+  studentId      Int     @map("student_id")
   student        User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  vocabularyId   String     @map("vocabulary_id")
+  vocabularyId   Int     @map("vocabulary_id")
   vocabulary     Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
   status         String     @default("NEW")
   easeFactor     Float      @default(2.5) @map("ease_factor")
@@ -208,22 +200,22 @@ model VocabularyProgress {
 }
 
 model WordList {
-  id        String   @id @default(uuid())
-  studentId String   @map("student_id")
-  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  id        Int  @id @default(autoincrement())
+  studentId Int  @map("student_id")
+  student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   name      String
-  isPublic  Boolean  @default(false) @map("is_public")
+  isPublic  Boolean @default(false) @map("is_public")
 
-  items     WordListItem[]
+  items WordListItem[]
 
   @@map("word_lists")
 }
 
 model WordListItem {
-  id           String     @id @default(uuid())
-  wordListId   String     @map("word_list_id")
+  id           Int     @id @default(autoincrement())
+  wordListId   Int     @map("word_list_id")
   wordList     WordList   @relation(fields: [wordListId], references: [id], onDelete: Cascade)
-  vocabularyId String     @map("vocabulary_id")
+  vocabularyId Int     @map("vocabulary_id")
   vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
   addedAt      DateTime   @default(now()) @map("added_at")
 
@@ -232,136 +224,136 @@ model WordListItem {
 }
 
 model Task {
-  id                 String   @id @default(uuid())
-  title              String
-  description        String?
-  type               String   @default("READING")
-  instructions       String?
-  maxScore           Int      @default(100) @map("max_score")
-  createdById        String?  @map("created_by")
-  createdBy          User?    @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: SetNull)
+  id           Int  @id @default(autoincrement())
+  title        String
+  description  String?
+  type         String  @default("READING")
+  instructions String?
+  maxScore     Int     @default(100) @map("max_score")
+  createdById  Int? @map("created_by")
+  createdBy    User?   @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: SetNull)
 
-  studentTasks       StudentTask[]
-  attachments        TaskAttachment[]
-  assignments        GroupAssignment[]
-  courseId           String?  @map("course_id")
-  course             Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  studentTasks StudentTask[]
+  attachments  TaskAttachment[]
+  assignments  GroupAssignment[]
+  courseId     Int?           @map("course_id")
+  course       Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@map("tasks")
 }
 
 model StudentTask {
-  id                String   @id @default(uuid())
-  studentId         String   @map("student_id")
-  student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  taskId            String   @map("task_id")
-  task              Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  status            String   @default("PENDING")
+  id                Int    @id @default(autoincrement())
+  studentId         Int    @map("student_id")
+  student           User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  taskId            Int    @map("task_id")
+  task              Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  status            String    @default("PENDING")
   submittedAt       DateTime? @map("submitted_at")
-  submissionContent String?  @map("submission_content")
+  submissionContent String?   @map("submission_content")
   score             Int?
-  teacherFeedback   String?  @map("teacher_feedback")
+  teacherFeedback   String?   @map("teacher_feedback")
   gradedAt          DateTime? @map("graded_at")
-  gradedById        String?  @map("graded_by")
-  gradedBy          User?    @relation("GradedTasks", fields: [gradedById], references: [id], onDelete: SetNull)
+  gradedById        Int?   @map("graded_by")
+  gradedBy          User?     @relation("GradedTasks", fields: [gradedById], references: [id], onDelete: SetNull)
 
   @@unique([studentId, taskId])
   @@map("student_tasks")
 }
 
 model TaskAttachment {
-  id           String  @id @default(uuid())
-  taskId       String  @map("task_id")
-  task         Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  fileUrl      String  @map("file_url")
-  fileType     String  @map("file_type")
-  uploadedBy   String  @map("uploaded_by")
+  id         Int @id @default(autoincrement())
+  taskId     Int @map("task_id")
+  task       Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  fileUrl    String @map("file_url")
+  fileType   String @map("file_type")
+  uploadedBy String @map("uploaded_by")
 
   @@map("task_attachments")
 }
 
 model Test {
-  id                 String   @id @default(uuid())
-  title              String
-  description        String?
-  type               String   @default("PRACTICE")
-  cefrLevel          String?  @map("cefr_level")
-  timeLimitMinutes   Int?     @map("time_limit_minutes")
-  passingScore       Int      @default(0) @map("passing_score")
-  shuffleQuestions   Boolean  @default(false) @map("shuffle_questions")
-  maxAttempts        Int?     @map("max_attempts")
-  isAdaptive         Boolean  @default(false) @map("is_adaptive")
-  isPublished        Boolean  @default(false) @map("is_published")
-  timeLimit          Int?     @map("time_limit")
-  createdById        String?  @map("created_by")
-  createdBy          User?    @relation("CreatedTests", fields: [createdById], references: [id], onDelete: SetNull)
+  id               Int  @id @default(autoincrement())
+  title            String
+  description      String?
+  type             String  @default("PRACTICE")
+  cefrLevel        String? @map("cefr_level")
+  timeLimitMinutes Int?    @map("time_limit_minutes")
+  passingScore     Int     @default(0) @map("passing_score")
+  shuffleQuestions Boolean @default(false) @map("shuffle_questions")
+  maxAttempts      Int?    @map("max_attempts")
+  isAdaptive       Boolean @default(false) @map("is_adaptive")
+  isPublished      Boolean @default(false) @map("is_published")
+  timeLimit        Int?    @map("time_limit")
+  createdById      Int? @map("created_by")
+  createdBy        User?   @relation("CreatedTests", fields: [createdById], references: [id], onDelete: SetNull)
 
-  questions          Question[]
-  attempts           TestAttempt[]
-  assignments        GroupAssignment[]
-  courseId           String?  @map("course_id")
-  course             Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  questions   Question[]
+  attempts    TestAttempt[]
+  assignments GroupAssignment[]
+  courseId    Int?           @map("course_id")
+  course      Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@map("tests")
 }
 
 model Question {
-  id            String   @id @default(uuid())
-  testId        String   @map("test_id")
-  test          Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  type          String   @default("MCQ")
-  inputType     String   @default("OPTIONS") @map("input_type")
-  questionText  String   @map("question_text")
+  id            Int  @id @default(autoincrement())
+  testId        Int  @map("test_id")
+  test          Test    @relation(fields: [testId], references: [id], onDelete: Cascade)
+  type          String  @default("MCQ")
+  inputType     String  @default("OPTIONS") @map("input_type")
+  questionText  String  @map("question_text")
   options       String?
-  correctAnswer String?  @map("correct_answer")
+  correctAnswer String? @map("correct_answer")
   explanation   String?
-  points        Int      @default(1)
-  difficulty    Int      @default(1)
+  points        Int     @default(1)
+  difficulty    Int     @default(1)
   skill         String?
 
-  analytics     QuestionAnalytics?
+  analytics QuestionAnalytics?
 
   @@map("questions")
 }
 
 model TestAttempt {
-  id                 String   @id @default(uuid())
-  studentId          String   @map("student_id")
-  student            User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  testId             String   @map("test_id")
-  test               Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  startedAt          DateTime @default(now()) @map("started_at")
-  submittedAt        DateTime? @map("submitted_at")
-  score              Int?
-  percentage         Float?
-  passed             Boolean?
-  timeSpentSeconds   Int?     @map("time_spent_seconds")
-  answers            String?
-  feedback           String?
+  id               Int    @id @default(autoincrement())
+  studentId        Int    @map("student_id")
+  student          User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  testId           Int    @map("test_id")
+  test             Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  startedAt        DateTime  @default(now()) @map("started_at")
+  submittedAt      DateTime? @map("submitted_at")
+  score            Int?
+  percentage       Float?
+  passed           Boolean?
+  timeSpentSeconds Int?      @map("time_spent_seconds")
+  answers          String?
+  feedback         String?
 
   @@map("test_attempts")
 }
 
 model QuestionAnalytics {
-  id               String   @id @default(uuid())
-  questionId       String   @unique @map("question_id")
-  question         Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  totalAttempts    Int      @default(0) @map("total_attempts")
-  correctCount     Int      @default(0) @map("correct_count")
-  avgTimeSeconds   Float    @default(0) @map("avg_time_seconds")
+  id             Int   @id @default(autoincrement())
+  questionId     Int   @unique @map("question_id")
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  totalAttempts  Int      @default(0) @map("total_attempts")
+  correctCount   Int      @default(0) @map("correct_count")
+  avgTimeSeconds Float    @default(0) @map("avg_time_seconds")
 
   @@map("question_analytics")
 }
 
 model Achievement {
-  id               String   @id @default(uuid())
-  title            String
-  description      String?
-  iconUrl          String?  @map("icon_url")
-  conditionType    String   @map("condition_type")
-  conditionValue   Int      @map("condition_value")
-  xpReward         Int      @default(0) @map("xp_reward")
-  badgeColor       String?  @map("badge_color")
+  id             Int  @id @default(autoincrement())
+  title          String
+  description    String?
+  iconUrl        String? @map("icon_url")
+  conditionType  String  @map("condition_type")
+  conditionValue Int     @map("condition_value")
+  xpReward       Int     @default(0) @map("xp_reward")
+  badgeColor     String? @map("badge_color")
 
   studentAchievements StudentAchievement[]
 
@@ -369,65 +361,65 @@ model Achievement {
 }
 
 model StudentAchievement {
-  id             String      @id @default(uuid())
-  studentId      String      @map("student_id")
-  student        User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  achievementId  String      @map("achievement_id")
-  achievement    Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  earnedAt       DateTime    @default(now()) @map("earned_at")
+  id            Int      @id @default(autoincrement())
+  studentId     Int      @map("student_id")
+  student       User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  achievementId Int      @map("achievement_id")
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  earnedAt      DateTime    @default(now()) @map("earned_at")
 
   @@unique([studentId, achievementId])
   @@map("student_achievements")
 }
 
 model XpTransaction {
-  id             String   @id @default(uuid())
-  studentId      String   @map("student_id")
-  student        User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  amount         Int
-  reason         String
-  referenceId    String?  @map("reference_id")
-  createdAt      DateTime @default(now()) @map("created_at")
+  id          Int   @id @default(autoincrement())
+  studentId   Int   @map("student_id")
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  amount      Int
+  reason      String
+  referenceId String?  @map("reference_id")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("xp_transactions")
 }
 
 model Leaderboard {
-  id         String   @id @default(uuid())
-  scope      String   @default("GLOBAL")
-  groupId    String?  @map("group_id")
-  group      Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  studentId  String   @map("student_id")
-  student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  score      Int      @default(0)
-  rank       Int?
-  period     String?
+  id        Int  @id @default(autoincrement())
+  scope     String  @default("GLOBAL")
+  groupId   Int? @map("group_id")
+  group     Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  studentId Int  @map("student_id")
+  student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  score     Int     @default(0)
+  rank      Int?
+  period    String?
 
   @@map("leaderboards")
 }
 
 model Notification {
-  id         String   @id @default(uuid())
-  userId     String   @map("user_id")
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type       String
-  title      String
-  body       String
-  data       String?
-  isRead     Boolean  @default(false) @map("is_read")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id        Int   @id @default(autoincrement())
+  userId    Int   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String
+  data      String?
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("notifications")
 }
 
 model FinanceTransaction {
-  id        String   @id @default(uuid())
-  userId    String?  @map("user_id")
+  id        Int   @id @default(autoincrement())
+  userId    Int?  @map("user_id")
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   amount    Float
   currency  String   @default("UZS")
   type      String   @default("INCOME") // INCOME, EXPENSE
-  method    String?  @default("PAYME")  // PAYME, CLICK, CASH
+  method    String?  @default("PAYME") // PAYME, CLICK, CASH
   status    String   @default("COMPLETED")
   reason    String?
   createdAt DateTime @default(now()) @map("created_at")
@@ -436,13 +428,13 @@ model FinanceTransaction {
 }
 
 model SystemStats {
-  id        String   @id @default(uuid())
-  cpuUsage  Float    @map("cpu_usage")
-  ramFree   Float    @map("ram_free")
-  diskSpace Float    @map("disk_space")
-  network   Int      @map("network_ms")
+  id         Int   @id @default(autoincrement())
+  cpuUsage   Float    @map("cpu_usage")
+  ramFree    Float    @map("ram_free")
+  diskSpace  Float    @map("disk_space")
+  network    Int      @map("network_ms")
   uptimePerc Float    @map("uptime_perc")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("system_stats")
 }
