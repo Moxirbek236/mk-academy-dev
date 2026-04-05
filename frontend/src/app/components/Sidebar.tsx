@@ -45,8 +45,12 @@ export function Sidebar({ role }: SidebarProps) {
     <div className="hidden lg:flex flex-col w-72 h-screen bg-white border-r border-gray-100 fixed left-0 top-0 z-[60] shadow-2xl shadow-gray-100/50">
       <div className="p-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#3D855A] flex items-center justify-center text-white font-black text-xl shadow-lg shadow-[#3D855A]/20">
-            MK
+          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-lg shadow-[#3D855A]/20">
+            <img 
+              src="https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg" 
+              alt="Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <h1 className="text-lg font-black text-[#111827] tracking-tight leading-none">Academy</h1>

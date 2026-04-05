@@ -40,11 +40,10 @@ export const generateSEO = (
     },
     icons: {
       icon: [
-        { url: '/favicon.ico' },
-        { url: '/icon.jpg', type: 'image/jpeg' },
+        { url: 'https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg' },
       ],
-      shortcut: '/icon.jpg',
-      apple: '/apple-icon.jpg',
+      shortcut: 'https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg',
+      apple: 'https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg',
     },
     manifest: '/manifest.json',
     openGraph: {

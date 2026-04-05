@@ -58,9 +58,13 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-10">
           <motion.div 
             whileHover={{ rotate: 15, scale: 1.1 }}
-            className="w-16 h-16 rounded-[24px] bg-gradient-to-tr from-[#3D855A] to-emerald-400 flex items-center justify-center shadow-lg shadow-[#3D855A]/30 mb-6"
+            className="w-16 h-16 rounded-[24px] overflow-hidden shadow-lg shadow-[#3D855A]/30 mb-6"
           >
-            <BookOpen size={32} className="text-white" strokeWidth={2.5} />
+            <img 
+              src="https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg" 
+              alt="Logo" 
+              className="w-full h-full object-cover"
+            />
           </motion.div>
           <h1 className="text-4xl font-black mb-2 tracking-tighter">Xush Kelibsiz</h1>
           <p className="text-gray-400 font-bold text-center text-sm px-4">MK Academy platformasiga kirish uchun ma&apos;lumotlarni kiriting.</p>

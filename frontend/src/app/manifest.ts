@@ -13,20 +13,15 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#3D855A',
     icons: [
       {
-        src: '/favicon.ico',
-        sizes: 'any',
-        type: 'image/x-icon',
+        src: 'https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg',
+        sizes: '192x192',
+        type: 'image/jpeg',
       },
       {
-        src: '/icon.jpg',
+        src: 'https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg',
         sizes: '512x512',
         type: 'image/jpeg',
       },
-      {
-        src: '/apple-icon.jpg',
-        sizes: '180x180',
-        type: 'image/jpeg',
-      }
     ],
   };
 }

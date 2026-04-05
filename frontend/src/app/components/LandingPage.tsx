@@ -29,8 +29,12 @@ export function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-black/50 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#3D855A] to-emerald-400 flex items-center justify-center font-bold text-lg shadow-[0_0_20px_rgba(61,133,90,0.5)]">
-              MK
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(61,133,90,0.5)]">
+              <img 
+                src="https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg" 
+                alt="Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className="font-bold text-xl tracking-wide">Academy</span>
           </div>
