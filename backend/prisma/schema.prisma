@@ -439,3 +439,15 @@ model SystemStats {
 
   @@map("system_stats")
 }
+
+model Lead {
+  id        Int      @id @default(autoincrement())
+  fullName  String   @map("full_name")
+  phone     String
+  message   String?
+  status    String   @default("NEW") // NEW, CONTACTED, ENROLLED, REJECTED
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("leads")
+}
