@@ -4,6 +4,10 @@ import { Book, ChevronLeft, Loader2, PlayCircle, Trophy, Zap, Clock, Star, Users
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
+export function generateStaticParams() {
+  return [{ id: '1' }, { id: '2' }, { id: '3' }];
+}
+
 export default function CourseDetailPage() {
   const { id } = useParams();
   const [course, setCourse] = useState<any>(null);
