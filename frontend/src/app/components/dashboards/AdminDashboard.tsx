@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Users, FileText, PlusCircle, Activity, ChevronRight, Settings, TrendingUp, Presentation, School, UserPlus, ClipboardList, Loader2 } from 'lucide-react';
+import { Shield, Users, FileText, PlusCircle, Activity, ChevronRight, Settings, TrendingUp, Presentation, School, UserPlus, ClipboardList, Loader2, MessageSquare } from 'lucide-react';
 import api from '@/lib/api';
 
 export function AdminDashboard() {
@@ -76,6 +76,19 @@ export function AdminDashboard() {
             <div className="flex-1">
                <h3 className="font-extrabold text-[#111827] text-lg">Yangi Kurs</h3>
                <p className="text-[11px] text-gray-400 font-bold mt-1 tracking-tight">O&apos;quv rejasini boshqarish</p>
+            </div>
+            <div className="p-2.5 rounded-xl bg-gray-50 text-gray-300 group-hover:bg-[#3D855A] group-hover:text-white transition-all">
+               <ChevronRight size={20} strokeWidth={3} />
+            </div>
+         </button>
+
+         <button onClick={() => window.location.href = '/leads'} className="flex items-center gap-5 bg-white p-6 rounded-[36px] border border-gray-100 shadow-sm active:scale-[0.98] transition-all text-left hover:border-emerald-100 group">
+            <div className="p-5 bg-emerald-50 text-emerald-600 rounded-[24px] group-hover:scale-110 transition-transform">
+               <MessageSquare size={28} strokeWidth={2.5} />
+            </div>
+            <div className="flex-1">
+               <h3 className="font-extrabold text-[#111827] text-lg">Murojaatlar</h3>
+               <p className="text-[11px] text-gray-400 font-bold mt-1 tracking-tight">Landing page murojaatlari</p>
             </div>
             <div className="p-2.5 rounded-xl bg-gray-50 text-gray-300 group-hover:bg-[#3D855A] group-hover:text-white transition-all">
                <ChevronRight size={20} strokeWidth={3} />

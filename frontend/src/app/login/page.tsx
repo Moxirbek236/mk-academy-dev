@@ -1,13 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, ArrowRight, Loader2, Home, BookOpen, Eye, EyeOff, Globe } from 'lucide-react';
+import { Phone, Lock, ArrowRight, Loader2, Home, BookOpen, Eye, EyeOff, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ phone: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +28,7 @@ export default function LoginPage() {
         setError('Tizimga kirishda xatolik yuz berdi');
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Email yoki parol noto\'g\'ri');
+      setError(err?.response?.data?.message || 'Telefon raqami yoki parol noto\'g\'ri');
     } finally {
       setLoading(false);
     }
@@ -68,16 +68,16 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-500 tracking-[0.2em] uppercase ml-1">EMAIL ADDRESS</label>
+            <label className="text-[10px] font-black text-gray-500 tracking-[0.2em] uppercase ml-1">PHONE NUMBER</label>
             <div className="relative group">
-              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#3D855A] transition-colors" size={20} />
+              <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#3D855A] transition-colors" size={20} />
               <input 
                 required
-                type="email" 
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                type="tel" 
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 className="w-full bg-black/40 border border-white/5 rounded-3xl pl-14 pr-6 py-4.5 text-[15px] font-bold text-white focus:outline-none focus:border-[#3D855A]/50 focus:ring-4 focus:ring-[#3D855A]/10 transition-all placeholder:text-zinc-700"
-                placeholder="nomingiz@email.com"
+                placeholder="+998 90 123 45 67"
               />
             </div>
           </div>

@@ -7,16 +7,16 @@ import api from '@/lib/api';
 
 export function LandingPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({ fullName: '', phone: '', message: '' });
   const [status, setStatus] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setStatus('loading');
-      await api.post('/auth/contact', formData);
+      await api.post('/leads', formData);
       setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({ fullName: '', phone: '', message: '' });
     } catch (err) {
       console.error(err);
       setStatus('error');
@@ -154,41 +154,40 @@ export function LandingPage() {
       {/* Contact Section */}
       <section id="contact" className="py-24 px-6 max-w-3xl mx-auto text-center">
         <Mail size={48} className="mx-auto text-[#3D855A] mb-6" />
-        <h2 className="text-4xl font-bold mb-4">Biz bilan bog&apos;laning</h2>
-        <p className="text-gray-400 mb-10">Savollaringiz bormi? Taklif va fikrlaringizni yuboring — tez orada javob beramiz.</p>
+        <h2 className="text-4xl font-bold mb-4">O&apos;qish uchun so&apos;rov qoldirish</h2>
+        <p className="text-gray-400 mb-10">Akademiyamizda o&apos;qishni hohlaysizmi? Ma&apos;lumotlaringizni qoldiring va biz siz bilan bog&apos;lanamiz.</p>
 
         <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 p-8 rounded-3xl text-left space-y-6 backdrop-blur-sm">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Ismingiz</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">To&apos;liq ismingiz</label>
             <input 
               required
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              value={formData.fullName}
+              onChange={(e) => setFormData({...formData, fullName: e.target.value})}
               type="text" 
               className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#3D855A] transition-colors"
-              placeholder="Ismingizni kiriting"
+              placeholder="Ali Valiyev"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Email manzilingiz</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Telefon raqamingiz</label>
             <input 
               required
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              type="email" 
+              value={formData.phone}
+              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              type="tel" 
               className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#3D855A] transition-colors"
-              placeholder="email@example.com"
+              placeholder="+998 90 123 45 67"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Xabaringiz</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Xabaringiz (ixtiyoriy)</label>
             <textarea 
-              required
               value={formData.message}
               onChange={(e) => setFormData({...formData, message: e.target.value})}
               rows={4}
               className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#3D855A] transition-colors resize-none"
-              placeholder="Savolingiz yoki taklifingizni yozing..."
+              placeholder="Qaysi kursga qiziqyapsiz? (IELTS, General English, va h.k.)"
             ></textarea>
           </div>
           <button 
@@ -196,11 +195,11 @@ export function LandingPage() {
             disabled={status === 'loading'}
             className="w-full bg-[#3D855A] hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {status === 'loading' ? 'Yuborilmoqda...' : 'Yuborish'}
+            {status === 'loading' ? 'Yuborilmoqda...' : 'So\'rov yuborish'}
           </button>
 
           {status === 'success' && (
-            <p className="text-emerald-400 text-sm text-center font-medium my-2">Muvaffaqiyatli yuborildi! Tez orada javob qaytaramiz.</p>
+            <p className="text-emerald-400 text-sm text-center font-medium my-2">Muvaffaqiyatli yuborildi! Adminlarimiz tez orada bog&apos;lanishadi.</p>
           )}
           {status === 'error' && (
             <p className="text-red-400 text-sm text-center font-medium my-2">Xatolik yuz berdi. Iltimos, qaytadan urinib ko&apos;ring.</p>

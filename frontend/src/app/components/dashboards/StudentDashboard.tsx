@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { BookOpen, ListTodo, X, Loader2, Sparkles, Trophy, Zap, Clock, ChevronRight, Target, BrainCircuit } from 'lucide-react';
+import { BookOpen, ListTodo, X, Loader2, Sparkles, Trophy, Zap, Clock, ChevronRight, Target, BrainCircuit, Users, PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ExamCard } from '../ExamCard';
 import { LessonCard } from '../LessonCard';
@@ -55,6 +55,32 @@ export function StudentDashboard() {
                </div>
             </div>
          ))}
+      </div>
+
+      <div className="mb-10 px-2 animate-in fade-in slide-in-from-right-4 duration-1000">
+         <h2 className="text-[12px] font-black text-[#1A1A1A]/30 tracking-[0.15em] uppercase mb-4 flex items-center gap-2">
+            <Users size={14} className="text-[#3D855A]" /> MENING GURUHLARIM
+         </h2>
+         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-2 px-2">
+            {[1, 2].map((_, i) => (
+               <div key={i} onClick={() => router.push('/groups')} className="min-w-[240px] bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-4 hover:border-[#3D855A]/30 hover:shadow-md transition-all active:scale-95 cursor-pointer group">
+                  <div className="w-14 h-14 rounded-2xl bg-[#F2F8F5] text-[#3D855A] flex items-center justify-center font-black text-lg group-hover:bg-[#3D855A] group-hover:text-white transition-all shadow-sm">
+                     G{i+1}
+                  </div>
+                  <div>
+                     <h4 className="font-extrabold text-[#111827] text-sm tracking-tight">IELTS Foundation</h4>
+                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Mentor: Maqsud</p>
+                  </div>
+                  <div className="ml-auto p-2 bg-gray-50 rounded-xl text-gray-300 group-hover:text-[#3D855A] group-hover:bg-[#3D855A]/5 transition-all">
+                     <ChevronRight size={16} strokeWidth={3} />
+                  </div>
+               </div>
+            ))}
+            <button className="min-w-[140px] border-2 border-dashed border-gray-200 rounded-[32px] flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-[#3D855A]/30 hover:text-[#3D855A] transition-all group">
+               <PlusCircle size={24} />
+               <span className="text-[10px] font-black uppercase tracking-widest">YANGI GURUH</span>
+            </button>
+         </div>
       </div>
 
       <h2 className="text-[12px] font-black text-[#1A1A1A]/30 tracking-[0.15em] uppercase mb-4 px-2 flex items-center gap-2">

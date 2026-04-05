@@ -33,6 +33,7 @@ export function BottomNav({ role }: BottomNavProps) {
     { path: '/settings', icon: SettingsIcon, label: 'Sozlamalar' },
   ] : [
     { path: '/', icon: Home, label: 'Bosh' },
+    { path: '/groups', icon: Layers, label: 'Guruhlar' },
     { path: '/learning', icon: BookOpen, label: 'Darslar' },
     { path: '/books', icon: Book, label: 'Kitoblar' },
     { path: '/results', icon: LayoutGrid, label: 'Reyting' },

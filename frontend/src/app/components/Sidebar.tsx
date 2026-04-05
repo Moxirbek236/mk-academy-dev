@@ -1,5 +1,5 @@
 'use client';
-import { Home, Book, Settings as SettingsIcon, LayoutGrid, Users, DollarSign, BookOpen, Layers, ShieldCheck, LogOut } from 'lucide-react';
+import { Home, Book, Settings as SettingsIcon, LayoutGrid, Users, DollarSign, BookOpen, Layers, ShieldCheck, LogOut, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -14,12 +14,14 @@ export function Sidebar({ role }: SidebarProps) {
 
   const navItems = currentRole === 'superadmin' ? [
     { path: '/', icon: Home, label: 'Boshqaruv' },
+    { path: '/leads', icon: MessageCircle, label: 'Murojaatlar' },
     { path: '/users', icon: Users, label: 'Foydalanuvchilar' },
     { path: '/finance', icon: DollarSign, label: 'Moliya' },
     { path: '/system', icon: ShieldCheck, label: 'Tizim' },
     { path: '/settings', icon: SettingsIcon, label: 'Sozlamalar' },
   ] : currentRole === 'admin' ? [
     { path: '/', icon: Home, label: 'Bosh' },
+    { path: '/leads', icon: MessageCircle, label: 'Murojaatlar' },
     { path: '/users', icon: Users, label: 'O\'quvchilar' },
     { path: '/courses', icon: BookOpen, label: 'Kurslar' },
     { path: '/results', icon: LayoutGrid, label: 'Hisobot' },
@@ -32,6 +34,7 @@ export function Sidebar({ role }: SidebarProps) {
     { path: '/settings', icon: SettingsIcon, label: 'Sozlamalar' },
   ] : [
     { path: '/', icon: Home, label: 'Bosh' },
+    { path: '/groups', icon: Layers, label: 'Guruhlar' },
     { path: '/learning', icon: BookOpen, label: 'Darslar' },
     { path: '/books', icon: Book, label: 'Kitoblar' },
     { path: '/results', icon: LayoutGrid, label: 'Reyting' },

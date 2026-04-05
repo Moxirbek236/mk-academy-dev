@@ -35,14 +35,24 @@ export default function GroupsPage() {
         </button>
       </div>
 
-      <div className="flex gap-3 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div className="relative flex-1">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Guruh nomini qidirish..." 
+            placeholder="Guruhlarni qidirish..." 
             className="w-full bg-white border border-gray-100 rounded-[20px] py-4 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
           />
+        </div>
+        <div className="flex gap-2">
+           <input 
+             type="text" 
+             placeholder="Taklif kodi..." 
+             className="flex-1 bg-white border border-gray-100 rounded-[20px] py-4 px-6 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
+           />
+           <button className="bg-[#3D855A] text-white px-6 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[#3D855A]/20 active:scale-95 transition-all">
+              Qo&apos;shilish
+           </button>
         </div>
       </div>
 
