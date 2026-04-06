@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { Sidebar } from './components/Sidebar';
+import { OfflineStatusBanner } from './components/OfflineStatusBanner';
+import { GlobalApiNotice } from './components/GlobalApiNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -48,6 +50,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
       
       <div className={`flex-1 flex flex-col min-h-screen ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
+        <OfflineStatusBanner />
         <main className={`${!hideNav ? 'pt-24 lg:pt-12 pb-32 max-w-7xl mx-auto px-6 w-full' : ''}`}>
         <AnimatePresence mode="wait">
           <motion.div
@@ -63,6 +66,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
       </main>
       {!hideNav && <div className="lg:hidden"><BottomNav role={role} /></div>}
       </div>
+      <GlobalApiNotice />
     </div>
   );
 }
