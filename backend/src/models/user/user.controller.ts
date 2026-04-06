@@ -8,6 +8,7 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
 import { RolesGuard } from 'src/common/guards/role.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import type { Request } from 'express';
 
 type UploadedAvatarFile = {
   filename: string;
@@ -137,6 +138,20 @@ export class UserController {
   @Get("teacher/all")
   findAllTeacher(@Req() req: Request, @Query() query: QueryUserDto) {
     // return this.userService.findAllTeacher(req['user'], query);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  @ApiOperation({ summary: 'Get current user profile' })
+  getProfile(@Req() req: Request) {
+    return this.userService.findOne(req['user']?.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('profile')
+  @ApiOperation({ summary: 'Update current user profile' })
+  updateProfile(@Req() req: Request, @Body() dto: UpdateUserDto) {
+    return this.userService.update(req['user']?.id, dto);
   }
 
   @Get(':id')

@@ -18,8 +18,13 @@ function resolveAllowedOrigins(): string[] {
   const defaults = [
     'https://mk-academy-dev.pages.dev',
     'https://mk-academy.netlify.app',
+    'http://localhost',
+    'https://localhost',
     'http://localhost:3000',
+    'https://localhost:3000',
     'http://127.0.0.1:3000',
+    'capacitor://localhost',
+    'ionic://localhost',
   ];
 
   return Array.from(new Set([...defaults, ...envOrigins]));
@@ -38,7 +43,7 @@ async function bootstrap() {
         return callback(null, true);
       }
 
-      return callback(new Error(`CORS blocked for origin: ${origin}`), false);
+      return callback(null, false);
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,

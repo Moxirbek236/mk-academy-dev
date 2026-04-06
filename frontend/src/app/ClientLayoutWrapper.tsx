@@ -45,7 +45,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const hideNav = isPublicRoute;
 
   return (
-    <div className={`min-h-screen flex ${role === 'superadmin' ? 'bg-[#0A0A0A]' : 'bg-gray-50/50'}`}>
+    <div className={`min-h-screen flex ${role === 'superadmin' ? 'bg-white' : 'bg-gray-50/50'}`}>
       {!hideNav && <Sidebar role={role} />}
       
       <div className={`flex-1 flex flex-col min-h-screen ${!hideNav ? 'lg:pl-72' : ''}`}>
