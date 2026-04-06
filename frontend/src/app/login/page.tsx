@@ -5,6 +5,44 @@ import { Phone, Lock, ArrowRight, Loader2, Home, BookOpen, Eye, EyeOff, Globe } 
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 
+function decodeJwtRole(token: string): string | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .join(''),
+    );
+    const payload = JSON.parse(json) as { role?: string };
+    return payload.role?.toLowerCase() || null;
+  } catch {
+    return null;
+  }
+}
+
+function extractLoginData(body: any): { token: string | null; role: string | null } {
+  const token =
+    body?.data?.access_token ||
+    body?.data?.token ||
+    body?.access_token ||
+    body?.token ||
+    null;
+
+  const roleFromBody =
+    body?.data?.user?.role?.toLowerCase?.() ||
+    body?.user?.role?.toLowerCase?.() ||
+    null;
+
+  const role = roleFromBody || (token ? decodeJwtRole(token) : null);
+
+  return { token, role };
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ phone: '', password: '' });
@@ -19,10 +57,15 @@ export default function LoginPage() {
     try {
       const res = await api.post('/auth/login', formData);
       const body = res.data;
+      const { token, role } = extractLoginData(body);
 
-      if (body?.success && body?.data?.access_token) {
-        localStorage.setItem('token', body.data.access_token);
-        localStorage.setItem('role', body.data.user.role.toLowerCase());
+      if (body?.success && token) {
+        localStorage.setItem('token', token);
+        if (role) {
+          localStorage.setItem('role', role);
+        } else {
+          localStorage.removeItem('role');
+        }
         router.push('/');
       } else {
         setError('Tizimga kirishda xatolik yuz berdi');
