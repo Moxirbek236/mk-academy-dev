@@ -9,7 +9,7 @@ QatlamTexnologiyaSababRuntimeNode.js (Express) yoki Python (FastAPI)Tez prototip
 3. Ma'lumotlar Bazasi Sxemasi
 👤 Users & Auth
 sqlusers
-  id, email, password_hash, role (student|teacher|admin),
+  id, password_hash, role (student|teacher|admin),
   full_name, avatar_url, cefr_level (A1|A2|B1|B2|C1|C2),
   is_active, created_at, updated_at
 
@@ -19,22 +19,28 @@ refresh_tokens
 user_profiles
   user_id, phone, date_of_birth, language (uz|ru|en),
   timezone, notification_settings (JSONB)
+
 🏫 Kurs Tuzilmasi
 sqlcourses
   id, title, description, cefr_level, cover_image_url,
-  created_by (teacher_id), is_published, order_index
+  created_by (teacher_id), is_published(true)
+
+groups
+  id, course_id, title, description,
+  created_by (teacher_id), is_published(true)
 
 units
-  id, course_id, title, description, order_index,
+  id, group_id, title, description,
   unlock_condition (JSONB)  -- masalan: prev_unit_score >= 70
 
 lessons
   id, unit_id, title, type (vocab|grammar|reading|listening|speaking),
-  content (JSONB), duration_minutes, order_index, is_free
+  content (JSONB), duration_minutes
 
 enrollments
   id, student_id, course_id, enrolled_at, completed_at,
   progress_percent, last_accessed_at
+  
 📚 Vocabulary System (Core Feature)
 sqlvocabularies
   id, unit_id, word, translation, pronunciation,

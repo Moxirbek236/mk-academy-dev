@@ -1,0 +1,16 @@
+import { MetadataRoute } from 'next';
+
+export const dynamic = 'force-static';
+
+export default function robots(): MetadataRoute.Robots {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mk-academy-dev.pages.dev';
+
+  return {
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: ['/api/', '/admin/', '/superadmin/', '/_next/'],
+    },
+    sitemap: `${baseUrl}/sitemap.xml`,
+  };
+}

@@ -1,3 +1,4 @@
+'use client';
 import { Clock, Lock, Check } from 'lucide-react';
 
 interface LessonCardProps {
