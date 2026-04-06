@@ -9,6 +9,10 @@ import { RolesGuard } from 'src/common/guards/role.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 
+type UploadedAvatarFile = {
+  filename: string;
+};
+
 @ApiTags('users')
 @Controller('users')
 @ApiBearerAuth()
@@ -43,7 +47,7 @@ export class UserController {
       }),
     }),
   )
-  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: Express.Multer.File) {
+  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
@@ -75,7 +79,7 @@ export class UserController {
       }),
     }),
   )
-  createStudent(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: Express.Multer.File) {
+  createStudent(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
@@ -107,7 +111,7 @@ export class UserController {
       }),
     }),
   )
-  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: Express.Multer.File) {
+  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createAdmin(payload, req['user'], file?.filename);
   }
   

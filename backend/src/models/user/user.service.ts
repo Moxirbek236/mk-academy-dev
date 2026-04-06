@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { User } from '@prisma/client';
 import { UserRole } from 'src/core/enums';
 import { join } from 'path';
 import * as fs from 'fs';
