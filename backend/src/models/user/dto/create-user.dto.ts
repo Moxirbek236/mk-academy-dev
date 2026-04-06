@@ -5,15 +5,15 @@ import { UserRole, CefrLevel } from '../../../core/enums';
 export class CreateUserDto {
   @ApiProperty({ example: '+998901234567' })
   @IsString()
-  phone: string;
+  phone!: string;
 
   @ApiProperty({ description: 'Plain text password (hashed on server)' })
   @IsString()
-  passwordHash: string;
+  passwordHash!: string;
 
   @ApiProperty({ example: 'John Doe' })
   @IsString()
-  fullName: string; 
+  fullName!: string;
 
   @ApiPropertyOptional()
   @IsOptional()

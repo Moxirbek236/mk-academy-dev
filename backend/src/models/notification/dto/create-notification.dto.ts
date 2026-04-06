@@ -5,15 +5,15 @@ import { NotificationType } from '../../../core/enums';
 export class CreateNotificationDto {
   @ApiProperty()
   @IsInt()
-  userId: number;
+  userId!: number;
 
   @ApiProperty()
   @IsString()
-  title: string;
+  title!: string;
 
   @ApiProperty()
   @IsString()
-  body: string;
+  body!: string;
 
   @ApiPropertyOptional({ enum: NotificationType, default: NotificationType.GENERAL })
   @IsEnum(NotificationType)

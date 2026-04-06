@@ -5,11 +5,11 @@ import { CefrLevel } from '../../../core/enums';
 export class CreateVocabularyDto {
   @ApiProperty({ example: 'Ambiguous' })
   @IsString()
-  word: string;
+  word!: string;
 
   @ApiProperty({ example: 'Having a double meaning; unclear.' })
   @IsString()
-  definition: string;
+  definition!: string;
 
   @ApiPropertyOptional()
   @IsString()

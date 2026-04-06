@@ -5,7 +5,7 @@ import { TaskType } from '../../../core/enums';
 export class CreateTaskDto {
   @ApiProperty({ example: 'Letter Writing: Formal Request' })
   @IsString()
-  title: string;
+  title!: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -14,11 +14,11 @@ export class CreateTaskDto {
 
   @ApiProperty({ enum: TaskType, default: TaskType.GRAMMAR })
   @IsEnum(TaskType)
-  type: TaskType;
+  type!: TaskType;
 
   @ApiProperty({ description: 'XP points awarded on completion' })
   @IsInt()
-  xpReward: number;
+  xpReward!: number;
 
   @ApiPropertyOptional()
   @IsInt()

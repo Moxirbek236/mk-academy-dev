@@ -9,7 +9,7 @@ export class QueryUserDto {
     @IsOptional()
     @IsString()
     @IsEnum(UserRole)
-    user:UserRole
+    user!: UserRole;
 
     @ApiPropertyOptional()
     @IsOptional()

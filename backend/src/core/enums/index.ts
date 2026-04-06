@@ -18,7 +18,7 @@ export enum TransactionType {
   INCOME = 'INCOME',
   EXPENSE = 'EXPENSE',
 }
-
+             
 export enum TaskType {
   READING = 'READING',
   WRITING = 'WRITING',

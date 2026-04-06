@@ -1,0 +1,17 @@
+﻿src/models/book/dto/create-book.dto.ts(8,3): error TS2564: Property 'title' has no initializer and is not definitely assigned in the constructor.
+src/models/finance/dto/create-transaction.dto.ts(8,3): error TS2564: Property 'userId' has no initializer and is not definitely assigned in the constructor.
+src/models/finance/dto/create-transaction.dto.ts(12,3): error TS2564: Property 'amount' has no initializer and is not definitely assigned in the constructor.
+src/models/finance/dto/create-transaction.dto.ts(16,3): error TS2564: Property 'type' has no initializer and is not definitely assigned in the constructor.
+src/models/finance/dto/create-transaction.dto.ts(20,3): error TS2564: Property 'reason' has no initializer and is not definitely assigned in the constructor.
+src/models/gamification/dto/create-achievement.dto.ts(8,3): error TS2564: Property 'name' has no initializer and is not definitely assigned in the constructor.
+src/models/gamification/dto/create-achievement.dto.ts(17,3): error TS2564: Property 'type' has no initializer and is not definitely assigned in the constructor.
+src/models/lead/dto/index.ts(8,3): error TS2564: Property 'fullName' has no initializer and is not definitely assigned in the constructor.
+src/models/lead/dto/index.ts(13,3): error TS2564: Property 'phone' has no initializer and is not definitely assigned in the constructor.
+src/models/lead/dto/index.ts(24,3): error TS2564: Property 'status' has no initializer and is not definitely assigned in the constructor.
+src/models/notification/dto/create-notification.dto.ts(8,3): error TS2564: Property 'userId' has no initializer and is not definitely assigned in the constructor.
+src/models/notification/dto/create-notification.dto.ts(12,3): error TS2564: Property 'title' has no initializer and is not definitely assigned in the constructor.
+src/models/notification/dto/create-notification.dto.ts(16,3): error TS2564: Property 'body' has no initializer and is not definitely assigned in the constructor.
+src/models/rating/dto/create-rating.dto.ts(7,3): error TS2564: Property 'userId' has no initializer and is not definitely assigned in the constructor.
+src/models/rating/dto/create-rating.dto.ts(13,3): error TS2564: Property 'score' has no initializer and is not definitely assigned in the constructor.
+src/models/rating/dto/create-rating.dto.ts(17,3): error TS2564: Property 'targetType' has no initializer and is not definitely assigned in the constructor.
+src/models/rating/dto/create-rating.dto.ts(21,3): error TS2564: Property 'targetId' has no initializer and is not definitely assigned in the constructor.

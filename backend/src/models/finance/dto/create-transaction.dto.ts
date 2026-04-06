@@ -5,17 +5,17 @@ import { TransactionType } from '../../../core/enums';
 export class CreateTransactionDto {
   @ApiProperty()
   @IsInt()
-  userId: number;
+  userId!: number;
 
   @ApiProperty()
   @IsNumber()
-  amount: number;
+  amount!: number;
 
   @ApiProperty({ enum: TransactionType, default: TransactionType.EXPENSE })
   @IsEnum(TransactionType)
-  type: TransactionType;
+  type!: TransactionType;
 
   @ApiProperty()
   @IsString()
-  reason: string;
+  reason!: string;
 }

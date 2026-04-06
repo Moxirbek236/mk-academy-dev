@@ -5,7 +5,7 @@ import { AchievementType } from '../../../core/enums';
 export class CreateAchievementDto {
   @ApiProperty({ example: 'First Test Passed' })
   @IsString()
-  name: string;
+  name!: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -14,7 +14,7 @@ export class CreateAchievementDto {
 
   @ApiProperty({ enum: AchievementType, example: AchievementType.TEST_PASSED })
   @IsEnum(AchievementType)
-  type: AchievementType;
+  type!: AchievementType;
 
   @ApiPropertyOptional()
   @IsString()

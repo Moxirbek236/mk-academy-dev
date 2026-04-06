@@ -5,5 +5,5 @@ export class RefreshTokenDto {
   @ApiProperty({ description: 'The refresh token' })
   @IsNotEmpty()
   @IsString()
-  refreshToken: string;
+  refreshToken!: string;
 }

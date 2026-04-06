@@ -5,7 +5,7 @@ import { CefrLevel } from '../../../core/enums';
 export class CreateCourseDto {
   @ApiProperty({ example: 'Elementary English (A1)' })
   @IsString()
-  title: string;
+  title!: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -14,7 +14,7 @@ export class CreateCourseDto {
 
   @ApiProperty({ enum: CefrLevel, description: 'CEFR level (A1-C2)' })
   @IsEnum(CefrLevel)
-  level: CefrLevel;
+  level!: CefrLevel;
 
   @ApiPropertyOptional()
   @IsUrl()

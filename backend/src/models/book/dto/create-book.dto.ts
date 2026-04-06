@@ -5,7 +5,7 @@ import { CefrLevel } from '../../../core/enums';
 export class CreateBookDto {
   @ApiProperty({ example: 'Clean Code' })
   @IsString()
-  title: string;
+  title!: string;
 
   @ApiPropertyOptional()
   @IsString()

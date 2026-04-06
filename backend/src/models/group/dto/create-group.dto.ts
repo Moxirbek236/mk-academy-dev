@@ -4,7 +4,7 @@ import { IsString, IsOptional, IsInt, IsDateString } from 'class-validator';
 export class CreateGroupDto {
   @ApiProperty({ description: 'Name of the group' })
   @IsString()
-  name: string;
+  name!: string;
 
   @ApiPropertyOptional({ description: 'Description of the group' })
   @IsString()
@@ -13,7 +13,7 @@ export class CreateGroupDto {
 
   @ApiProperty({ description: 'ID of the teacher/creator' })
   @IsInt()
-  creatorId: number;
+  creatorId!: number;
 
   @ApiPropertyOptional({ description: 'Status of the group', default: 'ACTIVE' })
   @IsString()
