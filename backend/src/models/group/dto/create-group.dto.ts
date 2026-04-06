@@ -13,10 +13,9 @@ export class CreateGroupDto {
 
   @ApiProperty({ description: 'ID of the teacher/creator' })
   @IsInt()
-  creatorId: number;
+  teacherId: number;
 
-  @ApiPropertyOptional({ description: 'Status of the group', default: 'ACTIVE' })
+  @ApiProperty({ description: 'Invite code of the group' })
   @IsString()
-  @IsOptional()
-  status?: string;
+  inviteCode: string;
 }

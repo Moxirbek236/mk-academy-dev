@@ -29,6 +29,5 @@ async function bootstrap() {
   const port = process.env.PORT || 3001;
   await app.listen(port);
   console.log(`Backend is running on: http://localhost:${port}`);
-  Logger.log(`Swagger 📍 http://localhost:${port}/api/api`);
 }
 bootstrap();

@@ -87,6 +87,7 @@ model Group {
   teacherId   Int   @map("teacher_id")
   teacher     User     @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
   inviteCode  String   @unique @map("invite_code")
+  isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
 
   members      GroupMember[]

@@ -16,7 +16,7 @@ export class GroupController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all groups' })
+  @ApiOperation({ summary: 'Get all groups' }) 
   findAll() {
     return this.groupService.findAll();
   }
