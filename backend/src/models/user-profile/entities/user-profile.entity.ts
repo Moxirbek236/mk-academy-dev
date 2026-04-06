@@ -1,1 +1,0 @@
-// UserProfileEntity - Response serialization
