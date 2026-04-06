@@ -20,7 +20,7 @@ export class UserProfileController {
   @ApiOperation({ summary: 'Update user profile' })
   @ApiResponse({ status: 200, description: 'Profile updated.' })
   update(@Param('userId') userId: string, @Body() dto: UpdateUserProfileDto) {
-    return this.userProfileService.update(+userId, dto);
+    // return this.userProfileService.update();
   }
 
   @Delete(':id')

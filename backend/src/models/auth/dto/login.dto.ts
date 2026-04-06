@@ -11,8 +11,4 @@ export class LoginDto {
   @IsNotEmpty()
   @IsString()
   password: string;
-
-  @ApiProperty({ description: 'Device information (optional)', required: false })
-  @IsString()
-  deviceInfo?: string;
 }

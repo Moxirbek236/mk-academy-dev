@@ -1,29 +1,149 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
+import { User } from '@prisma/client';
+import { UserRole } from 'src/core/enums';
+import { join } from 'path';
+import * as fs from 'fs';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
-  async create(dto: CreateUserDto) {
-    return this.prisma.user.create({
-      data: {
-        ...dto,
-        role: dto.role || 'STUDENT',
-        profile: {
-          create: {} // Automatically create an empty profile
-        },
-        leaderboards: {
-          create: { score: 0, scope: 'GLOBAL' } // Initialize global leaderboard entry
+  async createTeacher(payload: CreateUserDto, currentUser:{id: number, role: UserRole}, filename?: string) {
+
+    const phone = await this.prisma.user.findUnique({ where: { phone: payload.phone } });
+
+    if (phone) {
+      if (filename) {
+        const filePath = join(process.cwd(), 'src', 'uploads', filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
         }
-      } as any,
-      include: { profile: true, leaderboards: true }
-    });
+      }
+      throw new BadRequestException('User already exists');
+    }
+
+      const passHash = await bcrypt.hash(payload.passwordHash, 10);
+
+      const user = await this.prisma.user.create({
+        data: {
+          ...payload,
+          avatarUrl: filename ?? null,
+          passwordHash: passHash,
+          role: UserRole.TEACHER
+        }
+      })
+
+      await this.prisma.userProfile.create({
+        data: {
+          userId: user.id,
+        }
+      })
+
+      const token = this.jwtService.sign({
+      id: user.id,
+      phone: user.phone,
+      role: user.role
+    })
+
+    return {
+      success: true,
+      token
+    }
   }
 
-  async findAll() {
-    return this.prisma.user.findMany({ include: { profile: true } });
+  async createStudent(payload: CreateUserDto, currentUser:{id: number, role: UserRole}, filename?: string) {
+
+    const phone = await this.prisma.user.findUnique({ where: { phone: payload.phone } });
+
+    if (phone) {
+      if (filename) {
+        const filePath = join(process.cwd(), 'src', 'uploads', filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+      throw new BadRequestException('User already exists');
+    }
+
+      const passHash = await bcrypt.hash(payload.passwordHash, 10);
+
+      const user = await this.prisma.user.create({
+        data: {
+          ...payload,
+          avatarUrl: filename ?? null,
+          passwordHash: passHash,
+          role: UserRole.STUDENT
+        }
+      })
+
+      await this.prisma.userProfile.create({
+        data: {
+          userId: user.id,
+        }
+      })
+
+      const token = this.jwtService.sign({
+      id: user.id,
+      phone: user.phone,
+      role: user.role
+    })
+
+    return {
+      success: true,
+      token
+    }
+  }
+
+  async createAdmin(payload: CreateUserDto, currentUser:{id: number, role: UserRole}, filename?: string) {
+
+    const phone = await this.prisma.user.findUnique({ where: { phone: payload.phone } });
+
+    if (phone) {
+      if (filename) {
+        const filePath = join(process.cwd(), 'src', 'uploads', filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+      throw new BadRequestException('User already exists');
+    }
+
+      const passHash = await bcrypt.hash(payload.passwordHash, 10);
+
+      const user = await this.prisma.user.create({
+        data: {
+          ...payload,
+          avatarUrl: filename ?? null,
+          passwordHash: passHash,
+          role: UserRole.ADMIN
+        }
+      })
+
+      await this.prisma.userProfile.create({
+        data: {
+          userId: user.id,
+        }
+      })
+
+      const token = this.jwtService.sign({
+      id: user.id,
+      phone: user.phone,
+      role: user.role
+    })
+
+    return {
+      success: true,
+      token
+    }
+  }
+  
+
+  async findAllSuperAdmin(currentUser:{id: number, role: UserRole}) {
+    
   }
 
   async findOne(id: number) {
@@ -31,7 +151,13 @@ export class UserService {
   }
 
   async update(id: number, dto: UpdateUserDto) {
-    return (this.prisma.user as any).update({ where: { id: +id }, data: dto as any });
+
+    if (dto.passwordHash) {
+      const passHash = await bcrypt.hash(dto.passwordHash, 10);
+      dto.passwordHash = passHash;
+    }
+
+    return (this.prisma.user as any).update({ where: { id: +id }, data: dto });
   }
 
   async remove(id: number) {

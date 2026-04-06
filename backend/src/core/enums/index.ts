@@ -51,3 +51,10 @@ export enum NotificationType {
   ACHIEVEMENT = 'ACHIEVEMENT',
   GENERAL = 'GENERAL',
 }
+
+export const allGroupsForSwaggerEnum = () => {
+  let GroupScalarFieldEnum
+  
+
+  return GroupScalarFieldEnum
+}

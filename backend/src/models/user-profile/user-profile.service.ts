@@ -11,11 +11,11 @@ export class UserProfileService {
   }
 
   async findByUserId(userId: number) {
-    return this.prisma.userProfile.findUnique({ where: { userId } });
+    // return this.prisma.userProfile.findUnique({ where: { userId } });
   }
 
-  async update(userId: number, dto: UpdateUserProfileDto) {
-    return this.prisma.userProfile.update({ where: { userId }, data: dto as any });
+  async update(dto: UpdateUserProfileDto) {
+    return 
   }
 
   async remove(id: number) {

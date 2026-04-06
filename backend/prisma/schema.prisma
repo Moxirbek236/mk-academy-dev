@@ -39,6 +39,11 @@ model User {
   @@map("users")
 }
 
+// -----------------------------------------------
+// RefreshToken (Yangilash tokenlar)
+// Foydalanuvchilarning JWT refresh tokenlarini saqlaydi.
+// Xavfsiz tizimga kirish uchun ishlatiladi; har bir qurilma uchun alohida token bo'lishi mumkin.
+// -----------------------------------------------
 model RefreshToken {
   id         Int   @id @default(autoincrement())
   userId     Int   @map("user_id")
@@ -50,6 +55,12 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+// -----------------------------------------------
+// UserProfile (Foydalanuvchi profili)
+// Foydalanuvchining qo'shimcha shaxsiy ma'lumotlari: telefon, tug'ilgan kun,
+// interfeys tili, vaqt mintaqasi va bildirishnoma sozlamalari.
+// Har bir foydalanuvchiga bitta profil bog'liq (one-to-one).
+// -----------------------------------------------
 model UserProfile {
   id                   Int    @id @default(autoincrement())
   userId               Int    @unique @map("user_id")
@@ -63,6 +74,12 @@ model UserProfile {
   @@map("user_profiles")
 }
 
+// -----------------------------------------------
+// Group (Guruhlar)
+// O'qituvchi tomonidan yaratilgan o'quv guruhlari.
+// Har bir guruhda o'qituvchi, talabalar va topshiriqlar mavjud.
+// Guruhga qo'shilish uchun maxsus taklif kodi (inviteCode) ishlatiladi.
+// -----------------------------------------------
 model Group {
   id          Int   @id @default(autoincrement())
   name        String
@@ -80,6 +97,12 @@ model Group {
   @@map("groups")
 }
 
+// -----------------------------------------------
+// GroupMember (Guruh a'zolari)
+// Talabaning guruhga a'zoligini ifodalaydi.
+// Bir talaba bir guruhda faqat bir marta bo'la oladi (unique constraint).
+// Status orqali a'zolik holati kuzatiladi (PENDING, ACTIVE, REJECTED, BANNED).
+// -----------------------------------------------
 model GroupMember {
   id        Int   @id @default(autoincrement())
   groupId   Int   @map("group_id")
@@ -93,6 +116,11 @@ model GroupMember {
   @@map("group_members")
 }
 
+// -----------------------------------------------
+// GroupAssignment (Guruh topshiriqlari)
+// Test yoki vazifani guruhga "biriktirish" jadvali.
+// Muddat (dueDate) va majburiylik (isRequired) sozlanishi mumkin.
+// -----------------------------------------------
 model GroupAssignment {
   id         Int    @id @default(autoincrement())
   groupId    Int    @map("group_id")
@@ -149,6 +177,12 @@ model Book {
   @@map("books")
 }
 
+// -----------------------------------------------
+// Rating (Reytinglar)
+// Foydalanuvchilarning kitob yoki testlarga baho berishi.
+// Har bir foydalanuvchi bitta nishonga (BOOK yoki TEST) faqat bir marta baho bera oladi.
+// Baho 1 dan 5 gacha bo'ladi, ixtiyoriy sharh (reviewText) ham qo'shilishi mumkin.
+// -----------------------------------------------
 model Rating {
   id         Int   @id @default(autoincrement())
   userId     Int   @map("user_id")
@@ -163,6 +197,12 @@ model Rating {
   @@map("ratings")
 }
 
+// -----------------------------------------------
+// Vocabulary (Lug'at so'zlari)
+// Tizimning umumiy so'z bazasi.
+// Har bir so'z tarjimasi, talaffuzi, so'z turkumi, misol jumlasi
+// va CEFR darajasi bilan saqlanadi. Qiyinlik darajasi 1-5 oralig'ida.
+// -----------------------------------------------
 model Vocabulary {
   id                 Int  @id @default(autoincrement())
   word               String  @unique
@@ -182,6 +222,12 @@ model Vocabulary {
   @@map("vocabularies")
 }
 
+// -----------------------------------------------
+// VocabularyProgress (So'z o'rganish progressi)
+// Har bir talabaning har bir so'z bo'yicha o'rganish holati.
+// SM-2 (spaced repetition) algoritmi asosida: easeFactor, intervalDays, nextReviewAt.
+// correctCount va wrongCount statistika uchun saqlanadi.
+// -----------------------------------------------
 model VocabularyProgress {
   id             Int     @id @default(autoincrement())
   studentId      Int     @map("student_id")
@@ -200,6 +246,11 @@ model VocabularyProgress {
   @@map("vocabulary_progress")
 }
 
+// -----------------------------------------------
+// WordList (So'z ro'yxatlari)
+// Talaba o'zi uchun yaratgan shaxsiy so'z to'plamlari.
+// isPublic = true bo'lsa, boshqa foydalanuvchilar ham ko'ra oladi.
+// -----------------------------------------------
 model WordList {
   id        Int  @id @default(autoincrement())
   studentId Int  @map("student_id")
@@ -212,6 +263,11 @@ model WordList {
   @@map("word_lists")
 }
 
+// -----------------------------------------------
+// WordListItem (So'z ro'yxati elementlari)
+// WordList va Vocabulary o'rtasidagi ko'p-ko'p (many-to-many) bog'liq jadval.
+// Bir so'z bir ro'yxatga faqat bir marta qo'shilishi mumkin.
+// -----------------------------------------------
 model WordListItem {
   id           Int     @id @default(autoincrement())
   wordListId   Int     @map("word_list_id")
@@ -224,6 +280,11 @@ model WordListItem {
   @@map("word_list_items")
 }
 
+// -----------------------------------------------
+// Task (Vazifalar)
+// O'qituvchi tomonidan yaratilgan o'quv vazifalari (reading, writing, speaking, project).
+// Har bir vazifada ko'rsatmalar (instructions JSON), maksimal ball va fayl ilovalar bo'lishi mumkin.
+// -----------------------------------------------
 model Task {
   id           Int  @id @default(autoincrement())
   title        String
@@ -243,6 +304,11 @@ model Task {
   @@map("tasks")
 }
 
+// -----------------------------------------------
+// StudentTask (Talaba vazifalari)
+// Talabaning ma'lum bir vazifaga urinishi va natijasi.
+// Topshiriq holati, topshirilgan sana, mazmuni, ball va o'qituvchi izohi saqlanadi.
+// -----------------------------------------------
 model StudentTask {
   id                Int    @id @default(autoincrement())
   studentId         Int    @map("student_id")
@@ -262,6 +328,11 @@ model StudentTask {
   @@map("student_tasks")
 }
 
+// -----------------------------------------------
+// TaskAttachment (Vazifa ilovalari)
+// Vazifaga biriktirilgan fayllar (rasm, audio, video va boshqalar).
+// Har bir fayl turi (fileType) va yuklagan foydalanuvchi (uploadedBy) saqlanadi.
+// -----------------------------------------------
 model TaskAttachment {
   id         Int @id @default(autoincrement())
   taskId     Int @map("task_id")
@@ -273,6 +344,12 @@ model TaskAttachment {
   @@map("task_attachments")
 }
 
+// -----------------------------------------------
+// Test (Testlar)
+// Tizimda mavjud barcha testlar.
+// Tur (TestType), CEFR darajasi, vaqt chegarasi, o'tish bali,
+// savollarni aralashtirib berish va adaptiv rejim kabi sozlamalar mavjud.
+// -----------------------------------------------
 model Test {
   id               Int  @id @default(autoincrement())
   title            String
@@ -298,6 +375,12 @@ model Test {
   @@map("tests")
 }
 
+// -----------------------------------------------
+// Question (Savollar)
+// Testga tegishli savollar.
+// Savol turi (MCQ, ESSAY va boshqalar), variantlar (options JSON),
+// to'g'ri javob (correctAnswer JSON), izoh, ball va qiyinlik darajasi saqlanadi.
+// -----------------------------------------------
 model Question {
   id            Int  @id @default(autoincrement())
   testId        Int  @map("test_id")
@@ -317,6 +400,12 @@ model Question {
   @@map("questions")
 }
 
+// -----------------------------------------------
+// TestAttempt (Test urinishlari)
+// Talabaning test ishlash seansi.
+// Boshlanish vaqti, topshirilish vaqti, ball, foiz, o'tdi/o'tmadi holati,
+// sarflangan vaqt va berilgan javoblar (JSON) saqlanadi.
+// -----------------------------------------------
 model TestAttempt {
   id               Int    @id @default(autoincrement())
   studentId        Int    @map("student_id")
@@ -335,6 +424,12 @@ model TestAttempt {
   @@map("test_attempts")
 }
 
+// -----------------------------------------------
+// QuestionAnalytics (Savol tahlili)
+// Har bir savol bo'yicha statistika: necha marta urinib ko'rildi,
+// necha marta to'g'ri javoblandi va o'rtacha sarflangan vaqt.
+// Har bir savolga bitta analytics yozuvi bog'liq (one-to-one).
+// -----------------------------------------------
 model QuestionAnalytics {
   id             Int   @id @default(autoincrement())
   questionId     Int   @unique @map("question_id")
@@ -346,6 +441,13 @@ model QuestionAnalytics {
   @@map("question_analytics")
 }
 
+// -----------------------------------------------
+// Achievement (Yutuqlar / Medalllar)
+// Tizimda mavjud barcha yutuqlar.
+// Har bir yutuq ma'lum bir shart (conditionType va conditionValue) asosida beriladi.
+// Masalan: "10 ta so'z o'rgan" → condition_type="vocab_learned", condition_value=10.
+// XP mukofoti (xpReward) va rang (badgeColor) sozlanishi mumkin.
+// -----------------------------------------------
 model Achievement {
   id             Int  @id @default(autoincrement())
   title          String
@@ -361,6 +463,11 @@ model Achievement {
   @@map("achievements")
 }
 
+// -----------------------------------------------
+// StudentAchievement (Talaba yutuqlari)
+// Talabaga berilgan yutuqlarni saqlaydi.
+// Bir talabaga bitta yutuq faqat bir marta berilishi mumkin.
+// -----------------------------------------------
 model StudentAchievement {
   id            Int      @id @default(autoincrement())
   studentId     Int      @map("student_id")
@@ -373,6 +480,12 @@ model StudentAchievement {
   @@map("student_achievements")
 }
 
+// -----------------------------------------------
+// XpTransaction (XP operatsiyalari)
+// Talabaning XP (tajriba ball) olish tarixi.
+// Har bir transaksiyada sabab (reason) va ixtiyoriy havola (referenceId) saqlanadi.
+// Masalan: "test_completed" sababi bilan 50 XP berildi.
+// -----------------------------------------------
 model XpTransaction {
   id          Int   @id @default(autoincrement())
   studentId   Int   @map("student_id")
@@ -385,6 +498,12 @@ model XpTransaction {
   @@map("xp_transactions")
 }
 
+// -----------------------------------------------
+// Leaderboard (Liderlik jadvali)
+// Talabalarning reyting pozitsiyalari.
+// Qamrov (scope): GLOBAL (hammani), GROUP (guruh ichida), WEEKLY (haftalik).
+// Balllar va rank (o'rin) saqlanadi. period - haftalik hisoblar uchun davr belgisi.
+// -----------------------------------------------
 model Leaderboard {
   id        Int  @id @default(autoincrement())
   scope     String  @default("GLOBAL")
@@ -399,6 +518,12 @@ model Leaderboard {
   @@map("leaderboards")
 }
 
+// -----------------------------------------------
+// Notification (Bildirishnomalar)
+// Foydalanuvchilarga yuborilgan barcha bildirishnomalar.
+// Tur (type), sarlavha, matn va qo'shimcha JSON ma'lumot saqlanadi.
+// isRead = false bo'lsa, bildirishnoma o'qilmagan.
+// -----------------------------------------------
 model Notification {
   id        Int   @id @default(autoincrement())
   userId    Int   @map("user_id")

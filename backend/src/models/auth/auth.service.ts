@@ -1,18 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
+import { JwtService } from '@nestjs/jwt';
+import { LoginDto } from './dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService
+  ) {}
 
-  async validateUser(phone: string, pass: string) {
-    const user = await this.prisma.user.findFirst({ 
-      where: { phone: phone } as any
+  async login(payload: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        phone: payload.phone
+      }
     });
-    if (user && user.passwordHash === pass) {
-      const { passwordHash, ...result } = user;
-      return result;
+
+    if (!user) {
+      throw new BadRequestException('Phone and password do not found');
     }
-    return null;
+
+    
+
+    const isPasswordValid = await bcrypt.compare(payload.password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Phone and password do not found');
+    }
+
+    if (user.isActive !== true) {
+      throw new BadRequestException('User is not active');
+    }
+
+    const token = this.jwtService.sign({
+      id: user.id,
+      phone: user.phone,
+      role: user.role
+    }, {
+      secret: process.env.JWT_SECRET
+    });
+
+    return {
+      success: true,
+      token
+    };
   }
 }
