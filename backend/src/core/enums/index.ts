@@ -1,5 +1,5 @@
 export enum UserRole {
-  SUPER_ADMIN = 'SUPER_ADMIN',
+  SUPERADMIN = 'SUPERADMIN',
   ADMIN = 'ADMIN',
   TEACHER = 'TEACHER',
   STUDENT = 'STUDENT',
@@ -54,7 +54,7 @@ export enum NotificationType {
 
 export const allGroupsForSwaggerEnum = () => {
   let GroupScalarFieldEnum
-  
+
 
   return GroupScalarFieldEnum
 }

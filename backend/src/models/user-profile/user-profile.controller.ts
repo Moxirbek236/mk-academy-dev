@@ -1,31 +1,59 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Req, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { UserProfileService } from './user-profile.service';
 import { CreateUserProfileDto, UpdateUserProfileDto } from './dto';
 
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { JwtService } from '@nestjs/jwt';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { RolesGuard } from 'src/common/guards/role.guard';
+import { UserRole } from 'src/core/enums';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @ApiTags('user-profiles')
 @Controller('user-profiles')
+@ApiBearerAuth()
 export class UserProfileController {
-  constructor(private readonly userProfileService: UserProfileService) {}
-
-  @Get(':userId')
-  @ApiOperation({ summary: 'Get user profile by user ID' })
-  @ApiResponse({ status: 200, description: 'Return the profile.' })
-  findOne(@Param('userId') userId: string) {
-    return this.userProfileService.findByUserId(+userId);
+  constructor(private readonly userProfileService: UserProfileService, private readonly jwtService: JwtService) {}
+  
+  @UseGuards(AuthGuard, RolesGuard)
+  @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}, ${UserRole.TEACHER}, ${UserRole.STUDENT}` })
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
+  @Get("profile/me")
+  findMe(@Req() req: Request) {
+    return this.userProfileService.findMe(req['user']);
   }
-
-  @Patch(':userId')
-  @ApiOperation({ summary: 'Update user profile' })
-  @ApiResponse({ status: 200, description: 'Profile updated.' })
-  update(@Param('userId') userId: string, @Body() dto: UpdateUserProfileDto) {
-    // return this.userProfileService.update();
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete profile (Admin only)' })
-  remove(@Param('id') id: string) {
-    return this.userProfileService.remove(+id);
+  
+  @UseGuards(AuthGuard, RolesGuard)
+  @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}, ${UserRole.TEACHER}, ${UserRole.STUDENT}` })
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
+  @Put("profile/update")
+  @ApiConsumes('multipart/form-data')
+    @ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          phone: { type: 'string', example:'+998XXXXXXXXX' },
+          passwordHash: { type: 'string' },
+          fullName: { type: 'string' },
+          avatarUrl: { type: 'string', format: 'binary' },
+          cefrLevel: { type: 'string', enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] },
+        },
+      },
+    })
+    @UseInterceptors(
+      FileInterceptor('avatarUrl', {
+        storage: diskStorage({
+          destination: './src/uploads',
+          filename: (req, file, callback) => {
+            const filename = Date.now() + '.' + file.originalname.split('.')[1];
+            callback(null, filename);
+          },
+        }),
+      }),
+    )
+  update(@Body() payload: UpdateUserProfileDto, @Req() req: Request, @UploadedFile() file?: Express.Multer.File) {
+    return this.userProfileService.update(payload, req['user'], file?.filename);
   }
 }

@@ -16,7 +16,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true
+  }});
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -26,8 +29,6 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`Backend is running on: http://localhost:${port}`);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
