@@ -13,12 +13,7 @@ export class CreateUserDto {
 
   @ApiProperty({ example: 'John Doe' })
   @IsString()
-  fullName: string;
-
-  @ApiPropertyOptional({ enum: UserRole, default: UserRole.STUDENT })
-  @IsOptional()
-  @IsEnum(UserRole)
-  role?: UserRole;
+  fullName: string; 
 
   @ApiPropertyOptional()
   @IsOptional()

@@ -1,8 +1,8 @@
-import { Controller, Post, Body, UseGuards, Request, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Request} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto';
 
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -11,14 +11,8 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Login with phone and password' })
-  @ApiResponse({ status: 200, description: 'Login successful.' })
-  @ApiResponse({ status: 401, description: 'Invalid credentials.' })
-  async login(@Body() body: LoginDto) {
-    const user = await this.authService.validateUser(body.phone, body.password);
-    if (!user) {
-      throw new UnauthorizedException('Phone number or password incorrect');
-    }
-    return user;
+  async login(@Body() payload: LoginDto) {
+    return this.authService.login(payload);
   }
 
   @Post('logout')
