@@ -1,0 +1,80 @@
+{
+  "Common": {
+    "appName": "MK Academy",
+    "loading": "Zagruzka",
+    "logout": "Vyyti",
+    "systemStatus": "Sostoyanie sistemy",
+    "language": "Yazyk",
+    "theme": "Tema"
+  },
+  "Theme": {
+    "light": "Svetlaya",
+    "dark": "Temnaya",
+    "system": "Sistemnaya"
+  },
+  "Header": {
+    "title": "MK. Academy",
+    "subtitleStudent": "Obuchenie angliyskomu",
+    "subtitleTeacher": "Panel prepodavatelya",
+    "subtitleAdmin": "Upravlenie centrom",
+    "subtitleSuperadmin": "Globalnaya admin-panel",
+    "progress": "Obshchiy progress",
+    "done": "vypolneno",
+    "tasks": "Zadaniya",
+    "daysLeft": "Dney ostalos",
+    "errors": "Oshibki"
+  },
+  "Sidebar": {
+    "brandSub": "Language Lab",
+    "statusHealthy": "Stabilno",
+    "dashboard": "Panel",
+    "leads": "Zayavki",
+    "users": "Polzovateli",
+    "finance": "Finansy",
+    "system": "Sistema",
+    "settings": "Nastroyki",
+    "home": "Glavnaya",
+    "students": "Ucheniki",
+    "courses": "Kursy",
+    "reports": "Otchety",
+    "monitor": "Monitor",
+    "groups": "Gruppy",
+    "tasks": "Zadaniya",
+    "results": "Rezultaty",
+    "learning": "Obuchenie",
+    "books": "Knigi",
+    "rating": "Reyting",
+    "profile": "Profil"
+  },
+  "BottomNav": {
+    "dashboard": "Panel",
+    "users": "Polzovateli",
+    "finance": "Finansy",
+    "system": "Sistema",
+    "settings": "Nastroyki",
+    "home": "Glavnaya",
+    "students": "Ucheniki",
+    "courses": "Kursy",
+    "reports": "Otchety",
+    "monitor": "Monitor",
+    "groups": "Gruppy",
+    "tasks": "Zadaniya",
+    "results": "Rezultaty",
+    "learning": "Obuchenie",
+    "books": "Knigi",
+    "rating": "Reyting",
+    "profile": "Profil"
+  },
+  "Finance": {
+    "title": "Finansy",
+    "balanceLabel": "Obshchiy balans ({period})",
+    "monthly": "mesyachnyy",
+    "income": "Dohod",
+    "expense": "Rashod",
+    "transactions": "Tranzakcii",
+    "history": "Istoriya",
+    "transactionCount": "{count} tranzakciy",
+    "systemTransaction": "Sistemnaya tranzakciya",
+    "transfer": "Perevod"
+  }
+}

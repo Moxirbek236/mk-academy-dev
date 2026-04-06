@@ -1,0 +1,80 @@
+{
+  "Common": {
+    "appName": "MK Academy",
+    "loading": "Loading",
+    "logout": "Logout",
+    "systemStatus": "System status",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "Theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "Header": {
+    "title": "MK. Academy",
+    "subtitleStudent": "English Learning",
+    "subtitleTeacher": "Instructor Portal",
+    "subtitleAdmin": "Center Management",
+    "subtitleSuperadmin": "Global Admin Panel",
+    "progress": "Overall progress",
+    "done": "completed",
+    "tasks": "Tasks",
+    "daysLeft": "Days left",
+    "errors": "Errors"
+  },
+  "Sidebar": {
+    "brandSub": "Language Lab",
+    "statusHealthy": "Healthy",
+    "dashboard": "Dashboard",
+    "leads": "Leads",
+    "users": "Users",
+    "finance": "Finance",
+    "system": "System",
+    "settings": "Settings",
+    "home": "Home",
+    "students": "Students",
+    "courses": "Courses",
+    "reports": "Reports",
+    "monitor": "Monitor",
+    "groups": "Groups",
+    "tasks": "Tasks",
+    "results": "Results",
+    "learning": "Learning",
+    "books": "Books",
+    "rating": "Rating",
+    "profile": "Profile"
+  },
+  "BottomNav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "finance": "Finance",
+    "system": "System",
+    "settings": "Settings",
+    "home": "Home",
+    "students": "Students",
+    "courses": "Courses",
+    "reports": "Reports",
+    "monitor": "Monitor",
+    "groups": "Groups",
+    "tasks": "Tasks",
+    "results": "Results",
+    "learning": "Learning",
+    "books": "Books",
+    "rating": "Rating",
+    "profile": "Profile"
+  },
+  "Finance": {
+    "title": "Finance",
+    "balanceLabel": "Total balance ({period})",
+    "monthly": "monthly",
+    "income": "Income",
+    "expense": "Expense",
+    "transactions": "Transactions",
+    "history": "History",
+    "transactionCount": "{count} transactions",
+    "systemTransaction": "System transaction",
+    "transfer": "Transfer"
+  }
+}

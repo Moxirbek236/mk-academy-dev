@@ -1,0 +1,71 @@
+'use client';
+import { Home, Book, Settings as SettingsIcon, LayoutGrid, Users, DollarSign, BookOpen, Layers, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { stripLocaleFromPathname } from '@/i18n/pathname';
+
+interface BottomNavProps {
+  role?: string | null;
+}
+
+export function BottomNav({ role }: BottomNavProps) {
+  const t = useTranslations('BottomNav');
+  const locale = useLocale();
+  const pathname = usePathname() || '/';
+  const normalizedPathname = stripLocaleFromPathname(pathname);
+  const currentRole = role?.toLowerCase();
+  const isTeacher = currentRole === 'teacher' || currentRole === 'mentor';
+
+  const navItems = currentRole === 'superadmin' ? [
+    { path: '/', icon: Home, label: t('dashboard') },
+    { path: '/users', icon: Users, label: t('users') },
+    { path: '/finance', icon: DollarSign, label: t('finance') },
+    { path: '/system', icon: ShieldCheck, label: t('system') },
+    { path: '/settings', icon: SettingsIcon, label: t('settings') },
+  ] : currentRole === 'admin' ? [
+    { path: '/', icon: Home, label: t('home') },
+    { path: '/users', icon: Users, label: t('students') },
+    { path: '/courses', icon: BookOpen, label: t('courses') },
+    { path: '/results', icon: LayoutGrid, label: t('reports') },
+    { path: '/settings', icon: SettingsIcon, label: t('settings') },
+  ] : isTeacher ? [
+    { path: '/', icon: Home, label: t('monitor') },
+    { path: '/groups', icon: Layers, label: t('groups') },
+    { path: '/tasks', icon: BookOpen, label: t('tasks') },
+    { path: '/results', icon: LayoutGrid, label: t('results') },
+    { path: '/settings', icon: SettingsIcon, label: t('settings') },
+  ] : [
+    { path: '/', icon: Home, label: t('home') },
+    { path: '/groups', icon: Layers, label: t('groups') },
+    { path: '/learning', icon: BookOpen, label: t('learning') },
+    { path: '/books', icon: Book, label: t('books') },
+    { path: '/results', icon: LayoutGrid, label: t('rating') },
+    { path: '/settings', icon: SettingsIcon, label: t('profile') },
+  ];
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-gray-100 bg-white/95 px-3 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(2,6,23,0.12)] backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/95">
+      {navItems.map((item) => {
+        const isActive =
+          normalizedPathname === item.path ||
+          (item.path !== '/' && normalizedPathname.startsWith(item.path));
+        const Icon = item.icon;
+        const localizedHref = item.path === '/' ? `/${locale}` : `/${locale}${item.path}`;
+        
+        return (
+          <Link 
+            key={item.path} 
+            href={localizedHref}
+            className={`app-touch flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 transition-all ${isActive ? 'text-[#3D855A]' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900 focus:scale-95 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+          >
+            <div className={`rounded-2xl p-2.5 transition-all group-active:scale-90 ${isActive ? 'bg-[#F2F8F5] shadow-sm dark:bg-slate-800' : ''}`}>
+              <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+            </div>
+            <span className={`truncate text-[10px] tracking-tight ${isActive ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}

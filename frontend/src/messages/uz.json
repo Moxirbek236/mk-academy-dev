@@ -1,0 +1,80 @@
+{
+  "Common": {
+    "appName": "MK Academy",
+    "loading": "Yuklanmoqda",
+    "logout": "Chiqish",
+    "systemStatus": "Tizim holati",
+    "language": "Til",
+    "theme": "Mavzu"
+  },
+  "Theme": {
+    "light": "Yorug'",
+    "dark": "Qorong'i",
+    "system": "Tizim"
+  },
+  "Header": {
+    "title": "MK. Academy",
+    "subtitleStudent": "Ingliz Tili Ta'limi",
+    "subtitleTeacher": "Ustoz Paneli",
+    "subtitleAdmin": "Markaz Boshqaruvi",
+    "subtitleSuperadmin": "Global Admin Panel",
+    "progress": "Umumiy progress",
+    "done": "bajarildi",
+    "tasks": "Topshiriq",
+    "daysLeft": "Kun qoldi",
+    "errors": "Xatolar"
+  },
+  "Sidebar": {
+    "brandSub": "Language Lab",
+    "statusHealthy": "Yaxshi",
+    "dashboard": "Boshqaruv",
+    "leads": "Murojaatlar",
+    "users": "Foydalanuvchilar",
+    "finance": "Moliya",
+    "system": "Tizim",
+    "settings": "Sozlamalar",
+    "home": "Bosh",
+    "students": "O'quvchilar",
+    "courses": "Kurslar",
+    "reports": "Hisobot",
+    "monitor": "Monitor",
+    "groups": "Guruhlar",
+    "tasks": "Topshiriqlar",
+    "results": "Natijalar",
+    "learning": "Darslar",
+    "books": "Kitoblar",
+    "rating": "Reyting",
+    "profile": "Profil"
+  },
+  "BottomNav": {
+    "dashboard": "Boshqaruv",
+    "users": "Foydalanuvchilar",
+    "finance": "Moliya",
+    "system": "Tizim",
+    "settings": "Sozlamalar",
+    "home": "Bosh",
+    "students": "O'quvchilar",
+    "courses": "Kurslar",
+    "reports": "Hisobot",
+    "monitor": "Monitor",
+    "groups": "Guruhlar",
+    "tasks": "Topshiriqlar",
+    "results": "Natijalar",
+    "learning": "Darslar",
+    "books": "Kitoblar",
+    "rating": "Reyting",
+    "profile": "Profil"
+  },
+  "Finance": {
+    "title": "Moliya",
+    "balanceLabel": "Jami balans ({period})",
+    "monthly": "oylik",
+    "income": "Kirim",
+    "expense": "Chiqim",
+    "transactions": "Tranzaksiyalar",
+    "history": "Tarix",
+    "transactionCount": "{count} ta tranzaksiya",
+    "systemTransaction": "Tizim tranzaksiyasi",
+    "transfer": "O'tkazma"
+  }
+}

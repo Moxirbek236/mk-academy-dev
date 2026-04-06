@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --app-bg: #f7fbf8;
+    --app-surface: #ffffff;
+    --app-surface-soft: #f2f8f5;
+    --app-border: #dceee3;
+    --app-text: #111827;
+    --app-muted: #6b7280;
+    --app-primary: #3d855a;
+    --app-safe-top: env(safe-area-inset-top, 0px);
+    --app-safe-right: env(safe-area-inset-right, 0px);
+    --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --app-safe-left: env(safe-area-inset-left, 0px);
+  }
+
+  .dark {
+    --app-bg: #020617;
+    --app-surface: #0f172a;
+    --app-surface-soft: #162338;
+    --app-border: #334155;
+    --app-text: #f1f5f9;
+    --app-muted: #94a3b8;
+    --app-primary: #5bc28b;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    width: 100%;
+    min-height: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    background: var(--app-bg);
+  }
+
+  body {
+    min-height: 100svh;
+    min-height: 100dvh;
+    color: var(--app-text);
+    transition: background-color 180ms ease, color 180ms ease;
+    overscroll-behavior-x: none;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@layer utilities {
+  .min-h-screen-safe {
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+
+  .pb-safe {
+    padding-bottom: calc(0.75rem + var(--app-safe-bottom));
+  }
+
+  .pt-safe {
+    padding-top: calc(0.75rem + var(--app-safe-top));
+  }
+
+  .px-safe {
+    padding-left: max(0.75rem, var(--app-safe-left));
+    padding-right: max(0.75rem, var(--app-safe-right));
+  }
+
+  .pb-nav-safe {
+    padding-bottom: calc(5.75rem + var(--app-safe-bottom));
+  }
+
+  .app-page {
+    width: min(100%, 72rem);
+    margin-inline: auto;
+    padding-inline: clamp(0.75rem, 3.2vw, 1.5rem);
+  }
+
+  .app-touch {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .theme-surface {
+    background-color: var(--app-surface);
+    border-color: var(--app-border);
+    color: var(--app-text);
+  }
+
+  /* Compatibility layer for existing Tailwind classes in dark mode */
+  .dark .bg-white {
+    background-color: rgb(15 23 42 / 0.88) !important;
+  }
+
+  .dark .bg-gray-50 {
+    background-color: rgb(30 41 59 / 0.55) !important;
+  }
+
+  .dark .bg-gray-100 {
+    background-color: rgb(51 65 85 / 0.55) !important;
+  }
+
+  .dark .border-gray-100,
+  .dark .border-gray-200 {
+    border-color: rgb(51 65 85 / 0.7) !important;
+  }
+
+  .dark .text-gray-900 {
+    color: rgb(241 245 249) !important;
+  }
+
+  .dark .text-gray-800 {
+    color: rgb(226 232 240) !important;
+  }
+
+  .dark .text-gray-700 {
+    color: rgb(203 213 225) !important;
+  }
+
+  .dark .text-gray-600,
+  .dark .text-gray-500,
+  .dark .text-gray-400 {
+    color: rgb(148 163 184) !important;
+  }
+
+  .dark .text-gray-300 {
+    color: rgb(100 116 139) !important;
+  }
+}

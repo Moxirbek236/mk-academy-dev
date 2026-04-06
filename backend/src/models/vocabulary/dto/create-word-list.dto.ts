@@ -1,0 +1,1 @@
+// CreateWordListDto - Fields: name, isPublic?
