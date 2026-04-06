@@ -4,9 +4,16 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
+    const databaseUrl = process.env.DATABASE_URL ?? 'file:./prisma/dev.db';
+
     super({
       log: ['warn', 'error'],
       errorFormat: 'pretty',
+      datasources: {
+        db: {
+          url: databaseUrl,
+        },
+      },
     });
   }
 
