@@ -11,7 +11,7 @@ import { diskStorage } from 'multer';
 
 @ApiTags('users')
 @Controller('users')
-
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
   
