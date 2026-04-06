@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Phone, Lock, ArrowRight, Loader2, Home, BookOpen, Eye, EyeOff, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
+import { getUserFriendlyErrorMessage } from '@/lib/offline/errors';
 
 function decodeJwtRole(token: string): string | null {
   try {
@@ -43,6 +44,10 @@ function extractLoginData(body: any): { token: string | null; role: string | nul
   return { token, role };
 }
 
+function normalizePhone(phone: string): string {
+  return phone.replace(/[^\d+]/g, '');
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ phone: '', password: '' });
@@ -55,7 +60,11 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.post('/auth/login', formData);
+      const payload = {
+        phone: normalizePhone(formData.phone),
+        password: formData.password,
+      };
+      const res = await api.post('/auth/login', payload);
       const body = res.data;
       const { token, role } = extractLoginData(body);
 
@@ -70,8 +79,16 @@ export default function LoginPage() {
       } else {
         setError('Tizimga kirishda xatolik yuz berdi');
       }
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Telefon raqami yoki parol noto\'g\'ri');
+    } catch (err: unknown) {
+      const message = getUserFriendlyErrorMessage(err, 'Telefon raqami yoki parol noto\'g\'ri');
+      if (
+        message === 'Phone and password do not found' ||
+        message === 'User is not active'
+      ) {
+        setError('Telefon raqami yoki parol noto\'g\'ri');
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }
