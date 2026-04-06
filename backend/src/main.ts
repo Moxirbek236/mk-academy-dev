@@ -26,8 +26,14 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`Backend is running on: http://localhost:${port}`);
+  const port = Number(process.env.PORT) || 3001;
+  const host = process.env.HOST || '0.0.0.0';
+
+  await app.listen(port, host);
+  console.log(`Backend is running on: http://${host}:${port}`);
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('Application bootstrap failed:', error);
+  process.exit(1);
+});

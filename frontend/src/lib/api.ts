@@ -22,24 +22,11 @@ export type OfflineAwareAxiosResponse<T = unknown> = AxiosResponse<T> & {
   offline?: OfflineResponseMeta;
 };
 
+const DEFAULT_API_URL = 'https://mk-academy-dev.onrender.com/api';
+
 const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-
-  if (typeof window !== 'undefined') {
-    const isAndroidEmulator =
-      (window.origin.includes('capacitor') ||
-        window.origin.includes('ionic') ||
-        window.origin.includes('http://localhost')) &&
-      /android/i.test(navigator.userAgent);
-
-    if (isAndroidEmulator) {
-      return 'http://10.0.2.2:3001/api';
-    }
-
-    return `${window.location.protocol}//${window.location.hostname}:3001/api`;
-  }
-
-  return 'http://localhost:3001/api';
+  return DEFAULT_API_URL;
 };
 
 function getTokenFromStorage(): string | null {
