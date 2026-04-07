@@ -1,13 +1,12 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
-import { CreateUserDto, QueryUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, QueryUserDto, UpdateUserDto, QueryUserSuperAdminDto } from './dto';
 import { User } from '@prisma/client';
 import { UserRole } from 'src/core/enums';
 import { join } from 'path';
 import * as fs from 'fs';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { group } from 'console';
 import { QueryUserTeacherDto } from './dto/query.teacher.dto';
 import { QueryUserAdminDto } from './dto/query.admin.dto';
 
@@ -41,18 +40,17 @@ export class UserService {
       select:{
         id:true,
         fullName:true,
-        phone:true,
-        role:true,
         isActive:true,
-        createdAt:true,
-        updatedAt:true,
+        phone:true,
+        avatarUrl:true,
+        role:true
       }
     })
 
     await this.prisma.userProfile.create({
       data: {
         userId: user.id,
-        isActive: true,
+        isActive:true
       }
     })
 
@@ -137,10 +135,11 @@ export class UserService {
     }
   }
 
-  async findAllSuperAdmin(query: QueryUserDto): Promise<User[]> {
+  async findAllSuperAdmin(query: QueryUserSuperAdminDto): Promise<User[]> {
     try {
       let users = await this.prisma.user.findMany({
         where: {
+          
         },
         include: {
           groupsCreated: true

@@ -42,9 +42,6 @@ export class GroupService {
     if (!group) {
       throw new NotFoundException('Bunday guruh mavjud emas');
     }
-    if (!group.is_avaiable) {
-      throw new NotFoundException('Bu guruh faol emas');
-    }
     return group;
   }
 
@@ -61,12 +58,9 @@ export class GroupService {
     if (!group) {
       throw new NotFoundException('Bunday guruh mavjud emas');
     }
-    if (!group.is_avaiable) {
-      throw new BadRequestException('Bu guruh allaqachon o\'chirilgan');
-    }
     return this.prisma.group.update({
       where: { id },
-      data: { is_avaiable: false }
+      data: { isActive: false }
     });
   }
 }

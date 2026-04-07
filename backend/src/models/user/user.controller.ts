@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, Req, Put, ParseIntPipe } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto, QueryUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto, QueryUserDto, QueryUserSuperAdminDto } from './dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UserRole } from 'src/core/enums';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -117,7 +117,7 @@ export class UserController {
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
   @Get("superAdmin/all")
-  findAllSuperAdmin(@Req() req: Request, @Query() query: QueryUserDto) {
+  findAllSuperAdmin(@Req() req: Request, @Query() query: QueryUserSuperAdminDto) {
     return this.userService.findAllSuperAdmin(query);
   }
 

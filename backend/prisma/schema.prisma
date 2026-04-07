@@ -40,11 +40,6 @@ model User {
   @@map("users")
 }
 
-// -----------------------------------------------
-// RefreshToken (Yangilash tokenlar)
-// Foydalanuvchilarning JWT refresh tokenlarini saqlaydi.
-// Xavfsiz tizimga kirish uchun ishlatiladi; har bir qurilma uchun alohida token bo'lishi mumkin.
-// -----------------------------------------------
 model RefreshToken {
   id         Int      @id @default(autoincrement())
   userId     Int      @map("user_id")
@@ -52,16 +47,11 @@ model RefreshToken {
   tokenHash  String   @unique @map("token_hash")
   expiresAt  DateTime @map("expires_at")
   deviceInfo String?  @map("device_info")
+  isActive   Boolean  @default(true) @map("is_active")
 
   @@map("refresh_tokens")
 }
 
-// -----------------------------------------------
-// UserProfile (Foydalanuvchi profili)
-// Foydalanuvchining qo'shimcha shaxsiy ma'lumotlari: telefon, tug'ilgan kun,
-// interfeys tili, vaqt mintaqasi va bildirishnoma sozlamalari.
-// Har bir foydalanuvchiga bitta profil bog'liq (one-to-one).
-// -----------------------------------------------
 model UserProfile {
   id                   Int       @id @default(autoincrement())
   userId               Int       @unique @map("user_id")
@@ -71,17 +61,11 @@ model UserProfile {
   language             String    @default("UZ")
   timezone             String    @default("Asia/Tashkent")
   notificationSettings String?   @map("notification_settings")
-  isActive             Boolean   @default(true)
+  isActive             Boolean   @default(true) @map("is_active")
 
   @@map("user_profiles")
 }
 
-// -----------------------------------------------
-// Group (Guruhlar)
-// O'qituvchi tomonidan yaratilgan o'quv guruhlari.
-// Har bir guruhda o'qituvchi, talabalar va topshiriqlar mavjud.
-// Guruhga qo'shilish uchun maxsus taklif kodi (inviteCode) ishlatiladi.
-// -----------------------------------------------
 model Group {
   id          Int      @id @default(autoincrement())
   name        String
@@ -89,6 +73,8 @@ model Group {
   teacherId   Int      @map("teacher_id")
   teacher     User     @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
   inviteCode  String   @unique @map("invite_code")
+  isAvailable Boolean  @default(true) @map("is_available")
+  isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
 
   members      GroupMember[]
@@ -99,12 +85,6 @@ model Group {
   @@map("groups")
 }
 
-// -----------------------------------------------
-// GroupMember (Guruh a'zolari)
-// Talabaning guruhga a'zoligini ifodalaydi.
-// Bir talaba bir guruhda faqat bir marta bo'la oladi (unique constraint).
-// Status orqali a'zolik holati kuzatiladi (PENDING, ACTIVE, REJECTED, BANNED).
-// -----------------------------------------------
 model GroupMember {
   id        Int      @id @default(autoincrement())
   groupId   Int      @map("group_id")
@@ -113,16 +93,12 @@ model GroupMember {
   student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   joinedAt  DateTime @default(now()) @map("joined_at")
   status    String   @default("ACTIVE")
+  isActive  Boolean  @default(true) @map("is_active")
 
   @@unique([groupId, studentId])
   @@map("group_members")
 }
 
-// -----------------------------------------------
-// GroupAssignment (Guruh topshiriqlari)
-// Test yoki vazifani guruhga "biriktirish" jadvali.
-// Muddat (dueDate) va majburiylik (isRequired) sozlanishi mumkin.
-// -----------------------------------------------
 model GroupAssignment {
   id         Int       @id @default(autoincrement())
   groupId    Int       @map("group_id")
@@ -133,6 +109,7 @@ model GroupAssignment {
   task       Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   dueDate    DateTime? @map("due_date")
   isRequired Boolean   @default(true) @map("is_required")
+  isActive   Boolean   @default(true) @map("is_active")
   createdAt  DateTime  @default(now()) @map("created_at")
 
   @@map("group_assignments")
@@ -142,7 +119,7 @@ model Course {
   id          Int      @id @default(autoincrement())
   title       String
   description String?
-  level       String   @default("A1") // CEFR level
+  level       String   @default("A1")
   imageUrl    String?  @map("image_url")
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -161,6 +138,7 @@ model GroupCourse {
   courseId   Int      @map("course_id")
   course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   assignedAt DateTime @default(now()) @map("assigned_at")
+  isActive   Boolean  @default(true) @map("is_active")
 
   @@unique([groupId, courseId])
   @@map("group_courses")
@@ -174,17 +152,12 @@ model Book {
   coverImageUrl String?  @map("cover_image_url")
   fileUrl       String   @map("file_url")
   cefrLevel     String?  @map("cefr_level")
+  isActive      Boolean  @default(true) @map("is_active")
   createdAt     DateTime @default(now()) @map("created_at")
 
   @@map("books")
 }
 
-// -----------------------------------------------
-// Rating (Reytinglar)
-// Foydalanuvchilarning kitob yoki testlarga baho berishi.
-// Har bir foydalanuvchi bitta nishonga (BOOK yoki TEST) faqat bir marta baho bera oladi.
-// Baho 1 dan 5 gacha bo'ladi, ixtiyoriy sharh (reviewText) ham qo'shilishi mumkin.
-// -----------------------------------------------
 model Rating {
   id         Int      @id @default(autoincrement())
   userId     Int      @map("user_id")
@@ -193,18 +166,13 @@ model Rating {
   targetId   String   @map("target_id")
   score      Int
   reviewText String?  @map("review_text")
+  isActive   Boolean  @default(true) @map("is_active")
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@unique([userId, targetType, targetId])
   @@map("ratings")
 }
 
-// -----------------------------------------------
-// Vocabulary (Lug'at so'zlari)
-// Tizimning umumiy so'z bazasi.
-// Har bir so'z tarjimasi, talaffuzi, so'z turkumi, misol jumlasi
-// va CEFR darajasi bilan saqlanadi. Qiyinlik darajasi 1-5 oralig'ida.
-// -----------------------------------------------
 model Vocabulary {
   id                 Int     @id @default(autoincrement())
   word               String  @unique
@@ -217,6 +185,7 @@ model Vocabulary {
   audioUrl           String? @map("audio_url")
   difficulty         Int     @default(1)
   cefrLevel          String? @map("cefr_level")
+  isActive           Boolean @default(true) @map("is_active")
 
   progress      VocabularyProgress[]
   wordListItems WordListItem[]
@@ -224,12 +193,6 @@ model Vocabulary {
   @@map("vocabularies")
 }
 
-// -----------------------------------------------
-// VocabularyProgress (So'z o'rganish progressi)
-// Har bir talabaning har bir so'z bo'yicha o'rganish holati.
-// SM-2 (spaced repetition) algoritmi asosida: easeFactor, intervalDays, nextReviewAt.
-// correctCount va wrongCount statistika uchun saqlanadi.
-// -----------------------------------------------
 model VocabularyProgress {
   id             Int        @id @default(autoincrement())
   studentId      Int        @map("student_id")
@@ -243,33 +206,25 @@ model VocabularyProgress {
   correctCount   Int        @default(0) @map("correct_count")
   wrongCount     Int        @default(0) @map("wrong_count")
   lastReviewedAt DateTime?  @map("last_reviewed_at")
+  isActive       Boolean    @default(true) @map("is_active")
 
   @@unique([studentId, vocabularyId])
   @@map("vocabulary_progress")
 }
 
-// -----------------------------------------------
-// WordList (So'z ro'yxatlari)
-// Talaba o'zi uchun yaratgan shaxsiy so'z to'plamlari.
-// isPublic = true bo'lsa, boshqa foydalanuvchilar ham ko'ra oladi.
-// -----------------------------------------------
 model WordList {
   id        Int     @id @default(autoincrement())
   studentId Int     @map("student_id")
   student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   name      String
   isPublic  Boolean @default(false) @map("is_public")
+  isActive  Boolean @default(true) @map("is_active")
 
   items WordListItem[]
 
   @@map("word_lists")
 }
 
-// -----------------------------------------------
-// WordListItem (So'z ro'yxati elementlari)
-// WordList va Vocabulary o'rtasidagi ko'p-ko'p (many-to-many) bog'liq jadval.
-// Bir so'z bir ro'yxatga faqat bir marta qo'shilishi mumkin.
-// -----------------------------------------------
 model WordListItem {
   id           Int        @id @default(autoincrement())
   wordListId   Int        @map("word_list_id")
@@ -277,16 +232,12 @@ model WordListItem {
   vocabularyId Int        @map("vocabulary_id")
   vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
   addedAt      DateTime   @default(now()) @map("added_at")
+  isActive     Boolean    @default(true) @map("is_active")
 
   @@unique([wordListId, vocabularyId])
   @@map("word_list_items")
 }
 
-// -----------------------------------------------
-// Task (Vazifalar)
-// O'qituvchi tomonidan yaratilgan o'quv vazifalari (reading, writing, speaking, project).
-// Har bir vazifada ko'rsatmalar (instructions JSON), maksimal ball va fayl ilovalar bo'lishi mumkin.
-// -----------------------------------------------
 model Task {
   id           Int     @id @default(autoincrement())
   title        String
@@ -296,6 +247,7 @@ model Task {
   maxScore     Int     @default(100) @map("max_score")
   createdById  Int?    @map("created_by")
   createdBy    User?   @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: SetNull)
+  isActive     Boolean @default(true) @map("is_active")
 
   studentTasks StudentTask[]
   attachments  TaskAttachment[]
@@ -306,11 +258,6 @@ model Task {
   @@map("tasks")
 }
 
-// -----------------------------------------------
-// StudentTask (Talaba vazifalari)
-// Talabaning ma'lum bir vazifaga urinishi va natijasi.
-// Topshiriq holati, topshirilgan sana, mazmuni, ball va o'qituvchi izohi saqlanadi.
-// -----------------------------------------------
 model StudentTask {
   id                Int       @id @default(autoincrement())
   studentId         Int       @map("student_id")
@@ -325,33 +272,24 @@ model StudentTask {
   gradedAt          DateTime? @map("graded_at")
   gradedById        Int?      @map("graded_by")
   gradedBy          User?     @relation("GradedTasks", fields: [gradedById], references: [id], onDelete: SetNull)
+  isActive          Boolean   @default(true) @map("is_active")
 
   @@unique([studentId, taskId])
   @@map("student_tasks")
 }
 
-// -----------------------------------------------
-// TaskAttachment (Vazifa ilovalari)
-// Vazifaga biriktirilgan fayllar (rasm, audio, video va boshqalar).
-// Har bir fayl turi (fileType) va yuklagan foydalanuvchi (uploadedBy) saqlanadi.
-// -----------------------------------------------
 model TaskAttachment {
-  id         Int    @id @default(autoincrement())
-  taskId     Int    @map("task_id")
-  task       Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  fileUrl    String @map("file_url")
-  fileType   String @map("file_type")
-  uploadedBy String @map("uploaded_by")
+  id         Int     @id @default(autoincrement())
+  taskId     Int     @map("task_id")
+  task       Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  fileUrl    String  @map("file_url")
+  fileType   String  @map("file_type")
+  uploadedBy String  @map("uploaded_by")
+  isActive   Boolean @default(true) @map("is_active")
 
   @@map("task_attachments")
 }
 
-// -----------------------------------------------
-// Test (Testlar)
-// Tizimda mavjud barcha testlar.
-// Tur (TestType), CEFR darajasi, vaqt chegarasi, o'tish bali,
-// savollarni aralashtirib berish va adaptiv rejim kabi sozlamalar mavjud.
-// -----------------------------------------------
 model Test {
   id               Int     @id @default(autoincrement())
   title            String
@@ -367,6 +305,7 @@ model Test {
   timeLimit        Int?    @map("time_limit")
   createdById      Int?    @map("created_by")
   createdBy        User?   @relation("CreatedTests", fields: [createdById], references: [id], onDelete: SetNull)
+  isActive         Boolean @default(true) @map("is_active")
 
   questions   Question[]
   attempts    TestAttempt[]
@@ -377,12 +316,6 @@ model Test {
   @@map("tests")
 }
 
-// -----------------------------------------------
-// Question (Savollar)
-// Testga tegishli savollar.
-// Savol turi (MCQ, ESSAY va boshqalar), variantlar (options JSON),
-// to'g'ri javob (correctAnswer JSON), izoh, ball va qiyinlik darajasi saqlanadi.
-// -----------------------------------------------
 model Question {
   id            Int     @id @default(autoincrement())
   testId        Int     @map("test_id")
@@ -396,18 +329,13 @@ model Question {
   points        Int     @default(1)
   difficulty    Int     @default(1)
   skill         String?
+  isActive      Boolean @default(true) @map("is_active")
 
   analytics QuestionAnalytics?
 
   @@map("questions")
 }
 
-// -----------------------------------------------
-// TestAttempt (Test urinishlari)
-// Talabaning test ishlash seansi.
-// Boshlanish vaqti, topshirilish vaqti, ball, foiz, o'tdi/o'tmadi holati,
-// sarflangan vaqt va berilgan javoblar (JSON) saqlanadi.
-// -----------------------------------------------
 model TestAttempt {
   id               Int       @id @default(autoincrement())
   studentId        Int       @map("student_id")
@@ -422,16 +350,11 @@ model TestAttempt {
   timeSpentSeconds Int?      @map("time_spent_seconds")
   answers          String?
   feedback         String?
+  isActive         Boolean   @default(true) @map("is_active")
 
   @@map("test_attempts")
 }
 
-// -----------------------------------------------
-// QuestionAnalytics (Savol tahlili)
-// Har bir savol bo'yicha statistika: necha marta urinib ko'rildi,
-// necha marta to'g'ri javoblandi va o'rtacha sarflangan vaqt.
-// Har bir savolga bitta analytics yozuvi bog'liq (one-to-one).
-// -----------------------------------------------
 model QuestionAnalytics {
   id             Int      @id @default(autoincrement())
   questionId     Int      @unique @map("question_id")
@@ -439,17 +362,11 @@ model QuestionAnalytics {
   totalAttempts  Int      @default(0) @map("total_attempts")
   correctCount   Int      @default(0) @map("correct_count")
   avgTimeSeconds Float    @default(0) @map("avg_time_seconds")
+  isActive       Boolean  @default(true) @map("is_active")
 
   @@map("question_analytics")
 }
 
-// -----------------------------------------------
-// Achievement (Yutuqlar / Medalllar)
-// Tizimda mavjud barcha yutuqlar.
-// Har bir yutuq ma'lum bir shart (conditionType va conditionValue) asosida beriladi.
-// Masalan: "10 ta so'z o'rgan" → condition_type="vocab_learned", condition_value=10.
-// XP mukofoti (xpReward) va rang (badgeColor) sozlanishi mumkin.
-// -----------------------------------------------
 model Achievement {
   id             Int     @id @default(autoincrement())
   title          String
@@ -459,17 +376,13 @@ model Achievement {
   conditionValue Int     @map("condition_value")
   xpReward       Int     @default(0) @map("xp_reward")
   badgeColor     String? @map("badge_color")
+  isActive       Boolean @default(true) @map("is_active")
 
   studentAchievements StudentAchievement[]
 
   @@map("achievements")
 }
 
-// -----------------------------------------------
-// StudentAchievement (Talaba yutuqlari)
-// Talabaga berilgan yutuqlarni saqlaydi.
-// Bir talabaga bitta yutuq faqat bir marta berilishi mumkin.
-// -----------------------------------------------
 model StudentAchievement {
   id            Int         @id @default(autoincrement())
   studentId     Int         @map("student_id")
@@ -477,17 +390,12 @@ model StudentAchievement {
   achievementId Int         @map("achievement_id")
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   earnedAt      DateTime    @default(now()) @map("earned_at")
+  isActive      Boolean     @default(true) @map("is_active")
 
   @@unique([studentId, achievementId])
   @@map("student_achievements")
 }
 
-// -----------------------------------------------
-// XpTransaction (XP operatsiyalari)
-// Talabaning XP (tajriba ball) olish tarixi.
-// Har bir transaksiyada sabab (reason) va ixtiyoriy havola (referenceId) saqlanadi.
-// Masalan: "test_completed" sababi bilan 50 XP berildi.
-// -----------------------------------------------
 model XpTransaction {
   id          Int      @id @default(autoincrement())
   studentId   Int      @map("student_id")
@@ -496,16 +404,11 @@ model XpTransaction {
   reason      String
   referenceId String?  @map("reference_id")
   createdAt   DateTime @default(now()) @map("created_at")
+  isActive    Boolean  @default(true) @map("is_active")
 
   @@map("xp_transactions")
 }
 
-// -----------------------------------------------
-// Leaderboard (Liderlik jadvali)
-// Talabalarning reyting pozitsiyalari.
-// Qamrov (scope): GLOBAL (hammani), GROUP (guruh ichida), WEEKLY (haftalik).
-// Balllar va rank (o'rin) saqlanadi. period - haftalik hisoblar uchun davr belgisi.
-// -----------------------------------------------
 model Leaderboard {
   id        Int     @id @default(autoincrement())
   scope     String  @default("GLOBAL")
@@ -516,16 +419,11 @@ model Leaderboard {
   score     Int     @default(0)
   rank      Int?
   period    String?
+  isActive  Boolean @default(true) @map("is_active")
 
   @@map("leaderboards")
 }
 
-// -----------------------------------------------
-// Notification (Bildirishnomalar)
-// Foydalanuvchilarga yuborilgan barcha bildirishnomalar.
-// Tur (type), sarlavha, matn va qo'shimcha JSON ma'lumot saqlanadi.
-// isRead = false bo'lsa, bildirishnoma o'qilmagan.
-// -----------------------------------------------
 model Notification {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")
@@ -536,6 +434,7 @@ model Notification {
   data      String?
   isRead    Boolean  @default(false) @map("is_read")
   createdAt DateTime @default(now()) @map("created_at")
+  isActive  Boolean  @default(true) @map("is_active")
 
   @@map("notifications")
 }
@@ -546,11 +445,12 @@ model FinanceTransaction {
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   amount    Float
   currency  String   @default("UZS")
-  type      String   @default("INCOME") // INCOME, EXPENSE
-  method    String?  @default("PAYME") // PAYME, CLICK, CASH
+  type      String   @default("INCOME")
+  method    String?  @default("PAYME")
   status    String   @default("COMPLETED")
   reason    String?
   createdAt DateTime @default(now()) @map("created_at")
+  isActive  Boolean  @default(true) @map("is_active")
 
   @@map("transactions")
 }
@@ -572,7 +472,8 @@ model Lead {
   fullName  String   @map("full_name")
   phone     String
   message   String?
-  status    String   @default("NEW") // NEW, CONTACTED, ENROLLED, REJECTED
+  status    String   @default("NEW")
+  isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
