@@ -49,6 +49,44 @@ function normalizePhone(phone: string): string {
   return phone.replace(/[^\d+]/g, '');
 }
 
+function decodeJwtRole(token: string): string | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .join(''),
+    );
+    const payload = JSON.parse(json) as { role?: string };
+    return payload.role?.toLowerCase() || null;
+  } catch {
+    return null;
+  }
+}
+
+function extractLoginData(body: any): { token: string | null; role: string | null } {
+  const token =
+    body?.data?.access_token ||
+    body?.data?.token ||
+    body?.access_token ||
+    body?.token ||
+    null;
+
+  const roleFromBody =
+    body?.data?.user?.role?.toLowerCase?.() ||
+    body?.user?.role?.toLowerCase?.() ||
+    null;
+
+  const role = roleFromBody || (token ? decodeJwtRole(token) : null);
+
+  return { token, role };
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const locale = useLocale();
@@ -78,7 +116,11 @@ export default function LoginPage() {
         } else {
           localStorage.removeItem('role');
         }
+<<<<<<< HEAD
+        router.push('/');
+=======
         router.push(localized('/'));
+>>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
       } else {
         setError('Tizimga kirishda xatolik yuz berdi');
       }

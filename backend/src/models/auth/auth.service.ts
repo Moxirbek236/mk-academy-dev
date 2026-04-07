@@ -18,11 +18,13 @@ export class AuthService {
       }
     });
 
+    // console.log(user?.passwordHash, payload.password);
+    
+
     if (!user) {
       throw new BadRequestException('Phone and password do not found');
     }
 
-    console.log(user.passwordHash);
     
 
     const isPasswordValid = await bcrypt.compare(payload.password, user.passwordHash);
