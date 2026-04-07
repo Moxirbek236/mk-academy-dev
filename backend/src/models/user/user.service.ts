@@ -41,17 +41,18 @@ export class UserService {
       select:{
         id:true,
         fullName:true,
-        isActive:true,
         phone:true,
-        avatarUrl:true,
-        role:true
+        role:true,
+        isActive:true,
+        createdAt:true,
+        updatedAt:true,
       }
     })
 
     await this.prisma.userProfile.create({
       data: {
         userId: user.id,
-        isActive:true
+        isActive: true,
       }
     })
 
