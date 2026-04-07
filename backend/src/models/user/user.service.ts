@@ -37,12 +37,22 @@ export class UserService {
         avatarUrl: filename ?? null,
         passwordHash: passHash,
         role: UserRole.TEACHER
+      },
+      select:{
+        id:true,
+        fullName:true,
+        phone:true,
+        role:true,
+        isActive:true,
+        createdAt:true,
+        updatedAt:true,
       }
     })
 
     await this.prisma.userProfile.create({
       data: {
         userId: user.id,
+        isActive: true,
       }
     })
 
@@ -161,13 +171,13 @@ export class UserService {
       }
 
       users = users.map(user => {
-      if (user.role === 'STUDENT' || user.role === 'TEACHER' || user.role === 'ADMIN') {
-        return {
-          ...user, groupsCreated: []
-        };
-      }
-      return user;
-    });
+        if (user.role === 'STUDENT' || user.role === 'TEACHER' || user.role === 'ADMIN') {
+          return {
+            ...user, groupsCreated: []
+          };
+        }
+        return user;
+      });
 
       return users;
     } catch (err) {
@@ -215,11 +225,11 @@ export class UserService {
       }
 
       users = users.map(user => {
-      if (user.role === 'STUDENT' || user.role === 'TEACHER') {
-        return { ...user, groupsCreated: [] };
-      }
-      return user;
-    });
+        if (user.role === 'STUDENT' || user.role === 'TEACHER') {
+          return { ...user, groupsCreated: [] };
+        }
+        return user;
+      });
 
       return users;
     } catch (err) {
@@ -318,10 +328,10 @@ export class UserService {
         where: { id },
         data: { isActive: false },
       });
-      
-      return { 
+
+      return {
         success: true,
-        message: 'User deleted successfully' 
+        message: 'User deleted successfully'
       };
     }
     throw new ForbiddenException('Access denied');
@@ -338,8 +348,8 @@ export class UserService {
     }
 
     if (currentUser.id === id) {
-    throw new ForbiddenException('You cannot activate yourself');
-  }
+      throw new ForbiddenException('You cannot activate yourself');
+    }
 
     if (currentUser.role === UserRole.SUPERADMIN) {
       await this.prisma.userProfile.update({
@@ -351,9 +361,9 @@ export class UserService {
         data: { isActive: true },
       });
 
-      return { 
+      return {
         success: true,
-        message: 'User activated successfully' 
+        message: 'User activated successfully'
       };
     }
 
@@ -366,7 +376,7 @@ export class UserService {
           'Admin cannot active admin or super admin',
         );
       }
-      
+
       await this.prisma.userProfile.update({
         where: { userId: id },
         data: { isActive: true },
@@ -377,9 +387,9 @@ export class UserService {
         data: { isActive: true },
       });
 
-      return { 
+      return {
         success: true,
-        message: 'User activated successfully' 
+        message: 'User activated successfully'
       };
     }
 
