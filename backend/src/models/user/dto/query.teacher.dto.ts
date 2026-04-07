@@ -3,7 +3,7 @@ import { IsOptional, IsString, IsInt, Min, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { UserRole } from 'src/core/enums';
 
-export class QueryUserDto {
+export class QueryUserTeacherDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsString()

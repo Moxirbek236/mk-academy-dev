@@ -1,23 +1,35 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsInt, IsDateString } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsDateString, IsEmail } from 'class-validator';
 
 export class CreateUserProfileDto {
-  @ApiProperty()
+  @ApiProperty({ example: '+998901234567' })
   @IsString()
-  address?: string;
+  phone: string;
+
+  @ApiProperty({ description: 'Plain text password (hashed on server)' })
+  @IsString()
+  passwordHash: string;
+
+  @ApiProperty({ example: 'John Doe' })
+  @IsString()
+  fullName: string; 
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  avatarUrl?: string;
+
+  @ApiProperty()
+  @IsEmail()
+  email?: string;
+
+  @ApiPropertyOptional({ example: '1990-01-01' })
   @IsDateString()
   @IsOptional()
-  birthDate?: string;
+  dateOfBirth?: string;
 
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  bio?: string;
-
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
-  interests?: string;
+  language?: string;
 }

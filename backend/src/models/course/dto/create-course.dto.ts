@@ -19,7 +19,6 @@ export class CreateCourseDto {
   level!: CefrLevel;
 
   @ApiPropertyOptional()
-  @IsUrl()
   @IsOptional()
   imageUrl?: string;
 

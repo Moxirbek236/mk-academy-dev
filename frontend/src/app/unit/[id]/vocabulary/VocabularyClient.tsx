@@ -40,7 +40,7 @@ export default function VocabularyClient() {
         </p>
         <button 
           onClick={() => router.push('/')}
-          className="bg-gray-900 text-white font-black py-4 px-10 rounded-[24px] shadow-xl active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
+          className="bg-[#3D855A] text-white font-black py-4 px-10 rounded-[24px] shadow-xl shadow-[#3D855A]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
         >
           <ArrowLeft size={16} strokeWidth={3} /> Portalga Qaytish
         </button>

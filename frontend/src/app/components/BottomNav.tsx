@@ -2,63 +2,67 @@
 import { Home, Book, Settings as SettingsIcon, LayoutGrid, Users, DollarSign, BookOpen, Layers, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { stripLocaleFromPathname } from '@/i18n/pathname';
 
 interface BottomNavProps {
   role?: string | null;
 }
 
 export function BottomNav({ role }: BottomNavProps) {
+  const t = useTranslations('BottomNav');
+  const locale = useLocale();
   const pathname = usePathname() || '/';
+  const normalizedPathname = stripLocaleFromPathname(pathname);
   const currentRole = role?.toLowerCase();
-  const isAdmin = currentRole === 'admin' || currentRole === 'superadmin';
   const isTeacher = currentRole === 'teacher' || currentRole === 'mentor';
 
   const navItems = currentRole === 'superadmin' ? [
-    { path: '/', icon: Home, label: 'Boshqaruv' },
-    { path: '/users', icon: Users, label: 'Foydalanuvchilar' },
-    { path: '/finance', icon: DollarSign, label: 'Moliya' },
-    { path: '/system', icon: ShieldCheck, label: 'Tizim' },
-    { path: '/settings', icon: SettingsIcon, label: 'Sozlamalar' },
+    { path: '/', icon: Home, label: t('dashboard') },
+    { path: '/users', icon: Users, label: t('users') },
+    { path: '/finance', icon: DollarSign, label: t('finance') },
+    { path: '/system', icon: ShieldCheck, label: t('system') },
+    { path: '/settings', icon: SettingsIcon, label: t('settings') },
   ] : currentRole === 'admin' ? [
-    { path: '/', icon: Home, label: 'Bosh' },
-    { path: '/users', icon: Users, label: 'O&apos;quvchilar' },
-    { path: '/courses', icon: BookOpen, label: 'Kurslar' },
-    { path: '/results', icon: LayoutGrid, label: 'Hisobot' },
-    { path: '/settings', icon: SettingsIcon, label: 'Sozlamalar' },
+    { path: '/', icon: Home, label: t('home') },
+    { path: '/users', icon: Users, label: t('students') },
+    { path: '/courses', icon: BookOpen, label: t('courses') },
+    { path: '/results', icon: LayoutGrid, label: t('reports') },
+    { path: '/settings', icon: SettingsIcon, label: t('settings') },
   ] : isTeacher ? [
-    { path: '/', icon: Home, label: 'Monitor' },
-    { path: '/groups', icon: Layers, label: 'Guruhlar' },
-    { path: '/tasks', icon: BookOpen, label: 'Topshiriqlar' },
-    { path: '/results', icon: LayoutGrid, label: 'Natijalar' },
-    { path: '/settings', icon: SettingsIcon, label: 'Sozlamalar' },
+    { path: '/', icon: Home, label: t('monitor') },
+    { path: '/groups', icon: Layers, label: t('groups') },
+    { path: '/tasks', icon: BookOpen, label: t('tasks') },
+    { path: '/results', icon: LayoutGrid, label: t('results') },
+    { path: '/settings', icon: SettingsIcon, label: t('settings') },
   ] : [
-    { path: '/', icon: Home, label: 'Bosh' },
-    { path: '/groups', icon: Layers, label: 'Guruhlar' },
-    { path: '/learning', icon: BookOpen, label: 'Darslar' },
-    { path: '/books', icon: Book, label: 'Kitoblar' },
-    { path: '/results', icon: LayoutGrid, label: 'Reyting' },
-    { path: '/settings', icon: SettingsIcon, label: 'Profil' },
+    { path: '/', icon: Home, label: t('home') },
+    { path: '/groups', icon: Layers, label: t('groups') },
+    { path: '/learning', icon: BookOpen, label: t('learning') },
+    { path: '/books', icon: Book, label: t('books') },
+    { path: '/results', icon: LayoutGrid, label: t('rating') },
+    { path: '/settings', icon: SettingsIcon, label: t('profile') },
   ];
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 px-6 py-4 pb-safe flex justify-between items-center z-50 rounded-t-[30px] shadow-[0_-15px_40px_rgba(0,0,0,0.06)] backdrop-blur-sm bg-white/95">
+    <div className="fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-gray-100 bg-white/95 px-3 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(2,6,23,0.12)] backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/95">
       {navItems.map((item) => {
-        const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+        const isActive =
+          normalizedPathname === item.path ||
+          (item.path !== '/' && normalizedPathname.startsWith(item.path));
         const Icon = item.icon;
+        const localizedHref = item.path === '/' ? `/${locale}` : `/${locale}${item.path}`;
         
         return (
           <Link 
             key={item.path} 
-            href={item.path} 
-            className={`flex flex-col items-center gap-1.5 group transition-all ${isActive ? 'text-[#3D855A]' : 'text-gray-400 hover:text-gray-900 focus:scale-95'}`}
+            href={localizedHref}
+            className={`app-touch flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 transition-all ${isActive ? 'text-[#3D855A]' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900 focus:scale-95 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
           >
-            <div className={`p-2.5 rounded-2xl group-active:scale-90 transition-all ${isActive ? 'bg-[#F2F8F5] shadow-sm' : 'group-hover:bg-gray-50'}`}>
+            <div className={`rounded-2xl p-2.5 transition-all group-active:scale-90 ${isActive ? 'bg-[#F2F8F5] shadow-sm dark:bg-slate-800' : ''}`}>
               <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
             </div>
-            <span 
-               className={`text-[9.5px] tracking-tight ${isActive ? 'font-black' : 'font-bold'}`}
-               dangerouslySetInnerHTML={{ __html: item.label }}
-            />
+            <span className={`truncate text-[10px] tracking-tight ${isActive ? 'font-black' : 'font-bold'}`}>{item.label}</span>
           </Link>
         );
       })}

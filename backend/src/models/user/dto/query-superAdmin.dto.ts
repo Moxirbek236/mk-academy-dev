@@ -1,15 +1,15 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, Min, IsEnum } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsEnum, IsBoolean } from 'class-validator';
 import { UserRole } from '../../../core/enums';
+import { Transform } from 'class-transformer';
 
 export class QueryUserDto {
-    
-    @ApiPropertyOptional()
+
+    @ApiPropertyOptional({ enum: [UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN] })
     @IsOptional()
     @IsString()
-    @IsEnum(UserRole)
-    user:UserRole
+    @IsEnum([UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN])
+    user?: UserRole.STUDENT | UserRole.TEACHER | UserRole.ADMIN;
 
     @ApiPropertyOptional()
     @IsOptional()
@@ -20,4 +20,13 @@ export class QueryUserDto {
     @IsOptional()
     @IsString()
     GroupName?: string;
+
+    @ApiPropertyOptional({ enum: [1, 0] })
+    @IsOptional()
+    @Transform(({ value }) => {
+        if (value === undefined || value === null) return undefined;
+        return value === '1' || value === 1 || value === 'true' || value === true;
+    })
+    @IsBoolean()
+    isActive?: boolean
 }

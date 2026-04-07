@@ -56,7 +56,7 @@ export default function VocabularyPracticePage() {
       <div className="flex flex-col gap-4 w-full max-w-[240px]">
         <button 
           onClick={() => { setFinished(false); setCurrentIndex(0); }}
-          className="bg-gray-900 text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase active:scale-95 transition-all flex items-center justify-center gap-3"
+          className="bg-[#3D855A] text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#3D855A]/20"
         >
           <RotateCcw size={16} strokeWidth={2.5} /> Qayta boshlash
         </button>

@@ -5,8 +5,10 @@ import { VocabularyProgressService } from './vocabulary-progress.service';
 import { VocabularyProgressController } from './vocabulary-progress.controller';
 import { WordListService } from './word-list.service';
 import { WordListController } from './word-list.controller';
+import { PrismaModule } from 'src/core/config/prisma.module';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [
     VocabularyController,
     VocabularyProgressController,

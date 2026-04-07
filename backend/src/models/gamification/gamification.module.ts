@@ -5,8 +5,10 @@ import { XPService } from './xp.service';
 import { XpController } from './xp.controller';
 import { LeaderboardService } from './leaderboard.service';
 import { LeaderboardController } from './leaderboard.controller';
+import { PrismaModule } from 'src/core/config/prisma.module';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [
     AchievementController,
     XpController,

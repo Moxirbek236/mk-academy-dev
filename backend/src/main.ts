@@ -69,7 +69,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true
+  }});
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -79,11 +82,7 @@ async function bootstrap() {
     }),
   );
 
-  const port = Number(process.env.PORT) || 3001;
-  const host = process.env.HOST || '0.0.0.0';
-
-  await app.listen(port, host);
-  console.log(`Backend is running on: http://${host}:${port}`);
+  await app.listen(process.env.PORT || 3000);
 }
 
 bootstrap().catch((error) => {

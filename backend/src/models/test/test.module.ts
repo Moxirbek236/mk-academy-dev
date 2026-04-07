@@ -6,9 +6,10 @@ import { QuestionController } from './question.controller';
 import { TestAttemptService } from './test-attempt.service';
 import { TestAttemptController } from './test-attempt.controller';
 import { GamificationModule } from '../gamification/gamification.module';
+import { PrismaModule } from 'src/core/config/prisma.module';
 
 @Module({
-  imports: [GamificationModule],
+  imports: [GamificationModule, PrismaModule],
   controllers: [
     TestController,
     QuestionController,

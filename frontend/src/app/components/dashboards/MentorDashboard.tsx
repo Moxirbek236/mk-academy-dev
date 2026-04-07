@@ -113,7 +113,7 @@ export function MentorDashboard() {
          </button>
       </div>
       
-      <button className="w-full bg-[#1A1A1A] hover:bg-black text-white p-6 rounded-[36px] font-black flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-2xl shadow-gray-200/50 mb-8 overflow-hidden relative group">
+      <button className="w-full bg-[#3D855A] hover:bg-[#2F6A46] text-white p-6 rounded-[36px] font-black flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-xl shadow-[#3D855A]/20 mb-8 overflow-hidden relative group">
          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-emerald-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
          <MessageSquarePlus size={24} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform" />
          <span className="tracking-tight">YANGI TOPSHIRIQ QO&apos;SHISH</span>

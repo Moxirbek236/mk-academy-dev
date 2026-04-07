@@ -47,7 +47,7 @@ export default function CourseDetailClient() {
            <div className="absolute bottom-6 left-6 right-6">
               <div className="flex items-center gap-3 mb-2 px-2">
                  <span className="text-[10px] font-black text-white bg-[#3D855A] px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-[#3D855A]/30">{course.level || 'A1'}</span>
-                 <span className="text-[10px] font-black text-white bg-black/40 backdrop-blur-md px-3 py-1 rounded-full uppercase tracking-widest">Online Kurs</span>
+                 <span className="text-[10px] font-black text-[#2C6F4A] bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-widest">Online Kurs</span>
               </div>
               <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-tight px-2">{course.title}</h1>
            </div>
@@ -112,11 +112,11 @@ export default function CourseDetailClient() {
           </div>
         </section>
 
-        <section className="bg-gray-900 rounded-[44px] p-10 text-white relative overflow-hidden group">
-           <div className="absolute top-[-40px] right-[-40px] w-48 h-48 bg-[#3D855A]/20 rounded-full blur-[60px]" />
+        <section className="bg-gradient-to-br from-[#ECF8F1] via-[#F8FCF9] to-white rounded-[44px] p-10 text-gray-900 relative overflow-hidden group border border-[#DCEEE3]">
+           <div className="absolute top-[-40px] right-[-40px] w-48 h-48 bg-[#3D855A]/15 rounded-full blur-[60px]" />
            <div className="relative z-10 text-center">
               <h3 className="text-2xl font-black tracking-tight leading-tight mb-3">Kursga qo&apos;shilishni xohlaysizmi?</h3>
-              <p className="text-sm font-bold text-white/50 mb-10 leading-relaxed max-w-[200px] mx-auto">Guruhlarga qo&apos;shilib tajribali mentorlar nazoratida o&apos;rganing.</p>
+              <p className="text-sm font-bold text-gray-500 mb-10 leading-relaxed max-w-[200px] mx-auto">Guruhlarga qo&apos;shilib tajribali mentorlar nazoratida o&apos;rganing.</p>
               <button 
                 onClick={() => router.push('/groups')}
                 className="w-full bg-[#3D855A] hover:bg-emerald-600 text-white py-5 rounded-2xl font-black text-xs tracking-[0.2em] uppercase transition-all shadow-xl shadow-[#3D855A]/20 active:scale-[0.98]"

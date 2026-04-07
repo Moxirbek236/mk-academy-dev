@@ -27,9 +27,6 @@ export const generateSEO = (
       'A1 A2 B1 B2 C1 C2', 'ingliz tili noldan'
     ],
     referrer: 'origin-when-cross-origin',
-    themeColor: '#3D855A',
-    colorScheme: 'dark',
-    viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
     creator: 'MK Academy',
     publisher: 'MK Academy',
     alternates: {

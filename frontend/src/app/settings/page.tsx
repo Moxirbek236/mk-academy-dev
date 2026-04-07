@@ -1,16 +1,20 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { User, Shield, Bell, Globe, LogOut, ChevronRight, Moon, LogIn, Key, Mail, Phone, BookOpen, Crown, Loader2 } from 'lucide-react';
+import { User, Shield, Bell, Globe, LogOut, ChevronRight, Moon, Key, Mail, Phone, Crown, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from 'next-themes';
 import api from '@/lib/api';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const locale = useLocale();
   const { role } = useAuth();
+  const { resolvedTheme, setTheme } = useTheme();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const localized = (path: string) => `/${locale}${path === '/' ? '' : path}`;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -29,7 +33,7 @@ export default function SettingsPage() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    router.push('/landing');
+    router.push(localized('/landing'));
   };
 
   const sections = [
@@ -53,7 +57,12 @@ export default function SettingsPage() {
       items: [
         { icon: Bell, label: 'Bildirishnomalar', value: 'Hammasi yoqilgan', path: '/settings/notifications' },
         { icon: Globe, label: 'Til (Language)', value: profile?.profile?.language === 'UZ' ? "O'zbekcha" : profile?.profile?.language || "O'zbekcha", path: '/settings/language' },
-        { icon: Moon, label: 'Tungi rejim', value: darkMode ? 'Yoqilgan' : 'O\'chirilgan', action: () => setDarkMode(!darkMode) },
+        {
+          icon: Moon,
+          label: 'Tungi rejim',
+          value: resolvedTheme === 'dark' ? 'Yoqilgan' : 'O\'chirilgan',
+          action: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
+        },
       ]
     }
   ];
@@ -61,8 +70,8 @@ export default function SettingsPage() {
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 px-4 md:px-8 lg:px-12 w-full max-w-3xl mx-auto bg-white min-h-screen pt-6 sm:pt-10">
-      <div className="flex items-center justify-between mb-8">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 app-page pb-nav-safe lg:pb-14 pt-4 sm:pt-6">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-gray-900 tracking-tight">Sozlamalar</h1>
           <div className="flex items-center gap-2 mt-1">
@@ -76,7 +85,7 @@ export default function SettingsPage() {
              {role === 'superadmin' && <Crown size={12} className="text-amber-500" />}
           </div>
         </div>
-        <div className="w-14 h-14 rounded-[22px] bg-gradient-to-tr from-[#3D855A] to-[#83D1A5] flex items-center justify-center text-white shadow-xl shadow-[#3D855A]/20 border-4 border-white">
+        <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border-2 border-white bg-gradient-to-tr from-[#3D855A] to-[#83D1A5] text-white shadow-xl shadow-[#3D855A]/20 sm:h-14 sm:w-14 sm:rounded-[22px] sm:border-4">
            <User size={28} strokeWidth={2.5} />
         </div>
       </div>
@@ -85,14 +94,14 @@ export default function SettingsPage() {
         {sections.map((section, sIdx) => (
           <div key={sIdx}>
             <h2 className="text-[11px] font-black text-gray-400 tracking-[0.15em] uppercase mb-4 px-2" dangerouslySetInnerHTML={{ __html: section.title }} />
-            <div className="bg-white rounded-[36px] border border-gray-100 shadow-sm overflow-hidden p-3 flex flex-col gap-1">
+            <div className="overflow-hidden rounded-[30px] border border-gray-100 bg-white p-2.5 shadow-sm sm:rounded-[36px] sm:p-3">
               {section.items.map((item, iIdx) => (
                 <button 
                   key={iIdx} 
-                  onClick={item.action ? item.action : () => router.push(item.path || '/')}
-                  className="w-full flex items-center gap-4 p-4 rounded-3xl hover:bg-[#F2F8F5] transition-colors group active:scale-[0.98]"
+                  onClick={item.action ? item.action : () => router.push(localized(item.path || '/'))}
+                  className="group flex w-full items-center gap-3 rounded-2xl p-3.5 transition-colors active:scale-[0.98] hover:bg-[#F2F8F5] sm:gap-4 sm:rounded-3xl sm:p-4"
                 >
-                  <div className="p-3.5 bg-[#F2F8F5] rounded-[18px] text-[#3D855A] flex-shrink-0 transition-transform group-hover:scale-105">
+                  <div className="shrink-0 rounded-[16px] bg-[#F2F8F5] p-3 text-[#3D855A] transition-transform group-hover:scale-105 sm:rounded-[18px] sm:p-3.5">
                      <item.icon size={20} strokeWidth={2.5} />
                   </div>
                   <div className="flex-1 text-left min-w-0">
@@ -108,7 +117,7 @@ export default function SettingsPage() {
         
         <button 
           onClick={handleLogout}
-          className="w-full mt-4 flex items-center gap-4 p-6 bg-red-50 rounded-[36px] border border-red-100/50 hover:bg-red-100 transition-all text-red-600 group active:scale-[0.98] shadow-sm shadow-red-100/50 mb-10"
+          className="group mb-10 mt-4 flex w-full items-center gap-3 rounded-[28px] border border-red-100/50 bg-red-50 p-4 text-red-600 shadow-sm shadow-red-100/50 transition-all hover:bg-red-100 active:scale-[0.98] sm:gap-4 sm:rounded-[36px] sm:p-6"
         >
           <div className="p-3.5 bg-white rounded-2xl text-red-500 shadow-sm transition-transform group-hover:rotate-12">
              <LogOut size={22} strokeWidth={2.5} />

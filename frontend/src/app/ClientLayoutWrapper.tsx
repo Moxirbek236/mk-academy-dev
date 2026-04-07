@@ -9,10 +9,14 @@ import { GlobalApiNotice } from './components/GlobalApiNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { stripLocaleFromPathname } from '@/i18n/pathname';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations('Common');
   const { role, loading, token } = useAuth();
   const [mounted, setMounted] = useState(false);
 
@@ -20,23 +24,27 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     setMounted(true);
   }, []);
 
+  const normalizedPath = stripLocaleFromPathname(pathname || '/');
+
   // Public routes that don't need auth
-  const isPublicRoute = ['/login', '/landing'].includes(pathname);
+  const isPublicRoute = ['/login', '/landing'].includes(normalizedPath);
 
   useEffect(() => {
     if (mounted && !loading && !token && !isPublicRoute) {
-      router.push('/landing');
+      router.replace(`/${locale}/landing`);
     }
-  }, [mounted, loading, token, isPublicRoute, pathname]);
+  }, [mounted, loading, token, isPublicRoute, locale, router]);
 
   if (!mounted || (loading && !isPublicRoute)) {
     return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center z-[9999]">
-         <div className="flex flex-col items-center gap-6">
-            <div className="w-16 h-16 rounded-[24px] bg-[#3D855A] flex items-center justify-center animate-pulse shadow-2xl shadow-[#3D855A]/30">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--app-bg)]">
+         <div className="flex flex-col items-center gap-5 px-6 text-center">
+            <div className="w-16 h-16 rounded-[24px] bg-[#3D855A] flex items-center justify-center animate-pulse shadow-xl shadow-[#3D855A]/20">
                <Loader2 size={32} className="text-white animate-spin" />
             </div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] ml-2">Loading MK Academy</p>
+            <p className="ml-1 text-[10px] font-black uppercase tracking-[0.32em] text-gray-500">
+              {t('loading')} {t('appName')}
+            </p>
          </div>
       </div>
     );

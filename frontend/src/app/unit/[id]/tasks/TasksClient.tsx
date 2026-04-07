@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 import { ArrowLeft, CheckCircle2, ChevronRight, AlertCircle, RefreshCcw, Loader2, Trophy, Star, Sparkles } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Lock } from 'lucide-react';
@@ -9,8 +10,10 @@ import confetti from 'canvas-confetti';
 
 export default function TasksClient() {
   const router = useRouter();
+  const locale = useLocale();
   const { id } = useParams();
   const { role, loading: authLoading } = useAuth();
+  const localized = (path: string) => `/${locale}${path === '/' ? '' : path}`;
   
   const [currentStep, setCurrentStep] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -79,8 +82,8 @@ export default function TasksClient() {
           Tests va vazifalar faqat <span className="text-[#3D855A]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
         </p>
         <button 
-          onClick={() => router.push('/')}
-          className="bg-gray-900 text-white font-black py-4 px-10 rounded-[28px] shadow-xl active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
+          onClick={() => router.push(localized('/'))}
+          className="bg-[#3D855A] text-white font-black py-4 px-10 rounded-[28px] shadow-xl shadow-[#3D855A]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
         >
           <ArrowLeft size={16} strokeWidth={3} /> Portalga Qaytish
         </button>
@@ -107,7 +110,7 @@ export default function TasksClient() {
 
         <div className="flex flex-col w-full gap-4 max-w-xs">
           <button 
-            onClick={() => router.push('/')}
+            onClick={() => router.push(localized('/'))}
             className="w-full bg-[#3D855A] text-white font-black py-5 rounded-[32px] shadow-xl shadow-[#3D855A]/30 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
           >
             Darslarga qaytish <ChevronRight size={18} strokeWidth={3} />
@@ -127,12 +130,12 @@ export default function TasksClient() {
   const isCorrect = selected === questions[currentStep].correct;
 
   return (
-    <div className="pb-32 px-1 max-w-2xl mx-auto lg:pt-10">
+    <div className="mx-auto max-w-2xl px-1 pb-[calc(14rem+env(safe-area-inset-bottom))] lg:pt-6">
       {/* Premium Gamified Header */}
       <div className="flex items-center gap-5 mb-10">
         <button 
           onClick={() => router.back()} 
-          className="p-4 rounded-2xl bg-white shadow-xl shadow-gray-200/50 border border-gray-100 text-gray-400 hover:text-gray-900 active:scale-90 transition-all shrink-0"
+          className="shrink-0 rounded-2xl border border-gray-100 bg-white p-3 shadow-xl shadow-gray-200/50 transition-all hover:text-gray-900 active:scale-90 text-gray-400 sm:p-4"
         >
           <ArrowLeft size={24} strokeWidth={3} />
         </button>
@@ -160,19 +163,19 @@ export default function TasksClient() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
-          className="mb-8"
+          className="mb-7 sm:mb-8"
         >
-          <div className="bg-white p-10 rounded-[48px] shadow-2xl shadow-gray-200/50 border border-gray-100 mb-8 relative group">
-            <div className="absolute top-8 right-10 text-amber-500 group-hover:rotate-12 transition-transform"><Star size={28} fill="currentColor" /></div>
-            <div className="flex items-center gap-4 mb-8">
+          <div className="group relative mb-6 rounded-[34px] border border-gray-100 bg-white p-6 shadow-2xl shadow-gray-200/50 sm:mb-8 sm:rounded-[48px] sm:p-10">
+            <div className="absolute right-6 top-5 text-amber-500 transition-transform group-hover:rotate-12 sm:right-10 sm:top-8"><Star size={24} fill="currentColor" /></div>
+            <div className="mb-6 flex items-center gap-3 sm:mb-8 sm:gap-4">
                <div className="w-12 h-12 rounded-[22px] bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xl shadow-inner">
                   {currentStep + 1}
                </div>
-               <span className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">
+               <span className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-400 sm:text-[11px] sm:tracking-[0.2em]">
                  {questions[currentStep].type === 'fill_in_blank' ? 'Gapni To\'ldiring' : 'Sinonim Tanlang'}
                </span>
             </div>
-            <h3 className="font-extrabold text-[#111827] text-[28px] md:text-[32px] leading-tight tracking-tight px-1">
+            <h3 className="px-1 text-[24px] font-extrabold leading-tight tracking-tight text-[#111827] sm:text-[28px] md:text-[32px]">
               {questions[currentStep].q.split('"').map((part, i) => (
                 i % 2 === 1 
                   ? <span key={i} className="text-[#3D855A] border-b-4 border-emerald-100 pb-1 rounded-sm">"{part}"</span> 
@@ -195,15 +198,15 @@ export default function TasksClient() {
                     setSelected(idx);
                     setIsWrong(idx !== questions[currentStep].correct);
                   }}
-                  className={`p-7 rounded-[38px] border-[3px] text-left transition-all flex justify-between items-center group relative overflow-hidden
+                  className={`group relative flex items-center justify-between overflow-hidden rounded-[30px] border-[3px] p-5 text-left transition-all sm:rounded-[38px] sm:p-7
                     ${isSelected && isCorrectOption ? 'border-emerald-500 bg-emerald-50/50 shadow-xl shadow-emerald-500/10' : ''}
                     ${isSelected && !isCorrectOption ? 'border-red-400 bg-red-50 text-red-600 shadow-xl shadow-red-500/10 animate-shake' : ''}
                     ${!isSelected ? 'border-gray-100 bg-white text-gray-800 hover:border-[#3D855A]/30 hover:bg-emerald-50/20 active:scale-95' : ''}
                   `}
                 >
                   <div className="flex items-center gap-5 relative z-10">
-                     <span className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm border-2 transition-all ${isSelected ? 'bg-white border-transparent' : 'bg-gray-50 border-gray-100 group-hover:bg-white'}`}>{idx + 1}</span>
-                     <span className={`font-black text-[17px] md:text-lg ${isSelected && isCorrectOption ? 'text-emerald-700' : ''}`}>{option}</span>
+                     <span className={`flex h-8 w-8 items-center justify-center rounded-xl border-2 text-sm font-black transition-all ${isSelected ? 'border-transparent bg-white' : 'border-gray-100 bg-gray-50 group-hover:bg-white'}`}>{idx + 1}</span>
+                     <span className={`text-base font-black md:text-lg ${isSelected && isCorrectOption ? 'text-emerald-700' : ''}`}>{option}</span>
                   </div>
                   
                   <div className="relative z-10 shrink-0">
@@ -229,26 +232,26 @@ export default function TasksClient() {
       `}</style>
 
       {/* Fact & Action Area - Responsive Bottom Panel */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center p-6 bg-gradient-to-t from-gray-50/90 to-transparent backdrop-blur-sm">
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center bg-gradient-to-t from-gray-50/90 to-transparent px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm sm:p-6">
          <AnimatePresence>
             {selected !== null && (
                <motion.div 
                  initial={{ opacity: 0, y: 100 }}
                  animate={{ opacity: 1, y: 0 }}
                  exit={{ opacity: 0, y: 100 }}
-                 className={`w-full max-w-2xl p-7 rounded-[48px] shadow-[0_20px_70px_rgba(0,0,0,0.15)] flex flex-col gap-6 border-t-4 border-b-2 relative overflow-hidden backdrop-blur-3xl ${
+                 className={`relative flex w-full max-w-2xl flex-col gap-4 overflow-hidden rounded-[34px] border-b-2 border-t-4 bg-white/95 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.15)] backdrop-blur-3xl sm:gap-6 sm:rounded-[48px] sm:p-7 ${
                     isCorrect ? 'bg-white/95 border-emerald-500 border-b-emerald-50' : 'bg-white/95 border-red-500 border-b-red-50'
                  }`}
                >
                   {/* Decorative blur */}
                   <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-[40px] opacity-10 ${isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`} />
                   
-                  <div className="flex items-center gap-5 relative z-10">
-                     <div className={`p-5 rounded-[26px] ${isCorrect ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'} shadow-inner`}>
-                        {isCorrect ? <Sparkles size={32} strokeWidth={2.5} /> : <AlertCircle size={32} strokeWidth={2.5} />}
+                  <div className="relative z-10 flex items-center gap-3 sm:gap-5">
+                     <div className={`rounded-[20px] p-3.5 shadow-inner sm:rounded-[26px] sm:p-5 ${isCorrect ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
+                        {isCorrect ? <Sparkles size={26} strokeWidth={2.5} /> : <AlertCircle size={26} strokeWidth={2.5} />}
                      </div>
                      <div className="flex-1 min-w-0">
-                        <p className={`text-xl font-black tracking-tight ${isCorrect ? 'text-emerald-600' : 'text-red-500'}`}>
+                        <p className={`text-lg font-black tracking-tight sm:text-xl ${isCorrect ? 'text-emerald-600' : 'text-red-500'}`}>
                            {isCorrect ? 'Barakalla! To&apos;g&apos;ri javob.' : 'Xato! Diqqatli bo&apos;ling.'}
                         </p>
                         <p className="text-[13px] font-bold text-gray-500 line-clamp-1">{questions[currentStep].fact}</p>
@@ -257,7 +260,7 @@ export default function TasksClient() {
                   <button 
                     onClick={handleNext}
                     disabled={!isCorrect}
-                    className={`w-full py-5 rounded-[32px] font-black transition-all text-sm uppercase tracking-[0.25em] shadow-2xl relative group ${
+                    className={`group relative w-full rounded-[28px] py-4 text-[11px] font-black uppercase tracking-[0.22em] transition-all shadow-2xl sm:rounded-[32px] sm:py-5 sm:text-sm sm:tracking-[0.25em] ${
                        isCorrect ? 'bg-[#3D855A] text-white shadow-[#3D855A]/30 active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed shadow-none'
                     }`}
                   >
@@ -270,8 +273,9 @@ export default function TasksClient() {
       </div>
 
       <div className="mt-12 text-center opacity-30 pb-32">
-         <p className="text-[10px] font-black uppercase tracking-[0.6em] text-gray-400">MK ACADEMY AI ENGINE • PREMIUM ASSESSMENT</p>
+         <p className="text-[10px] font-black uppercase tracking-[0.6em] text-gray-400">MK ACADEMY AI ENGINE â€¢ PREMIUM ASSESSMENT</p>
       </div>
     </div>
   );
 }
+

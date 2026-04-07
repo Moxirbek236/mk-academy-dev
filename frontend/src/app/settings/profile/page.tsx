@@ -44,9 +44,9 @@ export default function ProfileSettingsPage() {
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 px-4 md:px-8 lg:px-12 w-full max-w-3xl mx-auto bg-white min-h-screen pt-6 sm:pt-10">
-      <div className="flex items-center gap-4 mb-10">
-        <button onClick={() => router.back()} className="p-3 bg-white rounded-2xl border border-gray-100 shadow-sm active:scale-90 transition-all">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 app-page pb-nav-safe lg:pb-14 pt-4 sm:pt-6">
+      <div className="mb-8 flex items-center gap-3 sm:mb-10 sm:gap-4">
+        <button onClick={() => router.back()} className="app-touch rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all active:scale-90">
           <ArrowLeft size={20} />
         </button>
         <div>
@@ -55,7 +55,7 @@ export default function ProfileSettingsPage() {
         </div>
       </div>
 
-      <div className="bg-white p-6 sm:p-8 rounded-[42px] border border-[#E8F3ED] shadow-sm shadow-[#F2F8F5] mb-8 flex flex-col gap-8">
+      <div className="mb-8 flex flex-col gap-8 rounded-[34px] border border-[#E8F3ED] bg-white p-5 shadow-sm shadow-[#F2F8F5] sm:rounded-[42px] sm:p-8">
          <div className="flex flex-col items-center gap-5">
             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-tr from-[#3D855A] to-[#83D1A5] flex items-center justify-center text-white text-3xl sm:text-4xl font-black shadow-lg shadow-[#3D855A]/20">
                {fullName.charAt(0)}
@@ -87,7 +87,7 @@ export default function ProfileSettingsPage() {
       <button 
         onClick={handleSave}
         disabled={saving}
-        className={`w-full max-w-md mx-auto p-5 sm:p-6 rounded-[34px] font-black tracking-tight text-white shadow-xl transition-all flex items-center justify-center gap-3 hover:-translate-y-1 active:scale-[0.98] ${
+        className={`mx-auto flex w-full max-w-md items-center justify-center gap-3 rounded-[30px] p-4 font-black tracking-tight text-white shadow-xl transition-all hover:-translate-y-1 active:scale-[0.98] sm:rounded-[34px] sm:p-5 ${
            success ? 'bg-[#10B981] shadow-[#10B981]/20' : 'bg-[#3D855A] hover:bg-[#2A6642] shadow-[#3D855A]/30'
         }`}
       >
