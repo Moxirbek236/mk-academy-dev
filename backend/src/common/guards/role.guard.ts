@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { log } from "console";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -24,6 +25,7 @@ export class RolesGuard implements CanActivate {
         if (!user) {
             throw new UnauthorizedException("User topilmadi (RolesGuard)");
         }
+        
 
         const hasRole = requiredRoles.some(
             (role) => role.toUpperCase() === user.role?.toUpperCase()

@@ -70,6 +70,7 @@ model UserProfile {
   language             String    @default("UZ")
   timezone             String    @default("Asia/Tashkent")
   notificationSettings String?   @map("notification_settings")
+  isActive             Boolean   @default(true)
 
   @@map("user_profiles")
 }

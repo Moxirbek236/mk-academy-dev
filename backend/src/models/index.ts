@@ -13,4 +13,3 @@ export * from './notification/notification.module';
 export * from './finance/finance.module';
 export * from './system/system.module';
 export * from './lead/lead.module';
-export * from './dashboard/dashboard.module';
