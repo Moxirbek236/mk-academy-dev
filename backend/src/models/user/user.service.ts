@@ -37,13 +37,21 @@ export class UserService {
         avatarUrl: filename ?? null,
         passwordHash: passHash,
         role: UserRole.TEACHER
+      },
+      select:{
+        id:true,
+        fullName:true,
+        isActive:true,
+        phone:true,
+        avatarUrl:true,
+        role:true
       }
     })
 
     await this.prisma.userProfile.create({
       data: {
         userId: user.id,
-        // isActive:true
+        isActive:true
       }
     })
 

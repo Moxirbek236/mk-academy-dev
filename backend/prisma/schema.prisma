@@ -6,8 +6,9 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id           Int   @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   phone        String?  @unique
   passwordHash String   @map("password_hash")
   role         String   @default("STUDENT")
@@ -45,8 +46,8 @@ model User {
 // Xavfsiz tizimga kirish uchun ishlatiladi; har bir qurilma uchun alohida token bo'lishi mumkin.
 // -----------------------------------------------
 model RefreshToken {
-  id         Int   @id @default(autoincrement())
-  userId     Int   @map("user_id")
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tokenHash  String   @unique @map("token_hash")
   expiresAt  DateTime @map("expires_at")
@@ -62,8 +63,8 @@ model RefreshToken {
 // Har bir foydalanuvchiga bitta profil bog'liq (one-to-one).
 // -----------------------------------------------
 model UserProfile {
-  id                   Int    @id @default(autoincrement())
-  userId               Int    @unique @map("user_id")
+  id                   Int       @id @default(autoincrement())
+  userId               Int       @unique @map("user_id")
   user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   email                String?
   dateOfBirth          DateTime? @map("date_of_birth")
@@ -82,13 +83,13 @@ model UserProfile {
 // Guruhga qo'shilish uchun maxsus taklif kodi (inviteCode) ishlatiladi.
 // -----------------------------------------------
 model Group {
-  id          Int   @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   description String?
-  teacherId   Int   @map("teacher_id")
+  teacherId   Int      @map("teacher_id")
   teacher     User     @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
   inviteCode  String   @unique @map("invite_code")
-  isActive    Boolean  @default(true)
+  is_avaiable Boolean  @default(true)
   createdAt   DateTime @default(now()) @map("created_at")
 
   members      GroupMember[]
@@ -106,10 +107,10 @@ model Group {
 // Status orqali a'zolik holati kuzatiladi (PENDING, ACTIVE, REJECTED, BANNED).
 // -----------------------------------------------
 model GroupMember {
-  id        Int   @id @default(autoincrement())
-  groupId   Int   @map("group_id")
+  id        Int      @id @default(autoincrement())
+  groupId   Int      @map("group_id")
   group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  studentId Int   @map("student_id")
+  studentId Int      @map("student_id")
   student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   joinedAt  DateTime @default(now()) @map("joined_at")
   status    String   @default("ACTIVE")
@@ -124,12 +125,12 @@ model GroupMember {
 // Muddat (dueDate) va majburiylik (isRequired) sozlanishi mumkin.
 // -----------------------------------------------
 model GroupAssignment {
-  id         Int    @id @default(autoincrement())
-  groupId    Int    @map("group_id")
+  id         Int       @id @default(autoincrement())
+  groupId    Int       @map("group_id")
   group      Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  testId     Int?   @map("test_id")
+  testId     Int?      @map("test_id")
   test       Test?     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  taskId     Int?   @map("task_id")
+  taskId     Int?      @map("task_id")
   task       Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   dueDate    DateTime? @map("due_date")
   isRequired Boolean   @default(true) @map("is_required")
@@ -139,7 +140,7 @@ model GroupAssignment {
 }
 
 model Course {
-  id          Int   @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
   description String?
   level       String   @default("A1") // CEFR level
@@ -155,10 +156,10 @@ model Course {
 }
 
 model GroupCourse {
-  id         Int   @id @default(autoincrement())
-  groupId    Int   @map("group_id")
+  id         Int      @id @default(autoincrement())
+  groupId    Int      @map("group_id")
   group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  courseId   Int   @map("course_id")
+  courseId   Int      @map("course_id")
   course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   assignedAt DateTime @default(now()) @map("assigned_at")
 
@@ -167,7 +168,7 @@ model GroupCourse {
 }
 
 model Book {
-  id            Int   @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   title         String
   author        String?
   description   String?
@@ -186,8 +187,8 @@ model Book {
 // Baho 1 dan 5 gacha bo'ladi, ixtiyoriy sharh (reviewText) ham qo'shilishi mumkin.
 // -----------------------------------------------
 model Rating {
-  id         Int   @id @default(autoincrement())
-  userId     Int   @map("user_id")
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   targetType String   @map("target_type")
   targetId   String   @map("target_id")
@@ -206,7 +207,7 @@ model Rating {
 // va CEFR darajasi bilan saqlanadi. Qiyinlik darajasi 1-5 oralig'ida.
 // -----------------------------------------------
 model Vocabulary {
-  id                 Int  @id @default(autoincrement())
+  id                 Int     @id @default(autoincrement())
   word               String  @unique
   translation        String
   pronunciation      String?
@@ -231,10 +232,10 @@ model Vocabulary {
 // correctCount va wrongCount statistika uchun saqlanadi.
 // -----------------------------------------------
 model VocabularyProgress {
-  id             Int     @id @default(autoincrement())
-  studentId      Int     @map("student_id")
+  id             Int        @id @default(autoincrement())
+  studentId      Int        @map("student_id")
   student        User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  vocabularyId   Int     @map("vocabulary_id")
+  vocabularyId   Int        @map("vocabulary_id")
   vocabulary     Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
   status         String     @default("NEW")
   easeFactor     Float      @default(2.5) @map("ease_factor")
@@ -254,8 +255,8 @@ model VocabularyProgress {
 // isPublic = true bo'lsa, boshqa foydalanuvchilar ham ko'ra oladi.
 // -----------------------------------------------
 model WordList {
-  id        Int  @id @default(autoincrement())
-  studentId Int  @map("student_id")
+  id        Int     @id @default(autoincrement())
+  studentId Int     @map("student_id")
   student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   name      String
   isPublic  Boolean @default(false) @map("is_public")
@@ -271,10 +272,10 @@ model WordList {
 // Bir so'z bir ro'yxatga faqat bir marta qo'shilishi mumkin.
 // -----------------------------------------------
 model WordListItem {
-  id           Int     @id @default(autoincrement())
-  wordListId   Int     @map("word_list_id")
+  id           Int        @id @default(autoincrement())
+  wordListId   Int        @map("word_list_id")
   wordList     WordList   @relation(fields: [wordListId], references: [id], onDelete: Cascade)
-  vocabularyId Int     @map("vocabulary_id")
+  vocabularyId Int        @map("vocabulary_id")
   vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
   addedAt      DateTime   @default(now()) @map("added_at")
 
@@ -288,19 +289,19 @@ model WordListItem {
 // Har bir vazifada ko'rsatmalar (instructions JSON), maksimal ball va fayl ilovalar bo'lishi mumkin.
 // -----------------------------------------------
 model Task {
-  id           Int  @id @default(autoincrement())
+  id           Int     @id @default(autoincrement())
   title        String
   description  String?
   type         String  @default("READING")
   instructions String?
   maxScore     Int     @default(100) @map("max_score")
-  createdById  Int? @map("created_by")
+  createdById  Int?    @map("created_by")
   createdBy    User?   @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: SetNull)
 
   studentTasks StudentTask[]
   attachments  TaskAttachment[]
   assignments  GroupAssignment[]
-  courseId     Int?           @map("course_id")
+  courseId     Int?              @map("course_id")
   course       Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@map("tasks")
@@ -312,10 +313,10 @@ model Task {
 // Topshiriq holati, topshirilgan sana, mazmuni, ball va o'qituvchi izohi saqlanadi.
 // -----------------------------------------------
 model StudentTask {
-  id                Int    @id @default(autoincrement())
-  studentId         Int    @map("student_id")
+  id                Int       @id @default(autoincrement())
+  studentId         Int       @map("student_id")
   student           User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  taskId            Int    @map("task_id")
+  taskId            Int       @map("task_id")
   task              Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
   status            String    @default("PENDING")
   submittedAt       DateTime? @map("submitted_at")
@@ -323,7 +324,7 @@ model StudentTask {
   score             Int?
   teacherFeedback   String?   @map("teacher_feedback")
   gradedAt          DateTime? @map("graded_at")
-  gradedById        Int?   @map("graded_by")
+  gradedById        Int?      @map("graded_by")
   gradedBy          User?     @relation("GradedTasks", fields: [gradedById], references: [id], onDelete: SetNull)
 
   @@unique([studentId, taskId])
@@ -336,8 +337,8 @@ model StudentTask {
 // Har bir fayl turi (fileType) va yuklagan foydalanuvchi (uploadedBy) saqlanadi.
 // -----------------------------------------------
 model TaskAttachment {
-  id         Int @id @default(autoincrement())
-  taskId     Int @map("task_id")
+  id         Int    @id @default(autoincrement())
+  taskId     Int    @map("task_id")
   task       Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
   fileUrl    String @map("file_url")
   fileType   String @map("file_type")
@@ -353,7 +354,7 @@ model TaskAttachment {
 // savollarni aralashtirib berish va adaptiv rejim kabi sozlamalar mavjud.
 // -----------------------------------------------
 model Test {
-  id               Int  @id @default(autoincrement())
+  id               Int     @id @default(autoincrement())
   title            String
   description      String?
   type             String  @default("PRACTICE")
@@ -365,13 +366,13 @@ model Test {
   isAdaptive       Boolean @default(false) @map("is_adaptive")
   isPublished      Boolean @default(false) @map("is_published")
   timeLimit        Int?    @map("time_limit")
-  createdById      Int? @map("created_by")
+  createdById      Int?    @map("created_by")
   createdBy        User?   @relation("CreatedTests", fields: [createdById], references: [id], onDelete: SetNull)
 
   questions   Question[]
   attempts    TestAttempt[]
   assignments GroupAssignment[]
-  courseId    Int?           @map("course_id")
+  courseId    Int?              @map("course_id")
   course      Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@map("tests")
@@ -384,8 +385,8 @@ model Test {
 // to'g'ri javob (correctAnswer JSON), izoh, ball va qiyinlik darajasi saqlanadi.
 // -----------------------------------------------
 model Question {
-  id            Int  @id @default(autoincrement())
-  testId        Int  @map("test_id")
+  id            Int     @id @default(autoincrement())
+  testId        Int     @map("test_id")
   test          Test    @relation(fields: [testId], references: [id], onDelete: Cascade)
   type          String  @default("MCQ")
   inputType     String  @default("OPTIONS") @map("input_type")
@@ -409,10 +410,10 @@ model Question {
 // sarflangan vaqt va berilgan javoblar (JSON) saqlanadi.
 // -----------------------------------------------
 model TestAttempt {
-  id               Int    @id @default(autoincrement())
-  studentId        Int    @map("student_id")
+  id               Int       @id @default(autoincrement())
+  studentId        Int       @map("student_id")
   student          User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  testId           Int    @map("test_id")
+  testId           Int       @map("test_id")
   test             Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
   startedAt        DateTime  @default(now()) @map("started_at")
   submittedAt      DateTime? @map("submitted_at")
@@ -433,8 +434,8 @@ model TestAttempt {
 // Har bir savolga bitta analytics yozuvi bog'liq (one-to-one).
 // -----------------------------------------------
 model QuestionAnalytics {
-  id             Int   @id @default(autoincrement())
-  questionId     Int   @unique @map("question_id")
+  id             Int      @id @default(autoincrement())
+  questionId     Int      @unique @map("question_id")
   question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   totalAttempts  Int      @default(0) @map("total_attempts")
   correctCount   Int      @default(0) @map("correct_count")
@@ -451,7 +452,7 @@ model QuestionAnalytics {
 // XP mukofoti (xpReward) va rang (badgeColor) sozlanishi mumkin.
 // -----------------------------------------------
 model Achievement {
-  id             Int  @id @default(autoincrement())
+  id             Int     @id @default(autoincrement())
   title          String
   description    String?
   iconUrl        String? @map("icon_url")
@@ -471,10 +472,10 @@ model Achievement {
 // Bir talabaga bitta yutuq faqat bir marta berilishi mumkin.
 // -----------------------------------------------
 model StudentAchievement {
-  id            Int      @id @default(autoincrement())
-  studentId     Int      @map("student_id")
+  id            Int         @id @default(autoincrement())
+  studentId     Int         @map("student_id")
   student       User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  achievementId Int      @map("achievement_id")
+  achievementId Int         @map("achievement_id")
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   earnedAt      DateTime    @default(now()) @map("earned_at")
 
@@ -489,8 +490,8 @@ model StudentAchievement {
 // Masalan: "test_completed" sababi bilan 50 XP berildi.
 // -----------------------------------------------
 model XpTransaction {
-  id          Int   @id @default(autoincrement())
-  studentId   Int   @map("student_id")
+  id          Int      @id @default(autoincrement())
+  studentId   Int      @map("student_id")
   student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   amount      Int
   reason      String
@@ -507,11 +508,11 @@ model XpTransaction {
 // Balllar va rank (o'rin) saqlanadi. period - haftalik hisoblar uchun davr belgisi.
 // -----------------------------------------------
 model Leaderboard {
-  id        Int  @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   scope     String  @default("GLOBAL")
-  groupId   Int? @map("group_id")
+  groupId   Int?    @map("group_id")
   group     Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  studentId Int  @map("student_id")
+  studentId Int     @map("student_id")
   student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   score     Int     @default(0)
   rank      Int?
@@ -527,8 +528,8 @@ model Leaderboard {
 // isRead = false bo'lsa, bildirishnoma o'qilmagan.
 // -----------------------------------------------
 model Notification {
-  id        Int   @id @default(autoincrement())
-  userId    Int   @map("user_id")
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      String
   title     String
@@ -541,8 +542,8 @@ model Notification {
 }
 
 model FinanceTransaction {
-  id        Int   @id @default(autoincrement())
-  userId    Int?  @map("user_id")
+  id        Int      @id @default(autoincrement())
+  userId    Int?     @map("user_id")
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   amount    Float
   currency  String   @default("UZS")
@@ -556,7 +557,7 @@ model FinanceTransaction {
 }
 
 model SystemStats {
-  id         Int   @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   cpuUsage   Float    @map("cpu_usage")
   ramFree    Float    @map("ram_free")
   diskSpace  Float    @map("disk_space")

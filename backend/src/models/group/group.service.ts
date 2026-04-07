@@ -34,13 +34,7 @@ export class GroupService {
   }
 
   async findAll() {
-    return this.prisma.group.findMany({
-      where: { isActive: true },
-      include: {
-        teacher: true,
-        members: true
-      }
-    });
+    return await this.prisma.group.findMany();
   }
 
   async findOne(id: number) {
@@ -48,7 +42,7 @@ export class GroupService {
     if (!group) {
       throw new NotFoundException('Bunday guruh mavjud emas');
     }
-    if (!group.isActive) {
+    if (!group.is_avaiable) {
       throw new NotFoundException('Bu guruh faol emas');
     }
     return group;
@@ -67,12 +61,12 @@ export class GroupService {
     if (!group) {
       throw new NotFoundException('Bunday guruh mavjud emas');
     }
-    if (!group.isActive) {
+    if (!group.is_avaiable) {
       throw new BadRequestException('Bu guruh allaqachon o\'chirilgan');
     }
     return this.prisma.group.update({
       where: { id },
-      data: { isActive: false }
+      data: { is_avaiable: false }
     });
   }
 }
