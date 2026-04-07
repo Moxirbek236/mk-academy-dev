@@ -114,6 +114,20 @@ export class UserController {
   }
 
   // @UseGuards(AuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Get all users based on current user role' })
+  @Get()
+  findAll(@Req() req: Request, @Query() query: any) {
+    const userRole = req['user']?.role;
+    if (userRole === UserRole.SUPERADMIN) {
+      return this.userService.findAllSuperAdmin(query);
+    }
+    if (userRole === UserRole.ADMIN) {
+      return this.userService.findAllAdmin(query);
+    }
+    return this.userService.findAllTeacher(req['user'], query);
+  }
+
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
   @Get("superAdmin/all")

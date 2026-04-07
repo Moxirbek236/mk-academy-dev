@@ -33,8 +33,26 @@ export class GroupService {
     }
   }
 
-  async findAll() {
-    return await this.prisma.group.findMany();
+  async findAll(name?: string) {
+    return await this.prisma.group.findMany({
+      where: {
+        isActive: true,
+        name: name ? { contains: name } : undefined,
+      },
+      include: {
+        teacher: {
+          select: {
+            fullName: true,
+            avatarUrl: true,
+          },
+        },
+        _count: {
+          select: {
+            members: true,
+          },
+        },
+      },
+    });
   }
 
   async findOne(id: number) {
