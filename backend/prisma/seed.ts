@@ -6,7 +6,7 @@ async function main() {
     // Default admin user
     await prisma.user.create({
         data: {
-            phone: '  +998901234567',
+            phone: '+998901234567',
             passwordHash: 'admin',
             role: 'ADMIN',
             fullName: 'Admin',

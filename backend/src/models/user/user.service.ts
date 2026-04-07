@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { User } from '@prisma/client';
 import { UserRole } from 'src/core/enums';
 import { join } from 'path';
 import * as fs from 'fs';
@@ -11,6 +10,14 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+
+  private parseUserId(id: number) {
+    const parsedId = Number(id);
+    if (!Number.isInteger(parsedId) || parsedId <= 0) {
+      throw new BadRequestException('Invalid user id');
+    }
+    return parsedId;
+  }
 
   async createTeacher(payload: CreateUserDto, currentUser:{id: number, role: UserRole}, filename?: string) {
 
@@ -147,20 +154,23 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    return (this.prisma.user as any).findUnique({ where: { id: +id }, include: { profile: true } });
+    const userId = this.parseUserId(id);
+    return (this.prisma.user as any).findUnique({ where: { id: userId }, include: { profile: true } });
   }
 
   async update(id: number, dto: UpdateUserDto) {
+    const userId = this.parseUserId(id);
 
     if (dto.passwordHash) {
       const passHash = await bcrypt.hash(dto.passwordHash, 10);
       dto.passwordHash = passHash;
     }
 
-    return (this.prisma.user as any).update({ where: { id: +id }, data: dto });
+    return (this.prisma.user as any).update({ where: { id: userId }, data: dto });
   }
 
   async remove(id: number) {
-    return (this.prisma.user as any).delete({ where: { id: +id } });
+    const userId = this.parseUserId(id);
+    return (this.prisma.user as any).delete({ where: { id: userId } });
   }
 }

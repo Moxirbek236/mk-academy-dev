@@ -8,6 +8,11 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
 import { RolesGuard } from 'src/common/guards/role.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import type { Request } from 'express';
+
+type UploadedAvatarFile = {
+  filename: string;
+};
 
 @ApiTags('users')
 @Controller('users')
@@ -16,8 +21,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
   
   @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: `${UserRole.SUPER_ADMIN}, ${UserRole.ADMIN}` })
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/teacher")
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -43,13 +48,13 @@ export class UserController {
       }),
     }),
   )
-  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: Express.Multer.File) {
+  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: `${UserRole.SUPER_ADMIN}, ${UserRole.ADMIN}` })
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/student")
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -75,13 +80,13 @@ export class UserController {
       }),
     }),
   )
-  createStudent(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: Express.Multer.File) {
+  createStudent(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: `${UserRole.SUPER_ADMIN}` })
-  @Roles(UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
+  @Roles(UserRole.SUPERADMIN)
   @Post("create/admin")
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -107,32 +112,46 @@ export class UserController {
       }),
     }),
   )
-  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: Express.Multer.File) {
+  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createAdmin(payload, req['user'], file?.filename);
   }
   
   @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: `${UserRole.SUPER_ADMIN}` })
-  @Roles(UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
+  @Roles(UserRole.SUPERADMIN)
   @Get("superAdmin/all")
   findAllSuperAdmin(@Req() req: Request, @Query() query: QueryUserDto) {
     // return this.userService.findAllSuperAdmin(req['user'], query);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: `${UserRole.SUPER_ADMIN}` })
-  @Roles(UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
+  @Roles(UserRole.SUPERADMIN)
   @Get("admin/all")
   findAllAdmin(@Req() req: Request, @Query() query: QueryUserDto) {
     // return this.userService.findAllAdmin(req['user'], query);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: `${UserRole.SUPER_ADMIN}` })
-  @Roles(UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
+  @Roles(UserRole.SUPERADMIN)
   @Get("teacher/all")
   findAllTeacher(@Req() req: Request, @Query() query: QueryUserDto) {
     // return this.userService.findAllTeacher(req['user'], query);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  @ApiOperation({ summary: 'Get current user profile' })
+  getProfile(@Req() req: Request) {
+    return this.userService.findOne(req['user']?.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('profile')
+  @ApiOperation({ summary: 'Update current user profile' })
+  updateProfile(@Req() req: Request, @Body() dto: UpdateUserDto) {
+    return this.userService.update(req['user']?.id, dto);
   }
 
   @Get(':id')

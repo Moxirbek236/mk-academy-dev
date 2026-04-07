@@ -3,8 +3,51 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+function normalizeOrigin(origin: string): string {
+  return origin.replace(/\/$/, '');
+}
+
+function resolveAllowedOrigins(): string[] {
+  const envOrigins = [
+    process.env.FRONTEND_URL,
+    ...(process.env.FRONTEND_URLS?.split(',') ?? []),
+  ]
+    .filter(Boolean)
+    .map((origin) => normalizeOrigin(String(origin)));
+
+  const defaults = [
+    'https://mk-academy-dev.pages.dev',
+    'https://mk-academy.netlify.app',
+    'http://localhost',
+    'https://localhost',
+    'http://localhost:3000',
+    'https://localhost:3000',
+    'http://127.0.0.1:3000',
+    'capacitor://localhost',
+    'ionic://localhost',
+  ];
+
+  return Array.from(new Set([...defaults, ...envOrigins]));
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const allowedOrigins = resolveAllowedOrigins();
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      const normalizedOrigin = normalizeOrigin(origin);
+      if (allowedOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  });
 
   app.setGlobalPrefix('api');
 
@@ -30,4 +73,8 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`Backend is running on: http://localhost:${port}`);
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('Application bootstrap failed:', error);
+  process.exit(1);
+});

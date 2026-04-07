@@ -38,31 +38,31 @@ export function SuperadminDashboard() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
       {/* Super Header / Global Status */}
-      <div className="bg-[#1A1A1A] p-8 rounded-[42px] text-white mb-8 shadow-2xl relative overflow-hidden border border-white/5">
+      <div className="bg-white p-8 rounded-[42px] text-gray-900 mb-8 shadow-2xl relative overflow-hidden border border-gray-100">
          <div className="absolute top-[-20px] right-[-20px] w-48 h-48 bg-[#3D855A]/20 rounded-full blur-[80px] opacity-60" />
          <div className="absolute bottom-[-20px] left-[-20px] w-32 h-32 bg-blue-500/10 rounded-full blur-[60px] opacity-40" />
          
          <div className="mb-10 flex items-center justify-between relative z-10">
             <div className="flex items-center gap-4">
-               <div className="bg-gradient-to-tr from-[#3D855A] to-[#69B58A] p-4 rounded-[22px] shadow-xl shadow-[#3D855A]/40 border border-white/10 ring-4 ring-white/5">
+               <div className="bg-gradient-to-tr from-[#3D855A] to-[#69B58A] p-4 rounded-[22px] shadow-xl shadow-[#3D855A]/40 border border-emerald-100 ring-4 ring-emerald-50">
                   <Crown size={30} className="text-white drop-shadow-md" />
                </div>
                <div>
                   <h1 className="text-2xl font-black tracking-tight leading-tight">Master Panel</h1>
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
+                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                      SYSTEMS ONLINE
                   </p>
                </div>
             </div>
-            <button className="p-3.5 bg-white/5 rounded-2xl border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all hover:scale-110 active:scale-95 shadow-inner">
+            <button className="p-3.5 bg-gray-100 rounded-2xl border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-all hover:scale-110 active:scale-95 shadow-inner">
                <Command size={22} />
             </button>
          </div>
          
          <div className="grid grid-cols-2 gap-4 relative z-10">
-            <div className="p-6 bg-gradient-to-br from-white/10 to-transparent rounded-[32px] border border-white/10 hover:border-white/20 transition-all group">
-               <p className="text-[10px] font-black text-white/40 mb-5 flex items-center gap-2 tracking-widest uppercase">
+            <div className="p-6 bg-gradient-to-br from-gray-50 to-transparent rounded-[32px] border border-gray-100 hover:border-gray-200 transition-all group">
+               <p className="text-[10px] font-black text-gray-500 mb-5 flex items-center gap-2 tracking-widest uppercase">
                  <Globe size={13} className="text-blue-400" /> GLOBAL LOAD
                </p>
                <div className="flex items-baseline gap-2">
@@ -70,8 +70,8 @@ export function SuperadminDashboard() {
                   <span className="text-[10px] font-bold text-emerald-400">Stable</span>
                </div>
             </div>
-            <div className="p-6 bg-gradient-to-br from-white/10 to-transparent rounded-[32px] border border-white/10 hover:border-white/20 transition-all group">
-               <p className="text-[10px] font-black text-white/40 mb-5 flex items-center gap-2 tracking-widest uppercase">
+            <div className="p-6 bg-gradient-to-br from-gray-50 to-transparent rounded-[32px] border border-gray-100 hover:border-gray-200 transition-all group">
+               <p className="text-[10px] font-black text-gray-500 mb-5 flex items-center gap-2 tracking-widest uppercase">
                  <Zap size={13} className="text-amber-400" /> API LATENCY
                </p>
                <div className="flex items-baseline gap-2">
