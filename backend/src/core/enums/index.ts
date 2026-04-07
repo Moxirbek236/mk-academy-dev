@@ -54,7 +54,7 @@ export enum NotificationType {
 
 export const allGroupsForSwaggerEnum = () => {
   let GroupScalarFieldEnum
-  
+
 
   return GroupScalarFieldEnum
 }

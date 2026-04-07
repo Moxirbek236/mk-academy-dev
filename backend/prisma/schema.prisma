@@ -70,6 +70,7 @@ model UserProfile {
   language             String    @default("UZ")
   timezone             String    @default("Asia/Tashkent")
   notificationSettings String?   @map("notification_settings")
+  isActive             Boolean   @default(true)
 
   @@map("user_profiles")
 }
@@ -87,7 +88,7 @@ model Group {
   teacherId   Int   @map("teacher_id")
   teacher     User     @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
   inviteCode  String   @unique @map("invite_code")
-  isActive    Boolean  @default(true) @map("is_active")
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now()) @map("created_at")
 
   members      GroupMember[]

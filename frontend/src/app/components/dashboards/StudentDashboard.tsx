@@ -141,11 +141,11 @@ export function StudentDashboard() {
         )}
       </div>
 
-      <div className="mt-12 bg-gray-900 rounded-[40px] p-8 text-white relative overflow-hidden group mb-6 overflow-hidden">
-         <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-[#3D855A]/20 rounded-full blur-[40px] opacity-50" />
+      <div className="mt-12 bg-gradient-to-br from-[#ECF8F1] via-[#F8FCF9] to-white rounded-[40px] p-8 text-gray-900 relative overflow-hidden group mb-6 border border-[#DCEEE3] shadow-sm">
+         <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-[#3D855A]/15 rounded-full blur-[40px] opacity-60" />
          <div className="relative z-10">
             <h3 className="text-xl font-black tracking-tight leading-tight mb-2">Practice Vocabulary</h3>
-            <p className="text-sm font-bold text-white/50 mb-6 leading-relaxed">Spaced Repetition (SM-2) orqali yanada tezroq eslab qoling.</p>
+            <p className="text-sm font-bold text-gray-500 mb-6 leading-relaxed">Spaced Repetition (SM-2) orqali yanada tezroq eslab qoling.</p>
             <button 
                onClick={() => router.push('/vocabulary-practice')}
                className="bg-[#3D855A] hover:bg-[#4ea873] text-white px-6 py-3 rounded-2xl font-black text-xs tracking-widest uppercase transition-all shadow-xl shadow-[#3D855A]/20 active:scale-95 flex items-center gap-3 w-fit"
@@ -157,7 +157,7 @@ export function StudentDashboard() {
 
       <Dialog.Root open={!!selectedUnit} onOpenChange={(open) => !open && setSelectedUnit(null)}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 animate-in fade-in duration-300" />
+          <Dialog.Overlay className="fixed inset-0 bg-black/35 backdrop-blur-sm z-50 animate-in fade-in duration-300" />
           <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[92%] max-w-[360px] bg-white rounded-[42px] p-8 shadow-[0_25px_60px_rgba(0,0,0,0.25)] z-50 focus:outline-none animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden border border-gray-100">
             <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-[#3D855A]/5 rounded-full blur-[30px]" />
             

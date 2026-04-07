@@ -31,7 +31,7 @@ export default function GenericSettingPage() {
 
       <button 
         onClick={() => router.push('/settings')}
-        className="w-full p-6 bg-gray-900 rounded-[34px] font-black tracking-tight text-white shadow-2xl shadow-gray-900/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase"
+        className="w-full p-6 bg-[#3D855A] rounded-[34px] font-black tracking-tight text-white shadow-xl shadow-[#3D855A]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase"
       >
         ORQAGA QAYTISH
       </button>

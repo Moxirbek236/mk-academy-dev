@@ -6,19 +6,22 @@ import api from '@/lib/api';
 export default function SystemPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const res = await api.get('/system/stats');
+      setData(res.data?.data || res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get('/dashboard/stats');
-        setData(res.data?.data || res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    void fetchData();
   }, []);
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
@@ -32,7 +35,7 @@ export default function SystemPage() {
   const sysStats = [
     { label: 'CPU USAGE', value: `${data?.system?.cpuUsage?.toFixed(1) || 0}%`, icon: Cpu, color: 'text-emerald-500', bg: 'bg-emerald-50' },
     { label: 'RAM FREE', value: `${data?.system?.ramFree?.toFixed(1) || 0} GB`, icon: Activity, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'DISK SPACE', value: `${data?.system?.diskSpace || 0} GB`, icon: HardDrive, color: 'text-purple-500', bg: 'bg-purple-50' },
+    { label: 'DISK SPACE', value: `${data?.system?.diskSpace || 0} GB`, icon: HardDrive, color: 'text-indigo-500', bg: 'bg-indigo-50' },
     { label: 'NETWORK', value: `${data?.system?.networkMs || 0} ms`, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50' },
   ];
 
@@ -40,12 +43,18 @@ export default function SystemPage() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between mb-8 px-1">
         <h1 className="text-2xl font-black text-gray-900 tracking-tight">Tizim</h1>
-        <button className="bg-[#3D855A] text-white p-3 rounded-2xl active:scale-90 transition-all shadow-lg animate-pulse hover:animate-none">
-          <RefreshCw size={20} strokeWidth={2.5} />
+        <button
+          onClick={() => {
+            setRefreshing(true);
+            void fetchData();
+          }}
+          className="bg-[#3D855A] text-white p-3 rounded-2xl active:scale-90 transition-all shadow-lg hover:shadow-xl"
+        >
+          <RefreshCw size={20} strokeWidth={2.5} className={refreshing ? 'animate-spin' : ''} />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
         {sysStats.map((item, idx) => (
           <div key={idx} className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex flex-col items-center gap-4 text-center group hover:border-[#3D855A]/30 hover:shadow-xl transition-all h-full">
             <div className={`p-5 rounded-[22px] transition-all group-hover:scale-110 shadow-inner ${item.bg} ${item.color}`}>
@@ -68,20 +77,20 @@ export default function SystemPage() {
 
       <div className="flex flex-col gap-4 mb-10 pb-10">
         {serverLogs.map((log: any, idx: number) => (
-          <div key={idx} className="bg-[#1A1A1A] p-5 rounded-[32px] border border-white/5 shadow-sm flex items-center gap-5 hover:border-white/10 group active:scale-[0.98] transition-all">
+          <div key={idx} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/20 group active:scale-[0.98] transition-all">
             <div className={`p-4 rounded-[20px] transition-all group-hover:scale-110 shadow-2xl ${
-               log.status === 'Warning' ? 'bg-amber-550/20 text-amber-500' : 'bg-emerald-550/20 text-emerald-400'
+               log.status === 'Warning' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'
             }`}>
                <AlertTriangle size={24} strokeWidth={2.5} />
             </div>
             <div className="flex-1 truncate">
-               <h3 className="font-extrabold text-[#FFFFFF] text-[15px] leading-tight group-hover:translate-x-1 transition-transform truncate">{log.title}</h3>
+               <h3 className="font-extrabold text-gray-900 text-[15px] leading-tight group-hover:translate-x-1 transition-transform truncate">{log.title}</h3>
                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-white/5 text-white/40 tracking-tighter uppercase">{log.type}</span>
-                  <p className="text-[10px] font-bold text-white/30 tracking-tight">{log.time}</p>
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-gray-100 text-gray-500 tracking-tighter uppercase">{log.type}</span>
+                  <p className="text-[10px] font-bold text-gray-400 tracking-tight">{log.time}</p>
                </div>
             </div>
-            <div className="p-2 text-white/20"><Clock size={16} /></div>
+            <div className="p-2 text-gray-300"><Clock size={16} /></div>
           </div>
         ))}
       </div>

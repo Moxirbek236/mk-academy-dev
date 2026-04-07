@@ -9,10 +9,14 @@ import { GlobalApiNotice } from './components/GlobalApiNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { stripLocaleFromPathname } from '@/i18n/pathname';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations('Common');
   const { role, loading, token } = useAuth();
   const [mounted, setMounted] = useState(false);
 
@@ -20,23 +24,27 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     setMounted(true);
   }, []);
 
+  const normalizedPath = stripLocaleFromPathname(pathname || '/');
+
   // Public routes that don't need auth
-  const isPublicRoute = ['/login', '/landing'].includes(pathname);
+  const isPublicRoute = ['/login', '/landing'].includes(normalizedPath);
 
   useEffect(() => {
     if (mounted && !loading && !token && !isPublicRoute) {
-      router.push('/landing');
+      router.replace(`/${locale}/landing`);
     }
-  }, [mounted, loading, token, isPublicRoute, pathname]);
+  }, [mounted, loading, token, isPublicRoute, locale, router]);
 
   if (!mounted || (loading && !isPublicRoute)) {
     return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center z-[9999]">
-         <div className="flex flex-col items-center gap-6">
-            <div className="w-16 h-16 rounded-[24px] bg-[#3D855A] flex items-center justify-center animate-pulse shadow-2xl shadow-[#3D855A]/30">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--app-bg)]">
+         <div className="flex flex-col items-center gap-5 px-6 text-center">
+            <div className="w-16 h-16 rounded-[24px] bg-[#3D855A] flex items-center justify-center animate-pulse shadow-xl shadow-[#3D855A]/20">
                <Loader2 size={32} className="text-white animate-spin" />
             </div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] ml-2">Loading MK Academy</p>
+            <p className="ml-1 text-[10px] font-black uppercase tracking-[0.32em] text-gray-500">
+              {t('loading')} {t('appName')}
+            </p>
          </div>
       </div>
     );
@@ -45,13 +53,31 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const hideNav = isPublicRoute;
 
   return (
+<<<<<<< HEAD
     <div className={`min-h-screen flex ${role === 'superadmin' ? 'bg-white' : 'bg-gray-50/50'}`}>
+=======
+    <div
+      className={`min-h-screen-safe flex overflow-x-clip ${
+        role === 'superadmin' ? 'bg-[var(--app-surface)]' : 'bg-[var(--app-bg)]'
+      }`}
+    >
+>>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
       {!hideNav && <Sidebar role={role} />}
       
       <div className={`flex-1 flex flex-col min-h-screen ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
         <OfflineStatusBanner />
+<<<<<<< HEAD
         <main className={`${!hideNav ? 'pt-24 lg:pt-12 pb-32 max-w-7xl mx-auto px-6 w-full' : ''}`}>
+=======
+        <main
+          className={
+            !hideNav
+              ? 'app-page w-full pt-5 sm:pt-6 lg:pt-8 pb-nav-safe lg:pb-12'
+              : 'w-full'
+          }
+        >
+>>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
