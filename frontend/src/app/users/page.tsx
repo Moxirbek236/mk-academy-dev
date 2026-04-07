@@ -11,10 +11,15 @@ export default function UsersPage() {
   const { role } = useAuth();
   const router = useRouter();
 
+  const [searchTerm, setSearchTerm] = useState('');
+
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const res = await api.get('/users');
+        const res = await api.get('/users', {
+          params: { fullName: searchTerm }
+        });
         setUsers(res.data?.data || res.data || []);
       } catch (err) {
         console.error(err);
@@ -22,8 +27,12 @@ export default function UsersPage() {
         setLoading(false);
       }
     };
-    fetchUsers();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchUsers();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -43,7 +52,9 @@ export default function UsersPage() {
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Ism yoki email bo'yicha..." 
+            placeholder="Ism bo'yicha qidirish..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border border-gray-100 rounded-[20px] py-3.5 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
           />
         </div>

@@ -35,43 +35,27 @@ export function GlobalApiNotice() {
     if (notice.type === 'error') {
       return {
         icon: <AlertCircle size={16} />,
-<<<<<<< HEAD
         className: 'border-red-200 bg-red-50 text-red-900',
-=======
-        className: 'border-red-200 bg-red-50 text-red-900 dark:border-red-900/60 dark:bg-red-900/30 dark:text-red-100',
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
       };
     }
 
     if (notice.type === 'success') {
       return {
         icon: <CheckCircle2 size={16} />,
-<<<<<<< HEAD
         className: 'border-emerald-200 bg-emerald-50 text-emerald-900',
-=======
-        className: 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-900/30 dark:text-emerald-100',
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
       };
     }
 
     return {
       icon: <Info size={16} />,
-<<<<<<< HEAD
       className: 'border-blue-200 bg-blue-50 text-blue-900',
-=======
-      className: 'border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900/60 dark:bg-blue-900/30 dark:text-blue-100',
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
     };
   }, [notice]);
 
   if (!notice || !view) return null;
 
   return (
-<<<<<<< HEAD
     <div className="pointer-events-none fixed bottom-24 left-1/2 z-[999] w-[92%] max-w-md -translate-x-1/2 lg:bottom-8">
-=======
-    <div className="pointer-events-none fixed bottom-[calc(5.6rem+env(safe-area-inset-bottom))] left-1/2 z-[999] w-[92%] max-w-md -translate-x-1/2 lg:bottom-8">
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
       <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold shadow-lg ${view.className}`}>
         {view.icon}
         <span>{notice.message}</span>
@@ -79,7 +63,4 @@ export function GlobalApiNotice() {
     </div>
   );
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1

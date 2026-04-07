@@ -218,11 +218,7 @@ export default function LeadsPage() {
                   <button
                     onClick={() => void deleteLead(lead.id)}
                     title="O'chirish"
-<<<<<<< HEAD
                     className="rounded-2xl bg-gray-50 p-3 text-gray-400 shadow-sm transition-all active:scale-90 hover:bg-gray-900 hover:text-white"
-=======
-                    className="rounded-2xl bg-gray-50 p-3 text-gray-400 shadow-sm transition-all active:scale-90 hover:bg-[#3D855A] hover:text-white"
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
                   >
                     <MoreVertical size={18} strokeWidth={2.5} />
                   </button>

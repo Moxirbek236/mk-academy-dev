@@ -45,59 +45,61 @@ export function StudentDashboard() {
       {/* Gamification / Progress Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
          {stats.map((stat, idx) => (
-            <div key={idx} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-4 group hover:border-[#3D855A]/30 hover:shadow-md transition-all active:scale-[0.98]">
+            <div key={idx} className="app-card p-5 flex items-center gap-4 active:scale-[0.98]">
                <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
                   <stat.icon size={20} strokeWidth={2.5} />
                </div>
                <div>
                   <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">{stat.label}</p>
-                  <p className="text-sm font-black text-[#111827] mt-1 tracking-tight">{stat.value}</p>
+                  <p className="text-sm font-black text-[var(--app-text)] mt-1 tracking-tight">{stat.value}</p>
                </div>
             </div>
          ))}
       </div>
 
-      <div className="mb-10 px-2 animate-in fade-in slide-in-from-right-4 duration-1000">
-         <h2 className="text-[12px] font-black text-[#1A1A1A]/30 tracking-[0.15em] uppercase mb-4 flex items-center gap-2">
-            <Users size={14} className="text-[#3D855A]" /> MENING GURUHLARIM
+      <div className="mb-10 px-1 animate-in fade-in slide-in-from-right-4 duration-1000">
+         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-4 flex items-center gap-2">
+            <Users size={14} className="text-[var(--app-primary)]" /> MENING GURUHLARIM
          </h2>
-         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-2 px-2">
+         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
             {[1, 2].map((_, i) => (
-               <div key={i} onClick={() => router.push('/groups')} className="min-w-[240px] bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-4 hover:border-[#3D855A]/30 hover:shadow-md transition-all active:scale-95 cursor-pointer group">
-                  <div className="w-14 h-14 rounded-2xl bg-[#F2F8F5] text-[#3D855A] flex items-center justify-center font-black text-lg group-hover:bg-[#3D855A] group-hover:text-white transition-all shadow-sm">
+               <div key={i} onClick={() => router.push('/groups')} className="min-w-[260px] app-card p-6 flex items-center gap-4 cursor-pointer group">
+                  <div className="w-14 h-14 rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-primary)] flex items-center justify-center font-black text-lg group-hover:bg-[var(--app-primary)] group-hover:text-white transition-all shadow-sm">
                      G{i+1}
                   </div>
-                  <div>
-                     <h4 className="font-extrabold text-[#111827] text-sm tracking-tight">IELTS Foundation</h4>
-                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Mentor: Maqsud</p>
+                  <div className="min-w-0 flex-1">
+                     <h4 className="font-extrabold text-[var(--app-text)] text-sm tracking-tight truncate">IELTS Foundation</h4>
+                     <p className="text-[10px] font-bold text-[var(--app-muted)] uppercase tracking-widest mt-0.5">Mentor: Maqsud</p>
                   </div>
-                  <div className="ml-auto p-2 bg-gray-50 rounded-xl text-gray-300 group-hover:text-[#3D855A] group-hover:bg-[#3D855A]/5 transition-all">
-                     <ChevronRight size={16} strokeWidth={3} />
+                  <div className="p-2.5 rounded-xl bg-[var(--app-surface-soft)] text-gray-300 group-hover:text-[var(--app-primary)] group-hover:bg-[var(--app-primary)]/10 transition-all">
+                     <ChevronRight size={18} strokeWidth={3} />
                   </div>
                </div>
             ))}
-            <button className="min-w-[140px] border-2 border-dashed border-gray-200 rounded-[32px] flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-[#3D855A]/30 hover:text-[#3D855A] transition-all group">
+            <button className="min-w-[160px] border-2 border-dashed border-[var(--app-border)] rounded-[var(--radius-premium)] flex flex-col items-center justify-center gap-2 text-[var(--app-muted)] hover:border-[var(--app-primary)]/30 hover:text-[var(--app-primary)] transition-all group active:scale-95 bg-white/40">
                <PlusCircle size={24} />
                <span className="text-[10px] font-black uppercase tracking-widest">YANGI GURUH</span>
             </button>
          </div>
       </div>
 
-      <h2 className="text-[12px] font-black text-[#1A1A1A]/30 tracking-[0.15em] uppercase mb-4 px-2 flex items-center gap-2">
-         <Sparkles size={14} className="text-[#3D855A]" /> KEYINGI IMTIHON
-      </h2>
-      <ExamCard />
+      <div className="mb-10">
+        <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-4 px-2 flex items-center gap-2 font-black">
+           <Sparkles size={14} className="text-[var(--app-primary)]" /> KEYINGI IMTIHON
+        </h2>
+        <ExamCard />
+      </div>
 
       <div className="mt-10 mb-6 flex items-center justify-between px-2">
-         <h2 className="text-[12px] font-black text-[#1A1A1A]/30 tracking-[0.15em] uppercase px-1">O&apos;QUV REJANGIZ</h2>
-         <button className="text-[10px] font-black text-[#3D855A] uppercase tracking-widest flex items-center gap-1 group">
+         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">O&apos;QUV REJANGIZ</h2>
+         <button className="text-[10px] font-black text-[var(--app-primary)] uppercase tracking-widest flex items-center gap-1 group bg-[var(--app-primary)]/10 px-3 py-1.5 rounded-full hover:bg-[var(--app-primary)]/20 transition-all">
             All Units <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
          </button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         {loading ? (
-           <div className="flex justify-center p-10 col-span-full"><Loader2 className="animate-spin text-[#3D855A] opacity-50" size={32} /></div>
+           <div className="flex justify-center p-10 col-span-full"><Loader2 className="animate-spin text-[var(--app-primary)] opacity-50" size={32} /></div>
         ) : tasks.length > 0 ? (
            tasks.map((task: any, idx: number) => (
              <LessonCard 
@@ -131,26 +133,20 @@ export function StudentDashboard() {
               status="locked" 
               progress={0} 
             />
-            <LessonCard 
-              unit="4" 
-              title="IELTS Prep - 6 Lessons" 
-              status="locked" 
-              progress={0} 
-            />
           </>
         )}
       </div>
 
-      <div className="mt-12 bg-gradient-to-br from-[#ECF8F1] via-[#F8FCF9] to-white rounded-[40px] p-8 text-gray-900 relative overflow-hidden group mb-6 border border-[#DCEEE3] shadow-sm">
-         <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-[#3D855A]/15 rounded-full blur-[40px] opacity-60" />
+      <div className="mt-12 bg-mesh app-card p-8 text-[var(--app-text)] relative overflow-hidden group mb-10">
+         <div className="absolute top-[-20px] right-[-20px] w-48 h-48 bg-[var(--app-primary)]/10 rounded-full blur-[60px] opacity-60" />
          <div className="relative z-10">
-            <h3 className="text-xl font-black tracking-tight leading-tight mb-2">Practice Vocabulary</h3>
-            <p className="text-sm font-bold text-gray-500 mb-6 leading-relaxed">Spaced Repetition (SM-2) orqali yanada tezroq eslab qoling.</p>
+            <h3 className="text-2xl font-black tracking-tight leading-tight mb-2">Practice Vocabulary</h3>
+            <p className="text-sm font-bold text-[var(--app-muted)] mb-8 leading-relaxed max-w-sm">Spaced Repetition (SM-2) orqali yanada tezroq eslab qoling va so&apos;z boyligingizni oshiring.</p>
             <button 
                onClick={() => router.push('/vocabulary-practice')}
-               className="bg-[#3D855A] hover:bg-[#4ea873] text-white px-6 py-3 rounded-2xl font-black text-xs tracking-widest uppercase transition-all shadow-xl shadow-[#3D855A]/20 active:scale-95 flex items-center gap-3 w-fit"
+               className="btn-premium bg-[var(--app-primary)] text-white shadow-[0_15px_30px_-10px_rgba(16,185,129,0.5)] border-none"
             >
-               <Clock size={16} strokeWidth={2.5} /> Train Now
+               <Clock size={16} strokeWidth={2.5} className="mr-2" /> Train Now
             </button>
          </div>
       </div>

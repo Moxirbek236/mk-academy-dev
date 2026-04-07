@@ -53,31 +53,13 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const hideNav = isPublicRoute;
 
   return (
-<<<<<<< HEAD
     <div className={`min-h-screen flex ${role === 'superadmin' ? 'bg-white' : 'bg-gray-50/50'}`}>
-=======
-    <div
-      className={`min-h-screen-safe flex overflow-x-clip ${
-        role === 'superadmin' ? 'bg-[var(--app-surface)]' : 'bg-[var(--app-bg)]'
-      }`}
-    >
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
       {!hideNav && <Sidebar role={role} />}
       
       <div className={`flex-1 flex flex-col min-h-screen ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
         <OfflineStatusBanner />
-<<<<<<< HEAD
         <main className={`${!hideNav ? 'pt-24 lg:pt-12 pb-32 max-w-7xl mx-auto px-6 w-full' : ''}`}>
-=======
-        <main
-          className={
-            !hideNav
-              ? 'app-page w-full pt-5 sm:pt-6 lg:pt-8 pb-nav-safe lg:pb-12'
-              : 'w-full'
-          }
-        >
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}

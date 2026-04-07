@@ -38,74 +38,74 @@ export function SuperadminDashboard() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
       {/* Super Header / Global Status */}
-      <div className="bg-white p-8 rounded-[42px] text-gray-900 mb-8 shadow-2xl relative overflow-hidden border border-gray-100">
-         <div className="absolute top-[-20px] right-[-20px] w-48 h-48 bg-[#3D855A]/20 rounded-full blur-[80px] opacity-60" />
-         <div className="absolute bottom-[-20px] left-[-20px] w-32 h-32 bg-blue-500/10 rounded-full blur-[60px] opacity-40" />
+      <div className="app-card bg-mesh p-8 text-[var(--app-text)] mb-8 relative overflow-hidden">
+         <div className="absolute top-[-20px] right-[-20px] w-48 h-48 bg-[var(--app-primary)]/10 rounded-full blur-[80px] opacity-60" />
+         <div className="absolute bottom-[-20px] left-[-20px] w-32 h-32 bg-blue-500/5 rounded-full blur-[60px] opacity-40" />
          
          <div className="mb-10 flex items-center justify-between relative z-10">
             <div className="flex items-center gap-4">
-               <div className="bg-gradient-to-tr from-[#3D855A] to-[#69B58A] p-4 rounded-[22px] shadow-xl shadow-[#3D855A]/40 border border-emerald-100 ring-4 ring-emerald-50">
+               <div className="bg-gradient-to-tr from-[var(--app-primary)] to-[var(--app-primary-dark)] p-4 rounded-[22px] shadow-xl shadow-[var(--app-primary)]/20 ring-4 ring-[var(--app-primary)]/10">
                   <Crown size={30} className="text-white drop-shadow-md" />
                </div>
                <div>
                   <h1 className="text-2xl font-black tracking-tight leading-tight">Master Panel</h1>
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
-                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <p className="text-[10px] font-black text-[var(--app-muted)] uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
+                     <span className="w-2 h-2 rounded-full bg-[var(--app-primary)] animate-pulse" />
                      SYSTEMS ONLINE
                   </p>
                </div>
             </div>
-            <button className="p-3.5 bg-gray-100 rounded-2xl border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-all hover:scale-110 active:scale-95 shadow-inner">
+            <button className="app-touch flex items-center justify-center p-3.5 bg-[var(--app-surface-soft)] rounded-2xl border border-[var(--app-border)] text-[var(--app-muted)] hover:text-[var(--app-text)] transition-all hover:scale-110 active:scale-95 shadow-inner">
                <Command size={22} />
             </button>
          </div>
          
          <div className="grid grid-cols-2 gap-4 relative z-10">
-            <div className="p-6 bg-gradient-to-br from-gray-50 to-transparent rounded-[32px] border border-gray-100 hover:border-gray-200 transition-all group">
-               <p className="text-[10px] font-black text-gray-500 mb-5 flex items-center gap-2 tracking-widest uppercase">
-                 <Globe size={13} className="text-blue-400" /> GLOBAL LOAD
+            <div className="p-6 bg-white/40 backdrop-blur-sm rounded-[32px] border border-white/50 hover:border-[var(--app-primary)]/20 transition-all group">
+               <p className="text-[10px] font-black text-[var(--app-muted)] mb-5 flex items-center gap-2 tracking-widest uppercase">
+                 <Globe size={13} className="text-blue-500" /> GLOBAL LOAD
                </p>
                <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-black tracking-tighter group-hover:scale-105 transition-transform origin-left">{data?.system?.uptime || 99}%</span>
-                  <span className="text-[10px] font-bold text-emerald-400">Stable</span>
+                  <span className="text-[9px] font-black text-[var(--app-primary)] bg-[var(--app-primary)]/10 px-2 py-0.5 rounded-full uppercase tracking-tighter">Stable</span>
                </div>
             </div>
-            <div className="p-6 bg-gradient-to-br from-gray-50 to-transparent rounded-[32px] border border-gray-100 hover:border-gray-200 transition-all group">
-               <p className="text-[10px] font-black text-gray-500 mb-5 flex items-center gap-2 tracking-widest uppercase">
-                 <Zap size={13} className="text-amber-400" /> API LATENCY
+            <div className="p-6 bg-white/40 backdrop-blur-sm rounded-[32px] border border-white/50 hover:border-[var(--app-primary)]/20 transition-all group">
+               <p className="text-[10px] font-black text-[var(--app-muted)] mb-5 flex items-center gap-2 tracking-widest uppercase">
+                 <Zap size={13} className="text-amber-500" /> API LATENCY
                </p>
                <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-black tracking-tighter group-hover:scale-105 transition-transform origin-left">{data?.system?.networkMs || 30}ms</span>
-                  <span className="text-[10px] font-bold text-emerald-400">Optimal</span>
+                  <span className="text-[9px] font-black text-[var(--app-primary)] bg-[var(--app-primary)]/10 px-2 py-0.5 rounded-full uppercase tracking-tighter">Optimal</span>
                </div>
             </div>
          </div>
       </div>
 
       {/* Main Metrics */}
-      <h2 className="text-[12px] font-black text-[#1A1A1A]/40 tracking-[0.15em] uppercase mb-6 px-2 flex items-center gap-3">
-         <Activity size={16} className="text-[#3D855A]" /> REAL-TIME ANALYTICS
+      <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-6 px-2 flex items-center gap-3">
+         <Activity size={16} className="text-[var(--app-primary)]" /> REAL-TIME ANALYTICS
       </h2>
-      <div className="grid grid-cols-2 gap-4 mb-10 text-gray-900">
+      <div className="grid grid-cols-2 gap-4 mb-10 text-[var(--app-text)]">
          {metrics.map((metric: any, idx: number) => (
-            <div key={idx} className="bg-white p-6 rounded-[36px] shadow-sm border border-gray-100/50 hover:shadow-xl hover:border-gray-200 transition-all group cursor-default">
+            <div key={idx} className="app-card p-6 flex flex-col group cursor-default">
                <div className={`p-4 w-fit rounded-2xl mb-5 ${metric.bg} ${metric.color} group-hover:scale-110 transition-transform shadow-sm`}>
                   <metric.icon size={24} strokeWidth={2.5} />
                </div>
-               <p className="text-[10px] font-black text-gray-400 tracking-wider mb-2 uppercase">{metric.label}</p>
+               <p className="text-[10px] font-black text-[var(--app-muted)] tracking-wider mb-2 uppercase opacity-80">{metric.label}</p>
                <p className="text-2xl font-black tracking-tighter">{metric.value}</p>
             </div>
          ))}
       </div>
 
       <div className="px-2 flex items-center justify-between mb-6">
-         <h2 className="text-[12px] font-black text-[#1A1A1A]/40 tracking-[0.15em] uppercase px-1">AUDIT LOGS</h2>
-         <button className="text-[10px] font-black text-[#3D855A] hover:underline uppercase tracking-widest bg-[#3D855A]/5 px-3 py-1.5 rounded-full">Explore All</button>
+         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">AUDIT LOGS</h2>
+         <button className="text-[10px] font-black text-[var(--app-primary)] hover:underline uppercase tracking-widest bg-[var(--app-primary)]/10 px-3.5 py-1.5 rounded-full transition-all">Explore All</button>
       </div>
 
       <div className="flex flex-col gap-4 mb-10">
         {alerts.map((alert: any, idx: number) => (
-          <div key={idx} className="bg-white/80 backdrop-blur-sm p-5 rounded-[32px] border border-gray-100/80 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:bg-white transition-all group active:scale-[0.98]">
+          <div key={idx} className="app-card p-5 flex items-center gap-5 active:scale-[0.98]">
             <div className={`p-4 rounded-[20px] transition-all group-hover:rotate-[10deg] ${
                alert.status === 'Warning' ? 'bg-amber-100 text-amber-600' : 
                alert.status === 'Success' ? 'bg-emerald-100 text-emerald-600' : 
@@ -113,39 +113,39 @@ export function SuperadminDashboard() {
             }`}>
                <ShieldAlert size={26} strokeWidth={2.5} />
             </div>
-            <div className="flex-1">
-               <h3 className="font-extrabold text-[#111827] text-[15px] leading-tight">{alert.title}</h3>
+            <div className="flex-1 min-w-0">
+               <h3 className="font-extrabold text-[var(--app-text)] text-[15px] leading-tight truncate">{alert.title}</h3>
                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-gray-100 text-gray-500 uppercase tracking-tighter">{alert.type}</span>
-                  <p className="text-[10px] font-bold text-gray-400">{alert.time}</p>
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-[var(--app-surface-soft)] text-[var(--app-muted)] uppercase tracking-tighter">{alert.type}</span>
+                  <p className="text-[10px] font-bold text-[var(--app-muted)]">{alert.time}</p>
                </div>
             </div>
-            <button className="p-3.5 rounded-2xl bg-gray-50 text-gray-400 hover:text-[#111827] hover:bg-gray-100 transition-colors">
+            <button className="p-3.5 rounded-2xl bg-[var(--app-surface-soft)] text-gray-300 hover:text-[var(--app-text)] transition-all group-hover:text-[var(--app-primary)]">
                <PieChart size={20} strokeWidth={2.5} />
             </button>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-         <button className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-[42px] shadow-2xl flex flex-col items-center gap-5 text-center active:scale-95 transition-all border border-white/5 group overflow-hidden relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="p-5 bg-white/10 rounded-[22px] text-blue-400 group-hover:scale-110 transition-transform ring-4 ring-white/5">
+      <div className="grid grid-cols-2 gap-4 mb-10 pb-8">
+         <button className="bg-gradient-to-br from-slate-900 to-black p-8 rounded-[42px] shadow-2xl flex flex-col items-center gap-5 text-center active:scale-95 transition-all border border-white/5 group overflow-hidden relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--app-primary)]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="p-5 bg-white/10 rounded-[22px] text-[var(--app-primary)] group-hover:scale-110 transition-transform ring-4 ring-white/5">
                <PieChart size={30} strokeWidth={2.5} />
             </div>
-            <span className="text-xs font-black text-white/90 tracking-wide leading-none">ANNUAL REPORT</span>
+            <span className="text-[11px] font-black text-white/90 tracking-[0.1em] leading-none uppercase">ANNUAL REPORT</span>
          </button>
-         <button className="bg-white p-8 rounded-[42px] border border-gray-100 shadow-sm flex flex-col items-center gap-5 text-center active:scale-95 transition-all group hover:border-gray-200">
-            <div className="p-5 bg-gray-50 rounded-[22px] text-gray-400 group-hover:scale-110 group-hover:text-amber-500 transition-all group-hover:bg-amber-50 shadow-inner">
+         <button className="app-card p-8 flex flex-col items-center gap-5 text-center active:scale-95 transition-all group overflow-hidden">
+            <div className="p-5 bg-[var(--app-surface-soft)] rounded-[22px] text-[var(--app-muted)] group-hover:scale-110 group-hover:text-amber-500 transition-all group-hover:bg-amber-50 shadow-inner">
                <Globe size={30} strokeWidth={2.5} />
             </div>
-            <span className="text-xs font-black text-gray-800 tracking-wide leading-none">MAINTENANCE</span>
+            <span className="text-[11px] font-black text-[var(--app-text)] tracking-[0.1em] leading-none uppercase">MAINTENANCE</span>
          </button>
       </div>
 
-      <div className="mt-12 mb-8 flex justify-center">
-         <button className="flex items-center gap-3 text-[11px] font-black text-gray-400 hover:text-gray-900 transition-all border border-gray-100 px-6 py-3 rounded-full hover:bg-white hover:shadow-md">
-            <HelpCircle size={16} className="text-[#3D855A]" /> 
+      <div className="mt-4 mb-12 flex justify-center">
+         <button className="flex items-center gap-3 text-[11px] font-black text-[var(--app-muted)] hover:text-[var(--app-text)] transition-all border border-[var(--app-border)] px-6 py-3.5 rounded-full hover:bg-white hover:shadow-md">
+            <HelpCircle size={16} className="text-[var(--app-primary)]" /> 
             <span className="tracking-widest uppercase opacity-80">System Documentation</span>
          </button>
       </div>
