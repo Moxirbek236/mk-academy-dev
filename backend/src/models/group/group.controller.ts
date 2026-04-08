@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto, UpdateGroupDto } from './dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -16,9 +16,9 @@ export class GroupController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all groups' })
-  findAll() {
-    return this.groupService.findAll();
+  @ApiOperation({ summary: 'Get all groups' }) 
+  findAll(@Query('name') name?: string) {
+    return this.groupService.findAll(name);
   }
 
   @Get(':id')

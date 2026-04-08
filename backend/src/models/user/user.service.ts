@@ -1,13 +1,12 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
-import { CreateUserDto, QueryUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, QueryUserDto, UpdateUserDto, QueryUserSuperAdminDto } from './dto';
 import { User } from '@prisma/client';
 import { UserRole } from 'src/core/enums';
 import { join } from 'path';
 import * as fs from 'fs';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { group } from 'console';
 import { QueryUserTeacherDto } from './dto/query.teacher.dto';
 import { QueryUserAdminDto } from './dto/query.admin.dto';
 
@@ -37,12 +36,21 @@ export class UserService {
         avatarUrl: filename ?? null,
         passwordHash: passHash,
         role: UserRole.TEACHER
+      },
+      select: {
+        id: true,
+        fullName: true,
+        isActive: true,
+        phone: true,
+        avatarUrl: true,
+        role: true
       }
     })
 
     await this.prisma.userProfile.create({
       data: {
         userId: user.id,
+        isActive: true
       }
     })
 
@@ -77,9 +85,10 @@ export class UserService {
       }
     })
 
+    //User profile yaratiladi bir vaqtda
     await this.prisma.userProfile.create({
       data: {
-        userId: user.id,
+        userId: user.id
       }
     })
 
@@ -126,15 +135,24 @@ export class UserService {
     }
   }
 
-  async findAllSuperAdmin(query: QueryUserDto): Promise<User[]> {
+  async findAllSuperAdmin(query: QueryUserSuperAdminDto): Promise<User[]> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
     try {
       let users = await this.prisma.user.findMany({
-        where: {
-        },
+        skip,
+        take: limit,
         include: {
-          groupsCreated: true
-        }
+          groupsCreated: true,
+          groupMemberships: {
+            include: {
+              group: true,
+            },
+          },
+        },
       });
+
 
       if (query.fullName) {
         const search = query.fullName.toLowerCase();
@@ -143,31 +161,45 @@ export class UserService {
         );
       }
 
+
       if (query.GroupName) {
         const groupSearch = query.GroupName.toLowerCase();
-        users = users.filter(user =>
-          user.groupsCreated.some(group =>
+        users = users.filter(user => {
+          // Teacher bo'lsa
+          const teacherMatch = user.groupsCreated?.some(group =>
             group.name.toLowerCase().includes(groupSearch),
-          ),
-        );
+          );
+
+
+          const studentMatch = user.groupMemberships?.some(m =>
+            m.group.name.toLowerCase().includes(groupSearch),
+          );
+
+          return teacherMatch || studentMatch;
+        });
       }
+
 
       if (query.user) {
         users = users.filter(user => user.role === query.user);
       }
 
+
       if (query.isActive !== undefined) {
         users = users.filter(user => user.isActive === query.isActive);
       }
 
+
       users = users.map(user => {
-      if (user.role === 'STUDENT' || user.role === 'TEACHER' || user.role === 'ADMIN') {
-        return {
-          ...user, groupsCreated: []
-        };
-      }
-      return user;
-    });
+        if (['STUDENT', 'TEACHER', 'ADMIN'].includes(user.role)) {
+          return {
+            ...user,
+            groupsCreated: [],
+            groupMemberships: [],
+          };
+        }
+        return user;
+      });
 
       return users;
     } catch (err) {
@@ -182,11 +214,16 @@ export class UserService {
       let users = await this.prisma.user.findMany({
         where: {
           role: {
-            notIn: [UserRole.ADMIN, UserRole.SUPERADMIN]
+            notIn: [UserRole.ADMIN, UserRole.SUPERADMIN],
           },
         },
         include: {
-          groupsCreated: true
+          groupsCreated: true,
+          groupMemberships: {
+            include: {
+              group: true,
+            },
+          },
         },
       });
 
@@ -199,11 +236,18 @@ export class UserService {
 
       if (query.GroupName) {
         const groupSearch = query.GroupName.toLowerCase();
-        users = users.filter(user =>
-          user.groupsCreated.some(group =>
+
+        users = users.filter(user => {
+          const teacherMatch = user.groupsCreated?.some(group =>
             group.name.toLowerCase().includes(groupSearch),
-          ),
-        );
+          );
+
+          const studentMatch = user.groupMemberships?.some(m =>
+            m.group.name.toLowerCase().includes(groupSearch),
+          );
+
+          return teacherMatch || studentMatch;
+        });
       }
 
       if (query.user) {
@@ -215,15 +259,19 @@ export class UserService {
       }
 
       users = users.map(user => {
-      if (user.role === 'STUDENT' || user.role === 'TEACHER') {
-        return { ...user, groupsCreated: [] };
-      }
-      return user;
-    });
+        if (user.role === UserRole.STUDENT || user.role === UserRole.TEACHER) {
+          return {
+            ...user,
+            groupsCreated: [],
+            groupMemberships: [],
+          };
+        }
+        return user;
+      });
 
       return users;
     } catch (err) {
-      console.error('findAllSuperAdmin error:', err);
+      console.error('findAllAdmin error:', err);
       throw new BadRequestException(
         'Invalid query parameters or database error',
       );
@@ -235,11 +283,15 @@ export class UserService {
       let users = await this.prisma.user.findMany({
         where: {
           isActive: true,
-          groupsCreated: {
+          role: UserRole.STUDENT,
+          groupMemberships: {
             some: {
-              teacherId: currentUser.id,
-            },
-          },
+              isActive: true,
+              group: {
+                teacherId: currentUser.id
+              }
+            }
+          }
         }
       });
 
@@ -318,10 +370,10 @@ export class UserService {
         where: { id },
         data: { isActive: false },
       });
-      
-      return { 
+
+      return {
         success: true,
-        message: 'User deleted successfully' 
+        message: 'User deleted successfully'
       };
     }
     throw new ForbiddenException('Access denied');
@@ -338,8 +390,8 @@ export class UserService {
     }
 
     if (currentUser.id === id) {
-    throw new ForbiddenException('You cannot activate yourself');
-  }
+      throw new ForbiddenException('You cannot activate yourself');
+    }
 
     if (currentUser.role === UserRole.SUPERADMIN) {
       await this.prisma.userProfile.update({
@@ -351,9 +403,9 @@ export class UserService {
         data: { isActive: true },
       });
 
-      return { 
+      return {
         success: true,
-        message: 'User activated successfully' 
+        message: 'User activated successfully'
       };
     }
 
@@ -366,7 +418,7 @@ export class UserService {
           'Admin cannot active admin or super admin',
         );
       }
-      
+
       await this.prisma.userProfile.update({
         where: { userId: id },
         data: { isActive: true },
@@ -377,9 +429,9 @@ export class UserService {
         data: { isActive: true },
       });
 
-      return { 
+      return {
         success: true,
-        message: 'User activated successfully' 
+        message: 'User activated successfully'
       };
     }
 
