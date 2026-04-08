@@ -33,18 +33,18 @@ export function AdminDashboard() {
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
       <div className="flex items-center justify-between mb-10 px-2">
          <div className="flex items-center gap-4">
-            <div className="app-card p-4 bg-white shadow-xl rounded-[24px] group hover:rotate-[10deg] transition-all">
+            <div className="app-card rounded-[16px] bg-[var(--app-surface)] p-4 shadow-sm transition-all">
                <Shield size={28} className="text-[var(--app-primary)]" />
             </div>
             <div>
                <h2 className="text-2xl font-black text-[var(--app-text)] tracking-tight">Center Admin</h2>
                <p className="text-[10px] font-black text-[var(--app-muted)] uppercase tracking-[0.15em] mt-1 flex items-center gap-1.5 leading-none">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--app-primary)] animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--app-primary)]" />
                   Management Active
                </p>
             </div>
          </div>
-         <button className="app-touch flex items-center justify-center p-3.5 rounded-[22px] bg-white border border-[var(--app-border)] shadow-sm text-gray-400 hover:text-[var(--app-text)] hover:bg-gray-50 transition-all hover:scale-110 active:scale-95">
+         <button className="app-touch flex items-center justify-center rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-3.5 text-[var(--app-muted)] shadow-sm transition-all hover:text-[var(--app-text)] active:scale-95">
             <Settings size={22} strokeWidth={2.5} />
          </button>
       </div>
@@ -53,10 +53,10 @@ export function AdminDashboard() {
         {stats.map((stat: any, idx: number) => (
           <div key={idx} className="app-card p-6 flex flex-col group cursor-default">
             <div className="flex justify-between items-start mb-6">
-               <div className={`p-4 rounded-[22px] ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform shadow-sm`}>
+               <div className={`p-4 rounded-[16px] ${stat.bg} ${stat.color} group-hover:scale-105 transition-transform shadow-sm`}>
                   <stat.icon size={26} strokeWidth={2.5} />
                </div>
-               <span className="text-[9px] font-black text-[var(--app-primary)] bg-[var(--app-primary)]/10 px-2.5 py-1 rounded-full uppercase tracking-tighter">{stat.trend}</span>
+               <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2.5 py-1 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">{stat.trend}</span>
             </div>
             <p className="text-[10px] font-black text-[var(--app-muted)] tracking-wider mb-2 uppercase opacity-80">{stat.label}</p>
             <p className="text-3xl font-black text-[var(--app-text)] tracking-tighter">{stat.value}</p>
@@ -80,14 +80,14 @@ export function AdminDashboard() {
              onClick={action.href ? () => window.location.href = action.href : undefined} 
              className={`flex items-center gap-5 app-card p-6 active:scale-[0.98] transition-all text-left ${action.hover} group`}
            >
-              <div className={`p-5 rounded-[24px] ${action.bg} ${action.color} group-hover:scale-110 transition-transform`}>
+              <div className={`p-5 rounded-[16px] ${action.bg} ${action.color} group-hover:scale-105 transition-transform`}>
                  <action.icon size={28} strokeWidth={2.5} />
               </div>
               <div className="flex-1 min-w-0">
                  <h3 className="font-extrabold text-[var(--app-text)] text-lg leading-tight">{action.label}</h3>
                  <p className="text-[11px] text-[var(--app-muted)] font-bold mt-1 tracking-tight truncate">{action.desc}</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-gray-50 text-gray-300 group-hover:bg-[var(--app-primary)] group-hover:text-white transition-all">
+              <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
                  <ChevronRight size={20} strokeWidth={3} />
               </div>
            </button>
@@ -95,7 +95,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="mt-4 flex justify-center pb-8">
-         <button className="flex items-center gap-2 text-[11px] font-black text-gray-400 hover:text-[var(--app-primary)] transition-all uppercase tracking-widest leading-none border border-gray-100 px-6 py-3 rounded-full hover:bg-white hover:shadow-md">
+         <button className="flex items-center gap-2 rounded-full border border-[var(--app-border)] px-6 py-3 text-[11px] font-black uppercase tracking-widest leading-none text-[var(--app-muted)] transition-all hover:bg-[var(--app-surface)] hover:text-[var(--app-primary)]">
             <TrendingUp size={16} /> View Detailed Stats
          </button>
       </div>

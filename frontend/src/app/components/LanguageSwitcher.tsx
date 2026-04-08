@@ -37,7 +37,7 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   return (
     <label
       className={cn(
-        'app-touch inline-flex min-h-10 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold tracking-wide',
+        'app-touch inline-flex min-h-10 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold tracking-wide',
         className,
       )}
     >

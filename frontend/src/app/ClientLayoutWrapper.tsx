@@ -40,7 +40,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--app-bg)]">
          <div className="flex flex-col items-center gap-5 px-6 text-center">
-            <div className="w-16 h-16 rounded-[24px] bg-[#3D855A] flex items-center justify-center animate-pulse shadow-xl shadow-[#3D855A]/20">
+            <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-[var(--app-primary)] shadow-lg shadow-black/5">
                <Loader2 size={32} className="text-white animate-spin" />
             </div>
             <p className="ml-1 text-[10px] font-black uppercase tracking-[0.32em] text-gray-500">
@@ -55,14 +55,14 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
 
   return (
     <div
-      className={`app-shell flex ${role === 'superadmin' ? 'bg-white' : 'bg-gray-50/50'}`}
+      className="app-shell flex bg-[var(--app-bg)]"
     >
       {!hideNav && <Sidebar role={role} />}
       
       <div className={`flex-1 flex min-h-screen-safe flex-col ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
         <OfflineStatusBanner />
-        <main className={`w-full flex-1 ${!hideNav ? 'max-w-7xl mx-auto pb-nav-safe pt-10 lg:pt-12' : ''}`}>
+        <main className={`w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-8 lg:pt-10' : ''}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}

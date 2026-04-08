@@ -51,10 +51,10 @@ export function Sidebar({ role }: SidebarProps) {
   ];
 
   return (
-    <div className="fixed left-0 top-0 z-[60] hidden h-screen w-72 flex-col border-r border-gray-100 bg-white shadow-2xl shadow-gray-100/50 dark:border-slate-700 dark:bg-slate-900 dark:shadow-slate-950/40 lg:flex">
+    <div className="fixed left-0 top-0 z-[60] hidden h-screen w-72 flex-col border-r border-[var(--app-border)] bg-[var(--app-surface)] shadow-[8px_0_24px_-24px_rgba(15,23,42,0.35)] lg:flex">
       <div className="p-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-lg shadow-[#3D855A]/20">
+          <div className="h-10 w-10 overflow-hidden rounded-[14px] border border-[var(--app-border)] shadow-sm">
             <img 
               src="https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg" 
               alt="Logo" 
@@ -62,13 +62,13 @@ export function Sidebar({ role }: SidebarProps) {
             />
           </div>
           <div>
-            <h1 className="text-lg font-black leading-none tracking-tight text-[#111827] dark:text-slate-100">{commonT('appName')}</h1>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('brandSub')}</p>
+            <h1 className="text-lg font-black leading-none tracking-tight text-[var(--app-text)]">{commonT('appName')}</h1>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">{t('brandSub')}</p>
           </div>
         </div>
         <div className="mt-6 flex items-center gap-2">
-          <LanguageSwitcher className="border-gray-200 bg-white text-gray-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300" />
-          <ThemeToggle className="border-gray-200 bg-white text-gray-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300" />
+          <LanguageSwitcher className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
+          <ThemeToggle className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
         </div>
       </div>
 
@@ -85,13 +85,13 @@ export function Sidebar({ role }: SidebarProps) {
               <Link 
                 key={item.path} 
                 href={localizedHref}
-                className={`flex items-center gap-4 px-5 py-4 rounded-[22px] transition-all group ${
+                className={`flex items-center gap-4 px-5 py-3.5 rounded-[16px] transition-all group ${
                   isActive 
-                    ? 'bg-[#3D855A] text-white shadow-xl shadow-[#3D855A]/20' 
-                    : 'text-gray-400 hover:bg-gray-50 hover:text-[#111827] dark:hover:bg-slate-800 dark:hover:text-slate-100'
+                    ? 'border border-[color:color-mix(in_srgb,var(--app-primary)_20%,var(--app-border))] bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)] text-[var(--app-primary)]'
+                    : 'text-[var(--app-muted)] hover:bg-[var(--app-surface-soft)] hover:text-[var(--app-text)]'
                 }`}
               >
-                <Icon size={22} strokeWidth={isActive ? 2.5 : 2} className={isActive ? 'drop-shadow-md' : 'group-hover:scale-110 transition-transform'} />
+                <Icon size={22} strokeWidth={isActive ? 2.4 : 2} className="transition-transform group-hover:scale-105" />
                 <span className={`text-[13px] tracking-tight ${isActive ? 'font-black' : 'font-bold'}`}>
                   {item.label}
                 </span>
@@ -102,16 +102,16 @@ export function Sidebar({ role }: SidebarProps) {
       </nav>
 
       <div className="p-6 mt-auto">
-        <div className="mb-6 rounded-[28px] border border-[#3D855A]/10 bg-[#F2F8F5] p-5 dark:border-slate-700 dark:bg-slate-800">
-          <p className="text-[10px] font-black text-[#3D855A] uppercase tracking-widest leading-none mb-1.5 text-center">
+        <div className="mb-6 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-5">
+          <p className="mb-1.5 text-center text-[10px] font-black uppercase tracking-widest leading-none text-[var(--app-primary)]">
             {commonT('systemStatus')}
           </p>
-          <div className="w-full h-1.5 bg-[#3D855A]/10 rounded-full overflow-hidden">
-             <div className="w-4/5 h-full bg-[#3D855A] rounded-full" />
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_14%,transparent)]">
+             <div className="h-full w-4/5 rounded-full bg-[var(--app-primary)]" />
           </div>
         </div>
         
-        <button className="w-full flex items-center gap-4 px-6 py-4 text-red-500 font-extrabold text-[13px] hover:bg-red-50 rounded-[22px] transition-all group">
+        <button className="w-full flex items-center gap-4 px-6 py-4 text-[13px] font-extrabold text-red-500 transition-all group rounded-[16px] hover:bg-red-50 dark:hover:bg-red-950/20">
           <LogOut size={20} className="group-hover:translate-x-1 transition-transform" />
           {commonT('logout')}
         </button>

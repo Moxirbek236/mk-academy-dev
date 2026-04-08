@@ -46,7 +46,7 @@ export function StudentDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
          {stats.map((stat, idx) => (
             <div key={idx} className="app-card p-5 flex items-center gap-4 active:scale-[0.98]">
-               <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
+               <div className={`p-3 rounded-[14px] ${stat.bg} ${stat.color} group-hover:scale-105 transition-transform`}>
                   <stat.icon size={20} strokeWidth={2.5} />
                </div>
                <div>
@@ -64,19 +64,19 @@ export function StudentDashboard() {
          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
             {[1, 2].map((_, i) => (
                <div key={i} onClick={() => router.push('/groups')} className="min-w-[260px] app-card p-6 flex items-center gap-4 cursor-pointer group">
-                  <div className="w-14 h-14 rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-primary)] flex items-center justify-center font-black text-lg group-hover:bg-[var(--app-primary)] group-hover:text-white transition-all shadow-sm">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[var(--app-surface-soft)] text-[var(--app-primary)] font-black text-lg transition-all shadow-sm group-hover:bg-[color:color-mix(in_srgb,var(--app-primary)_12%,white)]">
                      G{i+1}
                   </div>
                   <div className="min-w-0 flex-1">
                      <h4 className="font-extrabold text-[var(--app-text)] text-sm tracking-tight truncate">IELTS Foundation</h4>
                      <p className="text-[10px] font-bold text-[var(--app-muted)] uppercase tracking-widest mt-0.5">Mentor: Maqsud</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-[var(--app-surface-soft)] text-gray-300 group-hover:text-[var(--app-primary)] group-hover:bg-[var(--app-primary)]/10 transition-all">
+                  <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
                      <ChevronRight size={18} strokeWidth={3} />
                   </div>
                </div>
             ))}
-            <button className="min-w-[160px] border-2 border-dashed border-[var(--app-border)] rounded-[var(--radius-premium)] flex flex-col items-center justify-center gap-2 text-[var(--app-muted)] hover:border-[var(--app-primary)]/30 hover:text-[var(--app-primary)] transition-all group active:scale-95 bg-white/40">
+            <button className="min-w-[160px] rounded-[16px] border-2 border-dashed border-[var(--app-border)] bg-[var(--app-surface)] flex flex-col items-center justify-center gap-2 text-[var(--app-muted)] hover:border-[var(--app-primary)]/30 hover:text-[var(--app-primary)] transition-all group active:scale-95">
                <PlusCircle size={24} />
                <span className="text-[10px] font-black uppercase tracking-widest">YANGI GURUH</span>
             </button>
@@ -92,7 +92,7 @@ export function StudentDashboard() {
 
       <div className="mt-10 mb-6 flex items-center justify-between px-2">
          <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">O&apos;QUV REJANGIZ</h2>
-         <button className="text-[10px] font-black text-[var(--app-primary)] uppercase tracking-widest flex items-center gap-1 group bg-[var(--app-primary)]/10 px-3 py-1.5 rounded-full hover:bg-[var(--app-primary)]/20 transition-all">
+         <button className="flex items-center gap-1 rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] group">
             All Units <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
          </button>
       </div>
@@ -137,14 +137,13 @@ export function StudentDashboard() {
         )}
       </div>
 
-      <div className="mt-12 bg-mesh app-card p-8 text-[var(--app-text)] relative overflow-hidden group mb-10">
-         <div className="absolute top-[-20px] right-[-20px] w-48 h-48 bg-[var(--app-primary)]/10 rounded-full blur-[60px] opacity-60" />
+      <div className="bg-mesh app-card relative mb-10 overflow-hidden p-8 text-[var(--app-text)]">
          <div className="relative z-10">
             <h3 className="text-2xl font-black tracking-tight leading-tight mb-2">Practice Vocabulary</h3>
             <p className="text-sm font-bold text-[var(--app-muted)] mb-8 leading-relaxed max-w-sm">Spaced Repetition (SM-2) orqali yanada tezroq eslab qoling va so&apos;z boyligingizni oshiring.</p>
             <button 
                onClick={() => router.push('/vocabulary-practice')}
-               className="btn-premium bg-[var(--app-primary)] text-white shadow-[0_15px_30px_-10px_rgba(16,185,129,0.5)] border-none"
+               className="btn-premium border-none bg-[var(--app-primary)] text-white"
             >
                <Clock size={16} strokeWidth={2.5} className="mr-2" /> Train Now
             </button>
@@ -154,16 +153,15 @@ export function StudentDashboard() {
       <Dialog.Root open={!!selectedUnit} onOpenChange={(open) => !open && setSelectedUnit(null)}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/35 backdrop-blur-sm z-50 animate-in fade-in duration-300" />
-          <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[92%] max-w-[360px] bg-white rounded-[42px] p-8 shadow-[0_25px_60px_rgba(0,0,0,0.25)] z-50 focus:outline-none animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden border border-gray-100">
-            <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-[#3D855A]/5 rounded-full blur-[30px]" />
+          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-[92%] max-w-[360px] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-[22px] border border-[var(--app-border)] bg-[var(--app-surface)] p-8 shadow-[0_18px_50px_rgba(15,23,42,0.18)] focus:outline-none animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-500">
             
             <div className="flex justify-between items-start mb-10 relative z-10">
               <div>
-                <Dialog.Title className="text-2xl font-black text-[#111827] tracking-tighter">Unit {selectedUnit}</Dialog.Title>
-                <Dialog.Description className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-widest">Select Your Focus</Dialog.Description>
+                <Dialog.Title className="text-2xl font-black tracking-tighter text-[var(--app-text)]">Unit {selectedUnit}</Dialog.Title>
+                <Dialog.Description className="mt-1 text-sm font-bold uppercase tracking-widest text-[var(--app-muted)]">Select Your Focus</Dialog.Description>
               </div>
               <Dialog.Close asChild>
-                <button className="p-3 rounded-[20px] bg-gray-50 text-gray-400 hover:text-[#111827] hover:bg-gray-100 transition-all active:scale-90">
+                <button className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)] transition-all active:scale-90 hover:text-[var(--app-text)]">
                   <X size={20} strokeWidth={3} />
                 </button>
               </Dialog.Close>
@@ -172,33 +170,33 @@ export function StudentDashboard() {
             <div className="flex flex-col gap-4 relative z-10">
               <button 
                 onClick={() => router.push(`/unit/${selectedUnit}/vocabulary`)}
-                className="flex items-center gap-5 bg-[#F4F7F5] p-5 rounded-[28px] hover:bg-[#E8ECE9] active:scale-[0.98] transition-all text-left group border border-transparent hover:border-[#3D855A]/20 shadow-sm"
+                className="flex items-center gap-5 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-5 text-left transition-all group active:scale-[0.98] hover:border-[color:color-mix(in_srgb,var(--app-primary)_20%,var(--app-border))]"
               >
-                <div className="bg-white p-4 rounded-[20px] shadow-sm text-[#3D855A] group-hover:scale-110 group-hover:rotate-6 transition-all ring-4 ring-white/10 group-hover:bg-[#3D855A] group-hover:text-white">
+                <div className="rounded-[14px] bg-[var(--app-surface)] p-4 text-[var(--app-primary)] transition-all group-hover:scale-105">
                   <BookOpen size={26} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-[#111827] text-lg tracking-tight">Vocabulary</h4>
-                  <p className="text-[11px] text-gray-400 font-bold mt-0.5 tracking-tight">Expand your word base</p>
+                  <h4 className="text-lg font-extrabold tracking-tight text-[var(--app-text)]">Vocabulary</h4>
+                  <p className="mt-0.5 text-[11px] font-bold tracking-tight text-[var(--app-muted)]">Expand your word base</p>
                 </div>
               </button>
 
               <button 
                 onClick={() => router.push(`/unit/${selectedUnit}/tasks`)}
-                className="flex items-center gap-5 bg-[#FFF9ED] p-5 rounded-[28px] hover:bg-[#FCEECC] active:scale-[0.98] transition-all text-left group border border-transparent hover:border-[#C78736]/20 shadow-sm"
+                className="flex items-center gap-5 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-5 text-left transition-all group active:scale-[0.98] hover:border-[color:color-mix(in_srgb,var(--app-accent)_24%,var(--app-border))]"
               >
-                <div className="bg-white p-4 rounded-[20px] shadow-sm text-[#C78736] group-hover:scale-110 group-hover:-rotate-6 transition-all ring-4 ring-white/10 group-hover:bg-[#C78736] group-hover:text-white">
+                <div className="rounded-[14px] bg-[var(--app-surface)] p-4 text-[var(--app-accent)] transition-all group-hover:scale-105">
                   <ListTodo size={26} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-[#111827] text-lg tracking-tight">Practice</h4>
-                  <p className="text-[11px] text-gray-400 font-bold mt-0.5 tracking-tight">Apply what you learned</p>
+                  <h4 className="text-lg font-extrabold tracking-tight text-[var(--app-text)]">Practice</h4>
+                  <p className="mt-0.5 text-[11px] font-bold tracking-tight text-[var(--app-muted)]">Apply what you learned</p>
                 </div>
               </button>
             </div>
             
             <div className="mt-8 flex justify-center pb-2">
-               <p className="text-[9px] font-black text-gray-300 uppercase tracking-[0.2em] opacity-80">MK Academy Learning Engine</p>
+               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)] opacity-80">MK Academy Learning Engine</p>
             </div>
           </Dialog.Content>
         </Dialog.Portal>
