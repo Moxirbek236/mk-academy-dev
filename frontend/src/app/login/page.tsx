@@ -78,15 +78,7 @@ export default function LoginPage() {
         } else {
           localStorage.removeItem('role');
         }
-<<<<<<< HEAD
         router.push(localizePath(locale, '/'));
-=======
-<<<<<<< HEAD
-        router.push('/');
-=======
-        router.push(localized('/'));
->>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
->>>>>>> dbca8811d5c1e9ecb24a87a5214b95a5b0368659
       } else {
         setError('Tizimga kirishda xatolik yuz berdi');
       }

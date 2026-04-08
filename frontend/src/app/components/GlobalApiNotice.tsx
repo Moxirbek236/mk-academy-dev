@@ -63,7 +63,3 @@ export function GlobalApiNotice() {
     </div>
   );
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> dbca8811d5c1e9ecb24a87a5214b95a5b0368659
