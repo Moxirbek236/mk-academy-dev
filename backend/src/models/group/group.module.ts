@@ -7,8 +7,10 @@ import { GroupAssignmentService } from './group-assignment.service';
 import { GroupAssignmentController } from './group-assignment.controller';
 import { GroupCourseService } from './group-course.service';
 import { GroupCourseController } from './group-course.controller';
+import { PrismaModule } from 'src/core/config/prisma.module';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [
     GroupController,
     GroupMemberController,

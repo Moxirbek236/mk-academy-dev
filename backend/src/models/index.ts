@@ -6,11 +6,12 @@ export * from './group/group.module';
 export * from './book/book.module';
 export * from './vocabulary/vocabulary.module';
 export * from './task/task.module';
-export * from './test/test.module';
 export * from './rating/rating.module';
 export * from './gamification/gamification.module';
+export * from './test/test.module';
 export * from './notification/notification.module';
 export * from './finance/finance.module';
 export * from './system/system.module';
 export * from './lead/lead.module';
 export * from './dashboard/dashboard.module';
+export * from '../core/config/prisma.module'

@@ -113,16 +113,17 @@ model GroupAssignment {
 }
 
 model Course {
-  id          Int           @id @default(autoincrement())
-  title       String
+  id          Int   @id @default(autoincrement())
+  title       String  @unique()
   description String?
-  level       String        @default("A1")
-  imageUrl    String?       @map("image_url")
-  isActive    Boolean       @default(true) @map("is_active")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  groups      GroupCourse[]
-  tasks       Task[]
-  tests       Test[]
+  level       String   @default("A1") 
+  imageUrl    String?  @map("image_url")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tests  Test[]
+  tasks  Task[]
+  groups GroupCourse[]
 
   @@map("courses")
 }

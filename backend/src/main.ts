@@ -7,6 +7,15 @@ function normalizeOrigin(origin: string): string {
   return origin.replace(/\/$/, '');
 }
 
+function isLocalhostOrigin(origin: string): boolean {
+  try {
+    const url = new URL(origin);
+    return url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
 function resolveAllowedOrigins(): string[] {
   const envOrigins = [
     process.env.FRONTEND_URL,
@@ -37,9 +46,10 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
+      if (origin === 'null') return callback(null, true);
 
       const normalizedOrigin = normalizeOrigin(origin);
-      if (allowedOrigins.includes(normalizedOrigin)) {
+      if (allowedOrigins.includes(normalizedOrigin) || isLocalhostOrigin(normalizedOrigin)) {
         return callback(null, true);
       }
 

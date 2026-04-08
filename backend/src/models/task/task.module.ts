@@ -5,8 +5,10 @@ import { StudentTaskService } from './student-task.service';
 import { StudentTaskController } from './student-task.controller';
 import { TaskAttachmentService } from './task-attachment.service';
 import { TaskAttachmentController } from './task-attachment.controller';
+import { PrismaModule } from 'src/core/config/prisma.module';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [
     TaskController,
     StudentTaskController,
