@@ -3,11 +3,13 @@ import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { BookOpen, ListTodo, X, Loader2, Sparkles, Trophy, Zap, Clock, ChevronRight, Target, BrainCircuit, Users, PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ExamCard } from '../ExamCard';
 import { LessonCard } from '../LessonCard';
 import api from '@/lib/api';
 
 export function StudentDashboard() {
+  const t = useTranslations('DashboardStudent');
   const [data, setData] = useState<any>(null);
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
   const [tasks, setTasks] = useState<any[]>([]);
@@ -32,10 +34,10 @@ export function StudentDashboard() {
   }, []);
 
   const stats = [
-    { label: 'Ranking', value: data?.rank || 'Top 10%', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50', trend: '+2%' },
-    { label: 'Streak', value: `${data?.streak || 0} Days`, icon: Zap, color: 'text-orange-500', bg: 'bg-orange-50', trend: 'Active' },
-    { label: 'Accuracy', value: '94%', icon: Target, color: 'text-blue-500', bg: 'bg-blue-50', trend: '+5%' },
-    { label: 'Mastery', value: '12/40', icon: BrainCircuit, color: 'text-purple-500', bg: 'bg-purple-50', trend: 'Good' },
+    { label: t('ranking'), value: data?.rank || t('topPercent'), icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50', trend: '+2%' },
+    { label: t('streak'), value: t('daysCount', { count: data?.streak || 0 }), icon: Zap, color: 'text-orange-500', bg: 'bg-orange-50', trend: t('streakTrend') },
+    { label: t('accuracy'), value: '94%', icon: Target, color: 'text-blue-500', bg: 'bg-blue-50', trend: t('accuracyTrend') },
+    { label: t('mastery'), value: '12/40', icon: BrainCircuit, color: 'text-purple-500', bg: 'bg-purple-50', trend: t('masteryTrend') },
   ];
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
@@ -59,7 +61,7 @@ export function StudentDashboard() {
 
       <div className="mb-10 px-1 animate-in fade-in slide-in-from-right-4 duration-1000">
          <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-4 flex items-center gap-2">
-            <Users size={14} className="text-[var(--app-primary)]" /> MENING GURUHLARIM
+            <Users size={14} className="text-[var(--app-primary)]" /> {t('myGroups')}
          </h2>
          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
             {[1, 2].map((_, i) => (
@@ -69,7 +71,7 @@ export function StudentDashboard() {
                   </div>
                   <div className="min-w-0 flex-1">
                      <h4 className="font-extrabold text-[var(--app-text)] text-sm tracking-tight truncate">IELTS Foundation</h4>
-                     <p className="text-[10px] font-bold text-[var(--app-muted)] uppercase tracking-widest mt-0.5">Mentor: Maqsud</p>
+                     <p className="text-[10px] font-bold text-[var(--app-muted)] uppercase tracking-widest mt-0.5">{t('mentor', { name: 'Maqsud' })}</p>
                   </div>
                   <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
                      <ChevronRight size={18} strokeWidth={3} />
@@ -78,22 +80,22 @@ export function StudentDashboard() {
             ))}
             <button className="min-w-[160px] rounded-[16px] border-2 border-dashed border-[var(--app-border)] bg-[var(--app-surface)] flex flex-col items-center justify-center gap-2 text-[var(--app-muted)] hover:border-[var(--app-primary)]/30 hover:text-[var(--app-primary)] transition-all group active:scale-95">
                <PlusCircle size={24} />
-               <span className="text-[10px] font-black uppercase tracking-widest">YANGI GURUH</span>
+               <span className="text-[10px] font-black uppercase tracking-widest">{t('addGroup')}</span>
             </button>
          </div>
       </div>
 
       <div className="mb-10">
         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-4 px-2 flex items-center gap-2 font-black">
-           <Sparkles size={14} className="text-[var(--app-primary)]" /> KEYINGI IMTIHON
+           <Sparkles size={14} className="text-[var(--app-primary)]" /> {t('nextExam')}
         </h2>
         <ExamCard />
       </div>
 
       <div className="mt-10 mb-6 flex items-center justify-between px-2">
-         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">O&apos;QUV REJANGIZ</h2>
+         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">{t('studyPlan')}</h2>
          <button className="flex items-center gap-1 rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] group">
-            All Units <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
+            {t('allUnits')} <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
          </button>
       </div>
       
@@ -115,21 +117,21 @@ export function StudentDashboard() {
           <>
             <LessonCard 
               unit="1" 
-              title="Essential Grammar - 8 Lessons" 
+              title={t('fallbackLesson1')} 
               status="done" 
               progress={100} 
               onClick={() => setSelectedUnit("1")}
             />
             <LessonCard 
               unit="2" 
-              title="Daily Conversation - 10 Lessons" 
+              title={t('fallbackLesson2')} 
               status="done" 
               progress={40} 
               onClick={() => setSelectedUnit("2")}
             />
             <LessonCard 
               unit="3" 
-              title="Business English - 12 Lessons" 
+              title={t('fallbackLesson3')} 
               status="locked" 
               progress={0} 
             />
@@ -139,13 +141,13 @@ export function StudentDashboard() {
 
       <div className="bg-mesh app-card relative mb-10 overflow-hidden p-8 text-[var(--app-text)]">
          <div className="relative z-10">
-            <h3 className="text-2xl font-black tracking-tight leading-tight mb-2">Practice Vocabulary</h3>
-            <p className="text-sm font-bold text-[var(--app-muted)] mb-8 leading-relaxed max-w-sm">Spaced Repetition (SM-2) orqali yanada tezroq eslab qoling va so&apos;z boyligingizni oshiring.</p>
+            <h3 className="text-2xl font-black tracking-tight leading-tight mb-2">{t('practiceTitle')}</h3>
+            <p className="text-sm font-bold text-[var(--app-muted)] mb-8 leading-relaxed max-w-sm">{t('practiceDescription')}</p>
             <button 
                onClick={() => router.push('/vocabulary-practice')}
                className="btn-premium border-none bg-[var(--app-primary)] text-white"
             >
-               <Clock size={16} strokeWidth={2.5} className="mr-2" /> Train Now
+               <Clock size={16} strokeWidth={2.5} className="mr-2" /> {t('trainNow')}
             </button>
          </div>
       </div>
@@ -157,8 +159,8 @@ export function StudentDashboard() {
             
             <div className="flex justify-between items-start mb-10 relative z-10">
               <div>
-                <Dialog.Title className="text-2xl font-black tracking-tighter text-[var(--app-text)]">Unit {selectedUnit}</Dialog.Title>
-                <Dialog.Description className="mt-1 text-sm font-bold uppercase tracking-widest text-[var(--app-muted)]">Select Your Focus</Dialog.Description>
+                <Dialog.Title className="text-2xl font-black tracking-tighter text-[var(--app-text)]">{t('unitTitle', { unit: selectedUnit ?? '' })}</Dialog.Title>
+                <Dialog.Description className="mt-1 text-sm font-bold uppercase tracking-widest text-[var(--app-muted)]">{t('selectFocus')}</Dialog.Description>
               </div>
               <Dialog.Close asChild>
                 <button className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)] transition-all active:scale-90 hover:text-[var(--app-text)]">
@@ -176,8 +178,8 @@ export function StudentDashboard() {
                   <BookOpen size={26} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <h4 className="text-lg font-extrabold tracking-tight text-[var(--app-text)]">Vocabulary</h4>
-                  <p className="mt-0.5 text-[11px] font-bold tracking-tight text-[var(--app-muted)]">Expand your word base</p>
+                  <h4 className="text-lg font-extrabold tracking-tight text-[var(--app-text)]">{t('vocabulary')}</h4>
+                  <p className="mt-0.5 text-[11px] font-bold tracking-tight text-[var(--app-muted)]">{t('vocabularyDescription')}</p>
                 </div>
               </button>
 
@@ -189,14 +191,14 @@ export function StudentDashboard() {
                   <ListTodo size={26} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <h4 className="text-lg font-extrabold tracking-tight text-[var(--app-text)]">Practice</h4>
-                  <p className="mt-0.5 text-[11px] font-bold tracking-tight text-[var(--app-muted)]">Apply what you learned</p>
+                  <h4 className="text-lg font-extrabold tracking-tight text-[var(--app-text)]">{t('practice')}</h4>
+                  <p className="mt-0.5 text-[11px] font-bold tracking-tight text-[var(--app-muted)]">{t('practiceDescription')}</p>
                 </div>
               </button>
             </div>
             
             <div className="mt-8 flex justify-center pb-2">
-               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)] opacity-80">MK Academy Learning Engine</p>
+               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)] opacity-80">{t('footer')}</p>
             </div>
           </Dialog.Content>
         </Dialog.Portal>

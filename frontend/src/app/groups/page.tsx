@@ -1,9 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Users, GraduationCap, ChevronRight, Search, PlusCircle, Filter, MoreVertical, Calendar, Globe, BookOpen, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 
 export default function GroupsPage() {
+  const t = useTranslations('GroupsPage');
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,8 +37,8 @@ export default function GroupsPage() {
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="flex items-center justify-between mb-8 px-1">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Guruhlar</h1>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Sizga biriktirilgan guruhlar</p>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('title')}</h1>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('subtitle')}</p>
         </div>
         <button className="bg-[#3D855A] text-white p-3 rounded-2xl shadow-lg active:scale-90 transition-all">
           <PlusCircle size={20} strokeWidth={2.5} />
@@ -48,7 +50,7 @@ export default function GroupsPage() {
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Guruhlarni qidirish..." 
+            placeholder={t('searchPlaceholder')} 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border border-gray-100 rounded-[20px] py-4 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
@@ -57,11 +59,11 @@ export default function GroupsPage() {
         <div className="flex gap-2">
            <input 
              type="text" 
-             placeholder="Taklif kodi..." 
+             placeholder={t('invitePlaceholder')} 
              className="flex-1 bg-white border border-gray-100 rounded-[20px] py-4 px-6 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
            />
            <button className="bg-[#3D855A] text-white px-6 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[#3D855A]/20 active:scale-95 transition-all">
-              Qo&apos;shilish
+              {t('join')}
            </button>
         </div>
       </div>
@@ -77,10 +79,10 @@ export default function GroupsPage() {
                 <h3 className="font-extrabold text-[#111827] text-lg leading-tight tracking-tight mb-2 group-hover:translate-x-1 transition-transform truncate">{group.name}</h3>
                 <div className="flex items-center gap-4">
                   <span className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-tighter bg-gray-50 px-2.5 py-1 rounded-md">
-                     <Users size={12} strokeWidth={2.5} /> {group._count?.members || 0} st.
+                     <Users size={12} strokeWidth={2.5} /> {t('studentsShort', { count: group._count?.members || 0 })}
                   </span>
                   <span className="flex items-center gap-1.5 text-[10px] font-black text-[#3D855A] uppercase tracking-tighter bg-emerald-50 px-2.5 py-1 rounded-md">
-                     <BookOpen size={12} strokeWidth={2.5} /> Active
+                     <BookOpen size={12} strokeWidth={2.5} /> {t('active')}
                   </span>
                 </div>
               </div>
@@ -97,14 +99,14 @@ export default function GroupsPage() {
              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm shadow-emerald-500/5">
                 <Users size={30} className="text-gray-200" />
              </div>
-             <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Hozircha guruhlaringiz mavjud emas</p>
+             <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">{t('empty')}</p>
           </div>
         )}
       </div>
 
       <div className="mt-8 flex justify-center pb-8 border-t border-gray-100/10 pt-8">
          <button className="flex items-center gap-3 text-[11px] font-black text-gray-400 hover:text-gray-900 transition-all uppercase tracking-widest tracking-tighter">
-            <Calendar size={16} /> To&apos;liq Dars Jadvali
+            <Calendar size={16} /> {t('fullSchedule')}
          </button>
       </div>
     </div>

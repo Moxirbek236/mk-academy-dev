@@ -1,19 +1,29 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Search, UserPlus, MoreVertical, Shield, GraduationCap, User, Filter } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { fetchUsersCompat } from '@/lib/api-compat';
+import { isRoleAllowedForPath } from '@/lib/role-access';
 
 export default function UsersPage() {
+  const t = useTranslations('UsersPage');
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { role } = useAuth();
+  const { role, loading: authLoading } = useAuth();
   const router = useRouter();
+  const canAccess = isRoleAllowedForPath('/users', role);
 
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!canAccess) {
+      setLoading(false);
+      return;
+    }
+
     const fetchUsers = async () => {
       setLoading(true);
       try {
@@ -30,14 +40,16 @@ export default function UsersPage() {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [role, searchTerm]);
+  }, [authLoading, canAccess, role, searchTerm]);
+
+  if (!authLoading && !canAccess) return null;
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between mb-8 px-1">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Foydalanuvchilar</h1>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Jami: {users.length} nafar</p>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('title')}</h1>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('total', { count: users.length })}</p>
         </div>
         <button className="bg-[#3D855A] text-white p-3 rounded-2xl shadow-lg shadow-[#3D855A]/20 active:scale-90 transition-all">
           <UserPlus size={20} strokeWidth={2.5} />
@@ -50,7 +62,7 @@ export default function UsersPage() {
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Ism bo'yicha qidirish..." 
+            placeholder={t('searchPlaceholder')} 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border border-gray-100 rounded-[20px] py-3.5 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
@@ -74,7 +86,7 @@ export default function UsersPage() {
               {user.fullName?.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-extrabold text-[#111827] text-base truncate tracking-tight">{user.fullName || 'New User'}</h3>
+              <h3 className="font-extrabold text-[#111827] text-base truncate tracking-tight">{user.fullName || t('newUser')}</h3>
               <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
                 <span className="text-[9px] font-black uppercase tracking-widest border border-gray-100 px-2 py-0.5 rounded-md text-gray-400 whitespace-nowrap">{user.role}</span>
                 {user.cefrLevel && (

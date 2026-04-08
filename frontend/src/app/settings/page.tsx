@@ -2,13 +2,23 @@
 import { useState, useEffect } from 'react';
 import { User, Shield, Bell, Globe, LogOut, ChevronRight, Moon, Key, Mail, Phone, Crown, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from 'next-themes';
 import { fetchCurrentUserProfile } from '@/lib/api-compat';
 import { localizePath } from '@/i18n/localizedPath';
+import { clearStoredAuth } from '@/lib/auth-storage';
+
+type SettingsItem = {
+  icon: typeof User;
+  label: string;
+  value: string;
+  path?: string;
+  action?: () => void;
+};
 
 export default function SettingsPage() {
+  const t = useTranslations('SettingsPage');
   const router = useRouter();
   const locale = useLocale();
   const { role } = useAuth();
@@ -31,36 +41,36 @@ export default function SettingsPage() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    router.push(localizePath(locale, '/landing'));
+    void clearStoredAuth().finally(() => {
+      router.push(localizePath(locale, '/landing'));
+    });
   };
 
-  const sections = [
+  const sections: Array<{ title: string; items: SettingsItem[] }> = [
     {
-      title: 'SHAXSIY MA\'LUMOTLAR',
+      title: t('personal'),
       items: [
-        { icon: User, label: 'Profil sozlamalari', value: profile?.fullName || 'Yuklanmoqda...', path: '/settings/profile' },
-        { icon: Mail, label: 'Email manzil', value: profile?.email || 'Yuklanmoqda...', path: '/settings/email' },
-        { icon: Phone, label: 'Telefon raqam', value: profile?.phone || '+998 -- --- -- --', path: '/settings/phone' },
+        { icon: User, label: t('profileSettings'), value: profile?.fullName || t('loading'), path: '/settings/profile' },
+        { icon: Mail, label: t('emailAddress'), value: profile?.email || t('loading'), path: '/settings/email' },
+        { icon: Phone, label: t('phoneNumber'), value: profile?.phone || '+998 -- --- -- --', path: '/settings/phone' },
       ]
     },
     {
-      title: 'XAVFSIZLIK',
+      title: t('security'),
       items: [
-        { icon: Key, label: 'Parolni o\'zgartirish', value: 'Ohirgi marta 2 oy oldin', path: '/settings/password' },
-        { icon: Shield, label: 'Ikki bosqichli autentifikatsiya', value: 'O\'chirilgan', path: '/settings/2fa' },
+        { icon: Key, label: t('changePassword'), value: t('passwordUpdated'), path: '/settings/password' },
+        { icon: Shield, label: t('twoFactor'), value: t('disabled'), path: '/settings/2fa' },
       ]
     },
     {
-      title: 'TIZIM',
+      title: t('system'),
       items: [
-        { icon: Bell, label: 'Bildirishnomalar', value: 'Hammasi yoqilgan', path: '/settings/notifications' },
-        { icon: Globe, label: 'Til (Language)', value: profile?.language === 'UZ' ? "O'zbekcha" : profile?.language || "O'zbekcha", path: '/settings/language' },
+        { icon: Bell, label: t('notifications'), value: t('notificationsEnabled'), path: '/settings/notifications' },
+        { icon: Globe, label: t('language'), value: profile?.language === 'RU' ? t('languages.ru') : profile?.language === 'EN' ? t('languages.en') : t('languages.uz'), path: '/settings/language' },
         {
           icon: Moon,
-          label: 'Tungi rejim',
-          value: resolvedTheme === 'dark' ? 'Yoqilgan' : 'O\'chirilgan',
+          label: t('themeMode'),
+          value: resolvedTheme === 'dark' ? t('themeEnabled') : t('themeDisabled'),
           action: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
         },
       ]
@@ -73,14 +83,14 @@ export default function SettingsPage() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 app-page pb-nav-safe lg:pb-14 pt-4 sm:pt-6">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Sozlamalar</h1>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('title')}</h1>
           <div className="flex items-center gap-2 mt-1">
              <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-[0.15em] ${
                 role === 'superadmin' ? 'bg-[#FFEBEC] text-[#E54D2E]' : 
                 role === 'teacher' ? 'bg-[#F2F8F5] text-[#3D855A]' : 
                 'bg-blue-50 text-blue-600'
              }`}>
-               {role || 'Student'} ROLE
+               {t('roleLabel', { role: role || 'student' })}
              </span>
              {role === 'superadmin' && <Crown size={12} className="text-amber-500" />}
           </div>
@@ -93,7 +103,7 @@ export default function SettingsPage() {
       <div className="flex flex-col gap-8">
         {sections.map((section, sIdx) => (
           <div key={sIdx}>
-            <h2 className="text-[11px] font-black text-gray-400 tracking-[0.15em] uppercase mb-4 px-2" dangerouslySetInnerHTML={{ __html: section.title }} />
+            <h2 className="text-[11px] font-black text-gray-400 tracking-[0.15em] uppercase mb-4 px-2">{section.title}</h2>
             <div className="overflow-hidden rounded-[30px] border border-gray-100 bg-white p-2.5 shadow-sm sm:rounded-[36px] sm:p-3">
               {section.items.map((item, iIdx) => (
                 <button 
@@ -123,8 +133,8 @@ export default function SettingsPage() {
              <LogOut size={22} strokeWidth={2.5} />
           </div>
           <div className="flex-1 text-left">
-             <p className="text-[15px] font-black tracking-tight uppercase">Tizimdan chiqish</p>
-             <p className="text-[10px] font-bold opacity-60 mt-1 uppercase tracking-widest">Logout from MK Academy</p>
+             <p className="text-[15px] font-black tracking-tight uppercase">{t('logout')}</p>
+             <p className="text-[10px] font-bold opacity-60 mt-1 uppercase tracking-widest">{t('logoutDescription')}</p>
           </div>
           <ChevronRight size={20} strokeWidth={3} className="opacity-30 group-hover:translate-x-1 transition-all" />
         </button>

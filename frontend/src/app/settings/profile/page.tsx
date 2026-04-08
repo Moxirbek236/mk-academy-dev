@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, User, Mail, Shield, CheckCircle2, Loader2, Save } from 'lucide-react';
 import { fetchCurrentUserProfile, updateCurrentUserProfile } from '@/lib/api-compat';
+import { disableSecureScreen, enableSecureScreen } from '@/lib/screen-security';
 
 export default function ProfileSettingsPage() {
   const router = useRouter();
@@ -25,6 +26,14 @@ export default function ProfileSettingsPage() {
       }
     };
     fetchProfile();
+  }, []);
+
+  useEffect(() => {
+    void enableSecureScreen();
+
+    return () => {
+      void disableSecureScreen();
+    };
   }, []);
 
   const handleSave = async () => {

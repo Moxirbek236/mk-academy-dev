@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Crown, Zap, ShieldAlert, PieChart, Activity, Globe, Command, HelpCircle, DollarSign, Database, HardDrive, ListChecks, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 
 export function SuperadminDashboard() {
+  const t = useTranslations('DashboardSuperadmin');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,16 +25,16 @@ export function SuperadminDashboard() {
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
   const alerts = data?.auditLogs || [
-    { type: 'Update', title: 'Tizim yangilanishi 2.1.0 (Completed)', time: '2 soat oldin', status: 'Success' },
-    { type: 'Issue', title: 'Ulanish tezligi pasayishi', time: '15 daqiqa oldin', status: 'Warning' },
-    { type: 'Audit', title: 'Admin "Sardor" yangi foydalanuvchi yaratdi', time: '5 daqiqa oldin', status: 'Info' },
+    { type: t('typeUpdate'), title: t('alertUpdate'), time: t('time2Hours'), status: t('success') },
+    { type: t('typeIssue'), title: t('alertIssue'), time: t('time15Minutes'), status: t('warning') },
+    { type: t('typeAudit'), title: t('alertAudit'), time: t('time5Minutes'), status: t('info') },
   ];
 
   const metrics = [
-    { label: 'JAMI DAROMAD', value: `$${(data?.revenue || 0).toLocaleString()}`, icon: DollarSign, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-    { label: 'FAOL OBUNACHILAR', value: (data?.subscribers || 0).toString(), icon: ListChecks, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-    { label: 'DATABASE YUKLAMASI', value: `${data?.system?.cpuUsage?.toFixed(1) || 0}%`, icon: Database, color: 'text-amber-400', bg: 'bg-amber-400/10' },
-    { label: 'STORAGE', value: `${data?.system?.diskSpace || 0} GB`, icon: HardDrive, color: 'text-purple-400', bg: 'bg-purple-400/10' },
+    { label: t('totalRevenue'), value: `$${(data?.revenue || 0).toLocaleString()}`, icon: DollarSign, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+    { label: t('activeSubscribers'), value: (data?.subscribers || 0).toString(), icon: ListChecks, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+    { label: t('databaseLoad'), value: `${data?.system?.cpuUsage?.toFixed(1) || 0}%`, icon: Database, color: 'text-amber-400', bg: 'bg-amber-400/10' },
+    { label: t('storage'), value: `${data?.system?.diskSpace || 0} GB`, icon: HardDrive, color: 'text-purple-400', bg: 'bg-purple-400/10' },
   ];
 
   return (
@@ -45,10 +47,10 @@ export function SuperadminDashboard() {
                   <Crown size={30} />
                </div>
                <div>
-                  <h1 className="text-2xl font-black tracking-tight leading-tight">Master Panel</h1>
+                  <h1 className="text-2xl font-black tracking-tight leading-tight">{t('title')}</h1>
                   <p className="text-[10px] font-black text-[var(--app-muted)] uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
                      <span className="w-2 h-2 rounded-full bg-[var(--app-primary)]" />
-                     SYSTEMS ONLINE
+                     {t('status')}
                   </p>
                </div>
             </div>
@@ -60,20 +62,20 @@ export function SuperadminDashboard() {
          <div className="grid grid-cols-2 gap-4 relative z-10">
             <div className="rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 transition-all group">
                <p className="text-[10px] font-black text-[var(--app-muted)] mb-5 flex items-center gap-2 tracking-widest uppercase">
-                 <Globe size={13} className="text-blue-500" /> GLOBAL LOAD
+                 <Globe size={13} className="text-blue-500" /> {t('globalLoad')}
                </p>
                <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-black tracking-tighter group-hover:scale-105 transition-transform origin-left">{data?.system?.uptime || 99}%</span>
-                  <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">Stable</span>
+                  <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">{t('stable')}</span>
                 </div>
             </div>
             <div className="rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 transition-all group">
                <p className="text-[10px] font-black text-[var(--app-muted)] mb-5 flex items-center gap-2 tracking-widest uppercase">
-                 <Zap size={13} className="text-amber-500" /> API LATENCY
+                 <Zap size={13} className="text-amber-500" /> {t('apiLatency')}
                </p>
                <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-black tracking-tighter group-hover:scale-105 transition-transform origin-left">{data?.system?.networkMs || 30}ms</span>
-                  <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">Optimal</span>
+                  <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">{t('optimal')}</span>
                 </div>
             </div>
          </div>
@@ -81,7 +83,7 @@ export function SuperadminDashboard() {
 
       {/* Main Metrics */}
       <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-6 px-2 flex items-center gap-3">
-         <Activity size={16} className="text-[var(--app-primary)]" /> REAL-TIME ANALYTICS
+         <Activity size={16} className="text-[var(--app-primary)]" /> {t('realtimeAnalytics')}
       </h2>
       <div className="grid grid-cols-2 gap-4 mb-10 text-[var(--app-text)]">
          {metrics.map((metric: any, idx: number) => (
@@ -96,16 +98,16 @@ export function SuperadminDashboard() {
       </div>
 
       <div className="px-2 flex items-center justify-between mb-6">
-         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">AUDIT LOGS</h2>
-         <button className="rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)]">Explore All</button>
+         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">{t('auditLogs')}</h2>
+         <button className="rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)]">{t('exploreAll')}</button>
       </div>
 
       <div className="flex flex-col gap-4 mb-10">
         {alerts.map((alert: any, idx: number) => (
           <div key={idx} className="app-card p-5 flex items-center gap-5 active:scale-[0.98]">
             <div className={`rounded-[14px] p-4 transition-all ${
-               alert.status === 'Warning' ? 'bg-amber-100 text-amber-600' : 
-               alert.status === 'Success' ? 'bg-emerald-100 text-emerald-600' : 
+               alert.status === t('warning') ? 'bg-amber-100 text-amber-600' : 
+               alert.status === t('success') ? 'bg-emerald-100 text-emerald-600' : 
                'bg-blue-100 text-blue-600'
             }`}>
                <ShieldAlert size={26} strokeWidth={2.5} />
@@ -129,20 +131,20 @@ export function SuperadminDashboard() {
             <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-5 text-[var(--app-primary)]">
                <PieChart size={30} strokeWidth={2.5} />
             </div>
-            <span className="text-[11px] font-black uppercase tracking-[0.1em] leading-none text-[var(--app-text)]">ANNUAL REPORT</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.1em] leading-none text-[var(--app-text)]">{t('annualReport')}</span>
          </button>
          <button className="app-card flex flex-col items-center gap-5 overflow-hidden p-8 text-center transition-all active:scale-95">
             <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-5 text-[var(--app-muted)] shadow-inner">
                <Globe size={30} strokeWidth={2.5} />
             </div>
-            <span className="text-[11px] font-black text-[var(--app-text)] tracking-[0.1em] leading-none uppercase">MAINTENANCE</span>
+            <span className="text-[11px] font-black text-[var(--app-text)] tracking-[0.1em] leading-none uppercase">{t('maintenance')}</span>
          </button>
       </div>
 
       <div className="mt-4 mb-12 flex justify-center">
          <button className="flex items-center gap-3 rounded-full border border-[var(--app-border)] px-6 py-3.5 text-[11px] font-black text-[var(--app-muted)] transition-all hover:bg-[var(--app-surface)] hover:text-[var(--app-text)]">
             <HelpCircle size={16} className="text-[var(--app-primary)]" /> 
-            <span className="tracking-widest uppercase opacity-80">System Documentation</span>
+            <span className="tracking-widest uppercase opacity-80">{t('documentation')}</span>
          </button>
       </div>
     </div>

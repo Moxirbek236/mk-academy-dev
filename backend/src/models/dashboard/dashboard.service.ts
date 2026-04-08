@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
+import { UserRole } from 'src/core/enums';
+import { SystemService } from '../system/system.service';
 
 interface CurrentUser {
   id: number;
@@ -8,86 +10,353 @@ interface CurrentUser {
 
 @Injectable()
 export class DashboardService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly systemService: SystemService,
+  ) {}
 
-  private getSystemSnapshot() {
-    const memory = process.memoryUsage();
-    const ramFreeGb = Math.max(0, 1 - memory.heapUsed / memory.heapTotal) * 8;
-
-    return {
-      cpuUsage: (process.cpuUsage().system + process.cpuUsage().user) / 1_000_000,
-      ramFree: Number(ramFreeGb.toFixed(1)),
-      diskSpace: 0,
-      networkMs: 30,
-      uptime: 99.9,
-    };
+  private normalizeRole(role?: string | null) {
+    return (role || UserRole.STUDENT).toUpperCase();
   }
 
-  async getStats(currentUser: CurrentUser) {
-    const prisma = this.prisma as any;
-    const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  private formatShortDate(date?: Date | null) {
+    if (!date) {
+      return 'No deadline';
+    }
 
-    const [
-      totalStudents,
-      recentRegistrations,
-      activeGroups,
-      pendingHomeworks,
-      revenueAggregate,
-      averageResultAggregate,
-      userAverageResultAggregate,
-    ] = await Promise.all([
-      prisma.user.count({ where: { role: 'STUDENT' } }),
-      prisma.user.count({
-        where: {
-          role: 'STUDENT',
-          createdAt: { gte: last30Days },
-        },
-      }),
-      prisma.group.count(),
-      prisma.studentTask.count({ where: { status: 'PENDING' } }),
-      prisma.financeTransaction.aggregate({
-        where: { type: 'INCOME' },
-        _sum: { amount: true },
-      }),
-      prisma.testAttempt.aggregate({
-        _avg: { score: true },
-      }),
-      prisma.testAttempt.aggregate({
-        where: { studentId: currentUser.id },
-        _avg: { score: true },
-      }),
-    ]);
+    const now = new Date();
+    const sameDay = now.toDateString() === date.toDateString();
 
-    // Graceful fallback for partially migrated databases where leaderboards schema can lag behind.
-    const myLeaderboard = await prisma.leaderboard
+    if (sameDay) {
+      return date.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+    });
+  }
+
+  private async getLeaderboardSummary(studentId: number) {
+    const leaderboard = await this.prisma.leaderboard
       .findFirst({
-        where: { studentId: currentUser.id },
+        where: { studentId, isActive: true },
         orderBy: { id: 'desc' },
         select: { rank: true, score: true },
       })
       .catch(() => null);
 
-    const averageResult = Math.round(Number(averageResultAggregate?._avg?.score || 0));
-    const personalProgress = Math.round(Number(userAverageResultAggregate?._avg?.score || averageResult));
-    const revenue = Number(revenueAggregate?._sum?.amount || 0);
+    return {
+      rank: leaderboard?.rank ? `#${leaderboard.rank}` : 'Top 10%',
+      streak: leaderboard?.score ? Math.max(0, Math.round(leaderboard.score / 100)) : 0,
+    };
+  }
 
-    const stats: any = {
+  private async getStudentStats(currentUser: CurrentUser) {
+    const [groupMemberships, pendingHomeworks, personalAverage, totalAttempts, leaderboard] =
+      await Promise.all([
+        this.prisma.groupMember.findMany({
+          where: {
+            studentId: currentUser.id,
+            isActive: true,
+            group: { isActive: true },
+          },
+          include: {
+            group: {
+              include: {
+                teacher: {
+                  select: {
+                    fullName: true,
+                  },
+                },
+                _count: {
+                  select: {
+                    members: true,
+                    courses: true,
+                    assignments: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: { joinedAt: 'desc' },
+        }),
+        this.prisma.studentTask.count({
+          where: {
+            studentId: currentUser.id,
+            isActive: true,
+            status: 'PENDING',
+          },
+        }),
+        this.prisma.testAttempt.aggregate({
+          where: { studentId: currentUser.id, isActive: true },
+          _avg: { score: true },
+        }),
+        this.prisma.testAttempt.count({
+          where: { studentId: currentUser.id, isActive: true },
+        }),
+        this.getLeaderboardSummary(currentUser.id),
+      ]);
+
+    const myGroups = groupMemberships.map((membership) => ({
+      id: membership.group.id,
+      name: membership.group.name,
+      mentor: membership.group.teacher?.fullName || 'Teacher',
+      students: membership.group._count.members,
+      courses: membership.group._count.courses,
+      assignments: membership.group._count.assignments,
+    }));
+
+    const progress = Math.round(Number(personalAverage._avg.score || 0));
+
+    return {
+      activeGroups: myGroups.length,
+      myGroups,
+      pendingHomeworks,
+      progress,
+      averageResult: progress,
+      totalAttempts,
+      ...leaderboard,
+      system: await this.systemService.getCompactSystemStats(),
+    };
+  }
+
+  private async getTeacherStats(currentUser: CurrentUser) {
+    const [groups, pendingHomeworks, averageResultAggregate, totalStudents] = await Promise.all([
+      this.prisma.group.findMany({
+        where: { teacherId: currentUser.id, isActive: true },
+        include: {
+          _count: {
+            select: {
+              members: true,
+              assignments: true,
+              courses: true,
+            },
+          },
+          assignments: {
+            where: {
+              isActive: true,
+              dueDate: { not: null },
+            },
+            select: { dueDate: true },
+            orderBy: { dueDate: 'asc' },
+            take: 1,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.studentTask.count({
+        where: {
+          isActive: true,
+          status: 'PENDING',
+          task: {
+            assignments: {
+              some: {
+                isActive: true,
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.testAttempt.aggregate({
+        where: {
+          isActive: true,
+          test: {
+            assignments: {
+              some: {
+                isActive: true,
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
+                },
+              },
+            },
+          },
+        },
+        _avg: { score: true },
+      }),
+      this.prisma.groupMember.count({
+        where: {
+          isActive: true,
+          group: {
+            teacherId: currentUser.id,
+            isActive: true,
+          },
+        },
+      }),
+    ]);
+
+    const myGroups = groups.map((group) => ({
+      id: group.id,
+      name: group.name,
+      students: group._count.members,
+      lessons: `${group._count.assignments}/${Math.max(group._count.assignments, group._count.courses, 1)}`,
+      nextLesson: this.formatShortDate(group.assignments[0]?.dueDate),
+      status: pendingHomeworks > 0 ? 'Reviewing' : 'Active',
+    }));
+
+    return {
+      activeGroups: groups.length,
+      myGroups,
       totalStudents,
+      pendingHomeworks,
+      averageResult: Math.round(Number(averageResultAggregate._avg.score || 0)),
+      system: await this.systemService.getCompactSystemStats(),
+    };
+  }
+
+  private async getAdminStats() {
+    const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalStudents,
+      totalTeachers,
       recentRegistrations,
-      averageResult,
+      activeGroups,
+      totalCourses,
+      pendingHomeworks,
+      averageResultAggregate,
+    ] = await Promise.all([
+      this.prisma.user.count({
+        where: { role: UserRole.STUDENT, isActive: true },
+      }),
+      this.prisma.user.count({
+        where: { role: UserRole.TEACHER, isActive: true },
+      }),
+      this.prisma.user.count({
+        where: {
+          role: UserRole.STUDENT,
+          isActive: true,
+          createdAt: { gte: last30Days },
+        },
+      }),
+      this.prisma.group.count({
+        where: { isActive: true },
+      }),
+      this.prisma.course.count({
+        where: { isActive: true },
+      }),
+      this.prisma.studentTask.count({
+        where: {
+          isActive: true,
+          status: 'PENDING',
+        },
+      }),
+      this.prisma.testAttempt.aggregate({
+        where: { isActive: true },
+        _avg: { score: true },
+      }),
+    ]);
+
+    return {
+      totalStudents,
+      totalTeachers,
+      totalCourses,
+      recentRegistrations,
       activeGroups,
       pendingHomeworks,
-      revenue,
-      subscribers: totalStudents,
-      rank: myLeaderboard?.rank ? `#${myLeaderboard.rank}` : 'Top 10%',
-      streak: myLeaderboard?.score ? Math.max(0, Math.round(myLeaderboard.score / 100)) : 0,
-      progress: personalProgress,
-      system: this.getSystemSnapshot(),
+      averageResult: Math.round(Number(averageResultAggregate._avg.score || 0)),
+      centerScore: 4.8,
+      system: await this.systemService.getCompactSystemStats(),
     };
+  }
+
+  private async getSuperadminStats() {
+    const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalUsers,
+      totalStudents,
+      totalTeachers,
+      totalAdmins,
+      recentRegistrations,
+      activeGroups,
+      totalCourses,
+      pendingHomeworks,
+      revenueAggregate,
+      averageResultAggregate,
+      auditLogs,
+      system,
+    ] = await Promise.all([
+      this.prisma.user.count({ where: { isActive: true } }),
+      this.prisma.user.count({ where: { role: UserRole.STUDENT, isActive: true } }),
+      this.prisma.user.count({ where: { role: UserRole.TEACHER, isActive: true } }),
+      this.prisma.user.count({ where: { role: UserRole.ADMIN, isActive: true } }),
+      this.prisma.user.count({
+        where: {
+          role: UserRole.STUDENT,
+          isActive: true,
+          createdAt: { gte: last30Days },
+        },
+      }),
+      this.prisma.group.count({ where: { isActive: true } }),
+      this.prisma.course.count({ where: { isActive: true } }),
+      this.prisma.studentTask.count({
+        where: { isActive: true, status: 'PENDING' },
+      }),
+      this.prisma.financeTransaction.aggregate({
+        where: {
+          isActive: true,
+          type: 'INCOME',
+        },
+        _sum: { amount: true },
+      }),
+      this.prisma.testAttempt.aggregate({
+        where: { isActive: true },
+        _avg: { score: true },
+      }),
+      this.systemService.getAuditLogs(),
+      this.systemService.getCompactSystemStats(),
+    ]);
+
+    return {
+      totalUsers,
+      totalStudents,
+      totalTeachers,
+      totalAdmins,
+      recentRegistrations,
+      activeGroups,
+      totalCourses,
+      pendingHomeworks,
+      revenue: Number(revenueAggregate._sum.amount || 0),
+      subscribers: totalStudents,
+      averageResult: Math.round(Number(averageResultAggregate._avg.score || 0)),
+      auditLogs,
+      system,
+    };
+  }
+
+  async getStats(currentUser: CurrentUser) {
+    const role = this.normalizeRole(currentUser.role);
+
+    let data: Record<string, any>;
+
+    switch (role) {
+      case UserRole.SUPERADMIN:
+        data = await this.getSuperadminStats();
+        break;
+      case UserRole.ADMIN:
+        data = await this.getAdminStats();
+        break;
+      case UserRole.TEACHER:
+        data = await this.getTeacherStats(currentUser);
+        break;
+      case UserRole.STUDENT:
+      default:
+        data = await this.getStudentStats(currentUser);
+        break;
+    }
 
     return {
       success: true,
-      data: stats,
+      data,
     };
   }
 }

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import api from '@/lib/api';
+import { getStoredToken } from '@/lib/auth-storage';
 
 export interface CurrentUserProfile {
   id: number | null;
@@ -18,10 +19,8 @@ type JwtPayload = {
   role?: string;
 };
 
-function readJwtPayload(): JwtPayload | null {
-  if (typeof window === 'undefined') return null;
-
-  const token = localStorage.getItem('token');
+async function readJwtPayload(): Promise<JwtPayload | null> {
+  const token = await getStoredToken();
   if (!token) return null;
 
   try {
@@ -72,14 +71,14 @@ function normalizeCurrentUserProfile(raw: any): CurrentUserProfile {
 
 export async function fetchCurrentUserProfile(): Promise<CurrentUserProfile> {
   try {
-    const response = await api.get('/users/profile');
+    const response = await api.get('/user-profiles/profile/me');
     return normalizeCurrentUserProfile(response.data?.data ?? response.data);
   } catch (error) {
     if (!isRouteMissingError(error)) {
       throw error;
     }
 
-    const response = await api.get('/user-profiles/profile/me');
+    const response = await api.get('/users/profile');
     return normalizeCurrentUserProfile(response.data?.data ?? response.data);
   }
 }
@@ -151,7 +150,7 @@ export async function fetchFinanceCompat(role: string | null) {
       throw error;
     }
 
-    const payload = readJwtPayload();
+    const payload = await readJwtPayload();
     const userId = payload?.id;
 
     if (!userId || role === 'admin' || role === 'superadmin') {

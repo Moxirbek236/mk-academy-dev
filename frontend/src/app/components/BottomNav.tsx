@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
 import { motion } from 'framer-motion';
+import { isNativeApp } from '@/lib/native-app';
 
 interface BottomNavProps {
   role?: string | null;
@@ -18,6 +19,7 @@ export function BottomNav({ role }: BottomNavProps) {
   const normalizedPathname = stripLocaleFromPathname(pathname);
   const currentRole = role?.toLowerCase();
   const isTeacher = currentRole === 'teacher' || currentRole === 'mentor';
+  const nativeApp = isNativeApp();
 
   const navItems = currentRole === 'superadmin' ? [
     { path: '/', icon: Home, label: t('dashboard') },
@@ -60,15 +62,20 @@ export function BottomNav({ role }: BottomNavProps) {
             <Link 
               key={item.path} 
               href={localizedHref}
+              prefetch={false}
               className={`app-touch flex min-h-[48px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[14px] px-1 transition-all duration-300 active:scale-95 ${isActive ? 'text-[var(--app-primary)]' : 'text-[var(--app-muted)] hover:text-[var(--app-text)]'}`}
             >
               <div className={`relative flex items-center justify-center rounded-[12px] p-2 transition-all duration-300 ${isActive ? 'scale-105' : 'group-hover:scale-105'}`}>
                 {isActive && (
-                  <motion.div 
-                    layoutId="activeTab"
-                    className="absolute inset-0 rounded-[12px] bg-[color:color-mix(in_srgb,var(--app-primary)_12%,transparent)]"
-                    transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
-                  />
+                  nativeApp ? (
+                    <div className="absolute inset-0 rounded-[12px] bg-[color:color-mix(in_srgb,var(--app-primary)_12%,transparent)]" />
+                  ) : (
+                    <motion.div 
+                      layoutId="activeTab"
+                      className="absolute inset-0 rounded-[12px] bg-[color:color-mix(in_srgb,var(--app-primary)_12%,transparent)]"
+                      transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
+                    />
+                  )
                 )}
                 <Icon size={24} strokeWidth={isActive ? 2.5 : 2} className="relative z-10" />
               </div>

@@ -7,6 +7,7 @@ import { MentorDashboard } from './components/dashboards/MentorDashboard';
 import { AdminDashboard } from './components/dashboards/AdminDashboard';
 import { SuperadminDashboard } from './components/dashboards/SuperadminDashboard';
 import { localizePath } from '@/i18n/localizedPath';
+import { getStoredRole, getStoredToken } from '@/lib/auth-storage';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -15,14 +16,20 @@ export default function Dashboard() {
   const [role, setRole] = useState<string>('student');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push(localizePath(locale, '/landing'));
-    } else {
-      const storedRole = localStorage.getItem('role');
+    const bootstrap = async () => {
+      const token = await getStoredToken();
+
+      if (!token) {
+        router.push(localizePath(locale, '/landing'));
+        return;
+      }
+
+      const storedRole = await getStoredRole();
       if (storedRole) setRole(storedRole.toLowerCase());
       setLoading(false);
-    }
+    };
+
+    void bootstrap();
   }, [router, locale]);
 
   if (loading) return null;

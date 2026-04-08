@@ -4,15 +4,23 @@ import { DollarSign, ArrowUpRight, ArrowDownRight, TrendingUp, Filter, Search, M
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchFinanceCompat } from '@/lib/api-compat';
+import { isRoleAllowedForPath } from '@/lib/role-access';
 
 export default function FinancePage() {
   const t = useTranslations('Finance');
-  const { role } = useAuth();
+  const { role, loading: authLoading } = useAuth();
   const [summary, setSummary] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const canAccess = isRoleAllowedForPath('/finance', role);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!canAccess) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const data = await fetchFinanceCompat(role);
@@ -25,7 +33,9 @@ export default function FinancePage() {
       }
     };
     fetchData();
-  }, [role]);
+  }, [authLoading, canAccess, role]);
+
+  if (!authLoading && !canAccess) return null;
 
   if (loading) return <div className="flex justify-center p-16 sm:p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 

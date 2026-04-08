@@ -1,5 +1,6 @@
 'use client';
 import { Clock, Lock, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface LessonCardProps {
   unit: string;
@@ -11,6 +12,7 @@ interface LessonCardProps {
 
 export function LessonCard({ unit, title, status, progress, onClick }: LessonCardProps) {
   const isDone = status === 'done';
+  const t = useTranslations('LessonCard');
 
   return (
     <button 
@@ -30,7 +32,7 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
       <div className="flex-1 min-w-0 flex flex-col pt-1">
         <div className="flex justify-between items-start w-full">
           <div>
-            <h4 className="font-extrabold text-gray-900 text-base leading-tight tracking-tight">Unit {unit}</h4>
+            <h4 className="font-extrabold text-gray-900 text-base leading-tight tracking-tight">{t('unit', { unit })}</h4>
             <p className="text-[13px] text-gray-500 mt-1 font-medium">{title}</p>
           </div>
           {/* Badge */}
@@ -40,7 +42,7 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
               : 'bg-[#F4F6F5] text-[#71877C] border-[#E5EAE7]'
           }`}>
             {isDone ? <Check size={12} strokeWidth={3} /> : <Lock size={12} strokeWidth={2.5} />}
-            {isDone ? 'Tugadi' : 'Yopiq'}
+            {isDone ? t('done') : t('locked')}
           </div>
         </div>
         

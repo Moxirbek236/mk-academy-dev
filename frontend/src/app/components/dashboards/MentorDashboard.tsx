@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Users, GraduationCap, Clock, CheckCircle2, ChevronRight, BarChart3, MessageSquarePlus, Calendar, BookOpen, AlertCircle, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 
 export function MentorDashboard() {
+  const t = useTranslations('DashboardMentor');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,10 +38,10 @@ export function MentorDashboard() {
             <div>
                <div className="flex items-center gap-2 mb-2">
                  <div className="w-2.5 h-2.5 bg-[var(--app-primary)] rounded-full" />
-                 <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-none text-[var(--app-muted)]">Teaching Session Active</p>
+                 <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-none text-[var(--app-muted)]">{t('activeTeachingSession')}</p>
                </div>
                <h2 className="text-2xl font-black tracking-tight leading-tight">Mirasror Ali</h2>
-               <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[var(--app-muted)]">Senior English Instructor</p>
+               <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[var(--app-muted)]">{t('roleTitle')}</p>
             </div>
             <div className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 text-[var(--app-primary)] shadow-sm">
                <GraduationCap size={28} />
@@ -48,11 +50,11 @@ export function MentorDashboard() {
          
          <div className="flex gap-4 relative z-10">
             <div className="flex-1 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5 cursor-default">
-               <p className="mb-2 text-[9px] font-black uppercase tracking-widest leading-none text-[var(--app-muted)]">FAOL GURUHLAR</p>
+               <p className="mb-2 text-[9px] font-black uppercase tracking-widest leading-none text-[var(--app-muted)]">{t('activeGroups')}</p>
                <p className="text-2xl font-black tracking-tighter">{data?.activeGroups || 0} ta</p>
             </div>
             <div className="flex-1 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5 cursor-default">
-               <p className="mb-2 text-[9px] font-black uppercase tracking-widest leading-none text-[var(--app-muted)]">PENDING HW</p>
+               <p className="mb-2 text-[9px] font-black uppercase tracking-widest leading-none text-[var(--app-muted)]">{t('pendingHomework')}</p>
                <p className="text-2xl font-black tracking-tighter">{data?.pendingHomeworks || 0} ta</p>
             </div>
          </div>
@@ -60,9 +62,9 @@ export function MentorDashboard() {
 
       <div className="px-2 flex items-center justify-between mb-6">
          <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1 flex items-center gap-2 font-black">
-            <Calendar size={14} className="text-[var(--app-primary)]" /> GURUHLARINGIZ
+            <Calendar size={14} className="text-[var(--app-primary)]" /> {t('groupsTitle')}
          </h2>
-         <button className="rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)]">Schedule</button>
+         <button className="rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)]">{t('schedule')}</button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
@@ -75,7 +77,7 @@ export function MentorDashboard() {
               <h3 className="font-extrabold text-[var(--app-text)] text-base leading-tight tracking-tight truncate">{group.name}</h3>
               <div className="flex items-center gap-3 mt-3">
                 <span className="flex items-center gap-1.5 text-[9px] font-black text-[var(--app-muted)] uppercase tracking-tighter bg-[var(--app-surface-soft)] px-2.5 py-1 rounded-md">
-                   <Users size={12} strokeWidth={2.5} /> {group.students} students
+                   <Users size={12} strokeWidth={2.5} /> {t('students', { count: group.students })}
                 </span>
                 <span className="flex items-center gap-1.5 text-[9px] font-black text-[var(--app-primary)] uppercase tracking-tighter bg-[var(--app-primary)]/10 px-2.5 py-1 rounded-md">
                    <BookOpen size={12} strokeWidth={2.5} /> {group.lessons}
@@ -100,19 +102,19 @@ export function MentorDashboard() {
             <div className="rounded-[16px] bg-red-50 p-5 text-red-500 transition-all shadow-inner shadow-red-100 group-hover:scale-105">
                <AlertCircle size={28} strokeWidth={2.5} />
             </div>
-            <span className="text-[11px] font-black text-[var(--app-text)] leading-tight uppercase tracking-tight">Tekshirilmagan<br/>vazifalar ({data?.pendingHomeworks || 0})</span>
+            <span className="text-[11px] font-black text-[var(--app-text)] leading-tight uppercase tracking-tight">{t('uncheckedTasks', { count: data?.pendingHomeworks || 0 })}</span>
          </button>
          <button className="app-card p-8 flex flex-col items-center gap-5 text-center active:scale-95 transition-all group hover:border-blue-100">
             <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-5 text-[var(--app-primary)] transition-all shadow-inner group-hover:scale-105">
                <BarChart3 size={28} strokeWidth={2.5} />
             </div>
-            <span className="text-[11px] font-black text-[var(--app-text)] leading-tight uppercase tracking-tight">Guruxlar<br/>analitikasi</span>
+            <span className="text-[11px] font-black text-[var(--app-text)] leading-tight uppercase tracking-tight">{t('groupAnalytics')}</span>
          </button>
       </div>
       
       <button className="w-full btn-premium mb-12 border-none bg-[var(--app-primary)] p-6 text-white">
          <MessageSquarePlus size={22} strokeWidth={2.5} className="mr-3" />
-         <span className="tracking-widest">YANGI TOPSHIRIQ QO&apos;SHISH</span>
+         <span className="tracking-widest">{t('newTask')}</span>
       </button>
     </div>
   );

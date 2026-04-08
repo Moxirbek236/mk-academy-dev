@@ -4,6 +4,7 @@ import { OFFLINE_BANNER_MESSAGE, OFFLINE_MUTATION_MESSAGE } from '@/lib/offline/
 import { AppApiError, normalizeApiError } from '@/lib/offline/errors';
 import { emitApiNotice } from '@/lib/offline/events';
 import { isNetworkOnline } from '@/lib/offline/network';
+import { clearStoredAuth, getStoredToken } from '@/lib/auth-storage';
 
 interface OfflineRequestMeta {
   cacheKey?: string;
@@ -28,11 +29,6 @@ const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   return DEFAULT_API_URL;
 };
-
-function getTokenFromStorage(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
-}
 
 function getCacheScope(token: string | null): string {
   if (!token) return 'public';
@@ -60,7 +56,7 @@ function isMutationRequest(config: ApiRequestConfig): boolean {
 
 const api = axios.create({
   baseURL: getBaseUrl(),
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -68,7 +64,7 @@ const api = axios.create({
 
 api.interceptors.request.use(async (incomingConfig) => {
   const config = incomingConfig as ApiRequestConfig;
-  const token = getTokenFromStorage();
+  const token = await getStoredToken();
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -180,8 +176,7 @@ api.interceptors.response.use(
     if (axios.isAxiosError(error) && error.response?.status === 401 && typeof window !== 'undefined') {
       const currentPath = window.location.pathname;
       if (currentPath !== '/login' && currentPath !== '/landing') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
+        await clearStoredAuth();
         window.location.href = '/landing';
       }
     }

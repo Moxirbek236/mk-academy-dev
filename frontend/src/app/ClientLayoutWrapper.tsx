@@ -12,6 +12,8 @@ import { Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
+import { getRoleHomePath, isRoleAllowedForPath } from '@/lib/role-access';
+import { isNativeApp } from '@/lib/native-app';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -20,21 +22,49 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const t = useTranslations('Common');
   const { role, loading, token } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [nativeApp, setNativeApp] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    setNativeApp(isNativeApp());
   }, []);
+
+  useEffect(() => {
+    if (!nativeApp) {
+      document.documentElement.removeAttribute('data-app-lite');
+      return;
+    }
+
+    document.documentElement.setAttribute('data-app-lite', 'true');
+
+    if ('serviceWorker' in navigator) {
+      void navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          void registration.unregister();
+        });
+      }).catch(() => {
+        // Native builds do not need the PWA worker. Ignore environments without SW access.
+      });
+    }
+  }, [nativeApp]);
 
   const normalizedPath = stripLocaleFromPathname(pathname || '/');
 
   // Public routes that don't need auth
   const isPublicRoute = ['/login', '/landing'].includes(normalizedPath);
+  const isAuthorizedRoute = isPublicRoute || isRoleAllowedForPath(normalizedPath, role);
 
   useEffect(() => {
     if (mounted && !loading && !token && !isPublicRoute) {
       router.replace(localizePath(locale, '/landing'));
     }
   }, [mounted, loading, token, isPublicRoute, locale, router]);
+
+  useEffect(() => {
+    if (mounted && !loading && token && !isAuthorizedRoute) {
+      router.replace(localizePath(locale, getRoleHomePath(role)));
+    }
+  }, [mounted, loading, token, isAuthorizedRoute, locale, role, router]);
 
   if (!mounted || (loading && !isPublicRoute)) {
     return (
@@ -51,6 +81,10 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     );
   }
 
+  if (!isAuthorizedRoute) {
+    return null;
+  }
+
   const hideNav = isPublicRoute;
 
   return (
@@ -63,17 +97,21 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
         {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
         <OfflineStatusBanner />
         <main className={`w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-8 lg:pt-10' : ''}`}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          {nativeApp ? (
+            <div>{children}</div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          )}
         </main>
         {!hideNav && <div className="lg:hidden"><BottomNav role={role} /></div>}
       </div>

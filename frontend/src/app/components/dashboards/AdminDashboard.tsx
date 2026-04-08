@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Shield, Users, FileText, PlusCircle, Activity, ChevronRight, Settings, TrendingUp, Presentation, School, UserPlus, ClipboardList, Loader2, MessageSquare } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 
 export function AdminDashboard() {
+  const t = useTranslations('DashboardAdmin');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,10 +25,10 @@ export function AdminDashboard() {
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
   const stats = [
-    { label: 'JAMI O\'QUVCHILAR', value: (data?.totalStudents || 0).toLocaleString(), color: 'text-emerald-550', bg: 'bg-emerald-50', icon: Users, trend: `+${data?.recentRegistrations || 0}` },
-    { label: 'O\'RTACHA NATIJA', value: `${data?.averageResult || 0}%`, color: 'text-blue-550', bg: 'bg-blue-50', icon: ClipboardList, trend: '+3%' },
-    { label: 'FAOL GURUHLAR', value: `${data?.activeGroups || 0} ta`, color: 'text-amber-550', bg: 'bg-amber-50', icon: Presentation, trend: '+2' },
-    { label: 'MARKAZ IMTIYOZI', value: '4.8', color: 'text-purple-550', bg: 'bg-purple-50', icon: School, trend: 'Top' },
+    { label: t('totalStudents'), value: (data?.totalStudents || 0).toLocaleString(), color: 'text-emerald-550', bg: 'bg-emerald-50', icon: Users, trend: `+${data?.recentRegistrations || 0}` },
+    { label: t('averageResult'), value: `${data?.averageResult || 0}%`, color: 'text-blue-550', bg: 'bg-blue-50', icon: ClipboardList, trend: '+3%' },
+    { label: t('activeGroups'), value: `${data?.activeGroups || 0} ta`, color: 'text-amber-550', bg: 'bg-amber-50', icon: Presentation, trend: '+2' },
+    { label: t('centerScore'), value: '4.8', color: 'text-purple-550', bg: 'bg-purple-50', icon: School, trend: 'Top' },
   ];
 
   return (
@@ -37,10 +39,10 @@ export function AdminDashboard() {
                <Shield size={28} className="text-[var(--app-primary)]" />
             </div>
             <div>
-               <h2 className="text-2xl font-black text-[var(--app-text)] tracking-tight">Center Admin</h2>
+               <h2 className="text-2xl font-black text-[var(--app-text)] tracking-tight">{t('title')}</h2>
                <p className="text-[10px] font-black text-[var(--app-muted)] uppercase tracking-[0.15em] mt-1 flex items-center gap-1.5 leading-none">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--app-primary)]" />
-                  Management Active
+                  {t('status')}
                </p>
             </div>
          </div>
@@ -65,15 +67,15 @@ export function AdminDashboard() {
       </div>
 
       <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-6 px-3 flex items-center justify-between">
-         Quick Actions
+         {t('quickActions')}
          <Activity size={16} className="text-[var(--app-primary)]" />
       </h2>
       <div className="flex flex-col gap-4 pb-12">
          {[
-           { label: 'Yangi Kurs', desc: 'O\'quv rejasini boshqarish', icon: PlusCircle, color: 'text-[var(--app-primary)]', bg: 'bg-[var(--app-primary)]/10', hover: 'hover:border-[var(--app-primary)]/30' },
-           { label: 'Murojaatlar', desc: 'Landing page murojaatlari', icon: MessageSquare, color: 'text-blue-500', bg: 'bg-blue-50', hover: 'hover:border-blue-200', href: '/leads' },
-           { label: 'Mentorlar', desc: 'Mentorlarni ro\'yxatga olish', icon: UserPlus, color: 'text-amber-500', bg: 'bg-amber-50', hover: 'hover:border-amber-200' },
-           { label: 'Imtihonlar', desc: 'Testlar tahlili', icon: FileText, color: 'text-purple-500', bg: 'bg-purple-50', hover: 'hover:border-purple-200' }
+           { label: t('newCourse'), desc: t('newCourseDescription'), icon: PlusCircle, color: 'text-[var(--app-primary)]', bg: 'bg-[var(--app-primary)]/10', hover: 'hover:border-[var(--app-primary)]/30' },
+           { label: t('leads'), desc: t('leadsDescription'), icon: MessageSquare, color: 'text-blue-500', bg: 'bg-blue-50', hover: 'hover:border-blue-200', href: '/leads' },
+           { label: t('mentors'), desc: t('mentorsDescription'), icon: UserPlus, color: 'text-amber-500', bg: 'bg-amber-50', hover: 'hover:border-amber-200' },
+           { label: t('exams'), desc: t('examsDescription'), icon: FileText, color: 'text-purple-500', bg: 'bg-purple-50', hover: 'hover:border-purple-200' }
          ].map((action, i) => (
            <button 
              key={i} 
@@ -96,7 +98,7 @@ export function AdminDashboard() {
 
       <div className="mt-4 flex justify-center pb-8">
          <button className="flex items-center gap-2 rounded-full border border-[var(--app-border)] px-6 py-3 text-[11px] font-black uppercase tracking-widest leading-none text-[var(--app-muted)] transition-all hover:bg-[var(--app-surface)] hover:text-[var(--app-primary)]">
-            <TrendingUp size={16} /> View Detailed Stats
+            <TrendingUp size={16} /> {t('viewDetailedStats')}
          </button>
       </div>
     </div>

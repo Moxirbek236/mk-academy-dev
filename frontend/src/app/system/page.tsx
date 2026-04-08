@@ -1,12 +1,18 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { ShieldCheck, Server, HardDrive, Cpu, Activity, RefreshCw, AlertTriangle, Zap, Terminal, Clock, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
+import { isRoleAllowedForPath } from '@/lib/role-access';
 
 export default function SystemPage() {
+  const t = useTranslations('SystemPage');
+  const { role, loading: authLoading } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const canAccess = isRoleAllowedForPath('/system', role);
 
   const fetchData = async () => {
     try {
@@ -21,15 +27,22 @@ export default function SystemPage() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!canAccess) {
+      setLoading(false);
+      return;
+    }
     void fetchData();
-  }, []);
+  }, [authLoading, canAccess]);
+
+  if (!authLoading && !canAccess) return null;
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
   const serverLogs = data?.auditLogs || [
-    { type: 'Info', title: 'Backup completed successfully', time: '10 daqiqa oldin', status: 'Success' },
-    { type: 'Warning', title: 'Memory utilization high (85%)', time: '2 soat oldin', status: 'Warning' },
-    { type: 'Info', title: 'New SSL certificate deployed', time: '1 kun oldin', status: 'Success' },
+    { type: t('info'), title: t('backupCompleted'), time: t('time10Minutes'), status: 'Success' },
+    { type: t('warning'), title: t('memoryHigh'), time: t('time2Hours'), status: 'Warning' },
+    { type: t('info'), title: t('sslDeployed'), time: t('time1Day'), status: 'Success' },
   ];
 
   const sysStats = [
@@ -42,7 +55,7 @@ export default function SystemPage() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between mb-8 px-1">
-        <h1 className="text-2xl font-black text-gray-900 tracking-tight">Tizim</h1>
+        <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('title')}</h1>
         <button
           onClick={() => {
             setRefreshing(true);
@@ -70,9 +83,9 @@ export default function SystemPage() {
 
       <div className="px-2 flex items-center justify-between mb-6">
          <h2 className="text-[12px] font-black text-gray-400 tracking-[0.15em] uppercase flex items-center gap-2">
-            <Terminal size={16} className="text-[#3D855A]" /> SERVER LOGLARI
+            <Terminal size={16} className="text-[#3D855A]" /> {t('serverLogs')}
          </h2>
-         <button className="text-[10px] font-black text-[#3D855A] hover:underline uppercase tracking-widest">Live Feed</button>
+         <button className="text-[10px] font-black text-[#3D855A] hover:underline uppercase tracking-widest">{t('liveFeed')}</button>
       </div>
 
       <div className="flex flex-col gap-4 mb-10 pb-10">
