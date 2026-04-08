@@ -1,4 +1,4 @@
-self._ref = function (payload) {
+var _ref = function (payload) {
   const response = payload && payload.response;
 
   if (response && response.type === "opaqueredirect") {
@@ -11,3 +11,5 @@ self._ref = function (payload) {
 
   return response;
 };
+
+self._ref = _ref;

@@ -141,6 +141,7 @@ export default function LoginPage() {
               <input 
                 required
                 type="tel" 
+                autoComplete="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 className="w-full rounded-3xl border border-[#DCEEE3] bg-[#F7FBF8] py-4 pl-14 pr-6 text-[15px] font-bold text-gray-900 transition-all placeholder:text-gray-400 focus:border-[#3D855A]/50 focus:outline-none focus:ring-4 focus:ring-[#3D855A]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
@@ -159,6 +160,7 @@ export default function LoginPage() {
               <input 
                 required
                 type={showPassword ? 'text' : 'password'} 
+                autoComplete="current-password"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 className="w-full rounded-3xl border border-[#DCEEE3] bg-[#F7FBF8] py-4 pl-14 pr-14 text-[15px] font-bold text-gray-900 transition-all placeholder:text-gray-400 focus:border-[#3D855A]/50 focus:outline-none focus:ring-4 focus:ring-[#3D855A]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"

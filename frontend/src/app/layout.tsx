@@ -15,6 +15,7 @@ if (typeof window === 'undefined') {
 import { generateSEO } from '@/lib/seo';
 
 // Global SEO Configuration
+export const runtime = 'edge';
 export const metadata = generateSEO();
 export const viewport: Viewport = {
   width: 'device-width',

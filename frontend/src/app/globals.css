@@ -58,6 +58,17 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
+  body.exam-security-mode,
+  body.exam-security-mode * {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  body.exam-security-mode img,
+  body.exam-security-mode a {
+    -webkit-user-drag: none;
+  }
+
   /* Premium Typography */
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.025em;

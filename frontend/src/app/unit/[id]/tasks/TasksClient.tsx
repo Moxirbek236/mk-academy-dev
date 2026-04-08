@@ -8,6 +8,7 @@ import { Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { localizePath } from '@/i18n/localizedPath';
+import { useExamSecurity } from '@/hooks/useExamSecurity';
 
 export default function TasksClient() {
   const router = useRouter();
@@ -19,6 +20,10 @@ export default function TasksClient() {
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [isWrong, setIsWrong] = useState(false);
+  const { privacyVisible, watermarkText } = useExamSecurity({
+    enabled: !authLoading && role === 'student' && !showResult,
+    watermarkLabel: `MK Academy Exam | Unit ${String(id)}`,
+  });
 
   const questions = [
     {
@@ -131,6 +136,38 @@ export default function TasksClient() {
 
   return (
     <div className="mx-auto max-w-2xl px-1 pb-[calc(14rem+env(safe-area-inset-bottom))] lg:pt-6">
+      <div className="pointer-events-none fixed inset-0 z-[70] opacity-[0.18] [mask-image:radial-gradient(circle_at_center,black,transparent_78%)]">
+        <div className="absolute inset-x-[-20%] top-[18%] -rotate-[18deg] text-center text-[18px] font-black uppercase tracking-[0.45em] text-emerald-900/70">
+          {watermarkText}
+        </div>
+        <div className="absolute inset-x-[-20%] top-[58%] rotate-[16deg] text-center text-[18px] font-black uppercase tracking-[0.45em] text-emerald-900/60">
+          {watermarkText}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {privacyVisible && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/96 px-6 text-center text-white backdrop-blur-md"
+          >
+            <div className="max-w-md rounded-[36px] border border-white/10 bg-white/5 p-8 shadow-2xl">
+              <p className="text-[11px] font-black uppercase tracking-[0.35em] text-emerald-300">
+                Privacy Shield
+              </p>
+              <h3 className="mt-4 text-3xl font-black tracking-tight">
+                Exam content vaqtincha yashirildi
+              </h3>
+              <p className="mt-4 text-sm font-bold leading-relaxed text-slate-300">
+                Fokus boshqa oynaga o&apos;tgani uchun sahifa yopildi. Examga qaytsangiz kontent yana ko&apos;rinadi.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Premium Gamified Header */}
       <div className="flex items-center gap-5 mb-10">
         <button 
