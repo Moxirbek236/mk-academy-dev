@@ -14,6 +14,30 @@ import { QueryUserAdminDto } from './dto/query.admin.dto';
 export class UserService {
   constructor(private prisma: PrismaService, private jwtService: JwtService) { }
 
+  async findAll(
+    currentUser: { id: number; role: UserRole },
+    query: QueryUserSuperAdminDto,
+  ) {
+    switch (currentUser.role) {
+      case UserRole.SUPERADMIN:
+        return this.findAllSuperAdmin(query);
+      case UserRole.ADMIN:
+        return this.findAllAdmin({
+          fullName: query.fullName,
+          GroupName: query.GroupName,
+          isActive: query.isActive,
+          user:
+            query.user === UserRole.STUDENT || query.user === UserRole.TEACHER
+              ? query.user
+              : undefined,
+        });
+      case UserRole.TEACHER:
+        return this.findAllTeacher(currentUser, { fullName: query.fullName });
+      default:
+        throw new ForbiddenException('Sizda foydalanuvchilar ro‘yxatini ko‘rish huquqi yo‘q');
+    }
+  }
+
   async createTeacher(payload: CreateUserDto, currentUser: { id: number, role: UserRole }, filename?: string) {
 
     const phone = await this.prisma.user.findUnique({ where: { phone: payload.phone } });

@@ -121,6 +121,13 @@ export class UserController {
     return this.userService.findAllSuperAdmin(query);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get users list for the current authenticated role' })
+  @Get()
+  findAll(@Req() req: Request, @Query() query: QueryUserSuperAdminDto) {
+    return this.userService.findAll(req['user'], query);
+  }
+
   // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.ADMIN}` })
   @Roles(UserRole.ADMIN)
