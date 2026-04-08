@@ -46,15 +46,18 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
+  const response = NextResponse.next();
   const cookieLocale = request.cookies.get(localeCookieName)?.value;
-  const locale = isAppLocale(cookieLocale || '') ? cookieLocale : defaultLocale;
 
-  const redirectUrl = request.nextUrl.clone();
-  const cleanPath = pathname === '/' ? '' : pathname;
-  redirectUrl.pathname = `/${locale}${cleanPath}`;
-  redirectUrl.search = search;
+  if (!isAppLocale(cookieLocale || '')) {
+    response.cookies.set(localeCookieName, defaultLocale, {
+      path: '/',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
 
-  return NextResponse.redirect(redirectUrl);
+  return response;
 }
 
 export const config = {
