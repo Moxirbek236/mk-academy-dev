@@ -20,14 +20,13 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import api from '@/lib/api';
+import { localizePath } from '@/i18n/localizedPath';
 
 export function LandingPage() {
   const router = useRouter();
   const locale = useLocale();
   const [formData, setFormData] = useState({ fullName: '', phone: '', message: '' });
   const [status, setStatus] = useState<string | null>(null);
-
-  const localized = (path: string) => `/${locale}${path === '/' ? '' : path}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +62,7 @@ export function LandingPage() {
             <a href="#contact" className="transition-colors hover:text-[var(--app-primary)]">Bog&apos;lanish</a>
             <div className="h-4 w-px bg-[var(--app-border)]" />
             <button
-              onClick={() => router.push(localized('/login'))}
+              onClick={() => router.push(localizePath(locale, '/login'))}
               className="btn-premium bg-[var(--app-primary)] px-6 py-2.5 text-white shadow-lg shadow-[var(--app-primary)]/20 border-none"
             >
               <LogIn size={16} className="mr-2" /> Tizimga kirish
@@ -71,7 +70,7 @@ export function LandingPage() {
           </div>
 
           <button
-            onClick={() => router.push(localized('/login'))}
+            onClick={() => router.push(localizePath(locale, '/login'))}
             className="app-touch flex items-center justify-center rounded-2xl bg-[var(--app-primary)] px-5 py-2 text-[10px] font-black uppercase tracking-widest text-white md:hidden shadow-lg shadow-[var(--app-primary)]/20"
           >
             <LogIn size={14} className="mr-2" />
@@ -99,7 +98,7 @@ export function LandingPage() {
 
         <div className="flex w-full flex-col gap-4 sm:flex-row sm:justify-center">
           <button
-            onClick={() => router.push(localized('/login'))}
+            onClick={() => router.push(localizePath(locale, '/login'))}
             className="btn-premium bg-[var(--app-primary)] text-white px-10 py-5 text-base shadow-2xl shadow-[var(--app-primary)]/30 group border-none"
           >
             Boshlash <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />

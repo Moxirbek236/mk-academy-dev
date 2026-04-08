@@ -6,6 +6,7 @@ import { Phone, Lock, ArrowRight, Loader2, Home, Eye, EyeOff, Globe } from 'luci
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 import { getUserFriendlyErrorMessage } from '@/lib/offline/errors';
+import { localizePath } from '@/i18n/localizedPath';
 
 function decodeJwtRole(token: string): string | null {
   try {
@@ -56,7 +57,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const localized = (path: string) => `/${locale}${path === '/' ? '' : path}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +78,7 @@ export default function LoginPage() {
         } else {
           localStorage.removeItem('role');
         }
-        router.push('/');
+        router.push(localizePath(locale, '/'));
       } else {
         setError('Tizimga kirishda xatolik yuz berdi');
       }
@@ -106,7 +106,7 @@ export default function LoginPage() {
       <motion.button 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        onClick={() => router.push(localized('/landing'))}
+        onClick={() => router.push(localizePath(locale, '/landing'))}
         className="app-touch absolute left-[max(0.75rem,env(safe-area-inset-left))] top-[calc(0.75rem+env(safe-area-inset-top))] flex min-h-10 items-center gap-2 rounded-full border border-gray-100 bg-white px-3.5 py-2 text-[10px] font-black uppercase tracking-widest text-gray-500 shadow-sm transition-all hover:text-[#3D855A] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 sm:left-8 sm:top-8"
       >
         <Home size={14} /> Back to Home

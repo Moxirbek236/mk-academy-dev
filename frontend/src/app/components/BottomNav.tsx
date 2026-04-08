@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
+import { localizePath } from '@/i18n/localizedPath';
 import { motion } from 'framer-motion';
 
 interface BottomNavProps {
@@ -50,9 +51,9 @@ export function BottomNav({ role }: BottomNavProps) {
       {navItems.map((item) => {
         const isActive =
           normalizedPathname === item.path ||
-          (item.path !== '/' && normalizedPathname.startsWith(item.path));
+            (item.path !== '/' && normalizedPathname.startsWith(item.path));
         const Icon = item.icon;
-        const localizedHref = item.path === '/' ? `/${locale}` : `/${locale}${item.path}`;
+        const localizedHref = localizePath(locale, item.path);
         
         return (
           <Link 

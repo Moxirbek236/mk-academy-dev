@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
+import { localizePath } from '@/i18n/localizedPath';
 
 interface SidebarProps {
   role?: string | null;
@@ -78,7 +79,7 @@ export function Sidebar({ role }: SidebarProps) {
               normalizedPathname === item.path ||
               (item.path !== '/' && normalizedPathname.startsWith(item.path));
             const Icon = item.icon;
-            const localizedHref = item.path === '/' ? `/${locale}` : `/${locale}${item.path}`;
+            const localizedHref = localizePath(locale, item.path);
             
             return (
               <Link 
