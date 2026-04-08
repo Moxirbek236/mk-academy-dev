@@ -1,6 +1,12 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
-import { CreateUserDto, QueryUserDto, UpdateUserDto, QueryUserSuperAdminDto } from './dto';
+import {
+  CreateUserDto,
+  QueryUserDto,
+  UpdateCurrentProfileDto,
+  UpdateUserDto,
+  QueryUserSuperAdminDto,
+} from './dto';
 import { User } from '@prisma/client';
 import { UserRole } from 'src/core/enums';
 import { join } from 'path';
@@ -13,6 +19,80 @@ import { QueryUserAdminDto } from './dto/query.admin.dto';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService, private jwtService: JwtService) { }
+
+  async getCurrentProfile(currentUser: { id: number }) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: currentUser.id },
+      include: {
+        profile: true,
+      },
+    });
+
+    if (!user || !user.isActive) {
+      throw new BadRequestException('User profile not found');
+    }
+
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      phone: user.phone,
+      avatarUrl: user.avatarUrl,
+      cefrLevel: user.cefrLevel,
+      email: user.profile?.email ?? null,
+      profile: {
+        language: user.profile?.language ?? 'UZ',
+        timezone: user.profile?.timezone ?? 'Asia/Tashkent',
+        dateOfBirth: user.profile?.dateOfBirth ?? null,
+        phone: user.phone,
+      },
+    };
+  }
+
+  async updateCurrentProfile(
+    currentUser: { id: number },
+    payload: UpdateCurrentProfileDto,
+  ) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: currentUser.id },
+      include: {
+        profile: true,
+      },
+    });
+
+    if (!existingUser || !existingUser.isActive) {
+      throw new BadRequestException('User profile not found');
+    }
+
+    const fullName = payload.fullName?.trim();
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: currentUser.id },
+      data: {
+        ...(fullName ? { fullName } : {}),
+      },
+      include: {
+        profile: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        id: updatedUser.id,
+        fullName: updatedUser.fullName,
+        phone: updatedUser.phone,
+        avatarUrl: updatedUser.avatarUrl,
+        cefrLevel: updatedUser.cefrLevel,
+        email: updatedUser.profile?.email ?? null,
+        profile: {
+          language: updatedUser.profile?.language ?? 'UZ',
+          timezone: updatedUser.profile?.timezone ?? 'Asia/Tashkent',
+          dateOfBirth: updatedUser.profile?.dateOfBirth ?? null,
+          phone: updatedUser.phone,
+        },
+      },
+    };
+  }
 
   async findAll(
     currentUser: { id: number; role: UserRole },

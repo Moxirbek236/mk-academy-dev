@@ -1,9 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Search, UserPlus, MoreVertical, Shield, GraduationCap, User, Filter } from 'lucide-react';
-import api from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import { fetchUsersCompat } from '@/lib/api-compat';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -17,10 +17,8 @@ export default function UsersPage() {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const res = await api.get('/users', {
-          params: { fullName: searchTerm }
-        });
-        setUsers(res.data?.data || res.data || []);
+        const data = await fetchUsersCompat(role, searchTerm);
+        setUsers(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -32,7 +30,7 @@ export default function UsersPage() {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm]);
+  }, [role, searchTerm]);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

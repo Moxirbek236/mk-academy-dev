@@ -1,6 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, Req, Put, ParseIntPipe } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto, QueryUserDto, QueryUserSuperAdminDto } from './dto';
+import {
+  CreateUserDto,
+  UpdateCurrentProfileDto,
+  UpdateUserDto,
+  QueryUserDto,
+  QueryUserSuperAdminDto,
+} from './dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UserRole } from 'src/core/enums';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -126,6 +132,20 @@ export class UserController {
   @Get()
   findAll(@Req() req: Request, @Query() query: QueryUserSuperAdminDto) {
     return this.userService.findAll(req['user'], query);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get current user profile' })
+  @Get('profile')
+  getProfile(@Req() req: Request) {
+    return this.userService.getCurrentProfile(req['user']);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Update current user profile' })
+  @Patch('profile')
+  updateProfile(@Req() req: Request, @Body() payload: UpdateCurrentProfileDto) {
+    return this.userService.updateCurrentProfile(req['user'], payload);
   }
 
   // @UseGuards(AuthGuard, RolesGuard)

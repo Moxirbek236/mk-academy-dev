@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from 'next-themes';
-import api from '@/lib/api';
+import { fetchCurrentUserProfile } from '@/lib/api-compat';
 import { localizePath } from '@/i18n/localizedPath';
 
 export default function SettingsPage() {
@@ -19,8 +19,8 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await api.get('/users/profile');
-        setProfile(res.data?.data || res.data);
+        const data = await fetchCurrentUserProfile();
+        setProfile(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -42,7 +42,7 @@ export default function SettingsPage() {
       items: [
         { icon: User, label: 'Profil sozlamalari', value: profile?.fullName || 'Yuklanmoqda...', path: '/settings/profile' },
         { icon: Mail, label: 'Email manzil', value: profile?.email || 'Yuklanmoqda...', path: '/settings/email' },
-        { icon: Phone, label: 'Telefon raqam', value: profile?.profile?.phone || '+998 -- --- -- --', path: '/settings/phone' },
+        { icon: Phone, label: 'Telefon raqam', value: profile?.phone || '+998 -- --- -- --', path: '/settings/phone' },
       ]
     },
     {
@@ -56,7 +56,7 @@ export default function SettingsPage() {
       title: 'TIZIM',
       items: [
         { icon: Bell, label: 'Bildirishnomalar', value: 'Hammasi yoqilgan', path: '/settings/notifications' },
-        { icon: Globe, label: 'Til (Language)', value: profile?.profile?.language === 'UZ' ? "O'zbekcha" : profile?.profile?.language || "O'zbekcha", path: '/settings/language' },
+        { icon: Globe, label: 'Til (Language)', value: profile?.language === 'UZ' ? "O'zbekcha" : profile?.language || "O'zbekcha", path: '/settings/language' },
         {
           icon: Moon,
           label: 'Tungi rejim',

@@ -1,11 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight, TrendingUp, Filter, Search, MoreVertical, CreditCard, Wallet, Activity, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/hooks/useAuth';
+import { fetchFinanceCompat } from '@/lib/api-compat';
 
 export default function FinancePage() {
   const t = useTranslations('Finance');
+  const { role } = useAuth();
   const [summary, setSummary] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,12 +15,9 @@ export default function FinancePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [sumRes, transRes] = await Promise.all([
-          api.get('/finance/summary'),
-          api.get('/finance/transactions')
-        ]);
-        setSummary(sumRes.data?.data || sumRes.data);
-        setTransactions(transRes.data?.data || transRes.data);
+        const data = await fetchFinanceCompat(role);
+        setSummary(data.summary);
+        setTransactions(data.transactions);
       } catch (err) {
         console.error(err);
       } finally {
@@ -26,7 +25,7 @@ export default function FinancePage() {
       }
     };
     fetchData();
-  }, []);
+  }, [role]);
 
   if (loading) return <div className="flex justify-center p-16 sm:p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 

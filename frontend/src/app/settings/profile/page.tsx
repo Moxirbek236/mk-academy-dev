@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, User, Mail, Shield, CheckCircle2, Loader2, Save } from 'lucide-react';
-import api from '@/lib/api';
+import { fetchCurrentUserProfile, updateCurrentUserProfile } from '@/lib/api-compat';
 
 export default function ProfileSettingsPage() {
   const router = useRouter();
@@ -15,8 +15,7 @@ export default function ProfileSettingsPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await api.get('/users/profile');
-        const data = res.data?.data || res.data;
+        const data = await fetchCurrentUserProfile();
         setProfile(data);
         setFullName(data.fullName);
       } catch (err) {
@@ -31,7 +30,9 @@ export default function ProfileSettingsPage() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await api.patch('/users/profile', { fullName });
+      const data = await updateCurrentUserProfile({ fullName });
+      setProfile(data);
+      setFullName(data.fullName);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
