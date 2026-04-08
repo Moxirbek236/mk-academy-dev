@@ -54,26 +54,28 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const hideNav = isPublicRoute;
 
   return (
-    <div className={`min-h-screen flex ${role === 'superadmin' ? 'bg-white' : 'bg-gray-50/50'}`}>
+    <div
+      className={`app-shell flex ${role === 'superadmin' ? 'bg-white' : 'bg-gray-50/50'}`}
+    >
       {!hideNav && <Sidebar role={role} />}
       
-      <div className={`flex-1 flex flex-col min-h-screen ${!hideNav ? 'lg:pl-72' : ''}`}>
+      <div className={`flex-1 flex min-h-screen-safe flex-col ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
         <OfflineStatusBanner />
-        <main className={`${!hideNav ? 'pt-24 lg:pt-12 pb-32 max-w-7xl mx-auto px-6 w-full' : ''}`}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
-      </main>
-      {!hideNav && <div className="lg:hidden"><BottomNav role={role} /></div>}
+        <main className={`w-full flex-1 ${!hideNav ? 'max-w-7xl mx-auto pb-nav-safe pt-10 lg:pt-12' : ''}`}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+        {!hideNav && <div className="lg:hidden"><BottomNav role={role} /></div>}
       </div>
       <GlobalApiNotice />
     </div>

@@ -55,7 +55,7 @@ export function GlobalApiNotice() {
   if (!notice || !view) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-24 left-1/2 z-[999] w-[92%] max-w-md -translate-x-1/2 lg:bottom-8">
+    <div className="pointer-events-none fixed bottom-[calc(var(--app-bottom-nav-height)+1.25rem+var(--app-safe-bottom))] left-1/2 z-[999] w-[92%] max-w-md -translate-x-1/2 lg:bottom-8">
       <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold shadow-lg ${view.className}`}>
         {view.icon}
         <span>{notice.message}</span>

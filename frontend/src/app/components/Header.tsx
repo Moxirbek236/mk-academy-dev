@@ -18,7 +18,7 @@ export function Header({ role }: HeaderProps) {
 
   return (
     <div
-      className={`relative z-0 overflow-hidden rounded-b-[40px] bg-gradient-to-br px-4 pb-7 pt-[calc(1rem+env(safe-area-inset-top))] text-white shadow-2xl sm:px-6 sm:pb-12 sm:pt-8 ${
+      className={`relative z-0 overflow-hidden rounded-b-[40px] bg-gradient-to-br px-safe pb-7 pt-[calc(1rem+var(--app-safe-top))] text-white shadow-2xl sm:px-6 sm:pb-12 sm:pt-8 ${
         isAdmin
           ? 'from-[#065f46] via-[#10b981] to-[#059669]'
           : 'from-[#064e3b] via-[#10b981] to-[#047857]'
