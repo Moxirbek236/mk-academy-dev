@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Phone, Lock, ArrowRight, Loader2, Home, Eye, EyeOff, Globe } from 'lucide-react';
@@ -8,7 +8,12 @@ import api from '@/lib/api';
 import { getUserFriendlyErrorMessage } from '@/lib/offline/errors';
 import { localizePath } from '@/i18n/localizedPath';
 
-function decodeJwtRole(token: string): string | null {
+type JwtPayload = {
+  role?: string;
+  exp?: number;
+};
+
+function decodeJwtPayload(token: string): JwtPayload | null {
   try {
     const parts = token.split('.');
     if (parts.length < 2) return null;
@@ -21,11 +26,28 @@ function decodeJwtRole(token: string): string | null {
         .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
         .join(''),
     );
-    const payload = JSON.parse(json) as { role?: string };
-    return payload.role?.toLowerCase() || null;
+    return JSON.parse(json) as JwtPayload;
   } catch {
     return null;
   }
+}
+
+function decodeJwtRole(token: string): string | null {
+  return decodeJwtPayload(token)?.role?.toLowerCase() || null;
+}
+
+function isTokenStillValid(token: string): boolean {
+  const payload = decodeJwtPayload(token);
+
+  if (!payload) {
+    return false;
+  }
+
+  if (!payload.exp) {
+    return true;
+  }
+
+  return payload.exp * 1000 > Date.now();
 }
 
 function extractLoginData(body: any): { token: string | null; role: string | null } {
@@ -55,8 +77,34 @@ export default function LoginPage() {
   const locale = useLocale();
   const [formData, setFormData] = useState({ phone: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setCheckingSession(false);
+      return;
+    }
+
+    if (!isTokenStillValid(token)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      setCheckingSession(false);
+      return;
+    }
+
+    const storedRole = localStorage.getItem('role');
+    const decodedRole = decodeJwtRole(token);
+
+    if (!storedRole && decodedRole) {
+      localStorage.setItem('role', decodedRole);
+    }
+
+    router.replace(localizePath(locale, '/'));
+  }, [locale, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +144,21 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen-safe flex items-center justify-center bg-[#F4FBF7] px-safe text-gray-900 dark:bg-slate-950 dark:text-slate-100">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-[#3D855A] shadow-xl shadow-[#3D855A]/20">
+            <Loader2 size={30} className="animate-spin text-white" />
+          </div>
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-gray-500">
+            Session tekshirilmoqda
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen-safe relative flex items-start justify-center overflow-hidden bg-[#F4FBF7] px-safe pb-safe pt-safe text-gray-900 dark:bg-slate-950 dark:text-slate-100 sm:items-center sm:p-6">
