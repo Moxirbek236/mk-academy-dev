@@ -33,6 +33,8 @@ jobs:
       - name: Build Next.js (Web)
         working-directory: ./frontend
         run: npm run build
+        env:
+          CAPACITOR_EXPORT: 'true'
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -42,7 +44,11 @@ jobs:
 
       - name: Sync Capacitor Android
         working-directory: ./frontend
-        run: npx cap sync android
+        run: |
+          if [ ! -f out/index.html ]; then
+            CAPACITOR_EXPORT=true npm run build
+          fi
+          npx cap sync android
 
       - name: Build APK (Debug)
         working-directory: ./frontend/android
@@ -83,10 +89,15 @@ jobs:
       - name: Build Next.js (Web)
         working-directory: ./frontend
         run: npm run build
+        env:
+          CAPACITOR_EXPORT: 'true'
 
       - name: Sync Capacitor iOS
         working-directory: ./frontend
         run: |
+          if [ ! -f out/index.html ]; then
+            CAPACITOR_EXPORT=true npm run build
+          fi
           export PATH="$(dirname $(which node)):$PATH"
           npx cap sync ios
 

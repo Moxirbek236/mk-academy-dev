@@ -37,11 +37,17 @@ jobs:
       - name: Build Next.js (Static Export - ${{ matrix.role }})
         run: npm run build
         env:
+          CAPACITOR_EXPORT: 'true'
           NEXT_PUBLIC_APP_ROLE: ${{ matrix.role }}
 
       - name: Capacitor Sync (${{ matrix.role }})
-        run: npx cap sync android
+        run: |
+          if [ ! -f out/index.html ]; then
+            CAPACITOR_EXPORT=true npm run build
+          fi
+          npx cap sync android
         env:
+          CAPACITOR_EXPORT: 'true'
           NEXT_PUBLIC_APP_ROLE: ${{ matrix.role }}
 
       - name: Setup Java

@@ -12,6 +12,8 @@ const withPWA = withPWAInit({
   disable: process.env.NODE_ENV === 'development',
 });
 
+const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true';
+
 if (typeof window === 'undefined') {
   // @ts-ignore
   delete global.localStorage;
@@ -21,6 +23,7 @@ if (typeof window === 'undefined') {
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  ...(isCapacitorExport ? { output: 'export' as const } : {}),
   images: {
     unoptimized: true,
   },
