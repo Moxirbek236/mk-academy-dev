@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "seed": "ts-node prisma/seed.ts",
     "prisma:generate": "prisma generate",
     "postinstall": "npm run prisma:generate",
     "build": "npm run prisma:generate && npx nest build",

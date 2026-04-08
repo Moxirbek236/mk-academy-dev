@@ -37,20 +37,20 @@ export class UserService {
         passwordHash: passHash,
         role: UserRole.TEACHER
       },
-      select:{
-        id:true,
-        fullName:true,
-        isActive:true,
-        phone:true,
-        avatarUrl:true,
-        role:true
+      select: {
+        id: true,
+        fullName: true,
+        isActive: true,
+        phone: true,
+        avatarUrl: true,
+        role: true
       }
     })
 
     await this.prisma.userProfile.create({
       data: {
         userId: user.id,
-        isActive:true
+        isActive: true
       }
     })
 
@@ -136,15 +136,23 @@ export class UserService {
   }
 
   async findAllSuperAdmin(query: QueryUserSuperAdminDto): Promise<User[]> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
     try {
       let users = await this.prisma.user.findMany({
-        where: {
-          
-        },
+        skip,
+        take: limit,
         include: {
-          groupsCreated: true
-        }
+          groupsCreated: true,
+          groupMemberships: {
+            include: {
+              group: true,
+            },
+          },
+        },
       });
+
 
       if (query.fullName) {
         const search = query.fullName.toLowerCase();
@@ -153,27 +161,41 @@ export class UserService {
         );
       }
 
+
       if (query.GroupName) {
         const groupSearch = query.GroupName.toLowerCase();
-        users = users.filter(user =>
-          user.groupsCreated.some(group =>
+        users = users.filter(user => {
+          // Teacher bo'lsa
+          const teacherMatch = user.groupsCreated?.some(group =>
             group.name.toLowerCase().includes(groupSearch),
-          ),
-        );
+          );
+
+
+          const studentMatch = user.groupMemberships?.some(m =>
+            m.group.name.toLowerCase().includes(groupSearch),
+          );
+
+          return teacherMatch || studentMatch;
+        });
       }
+
 
       if (query.user) {
         users = users.filter(user => user.role === query.user);
       }
 
+
       if (query.isActive !== undefined) {
         users = users.filter(user => user.isActive === query.isActive);
       }
 
+
       users = users.map(user => {
-        if (user.role === 'STUDENT' || user.role === 'TEACHER' || user.role === 'ADMIN') {
+        if (['STUDENT', 'TEACHER', 'ADMIN'].includes(user.role)) {
           return {
-            ...user, groupsCreated: []
+            ...user,
+            groupsCreated: [],
+            groupMemberships: [],
           };
         }
         return user;
@@ -192,11 +214,16 @@ export class UserService {
       let users = await this.prisma.user.findMany({
         where: {
           role: {
-            notIn: [UserRole.ADMIN, UserRole.SUPERADMIN]
+            notIn: [UserRole.ADMIN, UserRole.SUPERADMIN],
           },
         },
         include: {
-          groupsCreated: true
+          groupsCreated: true,
+          groupMemberships: {
+            include: {
+              group: true,
+            },
+          },
         },
       });
 
@@ -209,11 +236,18 @@ export class UserService {
 
       if (query.GroupName) {
         const groupSearch = query.GroupName.toLowerCase();
-        users = users.filter(user =>
-          user.groupsCreated.some(group =>
+
+        users = users.filter(user => {
+          const teacherMatch = user.groupsCreated?.some(group =>
             group.name.toLowerCase().includes(groupSearch),
-          ),
-        );
+          );
+
+          const studentMatch = user.groupMemberships?.some(m =>
+            m.group.name.toLowerCase().includes(groupSearch),
+          );
+
+          return teacherMatch || studentMatch;
+        });
       }
 
       if (query.user) {
@@ -225,15 +259,19 @@ export class UserService {
       }
 
       users = users.map(user => {
-        if (user.role === 'STUDENT' || user.role === 'TEACHER') {
-          return { ...user, groupsCreated: [] };
+        if (user.role === UserRole.STUDENT || user.role === UserRole.TEACHER) {
+          return {
+            ...user,
+            groupsCreated: [],
+            groupMemberships: [],
+          };
         }
         return user;
       });
 
       return users;
     } catch (err) {
-      console.error('findAllSuperAdmin error:', err);
+      console.error('findAllAdmin error:', err);
       throw new BadRequestException(
         'Invalid query parameters or database error',
       );
@@ -245,7 +283,15 @@ export class UserService {
       let users = await this.prisma.user.findMany({
         where: {
           isActive: true,
-          role: UserRole.TEACHER
+          role: UserRole.STUDENT,
+          groupMemberships: {
+            some: {
+              isActive: true,
+              group: {
+                teacherId: currentUser.id
+              }
+            }
+          }
         }
       });
 
