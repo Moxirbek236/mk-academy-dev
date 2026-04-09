@@ -34,37 +34,37 @@ export class GroupController {
   @Post()
   @ApiOperation({ summary: 'Create a new group' })
   @ApiResponse({ status: 201, description: 'Group created successfully.' })
-  create(@Req() req: any, @Body() dto: CreateGroupDto) {
-    return this.groupService.create(req['user'], dto);
+  create(@Body() dto: CreateGroupDto) {
+    return this.groupService.create(dto);
   }
 
   @UseGuards(AuthGuard)
   @Get()
   @ApiOperation({ summary: 'Get all groups' }) 
-  findAll(@Req() req: any, @Query('name') name?: string) {
-    return this.groupService.findAll(req['user'], name);
+  findAll(@Query('name') name?: string) {
+    return this.groupService.findAll(name);
   }
 
   @UseGuards(AuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Get group by ID' })
-  findOne(@Req() req: any, @Param('id') id: string) {
-    return this.groupService.findOne(+id, req['user']);
+  findOne(@Param('id') id: string) {
+    return this.groupService.findOne(+id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.TEACHER)
   @Patch(':id')
   @ApiOperation({ summary: 'Update group' })
-  update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateGroupDto) {
-    return this.groupService.update(+id, req['user'], dto);
+  update(@Param('id') id: string, @Body() dto: UpdateGroupDto) {
+    return this.groupService.update(+id, dto);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.TEACHER)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete group' })
-  remove(@Req() req: any, @Param('id') id: string) {
-    return this.groupService.remove(+id, req['user']);
+  remove(@Param('id') id: string) {
+    return this.groupService.remove(+id);
   }
 }
