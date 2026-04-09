@@ -1,124 +1,230 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { DollarSign, ArrowUpRight, ArrowDownRight, TrendingUp, Filter, Search, MoreVertical, CreditCard, Wallet, Activity, Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+
+import { useState } from 'react';
+import { ArrowDownRight, ArrowUpRight, DollarSign, Loader2, PlusCircle, Wallet } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { fetchFinanceCompat } from '@/lib/api-compat';
-import { isRoleAllowedForPath } from '@/lib/role-access';
+import { useFinance } from '@/hooks/useFinance';
+import { createFinanceTransaction, TRANSACTION_TYPES, type TransactionType } from '@/lib/backend-api';
+import { hasRoleCapability, isRoleAllowedForPath } from '@/lib/role-access';
+import {
+  PageEmptyState,
+  PageErrorState,
+  PageLoadingState,
+  PageShell,
+} from '@/app/components/ui/PagePrimitives';
+
+const EMPTY_FORM = {
+  userId: '',
+  amount: '',
+  type: 'INCOME' as TransactionType,
+  reason: '',
+};
 
 export default function FinancePage() {
-  const t = useTranslations('Finance');
   const { role, loading: authLoading } = useAuth();
-  const [summary, setSummary] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const canAccess = isRoleAllowedForPath('/finance', role);
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!canAccess) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchData = async () => {
-      try {
-        const data = await fetchFinanceCompat(role);
-        setSummary(data.summary);
-        setTransactions(data.transactions);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [authLoading, canAccess, role]);
+  const canManageFinance = hasRoleCapability(role, 'manage_finance');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const { data, loading, error, refetch } = useFinance(canAccess && !authLoading);
 
   if (!authLoading && !canAccess) return null;
 
-  if (loading) return <div className="flex justify-center p-16 sm:p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+  async function handleCreateTransaction() {
+    try {
+      setSubmitting(true);
+      setMutationError(null);
 
-  const totalTransactions = transactions.length;
+      await createFinanceTransaction({
+        userId: Number(form.userId),
+        amount: Number(form.amount),
+        type: form.type,
+        reason: form.reason,
+      });
+
+      setForm(EMPTY_FORM);
+      setIsFormOpen(false);
+      await refetch();
+    } catch (financeError) {
+      setMutationError(financeError instanceof Error ? financeError.message : "Tranzaksiyani yaratib bo'lmadi");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const summary = data.summary || { income: 0, expense: 0, balance: 0 };
+  const transactions = data.transactions || [];
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-nav-safe lg:pb-14">
-      <div className="mb-6 flex items-center justify-between px-1 sm:mb-8">
-        <h1 className="text-xl font-black tracking-tight text-gray-900 sm:text-2xl">{t('title')}</h1>
-        <button className="app-touch rounded-2xl bg-[#3D855A] p-3 text-white shadow-lg shadow-[#3D855A]/20 transition-all active:scale-90">
-          <TrendingUp size={20} strokeWidth={2.5} />
-        </button>
-      </div>
+    <PageShell
+      title="Finance"
+      subtitle={`Jami tranzaksiya: ${transactions.length} ta`}
+      action={
+        canManageFinance ? (
+          <button
+            onClick={() => setIsFormOpen(true)}
+            className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+          >
+            <PlusCircle size={20} strokeWidth={2.5} />
+          </button>
+        ) : undefined
+      }
+    >
+      {mutationError ? (
+        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          {mutationError}
+        </div>
+      ) : null}
 
-      {/* Balance Card - Premium Design */}
-      <div className="group relative mb-8 overflow-hidden rounded-[32px] border border-[#DCEEE3] bg-gradient-to-br from-[#ECF8F1] via-[#F7FCF9] to-white p-5 text-gray-900 shadow-sm dark:border-slate-700 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 sm:mb-10 sm:rounded-[40px] sm:p-8">
-         <div className="absolute top-[-40px] right-[-40px] w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl opacity-50 group-hover:scale-110 transition-transform duration-1000" />
-         <div className="relative z-10">
-            <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-               <Wallet size={12} /> {t('balanceLabel', { period: t('monthly') })}
-            </p>
-            <div className="mb-6 flex items-baseline gap-2 sm:mb-8">
-               <span className="text-3xl font-black tracking-tighter sm:text-4xl">{(summary?.balance || 0).toLocaleString()}</span>
-               <span className="text-sm font-bold text-gray-500 uppercase">UZS</span>
+      {loading ? (
+        <PageLoadingState title="Finance ma'lumotlari yuklanmoqda" description="Summary va transactionlar olinmoqda" />
+      ) : error ? (
+        <PageErrorState
+          title="Finance sahifasida xatolik"
+          description={error}
+          retryLabel="Qayta urinish"
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : (
+        <>
+          <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="app-card p-5">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[14px] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
+                <Wallet size={22} strokeWidth={2.5} />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Balance</p>
+              <p className="mt-2 text-2xl font-black tracking-tight text-[var(--app-text)]">
+                {Number(summary.balance || 0).toLocaleString()}
+              </p>
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-               <div className="flex items-center gap-3 rounded-3xl border border-[#E4F1EA] bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-                  <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl"><ArrowUpRight size={18} /></div>
-                  <div>
-                    <p className="text-[9px] font-black text-gray-500 tracking-wider">{t('income')}</p>
-                    <p className="text-sm font-black">+{(summary?.income || 0).toLocaleString()}</p>
-                  </div>
-               </div>
-               <div className="flex items-center gap-3 rounded-3xl border border-[#E4F1EA] bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-                  <div className="p-2 bg-red-100 text-red-500 rounded-xl"><ArrowDownRight size={18} /></div>
-                  <div>
-                    <p className="text-[9px] font-black text-gray-500 tracking-wider">{t('expense')}</p>
-                    <p className="text-sm font-black">-{(summary?.expense || 0).toLocaleString()}</p>
-                  </div>
-               </div>
+            <div className="app-card p-5">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[14px] bg-emerald-50 text-emerald-600">
+                <ArrowUpRight size={22} strokeWidth={2.5} />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Income</p>
+              <p className="mt-2 text-2xl font-black tracking-tight text-[var(--app-text)]">
+                {Number(summary.income || 0).toLocaleString()}
+              </p>
             </div>
-         </div>
-      </div>
-
-      <div className="mb-5 flex items-center justify-between px-2 sm:mb-6">
-         <h2 className="text-[12px] font-black text-gray-400 tracking-[0.15em] uppercase flex items-center gap-2">
-            <Activity size={16} className="text-[#3D855A]" /> {t('transactions')}
-         </h2>
-         <button className="text-[10px] font-black text-[#3D855A] hover:underline uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-full">
-           {t('history')}
-         </button>
-      </div>
-      <p className="px-2 -mt-3 mb-5 text-[11px] font-bold text-gray-400">
-        {t('transactionCount', { count: totalTransactions })}
-      </p>
-
-      <div className="grid grid-cols-1 gap-4 pb-10 md:grid-cols-2 md:gap-6">
-        {transactions.map((tx, idx) => (
-          <div key={idx} className="group flex cursor-default items-center gap-4 overflow-hidden rounded-[28px] border border-gray-100 bg-white p-4 shadow-sm transition-all hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] sm:gap-5 sm:rounded-[38px] sm:p-6">
-            <div className={`p-4 rounded-[24px] transition-all group-hover:rotate-[10deg] shrink-0 ${
-               tx.type === 'INCOME' ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'
-            }`}>
-               <CreditCard size={28} strokeWidth={2.5} />
-            </div>
-            <div className="flex-1 min-w-0">
-               <h3 className="truncate text-sm font-extrabold leading-tight tracking-tight text-[#111827] transition-transform group-hover:translate-x-1 sm:text-base">
-                 {tx.user?.fullName || t('systemTransaction')}
-               </h3>
-               <div className="flex items-center gap-3 mt-2 overflow-hidden">
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-gray-50 text-gray-500 tracking-tighter uppercase whitespace-nowrap">
-                    {tx.method || t('transfer')}
-                  </span>
-                  <p className="text-[11px] font-bold text-gray-400 tracking-tight whitespace-nowrap">{new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-               </div>
-            </div>
-            <div className="text-right shrink-0">
-              <p className={`text-base font-black tracking-tighter sm:text-lg ${
-                tx.type === 'INCOME' ? 'text-emerald-550' : 'text-red-500'
-              }`}>{tx.type === 'INCOME' ? '+' : '-'}{tx.amount?.toLocaleString()} UZS</p>
+            <div className="app-card p-5">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[14px] bg-red-50 text-red-600">
+                <ArrowDownRight size={22} strokeWidth={2.5} />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Expense</p>
+              <p className="mt-2 text-2xl font-black tracking-tight text-[var(--app-text)]">
+                {Number(summary.expense || 0).toLocaleString()}
+              </p>
             </div>
           </div>
-        ))}
-      </div>
-    </div>
+
+          {transactions.length === 0 ? (
+            <PageEmptyState title="Tranzaksiyalar topilmadi" description="Hali finance yozuvlari mavjud emas." />
+          ) : (
+            <div className="grid grid-cols-1 gap-4 pb-20">
+              {transactions.map((transaction: any) => (
+                <div key={transaction.id} className="app-card flex items-center gap-4 p-5">
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] ${transaction.type === 'INCOME' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                    {transaction.type === 'INCOME' ? (
+                      <ArrowUpRight size={20} strokeWidth={2.5} />
+                    ) : (
+                      <ArrowDownRight size={20} strokeWidth={2.5} />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-text)]">
+                      {transaction.user?.fullName || transaction.reason || 'System transaction'}
+                    </h3>
+                    <p className="mt-1 truncate text-[11px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
+                      {transaction.reason || 'No reason'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-base font-black tracking-tight text-[var(--app-text)]">
+                      {transaction.type === 'INCOME' ? '+' : '-'}
+                      {Number(transaction.amount || 0).toLocaleString()}
+                    </p>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      {transaction.type}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {isFormOpen ? (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-4">
+          <div className="w-full max-w-md rounded-[26px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">Yangi tranzaksiya</h3>
+                <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  CreateTransactionDto
+                </p>
+              </div>
+              <button onClick={() => setIsFormOpen(false)} className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)]">
+                <DollarSign size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <input
+                value={form.userId}
+                onChange={(event) => setForm((current) => ({ ...current, userId: event.target.value }))}
+                placeholder="User ID"
+                className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+              />
+              <input
+                value={form.amount}
+                onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))}
+                placeholder="Amount"
+                type="number"
+                className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+              />
+              <select
+                value={form.type}
+                onChange={(event) => setForm((current) => ({ ...current, type: event.target.value as TransactionType }))}
+                className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+              >
+                {TRANSACTION_TYPES.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <input
+                value={form.reason}
+                onChange={(event) => setForm((current) => ({ ...current, reason: event.target.value }))}
+                placeholder="Reason"
+                className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+              />
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => setIsFormOpen(false)}
+                className="flex-1 rounded-[16px] border border-[var(--app-border)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)]"
+              >
+                Bekor qilish
+              </button>
+              <button
+                onClick={() => void handleCreateTransaction()}
+                disabled={submitting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-[16px] bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white disabled:opacity-60"
+              >
+                {submitting ? <Loader2 size={14} className="animate-spin" /> : <PlusCircle size={14} />}
+                Saqlash
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </PageShell>
   );
 }

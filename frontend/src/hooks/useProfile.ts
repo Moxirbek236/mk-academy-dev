@@ -1,11 +1,11 @@
 'use client';
 
 import { useCallback } from 'react';
-import { fetchCurrentUserProfile } from '@/lib/api-compat';
+import { getCurrentProfile } from '@/lib/backend-api';
 import { useApiRequest } from '@/hooks/useApiRequest';
 
 export function useProfile(enabled = true) {
-  const request = useCallback(() => fetchCurrentUserProfile(), []);
+  const request = useCallback(() => getCurrentProfile(), []);
 
   return useApiRequest({
     enabled,

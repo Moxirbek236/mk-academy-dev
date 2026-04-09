@@ -23,16 +23,23 @@ export default function Dashboard() {
   if (loading || !token) return null;
 
   const currentRole = role?.toLowerCase();
+  let content;
 
   switch (currentRole) {
     case 'teacher':
     case 'mentor':
-      return <MentorDashboard />;
+      content = <MentorDashboard />;
+      break;
     case 'admin':
-      return <AdminDashboard />;
+      content = <AdminDashboard />;
+      break;
     case 'superadmin':
-      return <SuperadminDashboard />;
+      content = <SuperadminDashboard />;
+      break;
     default:
-      return <StudentDashboard />;
+      content = <StudentDashboard />;
+      break;
   }
+
+  return <div className="app-page pb-6 sm:pb-8">{content}</div>;
 }

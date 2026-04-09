@@ -1,18 +1,11 @@
 'use client';
 
 import { useCallback } from 'react';
-import api from '@/lib/api';
 import { useApiRequest } from '@/hooks/useApiRequest';
+import { listGroups } from '@/lib/backend-api';
 
 export function useGroups(searchTerm: string, enabled = true) {
-  const request = useCallback(async () => {
-    const trimmedSearch = searchTerm.trim();
-    const response = await api.get('/groups', {
-      params: trimmedSearch ? { name: trimmedSearch } : undefined,
-    });
-
-    return response.data?.data ?? response.data ?? [];
-  }, [searchTerm]);
+  const request = useCallback(() => listGroups(searchTerm), [searchTerm]);
 
   return useApiRequest({
     enabled,

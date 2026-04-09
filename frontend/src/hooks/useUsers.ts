@@ -1,11 +1,31 @@
 'use client';
 
 import { useCallback } from 'react';
-import { fetchUsersCompat } from '@/lib/api-compat';
+import { listUsers, type UserListQuery } from '@/lib/backend-api';
 import { useApiRequest } from '@/hooks/useApiRequest';
 
-export function useUsers(role: string | null, searchTerm: string, enabled = true) {
-  const request = useCallback(() => fetchUsersCompat(role, searchTerm), [role, searchTerm]);
+export function useUsers(
+  role: string | null,
+  query: UserListQuery,
+  enabled = true,
+  strategy: 'scoped' | 'role-specific' = 'role-specific',
+) {
+  const request = useCallback(
+    () =>
+      listUsers(
+        role,
+        {
+          page: query.page || 1,
+          limit: query.limit || 20,
+          fullName: query.fullName,
+          GroupName: query.GroupName,
+          user: query.user,
+          isActive: query.isActive,
+        },
+        strategy,
+      ),
+    [query.GroupName, query.fullName, query.isActive, query.limit, query.page, query.user, role, strategy],
+  );
 
   return useApiRequest({
     enabled,

@@ -1,25 +1,36 @@
 'use client';
 import { LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
 import { getNavigationConfig } from '@/lib/navigation-config';
+import { clearStoredAuth } from '@/lib/auth-storage';
+import { useSystemHealth } from '@/hooks/useSystemStats';
 
 interface SidebarProps {
   role?: string | null;
 }
 
 export function Sidebar({ role }: SidebarProps) {
+  const router = useRouter();
   const t = useTranslations('Sidebar');
   const commonT = useTranslations('Common');
   const locale = useLocale();
   const pathname = usePathname() || '/';
   const normalizedPathname = stripLocaleFromPathname(pathname);
   const navItems = getNavigationConfig(role, 'sidebar');
+  const { data: health } = useSystemHealth(true);
+  const systemHealthy = ['ok', 'healthy'].includes(String(health?.status || '').toLowerCase());
+
+  function handleLogout() {
+    void clearStoredAuth().finally(() => {
+      router.push(localizePath(locale, '/landing'));
+    });
+  }
 
   return (
     <div className="fixed left-0 top-0 z-[60] hidden h-screen w-72 flex-col border-r border-[var(--app-border)] bg-[var(--app-surface)] shadow-[8px_0_24px_-24px_rgba(15,23,42,0.35)] lg:flex">
@@ -76,14 +87,17 @@ export function Sidebar({ role }: SidebarProps) {
       <div className="p-6 mt-auto">
         <div className="mb-6 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-5">
           <p className="mb-1.5 text-center text-[10px] font-black uppercase tracking-widest leading-none text-[var(--app-primary)]">
-            {commonT('systemStatus')}
+            {systemHealthy ? t('statusHealthy') : commonT('systemStatus')}
           </p>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_14%,transparent)]">
-             <div className="h-full w-4/5 rounded-full bg-[var(--app-primary)]" />
+             <div className={`h-full rounded-full ${systemHealthy ? 'w-full bg-[var(--app-primary)]' : 'w-2/5 bg-amber-500'}`} />
           </div>
         </div>
         
-        <button className="w-full flex items-center gap-4 px-6 py-4 text-[13px] font-extrabold text-red-500 transition-all group rounded-[16px] hover:bg-red-50 dark:hover:bg-red-950/20">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-4 px-6 py-4 text-[13px] font-extrabold text-red-500 transition-all group rounded-[16px] hover:bg-red-50 dark:hover:bg-red-950/20"
+        >
           <LogOut size={20} className="group-hover:translate-x-1 transition-transform" />
           {commonT('logout')}
         </button>

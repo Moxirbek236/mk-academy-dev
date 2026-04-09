@@ -1,14 +1,11 @@
 'use client';
 
 import { useCallback } from 'react';
-import api from '@/lib/api';
 import { useApiRequest } from '@/hooks/useApiRequest';
+import { getDashboardStats } from '@/lib/backend-api';
 
 export function useDashboard(enabled = true) {
-  const request = useCallback(async () => {
-    const response = await api.get('/dashboard/stats');
-    return response.data?.data ?? response.data ?? null;
-  }, []);
+  const request = useCallback(() => getDashboardStats(), []);
 
   return useApiRequest({
     enabled,

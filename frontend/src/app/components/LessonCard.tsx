@@ -17,7 +17,7 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
   return (
     <button 
       onClick={isDone ? onClick : undefined}
-      className={`w-full text-left bg-white rounded-2xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100/50 flex items-start gap-4 transition-all ${isDone ? 'active:scale-[0.98] cursor-pointer hover:border-gray-200' : 'opacity-75 cursor-not-allowed'}`}
+      className={`w-full text-left bg-white rounded-2xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100/50 flex items-start gap-4 transition-all sm:p-5 ${isDone ? 'active:scale-[0.98] cursor-pointer hover:border-gray-200' : 'opacity-75 cursor-not-allowed'}`}
     >
       {/* Icon */}
       <div className={`p-3 rounded-[14px] shrink-0 border ${
@@ -30,13 +30,13 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
       
       {/* Content */}
       <div className="flex-1 min-w-0 flex flex-col pt-1">
-        <div className="flex justify-between items-start w-full">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h4 className="font-extrabold text-gray-900 text-base leading-tight tracking-tight">{t('unit', { unit })}</h4>
             <p className="text-[13px] text-gray-500 mt-1 font-medium">{title}</p>
           </div>
           {/* Badge */}
-          <div className={`text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border shrink-0 ml-2 shadow-sm ${
+          <div className={`self-start text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border shrink-0 shadow-sm sm:ml-2 ${
             isDone
               ? 'bg-[#F2F8F5] text-[#3D855A] border-[#DCEFE5]'
               : 'bg-[#F4F6F5] text-[#71877C] border-[#E5EAE7]'

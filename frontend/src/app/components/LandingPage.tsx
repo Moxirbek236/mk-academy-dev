@@ -19,7 +19,7 @@ import {
   PenTool,
   MessageCircle,
 } from 'lucide-react';
-import api from '@/lib/api';
+import { createLead } from '@/lib/backend-api';
 import { localizePath } from '@/i18n/localizedPath';
 
 export function LandingPage() {
@@ -32,7 +32,7 @@ export function LandingPage() {
     e.preventDefault();
     try {
       setStatus('loading');
-      await api.post('/leads', formData);
+      await createLead(formData);
       setStatus('success');
       setFormData({ fullName: '', phone: '', message: '' });
     } catch (err) {
