@@ -39,7 +39,7 @@ type CreateRole = 'ADMIN' | 'TEACHER' | 'STUDENT';
 const ROLE_BADGES: Record<string, string> = {
   SUPERADMIN: 'bg-red-50 text-red-600',
   ADMIN: 'bg-amber-50 text-amber-600',
-  TEACHER: 'bg-emerald-50 text-emerald-600',
+  TEACHER: 'bg-blue-50 text-blue-600',
   STUDENT: 'bg-blue-50 text-blue-600',
 };
 
@@ -216,7 +216,7 @@ export default function UsersPage() {
               </button>
               <button
                 onClick={() => setActiveFilter(true)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === true ? 'bg-emerald-50 text-emerald-700' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+                className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === true ? 'bg-blue-50 text-blue-700' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
               >
                 Faol
               </button>
@@ -274,7 +274,7 @@ export default function UsersPage() {
                     ) : null}
                     <span
                       className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${
-                        user.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                        user.isActive ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'
                       }`}
                     >
                       {user.isActive ? 'ACTIVE' : 'INACTIVE'}
@@ -296,7 +296,7 @@ export default function UsersPage() {
                   <button
                     onClick={() => void handleToggleActive(user)}
                     className={`flex items-center justify-center gap-2 rounded-[14px] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 ${
-                      user.isActive ? 'bg-red-500' : 'bg-emerald-500'
+                      user.isActive ? 'bg-red-500' : 'bg-blue-500'
                     }`}
                   >
                     {user.isActive ? <XCircle size={14} /> : <CheckCircle2 size={14} />}

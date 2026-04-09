@@ -168,7 +168,7 @@ export default function CoursesPage() {
                     <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                       {course.level}
                     </span>
-                    <span className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${course.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                    <span className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${course.isActive ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'}`}>
                       {course.isActive ? 'ACTIVE' : 'INACTIVE'}
                     </span>
                   </div>

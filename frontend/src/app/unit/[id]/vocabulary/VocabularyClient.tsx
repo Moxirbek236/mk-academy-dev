@@ -72,7 +72,7 @@ export default function VocabularyClient() {
     setTimeout(() => setPlaying(null), 1000);
   };
 
-  if (authLoading || loadingWords) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+  if (authLoading || loadingWords) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#2563eb]" size={40} /></div>;
 
   if (role !== 'student') {
     return (
@@ -82,11 +82,11 @@ export default function VocabularyClient() {
         </div>
         <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tighter uppercase">Ruxsat Taqiqlangan</h2>
         <p className="text-gray-500 font-bold px-12 mb-10 leading-relaxed text-sm">
-          Leksika va darsliklar faqat <span className="text-[#3D855A]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
+          Leksika va darsliklar faqat <span className="text-[#2563eb]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
         </p>
         <button 
           onClick={() => router.push('/')}
-          className="bg-[#3D855A] text-white font-black py-4 px-10 rounded-[24px] shadow-xl shadow-[#3D855A]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
+          className="bg-[#2563eb] text-white font-black py-4 px-10 rounded-[24px] shadow-xl shadow-[#2563eb]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
         >
           <ArrowLeft size={16} strokeWidth={3} /> Portalga Qaytish
         </button>
@@ -106,7 +106,7 @@ export default function VocabularyClient() {
         </button>
         <div className="flex-1">
           <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">Unit {id} Words</h2>
-          <p className="text-xs font-bold text-[#3D855A] uppercase tracking-wider mt-0.5">{filteredWords.length} ta so&apos;z</p>
+          <p className="text-xs font-bold text-[#2563eb] uppercase tracking-wider mt-0.5">{filteredWords.length} ta so&apos;z</p>
         </div>
       </div>
 
@@ -118,7 +118,7 @@ export default function VocabularyClient() {
           placeholder="Qidirish..." 
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
-          className="w-full bg-white border border-gray-200 rounded-[20px] py-3.5 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] focus:ring-4 focus:ring-[#3D855A]/10 transition-all shadow-sm"
+          className="w-full bg-white border border-gray-200 rounded-[20px] py-3.5 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#2563eb] focus:ring-4 focus:ring-[#2563eb]/10 transition-all shadow-sm"
         />
       </div>
 
@@ -127,15 +127,15 @@ export default function VocabularyClient() {
         {filteredWords.length > 0 ? filteredWords.map((word, idx) => (
           <div 
             key={word.id} 
-            className="group bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
+            className="group bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#2563eb]/30 hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
           >
             {/* Play Button */}
             <button 
               onClick={(e) => { e.stopPropagation(); handlePlay(idx); }}
               className={`p-4 rounded-[22px] shrink-0 transition-all active:scale-90 shadow-inner ${
                 playing === idx 
-                  ? 'bg-[#3D855A] text-white shadow-xl scale-110 rotate-6' 
-                  : 'bg-[#F2F8F5] text-[#3D855A] group-hover:bg-[#3D855A] group-hover:text-white'
+                  ? 'bg-[#2563eb] text-white shadow-xl scale-110 rotate-6' 
+                  : 'bg-[#eff6ff] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white'
               }`}
             >
               <Volume2 size={24} strokeWidth={2.5} className={playing === idx ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'} />

@@ -20,8 +20,8 @@ export function Header({ role }: HeaderProps) {
     <div
       className={`relative z-0 overflow-hidden border-b border-[var(--app-border)] px-safe pb-6 pt-[calc(1rem+var(--app-safe-top))] shadow-sm sm:px-6 sm:pt-7 ${
         isAdmin
-          ? 'bg-[linear-gradient(180deg,rgba(47,122,87,0.12),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(87,162,125,0.18),rgba(19,32,44,0.98))]'
-          : 'bg-[linear-gradient(180deg,rgba(47,122,87,0.10),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(87,162,125,0.16),rgba(19,32,44,0.98))]'
+          ? 'bg-[linear-gradient(180deg,rgba(37,99,235,0.12),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(96,165,250,0.18),rgba(19,32,44,0.98))]'
+          : 'bg-[linear-gradient(180deg,rgba(37,99,235,0.10),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(96,165,250,0.16),rgba(19,32,44,0.98))]'
       }`}
     >
       <div className="relative z-10">

@@ -61,7 +61,7 @@ export default function TasksClient() {
           particleCount: 150,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#3D855A', '#10B981', '#ffffff']
+          colors: ['#2563eb', '#60a5fa', '#ffffff']
         });
       }
     } else {
@@ -70,7 +70,7 @@ export default function TasksClient() {
     }
   };
 
-  if (authLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+  if (authLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#2563eb]" size={40} /></div>;
 
   if (role !== 'student') {
     return (
@@ -84,11 +84,11 @@ export default function TasksClient() {
         </motion.div>
         <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tighter uppercase">Ruxsat Taqiqlangan</h2>
         <p className="text-gray-500 font-bold px-12 mb-10 leading-relaxed text-sm">
-          Tests va vazifalar faqat <span className="text-[#3D855A]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
+          Tests va vazifalar faqat <span className="text-[#2563eb]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
         </p>
         <button 
           onClick={() => router.push(localizePath(locale, '/'))}
-          className="bg-[#3D855A] text-white font-black py-4 px-10 rounded-[28px] shadow-xl shadow-[#3D855A]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
+          className="bg-[#2563eb] text-white font-black py-4 px-10 rounded-[28px] shadow-xl shadow-[#2563eb]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
         >
           <ArrowLeft size={16} strokeWidth={3} /> Portalga Qaytish
         </button>
@@ -102,21 +102,21 @@ export default function TasksClient() {
         <motion.div 
           initial={{ scale: 0, rotate: -20 }}
           animate={{ scale: 1, rotate: 0 }}
-          className="w-32 h-32 bg-emerald-50 text-emerald-500 rounded-[48px] flex items-center justify-center shadow-2xl shadow-emerald-500/20 border-4 border-white mb-8 relative"
+          className="w-32 h-32 bg-blue-50 text-blue-500 rounded-[48px] flex items-center justify-center shadow-2xl shadow-blue-500/20 border-4 border-white mb-8 relative"
         >
           <Trophy size={64} strokeWidth={2.5} className="z-10" />
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: 'linear' }} className="absolute inset-0 border-4 border-dashed border-emerald-200 rounded-[48px]" />
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: 'linear' }} className="absolute inset-0 border-4 border-dashed border-blue-200 rounded-[48px]" />
         </motion.div>
         
         <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tighter">Perfect Score!</h2>
         <p className="text-gray-500 font-bold max-w-xs mb-10 leading-relaxed">
-          Tabriklaymiz! Siz <span className="text-[#3D855A]">Unit {id}</span> bo&apos;yicha barcha vazifalarni 100% natija bilan yakunladingiz. +50 XP kiritildi.
+          Tabriklaymiz! Siz <span className="text-[#2563eb]">Unit {id}</span> bo&apos;yicha barcha vazifalarni 100% natija bilan yakunladingiz. +50 XP kiritildi.
         </p>
 
         <div className="flex flex-col w-full gap-4 max-w-xs">
           <button 
             onClick={() => router.push(localizePath(locale, '/'))}
-            className="w-full bg-[#3D855A] text-white font-black py-5 rounded-[32px] shadow-xl shadow-[#3D855A]/30 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
+            className="w-full bg-[#2563eb] text-white font-black py-5 rounded-[32px] shadow-xl shadow-[#2563eb]/30 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
           >
             Darslarga qaytish <ChevronRight size={18} strokeWidth={3} />
           </button>
@@ -137,10 +137,10 @@ export default function TasksClient() {
   return (
     <div className="mx-auto max-w-2xl px-1 pb-[calc(14rem+env(safe-area-inset-bottom))] lg:pt-6">
       <div className="pointer-events-none fixed inset-0 z-[70] opacity-[0.18] [mask-image:radial-gradient(circle_at_center,black,transparent_78%)]">
-        <div className="absolute inset-x-[-20%] top-[18%] -rotate-[18deg] text-center text-[18px] font-black uppercase tracking-[0.45em] text-emerald-900/70">
+        <div className="absolute inset-x-[-20%] top-[18%] -rotate-[18deg] text-center text-[18px] font-black uppercase tracking-[0.45em] text-blue-900/70">
           {watermarkText}
         </div>
-        <div className="absolute inset-x-[-20%] top-[58%] rotate-[16deg] text-center text-[18px] font-black uppercase tracking-[0.45em] text-emerald-900/60">
+        <div className="absolute inset-x-[-20%] top-[58%] rotate-[16deg] text-center text-[18px] font-black uppercase tracking-[0.45em] text-blue-900/60">
           {watermarkText}
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function TasksClient() {
             className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/96 px-6 text-center text-white backdrop-blur-md"
           >
             <div className="max-w-md rounded-[36px] border border-white/10 bg-white/5 p-8 shadow-2xl">
-              <p className="text-[11px] font-black uppercase tracking-[0.35em] text-emerald-300">
+              <p className="text-[11px] font-black uppercase tracking-[0.35em] text-blue-300">
                 Privacy Shield
               </p>
               <h3 className="mt-4 text-3xl font-black tracking-tight">
@@ -178,7 +178,7 @@ export default function TasksClient() {
         </button>
         <div className="flex-1">
            <div className="flex items-center justify-between mb-3 px-1">
-              <span className="text-[11px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-[0.1em] flex items-center gap-1.5">
+              <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-[0.1em] flex items-center gap-1.5">
                 <Sparkles size={12} fill="currentColor" /> Quiz Mode
               </span>
               <span className="text-[12px] font-black text-gray-300 tracking-tighter">PROGRESS: {Math.round(progressPercentage)}%</span>
@@ -187,7 +187,7 @@ export default function TasksClient() {
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercentage}%` }}
-                className="h-full bg-gradient-to-r from-emerald-400 to-[#3D855A] rounded-full shadow-[0_0_15px_rgba(61,133,90,0.4)]"
+                className="h-full bg-gradient-to-r from-blue-400 to-[#2563eb] rounded-full shadow-[0_0_15px_rgba(37,99,235,0.35)]"
               />
            </div>
         </div>
@@ -205,7 +205,7 @@ export default function TasksClient() {
           <div className="group relative mb-6 rounded-[34px] border border-gray-100 bg-white p-6 shadow-2xl shadow-gray-200/50 sm:mb-8 sm:rounded-[48px] sm:p-10">
             <div className="absolute right-6 top-5 text-amber-500 transition-transform group-hover:rotate-12 sm:right-10 sm:top-8"><Star size={24} fill="currentColor" /></div>
             <div className="mb-6 flex items-center gap-3 sm:mb-8 sm:gap-4">
-               <div className="w-12 h-12 rounded-[22px] bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xl shadow-inner">
+               <div className="w-12 h-12 rounded-[22px] bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl shadow-inner">
                   {currentStep + 1}
                </div>
                <span className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-400 sm:text-[11px] sm:tracking-[0.2em]">
@@ -215,7 +215,7 @@ export default function TasksClient() {
             <h3 className="px-1 text-[24px] font-extrabold leading-tight tracking-tight text-[#111827] sm:text-[28px] md:text-[32px]">
               {questions[currentStep].q.split('"').map((part, i) => (
                 i % 2 === 1 
-                  ? <span key={i} className="text-[#3D855A] border-b-4 border-emerald-100 pb-1 rounded-sm">"{part}"</span> 
+                  ? <span key={i} className="text-[#2563eb] border-b-4 border-blue-100 pb-1 rounded-sm">"{part}"</span> 
                   : <span key={i}>{part}</span>
               ))}
             </h3>
@@ -236,20 +236,20 @@ export default function TasksClient() {
                     setIsWrong(idx !== questions[currentStep].correct);
                   }}
                   className={`group relative flex items-center justify-between overflow-hidden rounded-[30px] border-[3px] p-5 text-left transition-all sm:rounded-[38px] sm:p-7
-                    ${isSelected && isCorrectOption ? 'border-emerald-500 bg-emerald-50/50 shadow-xl shadow-emerald-500/10' : ''}
+                    ${isSelected && isCorrectOption ? 'border-blue-500 bg-blue-50/50 shadow-xl shadow-blue-500/10' : ''}
                     ${isSelected && !isCorrectOption ? 'border-red-400 bg-red-50 text-red-600 shadow-xl shadow-red-500/10 animate-shake' : ''}
-                    ${!isSelected ? 'border-gray-100 bg-white text-gray-800 hover:border-[#3D855A]/30 hover:bg-emerald-50/20 active:scale-95' : ''}
+                    ${!isSelected ? 'border-gray-100 bg-white text-gray-800 hover:border-[#2563eb]/30 hover:bg-blue-50/20 active:scale-95' : ''}
                   `}
                 >
                   <div className="flex items-center gap-5 relative z-10">
                      <span className={`flex h-8 w-8 items-center justify-center rounded-xl border-2 text-sm font-black transition-all ${isSelected ? 'border-transparent bg-white' : 'border-gray-100 bg-gray-50 group-hover:bg-white'}`}>{idx + 1}</span>
-                     <span className={`text-base font-black md:text-lg ${isSelected && isCorrectOption ? 'text-emerald-700' : ''}`}>{option}</span>
+                     <span className={`text-base font-black md:text-lg ${isSelected && isCorrectOption ? 'text-blue-700' : ''}`}>{option}</span>
                   </div>
                   
                   <div className="relative z-10 shrink-0">
-                    {isSelected && isCorrectOption && <CheckCircle2 size={28} strokeWidth={3.5} className="text-emerald-500" />}
+                    {isSelected && isCorrectOption && <CheckCircle2 size={28} strokeWidth={3.5} className="text-blue-500" />}
                     {isSelected && !isCorrectOption && <AlertCircle size={28} strokeWidth={3.5} className="text-red-400" />}
-                    {!isSelected && <div className="w-8 h-8 rounded-full border-[3px] border-gray-100 group-hover:border-emerald-200 transition-colors bg-gray-50" />}
+                    {!isSelected && <div className="w-8 h-8 rounded-full border-[3px] border-gray-100 group-hover:border-blue-200 transition-colors bg-gray-50" />}
                   </div>
                 </motion.button>
               );
@@ -277,18 +277,18 @@ export default function TasksClient() {
                  animate={{ opacity: 1, y: 0 }}
                  exit={{ opacity: 0, y: 100 }}
                  className={`relative flex w-full max-w-2xl flex-col gap-4 overflow-hidden rounded-[34px] border-b-2 border-t-4 bg-white/95 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.15)] backdrop-blur-3xl sm:gap-6 sm:rounded-[48px] sm:p-7 ${
-                    isCorrect ? 'bg-white/95 border-emerald-500 border-b-emerald-50' : 'bg-white/95 border-red-500 border-b-red-50'
+                    isCorrect ? 'bg-white/95 border-blue-500 border-b-blue-50' : 'bg-white/95 border-red-500 border-b-red-50'
                  }`}
                >
                   {/* Decorative blur */}
-                  <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-[40px] opacity-10 ${isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                  <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-[40px] opacity-10 ${isCorrect ? 'bg-blue-500' : 'bg-red-500'}`} />
                   
                   <div className="relative z-10 flex items-center gap-3 sm:gap-5">
-                     <div className={`rounded-[20px] p-3.5 shadow-inner sm:rounded-[26px] sm:p-5 ${isCorrect ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
+                     <div className={`rounded-[20px] p-3.5 shadow-inner sm:rounded-[26px] sm:p-5 ${isCorrect ? 'bg-blue-50 text-blue-500' : 'bg-red-50 text-red-500'}`}>
                         {isCorrect ? <Sparkles size={26} strokeWidth={2.5} /> : <AlertCircle size={26} strokeWidth={2.5} />}
                      </div>
                      <div className="flex-1 min-w-0">
-                        <p className={`text-lg font-black tracking-tight sm:text-xl ${isCorrect ? 'text-emerald-600' : 'text-red-500'}`}>
+                        <p className={`text-lg font-black tracking-tight sm:text-xl ${isCorrect ? 'text-blue-600' : 'text-red-500'}`}>
                            {isCorrect ? 'Barakalla! To&apos;g&apos;ri javob.' : 'Xato! Diqqatli bo&apos;ling.'}
                         </p>
                         <p className="text-[13px] font-bold text-gray-500 line-clamp-1">{questions[currentStep].fact}</p>
@@ -298,7 +298,7 @@ export default function TasksClient() {
                     onClick={handleNext}
                     disabled={!isCorrect}
                     className={`group relative w-full rounded-[28px] py-4 text-[11px] font-black uppercase tracking-[0.22em] transition-all shadow-2xl sm:rounded-[32px] sm:py-5 sm:text-sm sm:tracking-[0.25em] ${
-                       isCorrect ? 'bg-[#3D855A] text-white shadow-[#3D855A]/30 active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed shadow-none'
+                       isCorrect ? 'bg-[#2563eb] text-white shadow-[#2563eb]/30 active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed shadow-none'
                     }`}
                   >
                      <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />

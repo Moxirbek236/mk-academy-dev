@@ -62,7 +62,7 @@ export default function SystemPage() {
           <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div className="app-card p-5">
               <div className="mb-4 flex items-center gap-3">
-                <div className={`rounded-[14px] p-3 ${health?.database === 'connected' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                <div className={`rounded-[14px] p-3 ${health?.database === 'connected' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'}`}>
                   <ShieldCheck size={20} strokeWidth={2.5} />
                 </div>
                 <div>

@@ -86,20 +86,20 @@ export default function ProfileSettingsPage() {
         </div>
       </div>
 
-      <div className="mb-8 flex flex-col gap-8 rounded-[34px] border border-[#E8F3ED] bg-white p-5 shadow-sm shadow-[#F2F8F5] sm:rounded-[42px] sm:p-8">
+      <div className="mb-8 flex flex-col gap-8 rounded-[34px] border border-[#dbeafe] bg-white p-5 shadow-sm shadow-[#eff6ff] sm:rounded-[42px] sm:p-8">
         <div className="flex flex-col items-center gap-5">
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-tr from-[#3D855A] to-[#83D1A5] flex items-center justify-center text-white text-3xl sm:text-4xl font-black shadow-lg shadow-[#3D855A]/20">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-tr from-[#2563eb] to-[#60a5fa] flex items-center justify-center text-white text-3xl sm:text-4xl font-black shadow-lg shadow-[#2563eb]/20">
             {(fullName || normalizedProfile.fullName || 'U').charAt(0)}
           </div>
         </div>
 
         <div className="flex flex-col gap-6 w-full max-w-md mx-auto">
           <div className="flex flex-col gap-2.5">
-            <label className="text-[10px] font-black text-[#3D855A] uppercase tracking-widest px-2">TO&apos;LIQ ISM</label>
+            <label className="text-[10px] font-black text-[#2563eb] uppercase tracking-widest px-2">TO&apos;LIQ ISM</label>
             <input
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
-              className="w-full bg-[#F2F8F5]/50 border border-[#D5EAE0] rounded-[24px] py-4 px-6 text-sm sm:text-base font-black text-gray-900 focus:outline-none focus:border-[#3D855A] focus:ring-4 focus:ring-[#3D855A]/10 transition-all placeholder:text-gray-400"
+              className="w-full bg-[#eff6ff]/50 border border-[#bfdbfe] rounded-[24px] py-4 px-6 text-sm sm:text-base font-black text-gray-900 focus:outline-none focus:border-[#2563eb] focus:ring-4 focus:ring-[#2563eb]/10 transition-all placeholder:text-gray-400"
               placeholder="Ismingizni kiriting"
             />
           </div>
@@ -122,7 +122,7 @@ export default function ProfileSettingsPage() {
         onClick={() => void handleSave()}
         disabled={saving}
         className={`mx-auto flex w-full max-w-md items-center justify-center gap-3 rounded-[30px] p-4 font-black tracking-tight text-white shadow-xl transition-all hover:-translate-y-1 active:scale-[0.98] sm:rounded-[34px] sm:p-5 ${
-          success ? 'bg-[#10B981] shadow-[#10B981]/20' : 'bg-[#3D855A] hover:bg-[#2A6642] shadow-[#3D855A]/30'
+          success ? 'bg-[#2563eb] shadow-[#2563eb]/20' : 'bg-[#2563eb] hover:bg-[#1d4ed8] shadow-[#2563eb]/30'
         }`}
       >
         {saving ? <Save size={20} className="animate-pulse" /> : success ? <CheckCircle2 size={20} /> : <Save size={20} />}

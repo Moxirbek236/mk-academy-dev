@@ -158,7 +158,7 @@ export default function LeadsPage() {
                 </button>
                 <button
                   onClick={() => void handleStatusChange(lead.id, 'ENROLLED')}
-                  className="flex items-center justify-center gap-2 rounded-[14px] bg-emerald-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                  className="flex items-center justify-center gap-2 rounded-[14px] bg-blue-600 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
                 >
                   <CheckCircle2 size={14} />
                   Enrolled

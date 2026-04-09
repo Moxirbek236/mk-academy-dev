@@ -27,7 +27,7 @@ export default function LearningPage() {
       <div className="flex items-center justify-between mb-8 px-1">
         <div>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 tracking-tight flex items-center gap-2">
-            <Sparkles size={12} className="text-[#3D855A]" /> Sizning kurslaringiz
+            <Sparkles size={12} className="text-[#2563eb]" /> Sizning kurslaringiz
           </p>
         </div>
         <div className="flex items-center gap-2 bg-amber-50 text-amber-600 px-4 py-2 rounded-2xl border border-amber-100 shadow-sm">
@@ -43,7 +43,7 @@ export default function LearningPage() {
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
           placeholder="Mavzu yoki dars bo'yicha qidirish..."
-          className="w-full bg-white border border-gray-100 rounded-[24px] py-4 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
+          className="w-full bg-white border border-gray-100 rounded-[24px] py-4 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#2563eb] transition-all shadow-sm"
         />
       </div>
 
@@ -65,11 +65,11 @@ export default function LearningPage() {
               <div
                 key={course.id}
                 onClick={() => course.isActive !== false && router.push(`/course/${course.id}`)}
-                className={`bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group overflow-hidden cursor-pointer ${
+                className={`bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#2563eb]/30 hover:shadow-xl active:scale-[0.98] transition-all group overflow-hidden cursor-pointer ${
                   course.isActive === false ? 'opacity-60 grayscale cursor-not-allowed' : ''
                 }`}
               >
-                <div className="w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-xl transition-all shadow-inner bg-[#F2F8F5] text-[#3D855A] group-hover:bg-[#3D855A] group-hover:text-white group-hover:rotate-6 shrink-0">
+                <div className="w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-xl transition-all shadow-inner bg-[#eff6ff] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white group-hover:rotate-6 shrink-0">
                   {course.isActive === false ? <Lock size={24} strokeWidth={2.5} /> : <BookOpen size={24} strokeWidth={2.5} />}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -78,7 +78,7 @@ export default function LearningPage() {
                     <span className="text-[9px] font-black uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-md text-gray-500 whitespace-nowrap">
                       {course.level || 'NO LEVEL'}
                     </span>
-                    <span className="text-[9px] font-black uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-md text-[#3D855A] whitespace-nowrap">
+                    <span className="text-[9px] font-black uppercase tracking-tighter bg-blue-50 px-2 py-0.5 rounded-md text-[#2563eb] whitespace-nowrap">
                       {course.isActive === false ? 'Locked' : 'Open'}
                     </span>
                   </div>

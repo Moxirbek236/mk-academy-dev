@@ -96,7 +96,7 @@ export default function SettingsPage() {
                 role === 'superadmin'
                   ? 'bg-[#FFEBEC] text-[#E54D2E]'
                   : role === 'teacher'
-                    ? 'bg-[#F2F8F5] text-[#3D855A]'
+                    ? 'bg-blue-50 text-blue-600'
                     : 'bg-blue-50 text-blue-600'
               }`}
             >
@@ -105,7 +105,7 @@ export default function SettingsPage() {
             {role === 'superadmin' ? <Crown size={12} className="text-amber-500" /> : null}
           </div>
         </div>
-        <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border-2 border-white bg-gradient-to-tr from-[#3D855A] to-[#83D1A5] text-white shadow-xl shadow-[#3D855A]/20 sm:h-14 sm:w-14 sm:rounded-[22px] sm:border-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border-2 border-white bg-gradient-to-tr from-[#2563eb] to-[#60a5fa] text-white shadow-xl shadow-[#2563eb]/20 sm:h-14 sm:w-14 sm:rounded-[22px] sm:border-4">
           <User size={28} strokeWidth={2.5} />
         </div>
       </div>
@@ -119,18 +119,18 @@ export default function SettingsPage() {
                 <button
                   key={itemIndex}
                   onClick={item.action ? item.action : () => router.push(localizePath(locale, item.path || '/'))}
-                  className="group flex w-full items-center gap-3 rounded-2xl p-3.5 transition-colors active:scale-[0.98] hover:bg-[#F2F8F5] sm:gap-4 sm:rounded-3xl sm:p-4"
+                  className="group flex w-full items-center gap-3 rounded-2xl p-3.5 transition-colors active:scale-[0.98] hover:bg-blue-50 sm:gap-4 sm:rounded-3xl sm:p-4"
                 >
-                  <div className="shrink-0 rounded-[16px] bg-[#F2F8F5] p-3 text-[#3D855A] transition-transform group-hover:scale-105 sm:rounded-[18px] sm:p-3.5">
+                  <div className="shrink-0 rounded-[16px] bg-blue-50 p-3 text-[#2563eb] transition-transform group-hover:scale-105 sm:rounded-[18px] sm:p-3.5">
                     <item.icon size={20} strokeWidth={2.5} />
                   </div>
                   <div className="min-w-0 flex-1 text-left">
-                    <p className="truncate text-[14px] font-extrabold text-gray-900 transition-colors group-hover:text-[#3D855A] sm:text-[15px]">
+                    <p className="truncate text-[14px] font-extrabold text-gray-900 transition-colors group-hover:text-[#2563eb] sm:text-[15px]">
                       {item.label}
                     </p>
                     <p className="mt-0.5 truncate text-[11px] font-bold text-gray-400 sm:text-[12px]">{item.value}</p>
                   </div>
-                  <ChevronRight size={18} className="flex-shrink-0 text-gray-300 transition-all group-hover:translate-x-1 group-hover:text-[#3D855A]" />
+                  <ChevronRight size={18} className="flex-shrink-0 text-gray-300 transition-all group-hover:translate-x-1 group-hover:text-[#2563eb]" />
                 </button>
               ))}
             </div>

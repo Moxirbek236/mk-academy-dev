@@ -17,11 +17,11 @@ export function AppProviders({ children, locale, messages }: AppProvidersProps) 
     <NextIntlClientProvider locale={locale} messages={messages}>
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
-        enableSystem
+        defaultTheme="light"
+        enableSystem={false}
         enableColorScheme
         storageKey="mk-academy-theme"
-        themes={['light', 'dark', 'system']}
+        themes={['light', 'dark']}
         disableTransitionOnChange
       >
         {children}

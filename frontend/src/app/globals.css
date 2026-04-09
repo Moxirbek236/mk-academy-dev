@@ -2,15 +2,15 @@
 
 @layer base {
   :root {
-    --app-bg: #f4f7fb;
+    --app-bg: #f8fbff;
     --app-surface: #ffffff;
-    --app-surface-soft: #eef3f8;
-    --app-border: #d7e0ea;
+    --app-surface-soft: #eff6ff;
+    --app-border: #d7e5fb;
     --app-text: #14202b;
     --app-muted: #667587;
-    --app-primary: #2f7a57;
-    --app-primary-dark: #245f44;
-    --app-secondary: #60758d;
+    --app-primary: #2563eb;
+    --app-primary-dark: #1d4ed8;
+    --app-secondary: #4f83f1;
     --app-accent: #b78a52;
     
     --app-safe-top: env(safe-area-inset-top, 0px);
@@ -31,8 +31,8 @@
     --app-border: #2d4153;
     --app-text: #edf3f8;
     --app-muted: #9db0bf;
-    --app-primary: #57a27d;
-    --app-primary-dark: #468362;
+    --app-primary: #60a5fa;
+    --app-primary-dark: #3b82f6;
   }
 
   * {
@@ -213,12 +213,12 @@
     background-color: var(--app-bg);
     background-image: 
       radial-gradient(at 0% 0%, color-mix(in srgb, var(--app-primary) 10%, transparent) 0, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(96, 117, 141, 0.08) 0, transparent 48%);
+      radial-gradient(at 100% 100%, rgba(96, 165, 250, 0.08) 0, transparent 48%);
   }
 
   .dark .bg-mesh {
     background-image: 
-      radial-gradient(at 0% 0%, rgba(87, 162, 125, 0.16) 0, transparent 52%),
-      radial-gradient(at 100% 100%, rgba(96, 117, 141, 0.12) 0, transparent 48%);
+      radial-gradient(at 0% 0%, rgba(96, 165, 250, 0.2) 0, transparent 52%),
+      radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.14) 0, transparent 48%);
   }
 }

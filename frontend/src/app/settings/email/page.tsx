@@ -20,7 +20,7 @@ export default function GenericSettingPage() {
       </div>
 
       <div className="bg-white p-12 rounded-[46px] border border-gray-100 shadow-sm mb-12 flex flex-col items-center text-center gap-8">
-         <div className="p-8 bg-[#F2F8F5] rounded-[38px] text-[#3D855A] shadow-inner shadow-emerald-500/5">
+         <div className="p-8 bg-[#eff6ff] rounded-[38px] text-[#2563eb] shadow-inner shadow-blue-500/5">
             <Lock size={44} strokeWidth={2.5} className="animate-pulse" />
          </div>
          <div className="max-w-[80%]">
@@ -31,7 +31,7 @@ export default function GenericSettingPage() {
 
       <button 
         onClick={() => router.push('/settings')}
-        className="w-full p-6 bg-[#3D855A] rounded-[34px] font-black tracking-tight text-white shadow-xl shadow-[#3D855A]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase"
+        className="w-full p-6 bg-[#2563eb] rounded-[34px] font-black tracking-tight text-white shadow-xl shadow-[#2563eb]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase"
       >
         ORQAGA QAYTISH
       </button>

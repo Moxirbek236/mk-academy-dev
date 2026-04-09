@@ -24,7 +24,7 @@ export default function CourseDetailClient() {
     fetchCourse();
   }, [params.id]);
 
-  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#2563eb]" size={40} /></div>;
   if (!course) return <div className="p-20 text-center">Kurs topilmadi</div>;
 
   const lessons = [...(course.tasks || []), ...(course.tests || [])];
@@ -41,12 +41,12 @@ export default function CourseDetailClient() {
         </div>
       </div>
 
-      <div className="bg-[#F2F8F5] p-6 rounded-[34px] border border-[#3D855A]/10 mb-10 flex items-center gap-5">
-         <div className="p-4 bg-white rounded-[22px] text-[#3D855A] shadow-sm">
+      <div className="bg-[#eff6ff] p-6 rounded-[34px] border border-[#2563eb]/10 mb-10 flex items-center gap-5">
+         <div className="p-4 bg-white rounded-[22px] text-[#2563eb] shadow-sm">
             <Sparkles size={24} />
          </div>
          <div>
-            <p className="text-[11px] font-black text-[#3D855A] uppercase tracking-widest leading-none mb-1.5">Progress</p>
+            <p className="text-[11px] font-black text-[#2563eb] uppercase tracking-widest leading-none mb-1.5">Progress</p>
             <p className="text-2xl font-black tracking-tighter">0 / {lessons.length} Dars</p>
          </div>
       </div>
@@ -58,9 +58,9 @@ export default function CourseDetailClient() {
           <div 
             key={unit.id}
             onClick={() => router.push(`/unit/${unit.id}/tasks`)}
-            className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group cursor-pointer"
+            className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#2563eb]/30 hover:shadow-xl active:scale-[0.98] transition-all group cursor-pointer"
           >
-            <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-lg transition-all shadow-inner bg-gray-50 text-gray-400 group-hover:bg-[#F2F8F5] group-hover:text-[#3D855A] shrink-0`}>
+            <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-lg transition-all shadow-inner bg-gray-50 text-gray-400 group-hover:bg-[#eff6ff] group-hover:text-[#2563eb] shrink-0`}>
               {idx + 1}
             </div>
             <div className="flex-1 min-w-0">

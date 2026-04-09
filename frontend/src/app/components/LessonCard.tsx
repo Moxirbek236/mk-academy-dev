@@ -22,7 +22,7 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
       {/* Icon */}
       <div className={`p-3 rounded-[14px] shrink-0 border ${
         isDone 
-          ? 'bg-[#F2F8F5] text-[#3D855A] border-[#DCEFE5]' 
+          ? 'bg-[#eff6ff] text-[#2563eb] border-[#bfdbfe]' 
           : 'bg-[#F4F6F5] text-[#8EA297] border-[#E8ECE9]'
       }`}>
         {isDone ? <Clock size={20} strokeWidth={2.5} /> : <Lock size={20} strokeWidth={2.5} />}
@@ -38,7 +38,7 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
           {/* Badge */}
           <div className={`self-start text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border shrink-0 shadow-sm sm:ml-2 ${
             isDone
-              ? 'bg-[#F2F8F5] text-[#3D855A] border-[#DCEFE5]'
+              ? 'bg-[#eff6ff] text-[#2563eb] border-[#bfdbfe]'
               : 'bg-[#F4F6F5] text-[#71877C] border-[#E5EAE7]'
           }`}>
             {isDone ? <Check size={12} strokeWidth={3} /> : <Lock size={12} strokeWidth={2.5} />}
@@ -49,7 +49,7 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
         {/* Progress Bar */}
         <div className="mt-3.5 h-[3px] w-full bg-gray-100 rounded-full overflow-hidden">
           <div 
-            className={`h-full rounded-full transition-all duration-500 ${isDone ? 'bg-[#3D855A]' : 'bg-transparent'}`} 
+            className={`h-full rounded-full transition-all duration-500 ${isDone ? 'bg-[#2563eb]' : 'bg-transparent'}`} 
             style={{ width: `${progress}%` }} 
           />
         </div>
