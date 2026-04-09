@@ -315,7 +315,13 @@ export class UserService {
   }
   async findAllAdmin(query: QueryUserAdminDto) {
     try {
+      const page = query.page || 1;
+      const limit = query.limit || 10;
+      const skip = (page - 1) * limit;
+
       let users = await this.prisma.user.findMany({
+        skip,
+        take: limit,
         where: {
           role: {
             notIn: [UserRole.ADMIN, UserRole.SUPERADMIN],

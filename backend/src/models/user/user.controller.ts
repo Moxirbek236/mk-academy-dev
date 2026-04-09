@@ -148,7 +148,7 @@ export class UserController {
     return this.userService.updateCurrentProfile(req['user'], payload);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.ADMIN}` })
   @Roles(UserRole.ADMIN)
   @Get("admin/getAll_Students_And_Techers")
