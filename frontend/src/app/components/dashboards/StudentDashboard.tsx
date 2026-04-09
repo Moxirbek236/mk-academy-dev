@@ -8,7 +8,7 @@ import { LessonCard } from '../LessonCard';
 import api from '@/lib/api';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useApiRequest } from '@/hooks/useApiRequest';
-import { PageErrorState, PageLoadingState } from '@/app/components/ui/PagePrimitives';
+import { PageEmptyState, PageErrorState, PageLoadingState } from '@/app/components/ui/PagePrimitives';
 
 export function StudentDashboard() {
   const t = useTranslations('DashboardStudent');
@@ -29,6 +29,7 @@ export function StudentDashboard() {
     initialData: [] as any[],
     request: fetchTasks,
   });
+  const studentGroups = Array.isArray(data?.myGroups) ? data.myGroups : [];
 
   const stats = [
     { label: t('ranking'), value: data?.rank || t('topPercent'), icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50', trend: '+2%' },
@@ -76,20 +77,35 @@ export function StudentDashboard() {
             <Users size={14} className="text-[var(--app-primary)]" /> {t('myGroups')}
          </h2>
          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
-            {[1, 2].map((_, i) => (
-               <div key={i} onClick={() => router.push('/groups')} className="min-w-[260px] app-card p-6 flex items-center gap-4 cursor-pointer group">
+            {studentGroups.length > 0 ? (
+              studentGroups.map((group: any) => (
+                <div
+                  key={group.id}
+                  onClick={() => router.push('/groups')}
+                  className="min-w-[260px] app-card p-6 flex items-center gap-4 cursor-pointer group"
+                >
                   <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[var(--app-surface-soft)] text-[var(--app-primary)] font-black text-lg transition-all shadow-sm group-hover:bg-[color:color-mix(in_srgb,var(--app-primary)_12%,white)]">
-                     G{i+1}
+                    {(group.name || 'G').slice(0, 1).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
-                     <h4 className="font-extrabold text-[var(--app-text)] text-sm tracking-tight truncate">IELTS Foundation</h4>
-                     <p className="text-[10px] font-bold text-[var(--app-muted)] uppercase tracking-widest mt-0.5">{t('mentor', { name: 'Maqsud' })}</p>
+                    <h4 className="font-extrabold text-[var(--app-text)] text-sm tracking-tight truncate">{group.name}</h4>
+                    <p className="text-[10px] font-bold text-[var(--app-muted)] uppercase tracking-widest mt-0.5">
+                      {t('mentor', { name: group.teacherName || 'Mentor' })}
+                    </p>
+                    <p className="mt-2 text-[11px] font-semibold text-[var(--app-muted)]">
+                      {group.lessons} • {group.nextLesson}
+                    </p>
                   </div>
                   <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
-                     <ChevronRight size={18} strokeWidth={3} />
+                    <ChevronRight size={18} strokeWidth={3} />
                   </div>
-               </div>
-            ))}
+                </div>
+              ))
+            ) : (
+              <div className="min-w-[280px] max-w-[320px]">
+                <PageEmptyState title={t('myGroups')} description={t('emptyGroupsDescription')} />
+              </div>
+            )}
             <button className="min-w-[160px] rounded-[16px] border-2 border-dashed border-[var(--app-border)] bg-[var(--app-surface)] flex flex-col items-center justify-center gap-2 text-[var(--app-muted)] hover:border-[var(--app-primary)]/30 hover:text-[var(--app-primary)] transition-all group active:scale-95">
                <PlusCircle size={24} />
                <span className="text-[10px] font-black uppercase tracking-widest">{t('addGroup')}</span>

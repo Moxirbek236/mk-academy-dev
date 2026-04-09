@@ -404,6 +404,7 @@ function buildDashboardPayload(user: MockUser) {
     myGroups: groups.map((group) => ({
       id: group.id,
       name: group.name,
+      teacherName: store.users.find((teacher) => teacher.id === group.teacherId)?.fullName || 'Mentor',
       students: getStudentUsers().filter((student) => student.groupIds.includes(group.id)).length,
       lessons: group.lessons,
       nextLesson: group.nextLesson,
@@ -562,7 +563,16 @@ async function handleRequest(config: RequestConfig) {
   }
 
   if (method === 'get' && pathname === '/vocabularies') {
-    return makeResponse(config, store.vocabularies);
+    const unitId = Number(url.searchParams.get('unitId') || 0);
+    const courseId = Number(url.searchParams.get('courseId') || 0);
+
+    const vocabularies = store.vocabularies.filter((item) => {
+      if (unitId && item.unitId !== unitId) return false;
+      if (courseId && item.courseId !== courseId) return false;
+      return true;
+    });
+
+    return makeResponse(config, vocabularies);
   }
 
   if (method === 'get' && pathname === '/tests/my-attempts') {

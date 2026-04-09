@@ -66,6 +66,8 @@ export interface MockBook {
 
 export interface MockVocabulary {
   id: number;
+  unitId?: number | null;
+  courseId?: number | null;
   word: string;
   translation: string;
   pronunciation: string;
@@ -300,8 +302,8 @@ const mockGroupsSeed: MockGroup[] = [
     courseIds: [201, 202],
     inviteCode: 'MK-IELTS-A',
     nextLesson: 'Today 18:00',
-    lessons: '8/24',
-    _count: { members: 2 },
+    lessons: '12/30',
+    _count: { members: 3 },
   },
   {
     id: 102,
@@ -310,7 +312,7 @@ const mockGroupsSeed: MockGroup[] = [
     courseIds: [202, 203],
     inviteCode: 'MK-GRAM-B',
     nextLesson: 'Tomorrow 17:00',
-    lessons: '5/18',
+    lessons: '7/18',
     _count: { members: 1 },
   },
   {
@@ -332,18 +334,20 @@ const mockCoursesSeed: MockCourse[] = [
     level: 'B1',
     isActive: true,
     description:
-      'IELTS uchun reading, listening, writing va speaking ko‘nikmalarini bosqichma-bosqich rivojlantiradigan asosiy kurs.',
+      "IELTS uchun reading, listening, writing va speaking ko'nikmalarini bosqichma-bosqich rivojlantiradigan asosiy kurs.",
     groupIds: [101],
     tasks: [
       { id: 1001, title: 'Reading Strategies', type: 'TASK', dueDate: '2026-04-12T18:00:00.000Z' },
       { id: 1002, title: 'Writing Task 1 Practice', type: 'TASK', dueDate: '2026-04-14T18:00:00.000Z' },
       { id: 1003, title: 'Listening Note Completion', type: 'TASK', dueDate: '2026-04-15T18:00:00.000Z' },
+      { id: 1009, title: 'Speaking Part 2 Outline', type: 'TASK', dueDate: '2026-04-17T18:00:00.000Z' },
     ],
     tests: [
       { id: 2001, title: 'IELTS Diagnostic Test', type: 'TEST' },
       { id: 2002, title: 'Reading Mock Exam', type: 'TEST' },
+      { id: 2006, title: 'Listening Progress Check', type: 'TEST' },
     ],
-    _count: { tasks: 3, tests: 2, groups: 1 },
+    _count: { tasks: 4, tests: 3, groups: 1 },
   },
   {
     id: 202,
@@ -351,14 +355,19 @@ const mockCoursesSeed: MockCourse[] = [
     level: 'A2-B1',
     isActive: true,
     description:
-      'Asosiy grammatika mavzularini tushunarli darslar va mashqlar bilan mustahkamlash uchun tuzilgan kurs.',
+      "Asosiy grammatika mavzularini tushunarli darslar va mashqlar bilan mustahkamlash uchun tuzilgan kurs.",
     groupIds: [101, 102],
     tasks: [
       { id: 1004, title: 'Present Simple vs Continuous', type: 'TASK', dueDate: '2026-04-13T16:00:00.000Z' },
       { id: 1005, title: 'Past Tense Transformation', type: 'TASK', dueDate: '2026-04-16T16:00:00.000Z' },
+      { id: 1010, title: 'Articles and Determiners', type: 'TASK', dueDate: '2026-04-19T16:00:00.000Z' },
+      { id: 1011, title: 'Conditionals Practice', type: 'TASK', dueDate: '2026-04-21T16:00:00.000Z' },
     ],
-    tests: [{ id: 2003, title: 'Grammar Checkpoint', type: 'TEST' }],
-    _count: { tasks: 2, tests: 1, groups: 2 },
+    tests: [
+      { id: 2003, title: 'Grammar Checkpoint', type: 'TEST' },
+      { id: 2007, title: 'Unit Grammar Exam', type: 'TEST' },
+    ],
+    _count: { tasks: 4, tests: 2, groups: 2 },
   },
   {
     id: 203,
@@ -366,7 +375,7 @@ const mockCoursesSeed: MockCourse[] = [
     level: 'B1-B2',
     isActive: false,
     description:
-      'Academic va daily use vocabulary zaxirasini tez kengaytirish uchun micro-lesson formatidagi kurs.',
+      "Academic va daily use vocabulary zaxirasini tez kengaytirish uchun micro-lesson formatidagi kurs.",
     groupIds: [102],
     tasks: [
       { id: 1006, title: 'Academic Word List Set 1', type: 'TASK', dueDate: '2026-04-20T12:00:00.000Z' },
@@ -380,7 +389,7 @@ const mockCoursesSeed: MockCourse[] = [
     level: 'B2',
     isActive: true,
     description:
-      'Speaking confidence, fluency va presentation skill ustida ishlash uchun practice-heavy kurs.',
+      "Speaking confidence, fluency va presentation skill ustida ishlash uchun practice-heavy kurs.",
     groupIds: [103],
     tasks: [
       { id: 1007, title: 'Opinion Essay Speaking', type: 'TASK', dueDate: '2026-04-18T19:00:00.000Z' },
@@ -446,11 +455,31 @@ const mockBooksSeed: MockBook[] = [
     cefrLevel: 'A2',
     pages: 176,
   },
+  {
+    id: 307,
+    title: 'Essential Grammar in Use',
+    author: 'Raymond Murphy',
+    category: 'GRAMMAR',
+    coverImageUrl: 'https://images.unsplash.com/photo-1511108690759-009324a90311?w=600&q=80',
+    cefrLevel: 'A2',
+    pages: 300,
+  },
+  {
+    id: 308,
+    title: 'Advanced Grammar in Use',
+    author: 'Martin Hewings',
+    category: 'GRAMMAR',
+    coverImageUrl: 'https://images.unsplash.com/photo-1526243741027-444d633d7365?w=600&q=80',
+    cefrLevel: 'C1',
+    pages: 294,
+  },
 ];
 
 const mockVocabulariesSeed: MockVocabulary[] = [
   {
     id: 401,
+    unitId: 1,
+    courseId: 201,
     word: 'consistent',
     translation: 'barqaror',
     pronunciation: '/kənˈsɪstənt/',
@@ -458,6 +487,8 @@ const mockVocabulariesSeed: MockVocabulary[] = [
   },
   {
     id: 402,
+    unitId: 1,
+    courseId: 201,
     word: 'achieve',
     translation: 'erishmoq',
     pronunciation: '/əˈtʃiːv/',
@@ -465,6 +496,8 @@ const mockVocabulariesSeed: MockVocabulary[] = [
   },
   {
     id: 403,
+    unitId: 1,
+    courseId: 201,
     word: 'accurate',
     translation: 'aniq',
     pronunciation: '/ˈækjərət/',
@@ -472,6 +505,8 @@ const mockVocabulariesSeed: MockVocabulary[] = [
   },
   {
     id: 404,
+    unitId: 2,
+    courseId: 202,
     word: 'attempt',
     translation: 'urinish',
     pronunciation: '/əˈtempt/',
@@ -479,13 +514,17 @@ const mockVocabulariesSeed: MockVocabulary[] = [
   },
   {
     id: 405,
+    unitId: 2,
+    courseId: 202,
     word: 'guideline',
-    translation: 'qo‘llanma',
+    translation: "qo'llanma",
     pronunciation: '/ˈɡaɪdlaɪn/',
     exampleSentence: 'Follow the writing guideline carefully.',
   },
   {
     id: 406,
+    unitId: 2,
+    courseId: 202,
     word: 'retention',
     translation: 'esda saqlash',
     pronunciation: '/rɪˈtenʃn/',
@@ -493,6 +532,8 @@ const mockVocabulariesSeed: MockVocabulary[] = [
   },
   {
     id: 407,
+    unitId: 3,
+    courseId: 202,
     word: 'clarify',
     translation: 'aniqlashtirmoq',
     pronunciation: '/ˈklærəfaɪ/',
@@ -500,10 +541,48 @@ const mockVocabulariesSeed: MockVocabulary[] = [
   },
   {
     id: 408,
+    unitId: 3,
+    courseId: 202,
     word: 'fluency',
     translation: 'ravonlik',
     pronunciation: '/ˈfluːənsi/',
     exampleSentence: 'Daily practice builds speaking fluency.',
+  },
+  {
+    id: 409,
+    unitId: 2,
+    courseId: 202,
+    word: 'article',
+    translation: 'artikl',
+    pronunciation: '/ˈɑːrtɪkl/',
+    exampleSentence: 'Use the correct article before singular nouns.',
+  },
+  {
+    id: 410,
+    unitId: 2,
+    courseId: 202,
+    word: 'conditional',
+    translation: 'shart mayli',
+    pronunciation: '/kənˈdɪʃənəl/',
+    exampleSentence: 'Conditional sentences show possible situations.',
+  },
+  {
+    id: 411,
+    unitId: 3,
+    courseId: 202,
+    word: 'determiner',
+    translation: "aniqlovchi so'z",
+    pronunciation: '/dɪˈtɜːrmɪnər/',
+    exampleSentence: 'A determiner comes before a noun.',
+  },
+  {
+    id: 412,
+    unitId: 1,
+    courseId: 201,
+    word: 'cohesion',
+    translation: "bog'liqlik",
+    pronunciation: '/kəʊˈhiːʒn/',
+    exampleSentence: 'Good cohesion makes your writing easier to follow.',
   },
 ];
 
@@ -512,7 +591,7 @@ const mockLeadsSeed: MockLead[] = [
     id: 501,
     fullName: 'Zafar Ibrohimov',
     phone: '+998991234567',
-    message: 'IELTS preparation group haqida ma’lumot kerak.',
+    message: "IELTS preparation group haqida ma'lumot kerak.",
     status: 'NEW',
     createdAt: '2026-04-07T08:40:00.000Z',
   },
@@ -520,7 +599,7 @@ const mockLeadsSeed: MockLead[] = [
     id: 502,
     fullName: 'Malika Ergasheva',
     phone: '+998971112233',
-    message: 'Farzandim uchun beginner group qidiryapman.',
+    message: "Farzandim uchun beginner group qidiryapman.",
     status: 'CONTACTED',
     createdAt: '2026-04-06T14:10:00.000Z',
   },
@@ -528,7 +607,7 @@ const mockLeadsSeed: MockLead[] = [
     id: 503,
     fullName: 'Jamshid Turgunov',
     phone: '+998901234100',
-    message: 'Speaking club schedule qiziqtiryapti.',
+    message: "Speaking club schedule qiziqtiryapti.",
     status: 'ENROLLED',
     createdAt: '2026-04-05T12:05:00.000Z',
   },
@@ -536,7 +615,7 @@ const mockLeadsSeed: MockLead[] = [
     id: 504,
     fullName: 'Nodira Qodirova',
     phone: '+998933336699',
-    message: 'Faqat online format bormi?',
+    message: "Faqat online format bormi?",
     status: 'REJECTED',
     createdAt: '2026-04-03T09:15:00.000Z',
   },

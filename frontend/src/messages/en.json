@@ -107,6 +107,7 @@
     "masteryTrend": "Good",
     "myGroups": "My Groups",
     "mentor": "Mentor: {name}",
+    "emptyGroupsDescription": "Your assigned groups will appear in this section.",
     "addGroup": "New Group",
     "nextExam": "Next Exam",
     "studyPlan": "Study Plan",
