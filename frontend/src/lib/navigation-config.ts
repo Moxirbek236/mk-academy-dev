@@ -29,6 +29,7 @@ const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
       { path: '/', icon: Home, labelKey: 'dashboard' },
       { path: '/leads', icon: MessageCircle, labelKey: 'leads' },
       { path: '/users', icon: Users, labelKey: 'users' },
+      { path: '/groups', icon: Layers, labelKey: 'groups' },
       { path: '/courses', icon: BookOpen, labelKey: 'courses' },
       { path: '/finance', icon: DollarSign, labelKey: 'finance' },
       { path: '/system', icon: ShieldCheck, labelKey: 'system' },
@@ -37,6 +38,7 @@ const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
     bottom: [
       { path: '/', icon: Home, labelKey: 'dashboard' },
       { path: '/users', icon: Users, labelKey: 'users' },
+      { path: '/groups', icon: Layers, labelKey: 'groups' },
       { path: '/courses', icon: BookOpen, labelKey: 'courses' },
       { path: '/finance', icon: DollarSign, labelKey: 'finance' },
       { path: '/system', icon: ShieldCheck, labelKey: 'system' },
