@@ -127,7 +127,7 @@ export default function LoginPage() {
 
       if (token) {
         await setStoredAuth(token, role);
-        router.push(localizePath(locale, '/'));
+        router.replace(localizePath(locale, '/'));
       } else {
         setError('Tizimga kirishda xatolik yuz berdi');
       }

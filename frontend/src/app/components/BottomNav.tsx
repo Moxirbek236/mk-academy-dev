@@ -1,5 +1,4 @@
 'use client';
-import { Home, Book, Settings as SettingsIcon, LayoutGrid, Users, DollarSign, BookOpen, Layers, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -7,6 +6,7 @@ import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
 import { motion } from 'framer-motion';
 import { isNativeApp } from '@/lib/native-app';
+import { getNavigationConfig } from '@/lib/navigation-config';
 
 interface BottomNavProps {
   role?: string | null;
@@ -17,36 +17,8 @@ export function BottomNav({ role }: BottomNavProps) {
   const locale = useLocale();
   const pathname = usePathname() || '/';
   const normalizedPathname = stripLocaleFromPathname(pathname);
-  const currentRole = role?.toLowerCase();
-  const isTeacher = currentRole === 'teacher' || currentRole === 'mentor';
   const nativeApp = isNativeApp();
-
-  const navItems = currentRole === 'superadmin' ? [
-    { path: '/', icon: Home, label: t('dashboard') },
-    { path: '/users', icon: Users, label: t('users') },
-    { path: '/finance', icon: DollarSign, label: t('finance') },
-    { path: '/system', icon: ShieldCheck, label: t('system') },
-    { path: '/settings', icon: SettingsIcon, label: t('settings') },
-  ] : currentRole === 'admin' ? [
-    { path: '/', icon: Home, label: t('home') },
-    { path: '/users', icon: Users, label: t('students') },
-    { path: '/courses', icon: BookOpen, label: t('courses') },
-    { path: '/results', icon: LayoutGrid, label: t('reports') },
-    { path: '/settings', icon: SettingsIcon, label: t('settings') },
-  ] : isTeacher ? [
-    { path: '/', icon: Home, label: t('monitor') },
-    { path: '/groups', icon: Layers, label: t('groups') },
-    { path: '/tasks', icon: BookOpen, label: t('tasks') },
-    { path: '/results', icon: LayoutGrid, label: t('results') },
-    { path: '/settings', icon: SettingsIcon, label: t('settings') },
-  ] : [
-    { path: '/', icon: Home, label: t('home') },
-    { path: '/groups', icon: Layers, label: t('groups') },
-    { path: '/learning', icon: BookOpen, label: t('learning') },
-    { path: '/books', icon: Book, label: t('books') },
-    { path: '/results', icon: LayoutGrid, label: t('rating') },
-    { path: '/settings', icon: SettingsIcon, label: t('profile') },
-  ];
+  const navItems = getNavigationConfig(role, 'bottom');
 
   return (
     <div className="app-bottom-nav-safe fixed inset-x-0 bottom-0 z-50 sm:bottom-4 sm:px-4 sm:pb-0">
@@ -79,7 +51,7 @@ export function BottomNav({ role }: BottomNavProps) {
                 )}
                 <Icon size={24} strokeWidth={isActive ? 2.5 : 2} className="relative z-10" />
               </div>
-              <span className={`relative z-10 truncate text-[9px] uppercase tracking-[0.08em] ${isActive ? 'font-black opacity-100' : 'font-bold opacity-60'}`}>{item.label}</span>
+              <span className={`relative z-10 truncate text-[9px] uppercase tracking-[0.08em] ${isActive ? 'font-black opacity-100' : 'font-bold opacity-60'}`}>{t(item.labelKey as any)}</span>
             </Link>
           );
         })}

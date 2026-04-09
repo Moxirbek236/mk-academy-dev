@@ -7,6 +7,13 @@
     "language": "Yazyk",
     "theme": "Tema"
   },
+  "UiStates": {
+    "loadingTitle": "Podgotovka dannyh",
+    "loadingDescription": "Zagruzhaem informaciyu, neobhodimuyu dlya etoy stranicy.",
+    "errorTitle": "Ne udalos zagruzit dannye",
+    "errorDescription": "Pri podklyuchenii k serveru voznikla problema. Poprobuyte eshche raz.",
+    "retry": "Povtorit"
+  },
   "Theme": {
     "light": "Svetlaya",
     "dark": "Temnaya",
@@ -104,6 +111,12 @@
     "nextExam": "Sleduyushchiy ekzamen",
     "studyPlan": "Plan obucheniya",
     "allUnits": "Vse moduli",
+    "unitExamTitle": "IELTS Progress Check",
+    "unitExamDescription": "Vazhnyy kontrolnyy ekzamen pered otkrytiem sleduyushchih moduley.",
+    "unitExamCountdown": "Ostalos 3 dnya",
+    "unitExamMetaLabel": "Format",
+    "unitExamMeta": "Reading + Grammar",
+    "unitExamAction": "Nachat",
     "fallbackLesson1": "Bazovaya grammatika - 8 urokov",
     "fallbackLesson2": "Povsednevnyy razgovor - 10 urokov",
     "fallbackLesson3": "Biznes-angliyskiy - 12 urokov",
@@ -128,7 +141,9 @@
     "students": "{count} studentov",
     "uncheckedTasks": "Neproverennye zadaniya ({count})",
     "groupAnalytics": "Analitika grupp",
-    "newTask": "Dobavit novoe zadanie"
+    "newTask": "Dobavit novoe zadanie",
+    "emptyGroupsTitle": "Gruppy poka ne naznacheny",
+    "emptyGroupsDescription": "Kogda vam naznachat gruppy, oni poyavyatsya zdes."
   },
   "DashboardAdmin": {
     "title": "Administrator centra",
@@ -187,13 +202,16 @@
     "studentsShort": "{count} stud.",
     "active": "Aktivno",
     "empty": "U vas poka net grupp",
+    "emptyDescription": "Kogda vy vstupite ili budete dobavleny v gruppu, ona poyavitsya zdes.",
     "fullSchedule": "Polnoe raspisanie"
   },
   "UsersPage": {
     "title": "Polzovateli",
     "total": "Vsego: {count} chel.",
     "searchPlaceholder": "Poisk po imeni...",
-    "newUser": "Novyy polzovatel"
+    "newUser": "Novyy polzovatel",
+    "emptyTitle": "Polzovateli ne naydeny",
+    "emptyDescription": "Izmenite poisk ili prover'te spisok chуть pozhe."
   },
   "SystemPage": {
     "title": "Sistema",

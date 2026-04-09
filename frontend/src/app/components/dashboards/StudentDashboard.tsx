@@ -1,46 +1,58 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { BookOpen, ListTodo, X, Loader2, Sparkles, Trophy, Zap, Clock, ChevronRight, Target, BrainCircuit, Users, PlusCircle } from 'lucide-react';
+import { BookOpen, ListTodo, X, Trophy, Zap, Clock, ChevronRight, ArrowUpRight, Target, BrainCircuit, Users, PlusCircle, CheckSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ExamCard } from '../ExamCard';
 import { LessonCard } from '../LessonCard';
 import api from '@/lib/api';
+import { useDashboard } from '@/hooks/useDashboard';
+import { useApiRequest } from '@/hooks/useApiRequest';
+import { PageErrorState, PageLoadingState } from '@/app/components/ui/PagePrimitives';
 
 export function StudentDashboard() {
   const t = useTranslations('DashboardStudent');
-  const [data, setData] = useState<any>(null);
+  const uiT = useTranslations('UiStates');
+  const { data, loading, error, refetch } = useDashboard();
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const statsRes = await api.get('/dashboard/stats');
-        setData(statsRes.data?.data || statsRes.data);
-        
-        const tasksRes = await api.get('/tasks');
-        setTasks(tasksRes.data?.data || tasksRes.data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+  const fetchTasks = useCallback(async () => {
+    const tasksResponse = await api.get('/tasks');
+    return tasksResponse.data?.data || tasksResponse.data || [];
   }, []);
+  const {
+    data: tasks,
+    loading: tasksLoading,
+    error: tasksError,
+    refetch: refetchTasks,
+  } = useApiRequest({
+    initialData: [] as any[],
+    request: fetchTasks,
+  });
 
   const stats = [
     { label: t('ranking'), value: data?.rank || t('topPercent'), icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50', trend: '+2%' },
     { label: t('streak'), value: t('daysCount', { count: data?.streak || 0 }), icon: Zap, color: 'text-orange-500', bg: 'bg-orange-50', trend: t('streakTrend') },
-    { label: t('accuracy'), value: '94%', icon: Target, color: 'text-blue-500', bg: 'bg-blue-50', trend: t('accuracyTrend') },
-    { label: t('mastery'), value: '12/40', icon: BrainCircuit, color: 'text-purple-500', bg: 'bg-purple-50', trend: t('masteryTrend') },
+    { label: t('accuracy'), value: `${data?.accuracy || 94}%`, icon: Target, color: 'text-blue-500', bg: 'bg-blue-50', trend: t('accuracyTrend') },
+    { label: t('mastery'), value: `${data?.completedTasks || 12}/${data?.totalTasks || 40}`, icon: BrainCircuit, color: 'text-purple-500', bg: 'bg-purple-50', trend: t('masteryTrend') },
   ];
 
-  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+  if (loading || tasksLoading) {
+    return <PageLoadingState title={uiT('loadingTitle')} description={uiT('loadingDescription')} />;
+  }
+
+  if (error) {
+    return (
+      <PageErrorState
+        title={uiT('errorTitle')}
+        description={error}
+        retryLabel={uiT('retry')}
+        onRetry={() => {
+          void Promise.all([refetch(), refetchTasks()]);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -85,13 +97,6 @@ export function StudentDashboard() {
          </div>
       </div>
 
-      <div className="mb-10">
-        <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-4 px-2 flex items-center gap-2 font-black">
-           <Sparkles size={14} className="text-[var(--app-primary)]" /> {t('nextExam')}
-        </h2>
-        <ExamCard />
-      </div>
-
       <div className="mt-10 mb-6 flex items-center justify-between px-2">
          <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">{t('studyPlan')}</h2>
          <button className="flex items-center gap-1 rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] group">
@@ -100,9 +105,50 @@ export function StudentDashboard() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        {loading ? (
-           <div className="flex justify-center p-10 col-span-full"><Loader2 className="animate-spin text-[var(--app-primary)] opacity-50" size={32} /></div>
-        ) : tasks.length > 0 ? (
+        <button
+          onClick={() => router.push('/results')}
+          className="app-card md:col-span-2 overflow-hidden border-[color:color-mix(in_srgb,var(--app-accent)_20%,var(--app-border))] bg-[linear-gradient(135deg,#fff9ee_0%,#ffffff_52%,#f6fbf8_100%)] p-0 text-left transition-all hover:-translate-y-0.5 active:scale-[0.99]"
+        >
+          <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+            <div className="flex min-w-0 items-start gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[16px] border border-[#f5d9a6] bg-[#fff2d9] text-[#c78736] shadow-sm">
+                <CheckSquare size={24} strokeWidth={2.5} />
+              </div>
+              <div className="min-w-0">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[#fff1d7] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-[#c78736]">
+                    {t('nextExam')}
+                  </span>
+                  <span className="rounded-full border border-[#f3deba] bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-[#9a6a26]">
+                    {t('unitExamCountdown')}
+                  </span>
+                </div>
+                <h3 className="truncate text-xl font-black tracking-tight text-[var(--app-text)]">
+                  {t('unitExamTitle')}
+                </h3>
+                <p className="mt-1 max-w-2xl text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+                  {t('unitExamDescription')}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:text-right">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--app-muted)]">
+                  {t('unitExamMetaLabel')}
+                </p>
+                <p className="mt-1 text-sm font-black text-[var(--app-text)]">
+                  {t('unitExamMeta')}
+                </p>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-[14px] bg-[var(--app-primary)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-[color:color-mix(in_srgb,var(--app-primary)_24%,transparent)]">
+                {t('unitExamAction')}
+                <ArrowUpRight size={14} strokeWidth={3} />
+              </div>
+            </div>
+          </div>
+        </button>
+
+        {tasks.length > 0 ? (
            tasks.map((task: any, idx: number) => (
              <LessonCard 
                 key={task.id}
@@ -115,6 +161,11 @@ export function StudentDashboard() {
            ))
         ) : (
           <>
+            {tasksError ? (
+              <div className="col-span-full rounded-[18px] border border-dashed border-[var(--app-border)] bg-[var(--app-surface)] p-4 text-center text-sm font-semibold text-[var(--app-muted)]">
+                {tasksError}
+              </div>
+            ) : null}
             <LessonCard 
               unit="1" 
               title={t('fallbackLesson1')} 

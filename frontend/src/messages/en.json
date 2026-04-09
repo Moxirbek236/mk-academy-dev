@@ -7,6 +7,13 @@
     "language": "Language",
     "theme": "Theme"
   },
+  "UiStates": {
+    "loadingTitle": "Preparing data",
+    "loadingDescription": "We are loading the information needed for this page.",
+    "errorTitle": "Failed to load data",
+    "errorDescription": "There was a problem reaching the server. Please try again.",
+    "retry": "Retry"
+  },
   "Theme": {
     "light": "Light",
     "dark": "Dark",
@@ -104,6 +111,12 @@
     "nextExam": "Next Exam",
     "studyPlan": "Study Plan",
     "allUnits": "All Units",
+    "unitExamTitle": "IELTS Progress Check",
+    "unitExamDescription": "An important checkpoint exam before the next units are unlocked.",
+    "unitExamCountdown": "3 days left",
+    "unitExamMetaLabel": "Format",
+    "unitExamMeta": "Reading + Grammar",
+    "unitExamAction": "Start",
     "fallbackLesson1": "Essential Grammar - 8 Lessons",
     "fallbackLesson2": "Daily Conversation - 10 Lessons",
     "fallbackLesson3": "Business English - 12 Lessons",
@@ -128,7 +141,9 @@
     "students": "{count} students",
     "uncheckedTasks": "Unchecked tasks ({count})",
     "groupAnalytics": "Group analytics",
-    "newTask": "Add New Task"
+    "newTask": "Add New Task",
+    "emptyGroupsTitle": "No groups assigned yet",
+    "emptyGroupsDescription": "Once groups are assigned to you, they will appear here."
   },
   "DashboardAdmin": {
     "title": "Center Admin",
@@ -187,13 +202,16 @@
     "studentsShort": "{count} st.",
     "active": "Active",
     "empty": "You do not have any groups yet",
+    "emptyDescription": "When you join or get assigned to a group, it will appear here.",
     "fullSchedule": "Full Schedule"
   },
   "UsersPage": {
     "title": "Users",
     "total": "Total: {count} users",
     "searchPlaceholder": "Search by name...",
-    "newUser": "New User"
+    "newUser": "New User",
+    "emptyTitle": "No users found",
+    "emptyDescription": "Try adjusting the search or check back after the list refreshes."
   },
   "SystemPage": {
     "title": "System",

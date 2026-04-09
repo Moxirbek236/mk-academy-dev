@@ -7,6 +7,13 @@
     "language": "Til",
     "theme": "Mavzu"
   },
+  "UiStates": {
+    "loadingTitle": "Ma'lumotlar tayyorlanmoqda",
+    "loadingDescription": "Sahifa uchun kerakli ma'lumotlar yuklanmoqda.",
+    "errorTitle": "Ma'lumotni yuklab bo'lmadi",
+    "errorDescription": "Server bilan bog'lanishda muammo bo'ldi. Qayta urinib ko'ring.",
+    "retry": "Qayta urinish"
+  },
   "Theme": {
     "light": "Yorug'",
     "dark": "Qorong'i",
@@ -104,6 +111,12 @@
     "nextExam": "Keyingi imtihon",
     "studyPlan": "O'quv rejangiz",
     "allUnits": "Barcha bloklar",
+    "unitExamTitle": "IELTS Progress Check",
+    "unitExamDescription": "Keyingi bloklarni ochishdan oldin tayyorgarligingizni tekshiradigan muhim imtihon.",
+    "unitExamCountdown": "3 kun qoldi",
+    "unitExamMetaLabel": "Format",
+    "unitExamMeta": "Reading + Grammar",
+    "unitExamAction": "Boshlash",
     "fallbackLesson1": "Asosiy grammatika - 8 dars",
     "fallbackLesson2": "Kundalik suhbat - 10 dars",
     "fallbackLesson3": "Biznes ingliz tili - 12 dars",
@@ -128,7 +141,9 @@
     "students": "{count} o'quvchi",
     "uncheckedTasks": "Tekshirilmagan vazifalar ({count})",
     "groupAnalytics": "Guruh analitikasi",
-    "newTask": "Yangi topshiriq qo'shish"
+    "newTask": "Yangi topshiriq qo'shish",
+    "emptyGroupsTitle": "Guruhlar hali biriktirilmagan",
+    "emptyGroupsDescription": "Sizga guruh biriktirilgach, shu yerda dars oqimini ko'rasiz."
   },
   "DashboardAdmin": {
     "title": "Markaz admini",
@@ -187,13 +202,16 @@
     "studentsShort": "{count} st.",
     "active": "Faol",
     "empty": "Hozircha guruhlaringiz mavjud emas",
+    "emptyDescription": "Yangi guruhga qo'shilganingizda yoki sizga biriktirilganda shu yerda ko'rinadi.",
     "fullSchedule": "To'liq dars jadvali"
   },
   "UsersPage": {
     "title": "Foydalanuvchilar",
     "total": "Jami: {count} nafar",
     "searchPlaceholder": "Ism bo'yicha qidirish...",
-    "newUser": "Yangi foydalanuvchi"
+    "newUser": "Yangi foydalanuvchi",
+    "emptyTitle": "Foydalanuvchilar topilmadi",
+    "emptyDescription": "Qidiruvni o'zgartirib ko'ring yoki ro'yxat keyinroq yangilanadi."
   },
   "SystemPage": {
     "title": "Tizim",

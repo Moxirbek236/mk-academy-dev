@@ -1,5 +1,5 @@
 'use client';
-import { Home, Book, Settings as SettingsIcon, LayoutGrid, Users, DollarSign, BookOpen, Layers, ShieldCheck, LogOut, MessageCircle } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -7,6 +7,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
+import { getNavigationConfig } from '@/lib/navigation-config';
 
 interface SidebarProps {
   role?: string | null;
@@ -18,37 +19,7 @@ export function Sidebar({ role }: SidebarProps) {
   const locale = useLocale();
   const pathname = usePathname() || '/';
   const normalizedPathname = stripLocaleFromPathname(pathname);
-  const currentRole = role?.toLowerCase();
-  const isTeacher = currentRole === 'teacher' || currentRole === 'mentor';
-
-  const navItems = currentRole === 'superadmin' ? [
-    { path: '/', icon: Home, label: t('dashboard') },
-    { path: '/leads', icon: MessageCircle, label: t('leads') },
-    { path: '/users', icon: Users, label: t('users') },
-    { path: '/finance', icon: DollarSign, label: t('finance') },
-    { path: '/system', icon: ShieldCheck, label: t('system') },
-    { path: '/settings', icon: SettingsIcon, label: t('settings') },
-  ] : currentRole === 'admin' ? [
-    { path: '/', icon: Home, label: t('home') },
-    { path: '/leads', icon: MessageCircle, label: t('leads') },
-    { path: '/users', icon: Users, label: t('students') },
-    { path: '/courses', icon: BookOpen, label: t('courses') },
-    { path: '/results', icon: LayoutGrid, label: t('reports') },
-    { path: '/settings', icon: SettingsIcon, label: t('settings') },
-  ] : isTeacher ? [
-    { path: '/', icon: Home, label: t('monitor') },
-    { path: '/groups', icon: Layers, label: t('groups') },
-    { path: '/tasks', icon: BookOpen, label: t('tasks') },
-    { path: '/results', icon: LayoutGrid, label: t('results') },
-    { path: '/settings', icon: SettingsIcon, label: t('settings') },
-  ] : [
-    { path: '/', icon: Home, label: t('home') },
-    { path: '/groups', icon: Layers, label: t('groups') },
-    { path: '/learning', icon: BookOpen, label: t('learning') },
-    { path: '/books', icon: Book, label: t('books') },
-    { path: '/results', icon: LayoutGrid, label: t('rating') },
-    { path: '/settings', icon: SettingsIcon, label: t('profile') },
-  ];
+  const navItems = getNavigationConfig(role, 'sidebar');
 
   return (
     <div className="fixed left-0 top-0 z-[60] hidden h-screen w-72 flex-col border-r border-[var(--app-border)] bg-[var(--app-surface)] shadow-[8px_0_24px_-24px_rgba(15,23,42,0.35)] lg:flex">
@@ -94,7 +65,7 @@ export function Sidebar({ role }: SidebarProps) {
               >
                 <Icon size={22} strokeWidth={isActive ? 2.4 : 2} className="transition-transform group-hover:scale-105" />
                 <span className={`text-[13px] tracking-tight ${isActive ? 'font-black' : 'font-bold'}`}>
-                  {item.label}
+                  {t(item.labelKey as any)}
                 </span>
               </Link>
             );

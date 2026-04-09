@@ -1,114 +1,106 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Users, GraduationCap, ChevronRight, Search, PlusCircle, Filter, MoreVertical, Calendar, Globe, BookOpen, Loader2 } from 'lucide-react';
+
+import { useState } from 'react';
+import { BookOpen, Calendar, ChevronRight, PlusCircle, Search, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import api from '@/lib/api';
+import { useGroups } from '@/hooks/useGroups';
+import {
+  PageEmptyState,
+  PageErrorState,
+  PageLoadingState,
+  PageShell,
+} from '@/app/components/ui/PagePrimitives';
 
 export default function GroupsPage() {
   const t = useTranslations('GroupsPage');
-  const [groups, setGroups] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const uiT = useTranslations('UiStates');
   const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await api.get('/groups', {
-          params: { name: searchTerm }
-        });
-        setGroups(res.data?.data || res.data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    const delayDebounceFn = setTimeout(() => {
-      fetchData();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm]);
-
-  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+  const { data: groups, loading, error, refetch } = useGroups(searchTerm);
 
   return (
-    <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-      <div className="flex items-center justify-between mb-8 px-1">
-        <div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('title')}</h1>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('subtitle')}</p>
-        </div>
-        <button className="bg-[#3D855A] text-white p-3 rounded-2xl shadow-lg active:scale-90 transition-all">
+    <PageShell
+      title={t('title')}
+      subtitle={t('subtitle')}
+      action={
+        <button className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95">
           <PlusCircle size={20} strokeWidth={2.5} />
         </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      }
+    >
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="relative flex-1">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder={t('searchPlaceholder')} 
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--app-muted)]" />
+          <input
+            type="text"
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-gray-100 rounded-[20px] py-4 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
+            onChange={(event) => setSearchTerm(event.target.value)}
+            className="w-full rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] py-4 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
           />
         </div>
         <div className="flex gap-2">
-           <input 
-             type="text" 
-             placeholder={t('invitePlaceholder')} 
-             className="flex-1 bg-white border border-gray-100 rounded-[20px] py-4 px-6 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
-           />
-           <button className="bg-[#3D855A] text-white px-6 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[#3D855A]/20 active:scale-95 transition-all">
-              {t('join')}
-           </button>
+          <input
+            type="text"
+            placeholder={t('invitePlaceholder')}
+            className="flex-1 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] px-6 py-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
+          />
+          <button className="rounded-[18px] bg-[var(--app-primary)] px-6 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-transform active:scale-95">
+            {t('join')}
+          </button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 pb-20">
-        {groups.length > 0 ? (
-           groups.map((group, idx) => (
-            <div key={idx} className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group cursor-pointer focus:ring-2 ring-[#3D855A]/10">
-              <div className="w-16 h-16 rounded-[24px] bg-[#F2F8F5] text-[#3D855A] flex items-center justify-center font-black text-xl group-hover:bg-[#3D855A] group-hover:text-white transition-all shadow-inner group-hover:scale-105 group-hover:rotate-3 shadow-sm shadow-[#3D855A]/10">
+      {loading ? (
+        <PageLoadingState title={uiT('loadingTitle')} description={uiT('loadingDescription')} />
+      ) : error ? (
+        <PageErrorState
+          title={uiT('errorTitle')}
+          description={error || uiT('errorDescription')}
+          retryLabel={uiT('retry')}
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : groups.length > 0 ? (
+        <div className="flex flex-col gap-4 pb-20">
+          {groups.map((group: any, index: number) => (
+            <div key={index} className="app-card group flex items-center gap-5 p-6 transition-all active:scale-[0.98]">
+              <div className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-[#F2F8F5] text-xl font-black text-[#3D855A] shadow-inner shadow-[#3D855A]/10 transition-all group-hover:scale-105 group-hover:rotate-3 group-hover:bg-[#3D855A] group-hover:text-white">
                 {group.name.charAt(0)}
               </div>
               <div className="flex-1 truncate">
-                <h3 className="font-extrabold text-[#111827] text-lg leading-tight tracking-tight mb-2 group-hover:translate-x-1 transition-transform truncate">{group.name}</h3>
+                <h3 className="mb-2 truncate text-lg font-extrabold leading-tight tracking-tight text-[var(--app-text)] transition-transform group-hover:translate-x-1">
+                  {group.name}
+                </h3>
                 <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-tighter bg-gray-50 px-2.5 py-1 rounded-md">
-                     <Users size={12} strokeWidth={2.5} /> {t('studentsShort', { count: group._count?.members || 0 })}
+                  <span className="flex items-center gap-1.5 rounded-md bg-[var(--app-surface-soft)] px-2.5 py-1 text-[10px] font-black uppercase tracking-tighter text-[var(--app-muted)]">
+                    <Users size={12} strokeWidth={2.5} /> {t('studentsShort', { count: group._count?.members || 0 })}
                   </span>
-                  <span className="flex items-center gap-1.5 text-[10px] font-black text-[#3D855A] uppercase tracking-tighter bg-emerald-50 px-2.5 py-1 rounded-md">
-                     <BookOpen size={12} strokeWidth={2.5} /> {t('active')}
+                  <span className="flex items-center gap-1.5 rounded-md bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2.5 py-1 text-[10px] font-black uppercase tracking-tighter text-[var(--app-primary)]">
+                    <BookOpen size={12} strokeWidth={2.5} /> {t('active')}
                   </span>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1.5">
-                 <span className="text-[10px] font-black text-gray-400 bg-gray-50 px-2 py-1 rounded-full uppercase tracking-widest">{group.inviteCode}</span>
-                 <div className="p-3 rounded-2xl bg-gray-50 text-gray-300 group-hover:bg-[#3D855A] group-hover:text-white transition-all shadow-sm">
-                    <ChevronRight size={18} strokeWidth={3} />
-                 </div>
+                <span className="rounded-full bg-[var(--app-surface-soft)] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  {group.inviteCode}
+                </span>
+                <div className="rounded-2xl bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)] shadow-sm transition-all group-hover:bg-[var(--app-primary)] group-hover:text-white">
+                  <ChevronRight size={18} strokeWidth={3} />
+                </div>
               </div>
             </div>
-           ))
-        ) : (
-          <div className="p-16 text-center bg-gray-50 rounded-[46px] border border-dashed border-gray-200">
-             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm shadow-emerald-500/5">
-                <Users size={30} className="text-gray-200" />
-             </div>
-             <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">{t('empty')}</p>
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <PageEmptyState title={t('empty')} description={t('emptyDescription')} />
+      )}
 
-      <div className="mt-8 flex justify-center pb-8 border-t border-gray-100/10 pt-8">
-         <button className="flex items-center gap-3 text-[11px] font-black text-gray-400 hover:text-gray-900 transition-all uppercase tracking-widest tracking-tighter">
-            <Calendar size={16} /> {t('fullSchedule')}
-         </button>
+      <div className="mt-8 flex justify-center border-t border-gray-100/10 pb-8 pt-8">
+        <button className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest tracking-tighter text-[var(--app-muted)] transition-colors hover:text-[var(--app-text)]">
+          <Calendar size={16} /> {t('fullSchedule')}
+        </button>
       </div>
-    </div>
+    </PageShell>
   );
 }

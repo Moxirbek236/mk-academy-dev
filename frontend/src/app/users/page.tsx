@@ -1,108 +1,107 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Search, UserPlus, MoreVertical, Shield, GraduationCap, User, Filter } from 'lucide-react';
+
+import { useState } from 'react';
+import { Filter, MoreVertical, Search, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
-import { fetchUsersCompat } from '@/lib/api-compat';
 import { isRoleAllowedForPath } from '@/lib/role-access';
+import { useUsers } from '@/hooks/useUsers';
+import {
+  PageEmptyState,
+  PageErrorState,
+  PageLoadingState,
+  PageShell,
+} from '@/app/components/ui/PagePrimitives';
 
 export default function UsersPage() {
   const t = useTranslations('UsersPage');
-  const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const uiT = useTranslations('UiStates');
   const { role, loading: authLoading } = useAuth();
-  const router = useRouter();
   const canAccess = isRoleAllowedForPath('/users', role);
-
   const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!canAccess) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchUsersCompat(role, searchTerm);
-        setUsers(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    const delayDebounceFn = setTimeout(() => {
-      fetchUsers();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [authLoading, canAccess, role, searchTerm]);
+  const { data: users, loading, error, refetch } = useUsers(role, searchTerm, canAccess && !authLoading);
 
   if (!authLoading && !canAccess) return null;
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between mb-8 px-1">
-        <div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('title')}</h1>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('total', { count: users.length })}</p>
-        </div>
-        <button className="bg-[#3D855A] text-white p-3 rounded-2xl shadow-lg shadow-[#3D855A]/20 active:scale-90 transition-all">
+    <PageShell
+      title={t('title')}
+      subtitle={t('total', { count: users.length })}
+      action={
+        <button className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95">
           <UserPlus size={20} strokeWidth={2.5} />
         </button>
-      </div>
-
-      {/* Search & Filter */}
-      <div className="flex gap-3 mb-8">
+      }
+    >
+      <div className="mb-8 flex gap-3">
         <div className="relative flex-1">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder={t('searchPlaceholder')} 
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--app-muted)]" />
+          <input
+            type="text"
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-gray-100 rounded-[20px] py-3.5 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
+            onChange={(event) => setSearchTerm(event.target.value)}
+            className="w-full rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
           />
         </div>
-        <button className="p-3.5 bg-white border border-gray-100 rounded-[20px] text-gray-400 hover:text-gray-900 transition-all shadow-sm">
-           <Filter size={18} />
+        <button className="rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-3.5 text-[var(--app-muted)] shadow-sm transition-colors hover:text-[var(--app-text)]">
+          <Filter size={18} />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 pb-20">
-        {loading ? (
-          <div className="flex justify-center p-20 opacity-20 col-span-full"><User size={40} className="animate-pulse" /></div>
-        ) : users.map((user, idx) => (
-          <div key={user.id || idx} className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl group transition-all cursor-pointer overflow-hidden active:scale-[0.98]">
-            <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-xl shadow-inner transition-all group-hover:scale-110 shrink-0 ${
-              user.role === 'SUPERADMIN' ? 'bg-[#FFEBEC] text-[#E54D2E]' : 
-              user.role === 'TEACHER' ? 'bg-[#F2F8F5] text-[#3D855A]' : 
-              'bg-blue-50 text-blue-600'
-            }`}>
-              {user.fullName?.charAt(0)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-extrabold text-[#111827] text-base truncate tracking-tight">{user.fullName || t('newUser')}</h3>
-              <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
-                <span className="text-[9px] font-black uppercase tracking-widest border border-gray-100 px-2 py-0.5 rounded-md text-gray-400 whitespace-nowrap">{user.role}</span>
-                {user.cefrLevel && (
-                   <>
-                     <span className="w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0" />
-                     <span className="text-[9px] font-black text-[#3D855A] uppercase tracking-widest whitespace-nowrap">{user.cefrLevel}</span>
-                   </>
-                )}
+      {loading ? (
+        <PageLoadingState title={uiT('loadingTitle')} description={uiT('loadingDescription')} />
+      ) : error ? (
+        <PageErrorState
+          title={uiT('errorTitle')}
+          description={error || uiT('errorDescription')}
+          retryLabel={uiT('retry')}
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : users.length === 0 ? (
+        <PageEmptyState title={t('emptyTitle')} description={t('emptyDescription')} />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 pb-20 md:grid-cols-2">
+          {users.map((user: any, index: number) => (
+            <div key={user.id || index} className="app-card flex items-center gap-5 overflow-hidden p-6 transition-all active:scale-[0.98]">
+              <div
+                className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-[24px] text-xl font-black shadow-inner ${
+                  user.role === 'SUPERADMIN'
+                    ? 'bg-[#FFEBEC] text-[#E54D2E]'
+                    : user.role === 'TEACHER'
+                      ? 'bg-[#F2F8F5] text-[#3D855A]'
+                      : 'bg-blue-50 text-blue-600'
+                }`}
+              >
+                {user.fullName?.charAt(0)}
               </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-text)]">
+                  {user.fullName || t('newUser')}
+                </h3>
+                <div className="mt-1.5 flex items-center gap-3 overflow-hidden">
+                  <span className="whitespace-nowrap rounded-md border border-[var(--app-border)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                    {user.role}
+                  </span>
+                  {user.cefrLevel ? (
+                    <>
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--app-border)]" />
+                      <span className="whitespace-nowrap text-[9px] font-black uppercase tracking-widest text-[var(--app-primary)]">
+                        {user.cefrLevel}
+                      </span>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+              <button className="shrink-0 p-3 text-[var(--app-muted)] transition-colors hover:text-[var(--app-text)]">
+                <MoreVertical size={20} strokeWidth={3} />
+              </button>
             </div>
-            <button className="p-3 text-gray-300 hover:text-gray-900 transition-all shrink-0">
-               <MoreVertical size={20} strokeWidth={3} />
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
+          ))}
+        </div>
+      )}
+    </PageShell>
   );
 }

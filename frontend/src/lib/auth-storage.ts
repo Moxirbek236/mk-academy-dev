@@ -2,6 +2,7 @@ import { Preferences } from '@capacitor/preferences';
 
 const TOKEN_KEY = 'token';
 const ROLE_KEY = 'role';
+const AUTH_CHANGE_EVENT = 'mk-auth-change';
 
 function hasLocalStorage() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
@@ -20,6 +21,11 @@ function setLocalValue(key: string, value: string) {
 function removeLocalValue(key: string) {
   if (!hasLocalStorage()) return;
   localStorage.removeItem(key);
+}
+
+function emitAuthChange() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(AUTH_CHANGE_EVENT));
 }
 
 async function getPreferenceValue(key: string): Promise<string | null> {
@@ -78,16 +84,19 @@ export async function setStoredAuth(token: string, role?: string | null): Promis
   if (role) {
     setLocalValue(ROLE_KEY, role);
     await setPreferenceValue(ROLE_KEY, role);
+    emitAuthChange();
     return;
   }
 
   removeLocalValue(ROLE_KEY);
   await removePreferenceValue(ROLE_KEY);
+  emitAuthChange();
 }
 
 export async function setStoredRole(role: string): Promise<void> {
   setLocalValue(ROLE_KEY, role);
   await setPreferenceValue(ROLE_KEY, role);
+  emitAuthChange();
 }
 
 export async function clearStoredAuth(): Promise<void> {
@@ -95,4 +104,21 @@ export async function clearStoredAuth(): Promise<void> {
   removeLocalValue(ROLE_KEY);
   await removePreferenceValue(TOKEN_KEY);
   await removePreferenceValue(ROLE_KEY);
+  emitAuthChange();
+}
+
+export function subscribeAuthChange(callback: () => void) {
+  if (typeof window === 'undefined') {
+    return () => undefined;
+  }
+
+  const handleChange = () => callback();
+
+  window.addEventListener(AUTH_CHANGE_EVENT, handleChange);
+  window.addEventListener('storage', handleChange);
+
+  return () => {
+    window.removeEventListener(AUTH_CHANGE_EVENT, handleChange);
+    window.removeEventListener('storage', handleChange);
+  };
 }

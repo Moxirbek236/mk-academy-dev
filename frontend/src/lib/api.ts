@@ -5,6 +5,8 @@ import { AppApiError, normalizeApiError } from '@/lib/offline/errors';
 import { emitApiNotice } from '@/lib/offline/events';
 import { isNetworkOnline } from '@/lib/offline/network';
 import { clearStoredAuth, getStoredToken } from '@/lib/auth-storage';
+import { stripLocaleFromPathname } from '@/i18n/pathname';
+import { isMockApiEnabled, mockApiAdapter } from '@/mocks/mock-api';
 
 interface OfflineRequestMeta {
   cacheKey?: string;
@@ -56,6 +58,7 @@ function isMutationRequest(config: ApiRequestConfig): boolean {
 
 const api = axios.create({
   baseURL: getBaseUrl(),
+  adapter: isMockApiEnabled() ? mockApiAdapter : undefined,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -174,7 +177,7 @@ api.interceptors.response.use(
     }
 
     if (axios.isAxiosError(error) && error.response?.status === 401 && typeof window !== 'undefined') {
-      const currentPath = window.location.pathname;
+      const currentPath = stripLocaleFromPathname(window.location.pathname);
       if (currentPath !== '/login' && currentPath !== '/landing') {
         await clearStoredAuth();
         window.location.href = '/landing';
