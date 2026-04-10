@@ -128,9 +128,32 @@ export default function LoginPage() {
       const body = res.data;
       const { token, role } = extractLoginData(body);
 
+<<<<<<< HEAD
+      if (body?.success && token) {
+        localStorage.setItem('token', token);
+        if (role) {
+          localStorage.setItem('role', role);
+        } else {
+          localStorage.removeItem('role');
+        }
+<<<<<<< HEAD
+<<<<<<< HEAD
+        router.push('/');
+=======
+        router.push(localized('/'));
+>>>>>>> cab6a08f4310aa76d8f51abae63bbe5dcfa375e1
+=======
+        router.push(localizePath(locale, '/'));
+>>>>>>> 718493ba637b8f2c4097d0d6735e6fef7bcd263c
+=======
       if (token) {
         await setStoredAuth(token, role);
+<<<<<<< HEAD
         router.replace(localizePath(locale, getRoleHomePath(role)));
+=======
+        router.replace(localizePath(locale, '/'));
+>>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
+>>>>>>> 6713fd1cd492c69a9feaedba20892940a45f746f
       } else {
         setError('Tizimga kirishda xatolik yuz berdi');
       }

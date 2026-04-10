@@ -114,9 +114,9 @@ model GroupAssignment {
 
 model Course {
   id          Int   @id @default(autoincrement())
-  title       String  @unique()
+  title       String
   description String?
-  level       String   @default("A1") 
+  level       String   @default("A1") // CEFR level
   imageUrl    String?  @map("image_url")
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")

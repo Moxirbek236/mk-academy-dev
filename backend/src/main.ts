@@ -81,6 +81,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  await app.listen(process.env.PORT || 3000);
   
   const port = process.env.PORT || 3001;
   await app.listen(port);
@@ -90,4 +92,4 @@ async function bootstrap() {
 bootstrap().catch((error) => {
   console.error('Application bootstrap failed:', error);
   process.exit(1);
-});
+})

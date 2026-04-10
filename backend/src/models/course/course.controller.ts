@@ -11,6 +11,7 @@ import {
   UseGuards,
   Query,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -121,8 +122,8 @@ export class CourseController {
   @Get()
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
   @ApiOperation({ summary: 'Get all courses (all roles)' })
-  async getAllCourses(@Query() query: QueryCourseDto) {
-    return this.courseService.getAllCourses(query);
+  async getAllCourses(@Query() query: QueryCourseDto,@Req() req:Request) {
+    return this.courseService.getAllCourses(query,req["user"].role);
   }
 
   @Get(':id')
