@@ -24,12 +24,11 @@ export interface NavigationItem {
 type NavigationConfig = Record<NavigationSurface, NavigationItem[]>;
 
 const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
-  superadmin: {
+    superadmin: {
     sidebar: [
       { path: '/dashboard', icon: Home, labelKey: 'dashboard' },
       { path: '/leads', icon: MessageCircle, labelKey: 'leads' },
       { path: '/users', icon: Users, labelKey: 'users' },
-      { path: '/groups', icon: Layers, labelKey: 'groups' },
       { path: '/courses', icon: BookOpen, labelKey: 'courses' },
       { path: '/finance', icon: DollarSign, labelKey: 'finance' },
       { path: '/system', icon: ShieldCheck, labelKey: 'system' },
@@ -38,7 +37,6 @@ const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
     bottom: [
       { path: '/dashboard', icon: Home, labelKey: 'dashboard' },
       { path: '/users', icon: Users, labelKey: 'users' },
-      { path: '/groups', icon: Layers, labelKey: 'groups' },
       { path: '/courses', icon: BookOpen, labelKey: 'courses' },
       { path: '/finance', icon: DollarSign, labelKey: 'finance' },
       { path: '/system', icon: ShieldCheck, labelKey: 'system' },
@@ -50,7 +48,6 @@ const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
       { path: '/dashboard', icon: Home, labelKey: 'home' },
       { path: '/leads', icon: MessageCircle, labelKey: 'leads' },
       { path: '/users', icon: Users, labelKey: 'students' },
-      { path: '/groups', icon: Layers, labelKey: 'groups' },
       { path: '/courses', icon: BookOpen, labelKey: 'courses' },
       { path: '/results', icon: LayoutGrid, labelKey: 'reports' },
       { path: '/settings', icon: SettingsIcon, labelKey: 'settings' },
@@ -66,16 +63,12 @@ const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
   teacher: {
     sidebar: [
       { path: '/dashboard', icon: Home, labelKey: 'monitor' },
-      { path: '/groups', icon: Layers, labelKey: 'groups' },
-      { path: '/users', icon: Users, labelKey: 'students' },
       { path: '/tasks', icon: BookOpen, labelKey: 'tasks' },
       { path: '/results', icon: LayoutGrid, labelKey: 'results' },
       { path: '/settings', icon: SettingsIcon, labelKey: 'settings' },
     ],
     bottom: [
       { path: '/dashboard', icon: Home, labelKey: 'monitor' },
-      { path: '/groups', icon: Layers, labelKey: 'groups' },
-      { path: '/users', icon: Users, labelKey: 'students' },
       { path: '/tasks', icon: BookOpen, labelKey: 'tasks' },
       { path: '/results', icon: LayoutGrid, labelKey: 'results' },
       { path: '/settings', icon: SettingsIcon, labelKey: 'settings' },
@@ -84,16 +77,12 @@ const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
   mentor: {
     sidebar: [
       { path: '/dashboard', icon: Home, labelKey: 'monitor' },
-      { path: '/groups', icon: Layers, labelKey: 'groups' },
-      { path: '/users', icon: Users, labelKey: 'students' },
       { path: '/tasks', icon: BookOpen, labelKey: 'tasks' },
       { path: '/results', icon: LayoutGrid, labelKey: 'results' },
       { path: '/settings', icon: SettingsIcon, labelKey: 'settings' },
     ],
     bottom: [
       { path: '/dashboard', icon: Home, labelKey: 'monitor' },
-      { path: '/groups', icon: Layers, labelKey: 'groups' },
-      { path: '/users', icon: Users, labelKey: 'students' },
       { path: '/tasks', icon: BookOpen, labelKey: 'tasks' },
       { path: '/results', icon: LayoutGrid, labelKey: 'results' },
       { path: '/settings', icon: SettingsIcon, labelKey: 'settings' },
