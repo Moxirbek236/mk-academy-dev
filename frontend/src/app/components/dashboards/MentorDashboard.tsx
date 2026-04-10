@@ -88,7 +88,7 @@ export function MentorDashboard() {
 
       <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
         {groups.map((group: any, index: number) => (
-          <div key={index} className="app-card group flex cursor-pointer items-center gap-5 p-6 transition-all active:scale-[0.98]">
+          <div key={index} onClick={() => window.location.href = `/groups/${group.id}`} className="app-card group flex cursor-pointer items-center gap-5 p-6 transition-all active:scale-[0.98]">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[16px] bg-[var(--app-surface-soft)] text-xl font-black text-[var(--app-primary)] shadow-inner transition-all group-hover:bg-[color:color-mix(in_srgb,var(--app-primary)_12%,white)]">
               {(group.name || '?').charAt(0)}
             </div>

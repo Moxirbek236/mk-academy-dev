@@ -425,6 +425,27 @@ export async function deleteGroup(id: number) {
   return unwrapApiData<any>(response.data);
 }
 
+// ── Group Members ────────────────────────────────────────────────────────────
+
+/** GET /group-members/:groupId — guruh a'zolari ro'yxati */
+export async function getGroupMembers(groupId: number) {
+  const response = await api.get(`/group-members/${groupId}`);
+  return (unwrapApiData<any[]>(response.data) ?? response.data) as any[];
+}
+
+/** POST /group-members/:groupId/add/:studentId — o'quvchini guruhga qo'shish */
+export async function addGroupMember(groupId: number, studentId: number) {
+  const response = await api.post(`/group-members/${groupId}/add/${studentId}`);
+  return unwrapApiData<any>(response.data);
+}
+
+/** DELETE /group-members/:groupId/remove/:studentId — o'quvchini guruhdan chiqarish */
+export async function removeGroupMember(groupId: number, studentId: number) {
+  const response = await api.delete(`/group-members/${groupId}/remove/${studentId}`);
+  return unwrapApiData<any>(response.data);
+}
+
+
 export async function listBooks() {
   const response = await api.get('/books');
   return unwrapApiData<any[]>(response.data) ?? [];

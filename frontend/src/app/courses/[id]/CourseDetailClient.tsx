@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Book, ChevronLeft, Loader2, PlayCircle, Trophy, Zap, Clock, Star, Users, CheckCircle2, ListTodo, MoreVertical, Heart, Share2, Info, ChevronRight } from 'lucide-react';
+import { Book, ChevronLeft, Loader2, PlayCircle, Trophy, Zap, Clock, Star, Users, CheckCircle2, ListTodo, MoreVertical, Heart, Share2, Info, ChevronRight, GraduationCap } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
@@ -8,6 +8,7 @@ export default function CourseDetailClient() {
   const { id } = useParams();
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [courseGroups, setCourseGroups] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -15,6 +16,10 @@ export default function CourseDetailClient() {
       try {
         const res = await api.get(`/courses/${id}`);
         setCourse(res.data?.data || res.data);
+        
+        // Fetch groups assigned to this course
+        const groupCourseRes = await api.get('/group-course', { params: { courseId: id } });
+        setCourseGroups(groupCourseRes.data?.data || groupCourseRes.data || []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -112,18 +117,45 @@ export default function CourseDetailClient() {
           </div>
         </section>
 
-        <section className="bg-gradient-to-br from-[#eff6ff] via-[#f8fbff] to-white rounded-[44px] p-10 text-gray-900 relative overflow-hidden group border border-[#dbeafe]">
-           <div className="absolute top-[-40px] right-[-40px] w-48 h-48 bg-[#2563eb]/15 rounded-full blur-[60px]" />
-           <div className="relative z-10 text-center">
-              <h3 className="text-2xl font-black tracking-tight leading-tight mb-3">Kursga qo&apos;shilishni xohlaysizmi?</h3>
-              <p className="text-sm font-bold text-gray-500 mb-10 leading-relaxed max-w-[200px] mx-auto">Guruhlarga qo&apos;shilib tajribali mentorlar nazoratida o&apos;rganing.</p>
-              <button 
-                onClick={() => router.push('/groups')}
-                className="w-full bg-[#2563eb] hover:bg-blue-700 text-white py-5 rounded-2xl font-black text-xs tracking-[0.2em] uppercase transition-all shadow-xl shadow-[#2563eb]/20 active:scale-[0.98]"
-              >
-                 GURUHLARNI KO&apos;RISH
-              </button>
-           </div>
+        <section>
+          <div className="flex items-center justify-between mb-4">
+             <h2 className="text-[11px] font-black text-gray-300 uppercase tracking-[0.2em]">KURS GURUHLARI</h2>
+             <span className="text-[10px] font-black text-amber-500 bg-amber-50 px-2.5 py-1 rounded-md uppercase">{courseGroups.length} ta</span>
+          </div>
+
+          {courseGroups.length === 0 ? (
+             <div className="bg-gradient-to-br from-[#eff6ff] via-[#f8fbff] to-white rounded-[44px] p-10 text-gray-900 border border-[#dbeafe] text-center">
+                 <h3 className="text-2xl font-black tracking-tight leading-tight mb-3">Guruhlar mavjud emas</h3>
+                 <p className="text-sm font-bold text-gray-500 max-w-[200px] mx-auto">Hozircha bu kursga hech qanday guruh biriktirilmagan.</p>
+             </div>
+          ) : (
+             <div className="flex flex-col gap-3">
+                {courseGroups.map((gCourse, index) => {
+                  const group = gCourse.group;
+                  return (
+                     <div key={index} className="bg-white p-5 rounded-[28px] border border-gray-100 flex items-center justify-between group hover:border-[#2563eb]/20 transition-all shadow-sm shadow-blue-900/5">
+                        <div className="flex items-center gap-4">
+                           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-blue-50 text-[var(--app-primary)] text-lg font-black transition-transform group-hover:scale-110">
+                              {group?.name?.charAt(0) || 'G'}
+                           </div>
+                           <div>
+                              <h4 className="font-extrabold text-[#111827] text-base tracking-tight leading-none mb-1">{group?.name}</h4>
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                                {group?.inviteCode || 'Noma\'lum'}
+                              </p>
+                           </div>
+                        </div>
+                        <button 
+                           onClick={() => router.push(`/groups/${group?.id}`)}
+                           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-[#2563eb] group-hover:text-white transition-all active:scale-95"
+                        >
+                           <ChevronRight size={18} strokeWidth={3} />
+                        </button>
+                     </div>
+                  );
+                })}
+             </div>
+          )}
         </section>
       </div>
     </div>

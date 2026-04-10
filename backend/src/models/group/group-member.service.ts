@@ -71,9 +71,24 @@ export class GroupMemberService {
   }
 
   async findMembers(groupId: number) {
-    return (this.prisma.groupMember as any).findMany({
-      where: { groupId: +groupId },
-      include: { student: true }
+    const group = await this.prisma.group.findUnique({ where: { id: +groupId } });
+    if (!group) throw new NotFoundException('Bunday guruh topilmadi');
+
+    return this.prisma.groupMember.findMany({
+      where: { groupId: +groupId, isActive: true },
+      include: {
+        student: {
+          select: {
+            id: true,
+            fullName: true,
+            phone: true,
+            avatarUrl: true,
+            cefrLevel: true,
+            role: true,
+          }
+        }
+      },
+      orderBy: { joinedAt: 'asc' }
     });
   }
 }

@@ -45,7 +45,26 @@ export class GroupService {
 
   //find one active group by id
   async findOne(id: number) {
-    const group = await this.prisma.group.findUnique({ where: { id }, include: { teacher: true, members: true } });
+    const group = await this.prisma.group.findUnique({
+      where: { id },
+      include: {
+        teacher: {
+          select: { id: true, fullName: true, phone: true, avatarUrl: true }
+        },
+        members: {
+          where: { isActive: true },
+          include: {
+            student: {
+              select: { id: true, fullName: true, phone: true, avatarUrl: true, cefrLevel: true }
+            }
+          },
+          orderBy: { joinedAt: 'asc' }
+        },
+        _count: {
+          select: { members: true }
+        }
+      }
+    });
     if (!group) {
       throw new NotFoundException('Bunday guruh mavjud emas');
     }
