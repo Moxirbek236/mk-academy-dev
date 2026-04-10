@@ -1,7 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getSiteUrl } from '@/lib/site';
 
-export const runtime = 'edge';
 export const dynamic = 'force-static';
 export const revalidate = 86400; // Har bir kunda bir marta yangilab turadi (build paytida)
 

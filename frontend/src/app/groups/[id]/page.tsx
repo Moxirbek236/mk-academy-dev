@@ -46,6 +46,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+export function generateStaticParams() {
+  return [{ id: '1' }, { id: '2' }, { id: '3' }];
+}
+
 export default async function GroupDetailPage({ params }: Props) {
   await params;
   return <GroupDetailClient />;

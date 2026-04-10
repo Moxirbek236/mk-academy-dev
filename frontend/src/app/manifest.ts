@@ -1,7 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getServerCenterBranding } from '@/lib/server-center-branding';
 
-export const runtime = 'edge';
 export const dynamic = 'force-static';
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
