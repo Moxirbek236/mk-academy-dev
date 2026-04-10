@@ -1,12 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { TestService } from './test.service';
 import { CreateTestDto, UpdateTestDto } from './dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { TestAttemptService } from './test-attempt.service';
 
 @ApiTags('tests')
 @Controller('tests')
 export class TestController {
-  constructor(private readonly testService: TestService) {}
+  constructor(
+    private readonly testService: TestService,
+    private readonly testAttemptService: TestAttemptService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new test template' })
@@ -19,6 +24,14 @@ export class TestController {
   @ApiOperation({ summary: 'Get all tests' })
   findAll() {
     return this.testService.findAll();
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('my-attempts')
+  @ApiOperation({ summary: 'Get test attempts for the current user scope' })
+  findMyAttempts(@Req() req: any) {
+    return this.testAttemptService.findForCurrentUser(req['user']);
   }
 
   @Get(':id')

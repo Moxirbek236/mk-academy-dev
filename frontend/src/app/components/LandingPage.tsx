@@ -19,7 +19,7 @@ import {
   PenTool,
   MessageCircle,
 } from 'lucide-react';
-import api from '@/lib/api';
+import { createLead } from '@/lib/backend-api';
 import { localizePath } from '@/i18n/localizedPath';
 
 export function LandingPage() {
@@ -32,7 +32,7 @@ export function LandingPage() {
     e.preventDefault();
     try {
       setStatus('loading');
-      await api.post('/leads', formData);
+      await createLead(formData);
       setStatus('success');
       setFormData({ fullName: '', phone: '', message: '' });
     } catch (err) {
@@ -83,7 +83,7 @@ export function LandingPage() {
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--app-primary)] opacity-10 blur-[120px] sm:h-[700px] sm:w-[700px]" />
 
         <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-white px-4 py-2 shadow-sm transition-all hover:border-[var(--app-primary)]/20 cursor-default">
-          <Sparkles size={16} className="text-emerald-500 animate-pulse" />
+          <Sparkles size={16} className="text-blue-500 animate-pulse" />
           <span className="text-[10px] font-black uppercase tracking-widest text-[var(--app-primary-dark)]">Ingliz tilini biz bilan o&apos;rganing</span>
         </div>
 
@@ -244,7 +244,7 @@ export function LandingPage() {
           </div>
 
           {status === 'success' && (
-            <p className="mt-6 text-center text-xs font-black text-emerald-500 uppercase tracking-widest">Muvaffaqiyatli yuborildi!</p>
+            <p className="mt-6 text-center text-xs font-black text-blue-500 uppercase tracking-widest">Muvaffaqiyatli yuborildi!</p>
           )}
           {status === 'error' && (
             <p className="mt-6 text-center text-xs font-black text-red-500 uppercase tracking-widest">Xatolik yuz berdi!</p>

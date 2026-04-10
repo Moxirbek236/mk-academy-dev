@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { StudentDashboard } from './components/dashboards/StudentDashboard';
@@ -7,37 +7,39 @@ import { MentorDashboard } from './components/dashboards/MentorDashboard';
 import { AdminDashboard } from './components/dashboards/AdminDashboard';
 import { SuperadminDashboard } from './components/dashboards/SuperadminDashboard';
 import { localizePath } from '@/i18n/localizedPath';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Dashboard() {
   const router = useRouter();
   const locale = useLocale();
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<string>('student');
+  const { role, token, loading } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push(localizePath(locale, '/landing'));
-    } else {
-      const storedRole = localStorage.getItem('role');
-      if (storedRole) setRole(storedRole.toLowerCase());
-      setLoading(false);
+    if (!loading && !token) {
+      router.replace(localizePath(locale, '/landing'));
     }
-  }, [router, locale]);
+  }, [loading, token, router, locale]);
 
-  if (loading) return null;
+  if (loading || !token) return null;
 
   const currentRole = role?.toLowerCase();
+  let content;
 
   switch (currentRole) {
     case 'teacher':
     case 'mentor':
-      return <MentorDashboard />;
+      content = <MentorDashboard />;
+      break;
     case 'admin':
-      return <AdminDashboard />;
+      content = <AdminDashboard />;
+      break;
     case 'superadmin':
-      return <SuperadminDashboard />;
+      content = <SuperadminDashboard />;
+      break;
     default:
-      return <StudentDashboard />;
+      content = <StudentDashboard />;
+      break;
   }
+
+  return <div className="app-page pb-6 sm:pb-8">{content}</div>;
 }

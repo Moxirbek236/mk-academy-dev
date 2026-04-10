@@ -1,99 +1,147 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { ShieldCheck, Server, HardDrive, Cpu, Activity, RefreshCw, AlertTriangle, Zap, Terminal, Clock, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+
+import { Activity, Database, Globe, HardDrive, RefreshCw, Server, ShieldCheck, Zap } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useSystemStats } from '@/hooks/useSystemStats';
+import { isRoleAllowedForPath } from '@/lib/role-access';
+import {
+  PageErrorState,
+  PageLoadingState,
+  PageShell,
+  StatCard,
+} from '@/app/components/ui/PagePrimitives';
 
 export default function SystemPage() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { role, loading: authLoading } = useAuth();
+  const canAccess = isRoleAllowedForPath('/system', role);
+  const { data, loading, error, refetch } = useSystemStats(canAccess && !authLoading);
 
-  const fetchData = async () => {
-    try {
-      const res = await api.get('/system/stats');
-      setData(res.data?.data || res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  if (!authLoading && !canAccess) return null;
 
-  useEffect(() => {
-    void fetchData();
-  }, []);
-
-  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
-
-  const serverLogs = data?.auditLogs || [
-    { type: 'Info', title: 'Backup completed successfully', time: '10 daqiqa oldin', status: 'Success' },
-    { type: 'Warning', title: 'Memory utilization high (85%)', time: '2 soat oldin', status: 'Warning' },
-    { type: 'Info', title: 'New SSL certificate deployed', time: '1 kun oldin', status: 'Success' },
-  ];
-
-  const sysStats = [
-    { label: 'CPU USAGE', value: `${data?.system?.cpuUsage?.toFixed(1) || 0}%`, icon: Cpu, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { label: 'RAM FREE', value: `${data?.system?.ramFree?.toFixed(1) || 0} GB`, icon: Activity, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'DISK SPACE', value: `${data?.system?.diskSpace || 0} GB`, icon: HardDrive, color: 'text-indigo-500', bg: 'bg-indigo-50' },
-    { label: 'NETWORK', value: `${data?.system?.networkMs || 0} ms`, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50' },
-  ];
+  const health = data.health;
+  const stats = data.stats;
+  const system = stats?.system || {};
+  const summary = stats?.summary || {};
+  const auditLogs = stats?.auditLogs || [];
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between mb-8 px-1">
-        <h1 className="text-2xl font-black text-gray-900 tracking-tight">Tizim</h1>
+    <PageShell
+      title="System"
+      subtitle={health?.status ? `Health: ${health.status}` : 'System monitoring'}
+      action={
         <button
           onClick={() => {
-            setRefreshing(true);
-            void fetchData();
+            void refetch();
           }}
-          className="bg-[#3D855A] text-white p-3 rounded-2xl active:scale-90 transition-all shadow-lg hover:shadow-xl"
+          className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
         >
-          <RefreshCw size={20} strokeWidth={2.5} className={refreshing ? 'animate-spin' : ''} />
+          <RefreshCw size={20} strokeWidth={2.5} />
         </button>
-      </div>
+      }
+    >
+      {loading ? (
+        <PageLoadingState title="System statslari yuklanmoqda" description="Health va resource ma'lumotlari olinmoqda" />
+      ) : error ? (
+        <PageErrorState
+          title="System sahifasida xatolik"
+          description={error}
+          retryLabel="Qayta urinish"
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : (
+        <>
+          <div className="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4">
+            <StatCard label="CPU usage" value={`${system.cpuUsage || 0}%`} icon={Activity} tone="primary" />
+            <StatCard label="RAM free" value={`${system.ramFree || 0} GB`} icon={Server} tone="info" />
+            <StatCard label="Disk" value={`${system.diskSpace || 0} GB`} icon={HardDrive} tone="accent" />
+            <StatCard label="Network" value={`${system.networkMs || 0} ms`} icon={Zap} tone="muted" />
+          </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-        {sysStats.map((item, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex flex-col items-center gap-4 text-center group hover:border-[#3D855A]/30 hover:shadow-xl transition-all h-full">
-            <div className={`p-5 rounded-[22px] transition-all group-hover:scale-110 shadow-inner ${item.bg} ${item.color}`}>
-               <item.icon size={26} strokeWidth={2.5} />
+          <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="app-card p-5">
+              <div className="mb-4 flex items-center gap-3">
+                <div className={`rounded-[14px] p-3 ${health?.database === 'connected' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'}`}>
+                  <ShieldCheck size={20} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">API health</p>
+                  <p className="mt-1 text-lg font-black text-[var(--app-text)]">{health?.status || 'unknown'}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Database</p>
+                  <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{health?.database || '-'}</p>
+                </div>
+                <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Node</p>
+                  <p className="mt-2 truncate text-sm font-bold text-[var(--app-text)]">{health?.nodeVersion || system.nodeVersion || '-'}</p>
+                </div>
+              </div>
             </div>
-            <div>
-               <p className="text-[10px] font-black text-gray-400 tracking-widest uppercase mb-1">{item.label}</p>
-               <p className="text-2xl font-black text-gray-900 tracking-tighter">{item.value}</p>
+
+            <div className="app-card p-5">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)]">
+                  <Database size={20} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Summary</p>
+                  <p className="mt-1 text-lg font-black text-[var(--app-text)]">Platform overview</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Users</p>
+                  <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{summary.totalUsers || 0}</p>
+                </div>
+                <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Groups</p>
+                  <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{summary.totalGroups || 0}</p>
+                </div>
+                <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Courses</p>
+                  <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{summary.totalCourses || 0}</p>
+                </div>
+                <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Transactions</p>
+                  <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{summary.totalTransactions || 0}</p>
+                </div>
+              </div>
             </div>
           </div>
-        ))}
-      </div>
 
-      <div className="px-2 flex items-center justify-between mb-6">
-         <h2 className="text-[12px] font-black text-gray-400 tracking-[0.15em] uppercase flex items-center gap-2">
-            <Terminal size={16} className="text-[#3D855A]" /> SERVER LOGLARI
-         </h2>
-         <button className="text-[10px] font-black text-[#3D855A] hover:underline uppercase tracking-widest">Live Feed</button>
-      </div>
-
-      <div className="flex flex-col gap-4 mb-10 pb-10">
-        {serverLogs.map((log: any, idx: number) => (
-          <div key={idx} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/20 group active:scale-[0.98] transition-all">
-            <div className={`p-4 rounded-[20px] transition-all group-hover:scale-110 shadow-2xl ${
-               log.status === 'Warning' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'
-            }`}>
-               <AlertTriangle size={24} strokeWidth={2.5} />
-            </div>
-            <div className="flex-1 truncate">
-               <h3 className="font-extrabold text-gray-900 text-[15px] leading-tight group-hover:translate-x-1 transition-transform truncate">{log.title}</h3>
-               <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-gray-100 text-gray-500 tracking-tighter uppercase">{log.type}</span>
-                  <p className="text-[10px] font-bold text-gray-400 tracking-tight">{log.time}</p>
-               </div>
-            </div>
-            <div className="p-2 text-gray-300"><Clock size={16} /></div>
+          <div className="mb-4 flex items-center gap-2 px-1 text-[12px] font-black uppercase tracking-[0.15em] text-[var(--app-muted)]">
+            <Globe size={14} className="text-[var(--app-primary)]" />
+            Audit logs
           </div>
-        ))}
-      </div>
-    </div>
+          <div className="grid grid-cols-1 gap-4 pb-20">
+            {auditLogs.map((log: any, index: number) => (
+              <div key={`${log.title}-${index}`} className="app-card flex items-center gap-4 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
+                  <Activity size={18} strokeWidth={2.5} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-text)]">{log.title}</h3>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      {log.type}
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      {log.time}
+                    </span>
+                  </div>
+                </div>
+                <span className="rounded-full bg-[var(--app-surface-soft)] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-text)]">
+                  {log.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </PageShell>
   );
 }

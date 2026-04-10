@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { TestService } from './test.service';
 import { TestController } from './test.controller';
 import { QuestionService } from './question.service';
@@ -9,7 +10,7 @@ import { GamificationModule } from '../gamification/gamification.module';
 import { PrismaModule } from 'src/core/config/prisma.module';
 
 @Module({
-  imports: [GamificationModule, PrismaModule],
+  imports: [GamificationModule, PrismaModule, JwtModule],
   controllers: [
     TestController,
     QuestionController,

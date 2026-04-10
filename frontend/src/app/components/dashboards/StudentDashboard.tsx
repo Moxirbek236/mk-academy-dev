@@ -1,204 +1,249 @@
 'use client';
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { BookOpen, ListTodo, X, Loader2, Sparkles, Trophy, Zap, Clock, ChevronRight, Target, BrainCircuit, Users, PlusCircle } from 'lucide-react';
+import { ArrowUpRight, BookOpen, CheckSquare, ChevronRight, ListTodo, Users, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { ExamCard } from '../ExamCard';
+import { useTranslations } from 'next-intl';
 import { LessonCard } from '../LessonCard';
-import api from '@/lib/api';
+import { useDashboard } from '@/hooks/useDashboard';
+import { useCourses } from '@/hooks/useCourses';
+import { PageEmptyState, PageErrorState, PageLoadingState } from '@/app/components/ui/PagePrimitives';
 
 export function StudentDashboard() {
-  const [data, setData] = useState<any>(null);
+  const t = useTranslations('DashboardStudent');
+  const uiT = useTranslations('UiStates');
+  const { data, loading, error, refetch } = useDashboard();
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const {
+    data: coursesData,
+    loading: coursesLoading,
+    error: coursesError,
+    refetch: refetchCourses,
+  } = useCourses({ page: 1, limit: 3 });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const statsRes = await api.get('/dashboard/stats');
-        setData(statsRes.data?.data || statsRes.data);
-        
-        const tasksRes = await api.get('/tasks');
-        setTasks(tasksRes.data?.data || tasksRes.data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const studentGroups = Array.isArray(data?.myGroups) ? data.myGroups : [];
+  const visibleCourses = Array.isArray(coursesData?.items) ? coursesData.items.slice(0, 3) : [];
 
-  const stats = [
-    { label: 'Ranking', value: data?.rank || 'Top 10%', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50', trend: '+2%' },
-    { label: 'Streak', value: `${data?.streak || 0} Days`, icon: Zap, color: 'text-orange-500', bg: 'bg-orange-50', trend: 'Active' },
-    { label: 'Accuracy', value: '94%', icon: Target, color: 'text-blue-500', bg: 'bg-blue-50', trend: '+5%' },
-    { label: 'Mastery', value: '12/40', icon: BrainCircuit, color: 'text-purple-500', bg: 'bg-purple-50', trend: 'Good' },
-  ];
+  if (loading || coursesLoading) {
+    return <PageLoadingState title={uiT('loadingTitle')} description={uiT('loadingDescription')} />;
+  }
 
-  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+  if (error || coursesError) {
+    return (
+      <PageErrorState
+        title={uiT('errorTitle')}
+        description={error || coursesError}
+        retryLabel={uiT('retry')}
+        onRetry={() => {
+          void Promise.all([refetch(), refetchCourses()]);
+        }}
+      />
+    );
+  }
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-      {/* Gamification / Progress Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-         {stats.map((stat, idx) => (
-            <div key={idx} className="app-card p-5 flex items-center gap-4 active:scale-[0.98]">
-               <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
-                  <stat.icon size={20} strokeWidth={2.5} />
-               </div>
-               <div>
-                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">{stat.label}</p>
-                  <p className="text-sm font-black text-[var(--app-text)] mt-1 tracking-tight">{stat.value}</p>
-               </div>
-            </div>
-         ))}
-      </div>
-
-      <div className="mb-10 px-1 animate-in fade-in slide-in-from-right-4 duration-1000">
-         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-4 flex items-center gap-2">
-            <Users size={14} className="text-[var(--app-primary)]" /> MENING GURUHLARIM
-         </h2>
-         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
-            {[1, 2].map((_, i) => (
-               <div key={i} onClick={() => router.push('/groups')} className="min-w-[260px] app-card p-6 flex items-center gap-4 cursor-pointer group">
-                  <div className="w-14 h-14 rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-primary)] flex items-center justify-center font-black text-lg group-hover:bg-[var(--app-primary)] group-hover:text-white transition-all shadow-sm">
-                     G{i+1}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                     <h4 className="font-extrabold text-[var(--app-text)] text-sm tracking-tight truncate">IELTS Foundation</h4>
-                     <p className="text-[10px] font-bold text-[var(--app-muted)] uppercase tracking-widest mt-0.5">Mentor: Maqsud</p>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-[var(--app-surface-soft)] text-gray-300 group-hover:text-[var(--app-primary)] group-hover:bg-[var(--app-primary)]/10 transition-all">
-                     <ChevronRight size={18} strokeWidth={3} />
-                  </div>
-               </div>
-            ))}
-            <button className="min-w-[160px] border-2 border-dashed border-[var(--app-border)] rounded-[var(--radius-premium)] flex flex-col items-center justify-center gap-2 text-[var(--app-muted)] hover:border-[var(--app-primary)]/30 hover:text-[var(--app-primary)] transition-all group active:scale-95 bg-white/40">
-               <PlusCircle size={24} />
-               <span className="text-[10px] font-black uppercase tracking-widest">YANGI GURUH</span>
-            </button>
-         </div>
-      </div>
-
-      <div className="mb-10">
-        <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-4 px-2 flex items-center gap-2 font-black">
-           <Sparkles size={14} className="text-[var(--app-primary)]" /> KEYINGI IMTIHON
+    <div className="animate-in fade-in slide-in-from-bottom-6 space-y-8 duration-500">
+      <section className="space-y-4">
+        <h2 className="flex items-center gap-2 px-1 text-[12px] font-black uppercase tracking-[0.15em] text-[var(--app-muted)]">
+          <Users size={14} className="text-[var(--app-primary)]" /> {t('myGroups')}
         </h2>
-        <ExamCard />
-      </div>
 
-      <div className="mt-10 mb-6 flex items-center justify-between px-2">
-         <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase px-1">O&apos;QUV REJANGIZ</h2>
-         <button className="text-[10px] font-black text-[var(--app-primary)] uppercase tracking-widest flex items-center gap-1 group bg-[var(--app-primary)]/10 px-3 py-1.5 rounded-full hover:bg-[var(--app-primary)]/20 transition-all">
-            All Units <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
-         </button>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        {loading ? (
-           <div className="flex justify-center p-10 col-span-full"><Loader2 className="animate-spin text-[var(--app-primary)] opacity-50" size={32} /></div>
-        ) : tasks.length > 0 ? (
-           tasks.map((task: any, idx: number) => (
-             <LessonCard 
-                key={task.id}
-                unit={(idx + 1).toString()} 
-                title={task.title} 
-                status={idx === 0 ? "done" : idx === 1 ? "done" : "locked"} 
-                progress={idx === 0 ? 100 : idx === 1 ? 40 : 0} 
-                onClick={() => setSelectedUnit((idx + 1).toString())}
-             />
-           ))
+        {studentGroups.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            {studentGroups.map((group: any) => (
+              <button
+                key={group.id}
+                onClick={() => router.push('/groups')}
+                className="app-card flex items-center gap-4 p-5 text-left transition-all active:scale-[0.98] sm:p-6"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[var(--app-surface-soft)] text-lg font-black text-[var(--app-primary)] sm:h-14 sm:w-14">
+                  {(group.name || 'G').slice(0, 1).toUpperCase()}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-text)]">
+                    {group.name}
+                  </h3>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
+                    {t('mentor', { name: group.teacherName || 'Mentor' })}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-[var(--app-surface-soft)] px-2.5 py-1 text-[10px] font-bold text-[var(--app-muted)]">
+                      {group.lessons}
+                    </span>
+                    <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2.5 py-1 text-[10px] font-bold text-[var(--app-primary)]">
+                      {group.nextLesson}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)]">
+                  <ChevronRight size={18} strokeWidth={3} />
+                </div>
+              </button>
+            ))}
+          </div>
         ) : (
-          <>
-            <LessonCard 
-              unit="1" 
-              title="Essential Grammar - 8 Lessons" 
-              status="done" 
-              progress={100} 
-              onClick={() => setSelectedUnit("1")}
-            />
-            <LessonCard 
-              unit="2" 
-              title="Daily Conversation - 10 Lessons" 
-              status="done" 
-              progress={40} 
-              onClick={() => setSelectedUnit("2")}
-            />
-            <LessonCard 
-              unit="3" 
-              title="Business English - 12 Lessons" 
-              status="locked" 
-              progress={0} 
-            />
-          </>
+          <PageEmptyState title={t('myGroups')} description={t('emptyGroupsDescription')} />
         )}
-      </div>
+      </section>
 
-      <div className="mt-12 bg-mesh app-card p-8 text-[var(--app-text)] relative overflow-hidden group mb-10">
-         <div className="absolute top-[-20px] right-[-20px] w-48 h-48 bg-[var(--app-primary)]/10 rounded-full blur-[60px] opacity-60" />
-         <div className="relative z-10">
-            <h3 className="text-2xl font-black tracking-tight leading-tight mb-2">Practice Vocabulary</h3>
-            <p className="text-sm font-bold text-[var(--app-muted)] mb-8 leading-relaxed max-w-sm">Spaced Repetition (SM-2) orqali yanada tezroq eslab qoling va so&apos;z boyligingizni oshiring.</p>
-            <button 
-               onClick={() => router.push('/vocabulary-practice')}
-               className="btn-premium bg-[var(--app-primary)] text-white shadow-[0_15px_30px_-10px_rgba(16,185,129,0.5)] border-none"
-            >
-               <Clock size={16} strokeWidth={2.5} className="mr-2" /> Train Now
-            </button>
-         </div>
-      </div>
+      <section className="space-y-5">
+        <div className="flex items-center justify-between gap-3 px-1">
+          <h2 className="text-[12px] font-black uppercase tracking-[0.15em] text-[var(--app-muted)]">
+            {t('studyPlan')}
+          </h2>
+          <button
+            onClick={() => router.push('/learning')}
+            className="flex items-center gap-1 rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)]"
+          >
+            {t('allUnits')} <ChevronRight size={12} />
+          </button>
+        </div>
+
+        <button
+          onClick={() => router.push('/results')}
+          className="app-card w-full overflow-hidden border-[color:color-mix(in_srgb,var(--app-accent)_18%,var(--app-border))] bg-[linear-gradient(135deg,#fff9ee_0%,#ffffff_55%,#f8fbf9_100%)] p-5 text-left transition-all active:scale-[0.99] sm:p-6"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] border border-[#f5d9a6] bg-[#fff2d9] text-[#c78736] shadow-sm sm:h-14 sm:w-14">
+                <CheckSquare size={22} strokeWidth={2.5} />
+              </div>
+              <div className="min-w-0">
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[#fff1d7] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.16em] text-[#c78736]">
+                    {t('nextExam')}
+                  </span>
+                  <span className="rounded-full border border-[#f3deba] bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.16em] text-[#9a6a26]">
+                    {t('unitExamCountdown')}
+                  </span>
+                </div>
+                <h3 className="text-lg font-black tracking-tight text-[var(--app-text)] sm:text-xl">
+                  {t('unitExamTitle')}
+                </h3>
+                <p className="mt-1 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+                  {t('unitExamDescription')}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-4 sm:flex-col sm:items-end sm:text-right">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--app-muted)]">
+                  {t('unitExamMetaLabel')}
+                </p>
+                <p className="mt-1 text-sm font-black text-[var(--app-text)]">{t('unitExamMeta')}</p>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-[14px] bg-[var(--app-primary)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-white">
+                {t('unitExamAction')}
+                <ArrowUpRight size={14} strokeWidth={3} />
+              </div>
+            </div>
+          </div>
+        </button>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {visibleCourses.length > 0 ? (
+            visibleCourses.map((course: any, idx: number) => (
+              <LessonCard
+                key={course.id}
+                unit={course.level || (idx + 1).toString()}
+                title={course.title}
+                status={course.isActive === false ? 'locked' : 'done'}
+                progress={course.isActive === false ? 0 : Math.max(40, 100 - idx * 20)}
+                onClick={() => setSelectedUnit((idx + 1).toString())}
+              />
+            ))
+          ) : (
+            <>
+              {coursesError ? (
+                <div className="rounded-[18px] border border-dashed border-[var(--app-border)] bg-[var(--app-surface)] p-4 text-center text-sm font-semibold text-[var(--app-muted)] lg:col-span-2">
+                  {coursesError}
+                </div>
+              ) : null}
+              <LessonCard
+                unit="1"
+                title={t('fallbackLesson1')}
+                status="done"
+                progress={100}
+                onClick={() => setSelectedUnit('1')}
+              />
+              <LessonCard
+                unit="2"
+                title={t('fallbackLesson2')}
+                status="done"
+                progress={55}
+                onClick={() => setSelectedUnit('2')}
+              />
+              <LessonCard unit="3" title={t('fallbackLesson3')} status="locked" progress={0} />
+            </>
+          )}
+        </div>
+      </section>
 
       <Dialog.Root open={!!selectedUnit} onOpenChange={(open) => !open && setSelectedUnit(null)}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/35 backdrop-blur-sm z-50 animate-in fade-in duration-300" />
-          <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[92%] max-w-[360px] bg-white rounded-[42px] p-8 shadow-[0_25px_60px_rgba(0,0,0,0.25)] z-50 focus:outline-none animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden border border-gray-100">
-            <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-[#3D855A]/5 rounded-full blur-[30px]" />
-            
-            <div className="flex justify-between items-start mb-10 relative z-10">
+          <Dialog.Overlay className="fixed inset-0 z-50 animate-in fade-in bg-black/35 backdrop-blur-sm duration-300" />
+          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-[calc(100%-1.5rem)] max-w-[360px] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-[22px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-[0_18px_50px_rgba(15,23,42,0.18)] outline-none animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-500 sm:p-8">
+            <div className="relative z-10 mb-8 flex items-start justify-between">
               <div>
-                <Dialog.Title className="text-2xl font-black text-[#111827] tracking-tighter">Unit {selectedUnit}</Dialog.Title>
-                <Dialog.Description className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-widest">Select Your Focus</Dialog.Description>
+                <Dialog.Title className="text-2xl font-black tracking-tighter text-[var(--app-text)]">
+                  {t('unitTitle', { unit: selectedUnit ?? '' })}
+                </Dialog.Title>
+                <Dialog.Description className="mt-1 text-sm font-bold uppercase tracking-widest text-[var(--app-muted)]">
+                  {t('selectFocus')}
+                </Dialog.Description>
               </div>
               <Dialog.Close asChild>
-                <button className="p-3 rounded-[20px] bg-gray-50 text-gray-400 hover:text-[#111827] hover:bg-gray-100 transition-all active:scale-90">
+                <button className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)] transition-all active:scale-90 hover:text-[var(--app-text)]">
                   <X size={20} strokeWidth={3} />
                 </button>
               </Dialog.Close>
             </div>
 
-            <div className="flex flex-col gap-4 relative z-10">
-              <button 
+            <div className="relative z-10 flex flex-col gap-4">
+              <button
                 onClick={() => router.push(`/unit/${selectedUnit}/vocabulary`)}
-                className="flex items-center gap-5 bg-[#F4F7F5] p-5 rounded-[28px] hover:bg-[#E8ECE9] active:scale-[0.98] transition-all text-left group border border-transparent hover:border-[#3D855A]/20 shadow-sm"
+                className="flex items-center gap-4 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-4 text-left transition-all active:scale-[0.98] hover:border-[color:color-mix(in_srgb,var(--app-primary)_20%,var(--app-border))] sm:gap-5 sm:p-5"
               >
-                <div className="bg-white p-4 rounded-[20px] shadow-sm text-[#3D855A] group-hover:scale-110 group-hover:rotate-6 transition-all ring-4 ring-white/10 group-hover:bg-[#3D855A] group-hover:text-white">
-                  <BookOpen size={26} strokeWidth={2.5} />
+                <div className="rounded-[14px] bg-[var(--app-surface)] p-4 text-[var(--app-primary)]">
+                  <BookOpen size={24} strokeWidth={2.5} />
                 </div>
-                <div>
-                  <h4 className="font-extrabold text-[#111827] text-lg tracking-tight">Vocabulary</h4>
-                  <p className="text-[11px] text-gray-400 font-bold mt-0.5 tracking-tight">Expand your word base</p>
+                <div className="min-w-0">
+                  <h4 className="text-base font-extrabold tracking-tight text-[var(--app-text)] sm:text-lg">
+                    {t('vocabulary')}
+                  </h4>
+                  <p className="mt-0.5 text-[11px] font-bold tracking-tight text-[var(--app-muted)]">
+                    {t('vocabularyDescription')}
+                  </p>
                 </div>
               </button>
 
-              <button 
+              <button
                 onClick={() => router.push(`/unit/${selectedUnit}/tasks`)}
-                className="flex items-center gap-5 bg-[#FFF9ED] p-5 rounded-[28px] hover:bg-[#FCEECC] active:scale-[0.98] transition-all text-left group border border-transparent hover:border-[#C78736]/20 shadow-sm"
+                className="flex items-center gap-4 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-4 text-left transition-all active:scale-[0.98] hover:border-[color:color-mix(in_srgb,var(--app-accent)_24%,var(--app-border))] sm:gap-5 sm:p-5"
               >
-                <div className="bg-white p-4 rounded-[20px] shadow-sm text-[#C78736] group-hover:scale-110 group-hover:-rotate-6 transition-all ring-4 ring-white/10 group-hover:bg-[#C78736] group-hover:text-white">
-                  <ListTodo size={26} strokeWidth={2.5} />
+                <div className="rounded-[14px] bg-[var(--app-surface)] p-4 text-[var(--app-accent)]">
+                  <ListTodo size={24} strokeWidth={2.5} />
                 </div>
-                <div>
-                  <h4 className="font-extrabold text-[#111827] text-lg tracking-tight">Practice</h4>
-                  <p className="text-[11px] text-gray-400 font-bold mt-0.5 tracking-tight">Apply what you learned</p>
+                <div className="min-w-0">
+                  <h4 className="text-base font-extrabold tracking-tight text-[var(--app-text)] sm:text-lg">
+                    {t('practice')}
+                  </h4>
+                  <p className="mt-0.5 text-[11px] font-bold tracking-tight text-[var(--app-muted)]">
+                    {t('practiceDescription')}
+                  </p>
                 </div>
               </button>
             </div>
-            
-            <div className="mt-8 flex justify-center pb-2">
-               <p className="text-[9px] font-black text-gray-300 uppercase tracking-[0.2em] opacity-80">MK Academy Learning Engine</p>
+
+            <div className="mt-8 flex justify-center pb-1">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)] opacity-80">
+                {t('footer')}
+              </p>
             </div>
           </Dialog.Content>
         </Dialog.Portal>

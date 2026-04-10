@@ -55,7 +55,7 @@ export default function BookViewerClient() {
             </p>
           </div>
           
-          <div className="absolute bottom-4 right-4 p-2 bg-[#3D855A] text-white rounded-lg shadow-lg">
+          <div className="absolute bottom-4 right-4 p-2 bg-[#2563eb] text-white rounded-lg shadow-lg">
              <Maximize2 size={16} />
           </div>
         </div>
@@ -71,13 +71,13 @@ export default function BookViewerClient() {
         </button>
         <div className="flex flex-col items-center gap-1.5">
            <div className="flex gap-1 h-1 w-24 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-[#3D855A] rounded-full" style={{ width: `${(page / totalPages) * 100}%` }} />
+              <div className="h-full bg-[#2563eb] rounded-full" style={{ width: `${(page / totalPages) * 100}%` }} />
            </div>
            <span className="text-[10px] font-black text-gray-900 tracking-tighter uppercase">{Math.round((page / totalPages) * 100)}% o&apos;qildi</span>
         </div>
         <button 
           onClick={() => setPage(Math.min(totalPages, page + 1))}
-          className="flex items-center gap-1 text-[11px] font-extrabold text-[#3D855A] hover:text-[#2d6343] transition-colors"
+          className="flex items-center gap-1 text-[11px] font-extrabold text-[#2563eb] hover:text-[#1d4ed8] transition-colors"
         >
           Keyingisi <ChevronRight size={16} strokeWidth={3} />
         </button>

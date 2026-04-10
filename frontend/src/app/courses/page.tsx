@@ -1,153 +1,300 @@
 'use client';
 
+import { useState } from 'react';
+import { BookOpen, Eye, Loader2, Pencil, PlusCircle, Search, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { useCourses } from '@/hooks/useCourses';
 import {
-  BookOpen,
-  PlusCircle,
-  Search,
-  Filter,
-  MoreVertical,
-  Layers,
-  ListTodo,
-  Loader2,
-  RefreshCw,
-  Database,
-  AlertTriangle,
-} from 'lucide-react';
-import { useOfflineQuery } from '@/hooks/useOfflineQuery';
-import { getApiErrorMessage } from '@/lib/offline/request';
+  CEFR_LEVELS,
+  createCourse,
+  deleteCourse,
+  type CefrLevel,
+  updateCourse,
+} from '@/lib/backend-api';
+import { hasRoleCapability } from '@/lib/role-access';
+import {
+  PageEmptyState,
+  PageErrorState,
+  PageLoadingState,
+  PageShell,
+} from '@/app/components/ui/PagePrimitives';
 
-interface Course {
-  title: string;
-  level?: string;
-  isActive?: boolean;
-  _count?: {
-    tasks?: number;
-    tests?: number;
-    groups?: number;
-  };
-}
+const EMPTY_FORM = {
+  title: '',
+  level: 'A1' as CefrLevel,
+  description: '',
+  isActive: true,
+};
 
 export default function CoursesPage() {
-  const { data, loading, error, fromCache, cachedAt, isEmpty, refetch } = useOfflineQuery<Course[]>({
-    url: '/courses',
-    initialData: [],
-  });
+  const router = useRouter();
+  const { role } = useAuth();
+  const canManageCourses = hasRoleCapability(role, 'manage_courses');
+  const [search, setSearch] = useState('');
+  const [level, setLevel] = useState<CefrLevel | ''>('');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<any | null>(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
-  const courses = data || [];
+  const { data, loading, error, refetch } = useCourses({ search, level });
+  const courses = data.items || [];
 
-  if (loading) {
-    return (
-      <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin text-[#3D855A]" size={40} />
-      </div>
-    );
+  function openCreateModal() {
+    setEditingCourse(null);
+    setForm(EMPTY_FORM);
+    setIsFormOpen(true);
   }
 
-  if (error) {
-    return (
-      <div className="rounded-[32px] border border-red-100 bg-red-50 p-8 text-center">
-        <AlertTriangle size={36} className="mx-auto mb-3 text-red-500" />
-        <p className="text-sm font-extrabold text-red-700">{getApiErrorMessage(error)}</p>
-        <button
-          onClick={() => void refetch()}
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-black uppercase tracking-wider text-red-700 shadow-sm"
-        >
-          <RefreshCw size={14} />
-          Qayta urinish
-        </button>
-      </div>
-    );
+  function openEditModal(course: any) {
+    setEditingCourse(course);
+    setForm({
+      title: course.title || '',
+      level: (course.level || 'A1') as CefrLevel,
+      description: course.description || '',
+      isActive: course.isActive ?? true,
+    });
+    setIsFormOpen(true);
+  }
+
+  async function handleSubmit() {
+    try {
+      setSubmitting(true);
+      setMutationError(null);
+
+      if (editingCourse) {
+        await updateCourse(editingCourse.id, form);
+      } else {
+        await createCourse(form);
+      }
+
+      setIsFormOpen(false);
+      setEditingCourse(null);
+      setForm(EMPTY_FORM);
+      await refetch();
+    } catch (courseError) {
+      setMutationError(courseError instanceof Error ? courseError.message : "Kursni saqlab bo'lmadi");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      setMutationError(null);
+      await deleteCourse(id);
+      await refetch();
+    } catch (deleteError) {
+      setMutationError(deleteError instanceof Error ? deleteError.message : "Kursni o'chirib bo'lmadi");
+    }
   }
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-8 flex items-center justify-between px-1">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-gray-900">Kurslar</h1>
-          <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">Jami: {courses.length} ta</p>
-          {fromCache && (
-            <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-amber-700">
-              <Database size={11} />
-              Cached ma&apos;lumot{cachedAt ? ` (${new Date(cachedAt).toLocaleString()})` : ''}
-            </p>
-          )}
-        </div>
-        <button className="rounded-2xl bg-[#3D855A] p-3 text-white shadow-lg shadow-[#3D855A]/20 transition-all active:scale-90">
-          <PlusCircle size={20} strokeWidth={2.5} />
-        </button>
-      </div>
-
-      <div className="mb-8 flex gap-3">
-        <div className="relative flex-1">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+    <PageShell
+      title="Kurslar"
+      subtitle={`Jami: ${data.meta?.total || courses.length} ta`}
+      action={
+        canManageCourses ? (
+          <button
+            onClick={openCreateModal}
+            className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+          >
+            <PlusCircle size={20} strokeWidth={2.5} />
+          </button>
+        ) : undefined
+      }
+    >
+      <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_180px]">
+        <div className="relative">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--app-muted)]" />
           <input
             type="text"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
             placeholder="Kurslarni qidirish..."
-            className="w-full rounded-[20px] border border-gray-100 bg-white py-4 pl-11 pr-4 text-sm font-semibold shadow-sm transition-all focus:border-[#3D855A] focus:outline-none"
+            className="w-full rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
           />
         </div>
-        <button className="rounded-[20px] border border-gray-100 bg-white p-4 text-gray-400 shadow-sm transition-all hover:text-gray-900">
-          <Filter size={18} />
-        </button>
+
+        <select
+          value={level}
+          onChange={(event) => setLevel(event.target.value as CefrLevel | '')}
+          className="rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3.5 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
+        >
+          <option value="">Barcha level</option>
+          {CEFR_LEVELS.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="flex flex-col gap-4 pb-20">
-        {!isEmpty ? (
-          courses.map((course, idx) => (
-            <div
-              key={idx}
-              className="group flex items-center gap-5 overflow-hidden rounded-[38px] border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98]"
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-[#F2F8F5] text-xl font-black text-[#3D855A] shadow-inner transition-all group-hover:rotate-6 group-hover:bg-[#3D855A] group-hover:text-white">
-                <BookOpen size={24} strokeWidth={2.5} />
-              </div>
-              <div className="flex-1 truncate">
-                <h3 className="truncate text-lg font-extrabold tracking-tight text-[#111827]">{course.title}</h3>
-                <div className="no-scrollbar mt-1.5 flex items-center gap-3 overflow-x-auto">
-                  <span className="rounded-md bg-gray-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-gray-500">
-                    {course.level || 'UNKNOWN'}
-                  </span>
-                  <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[#3D855A]">
-                    {(course._count?.tasks || 0) + (course._count?.tests || 0)} dars
-                  </span>
-                  <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-blue-500">
-                    {(course._count?.groups || 0) * 12} o&apos;quvchi
-                  </span>
+      {mutationError ? (
+        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          {mutationError}
+        </div>
+      ) : null}
+
+      {loading ? (
+        <PageLoadingState title="Kurslar yuklanmoqda" description="Backenddagi kurslar ro'yxati olinmoqda" />
+      ) : error ? (
+        <PageErrorState
+          title="Kurslarni olishda xatolik"
+          description={error}
+          retryLabel="Qayta urinish"
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : courses.length === 0 ? (
+        <PageEmptyState title="Kurslar topilmadi" description="Hozircha filterga mos kurs yo'q." />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 pb-20 xl:grid-cols-2">
+          {courses.map((course: any) => (
+            <div key={course.id} className="app-card flex flex-col gap-4 p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
+                  <BookOpen size={22} strokeWidth={2.5} />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-lg font-extrabold tracking-tight text-[var(--app-text)]">
+                    {course.title}
+                  </h3>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      {course.level}
+                    </span>
+                    <span className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${course.isActive ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'}`}>
+                      {course.isActive ? 'ACTIVE' : 'INACTIVE'}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-1">
-                <button className="rounded-xl bg-gray-50 p-2.5 text-gray-300 transition-all hover:bg-gray-100 hover:text-gray-900">
-                  <MoreVertical size={18} strokeWidth={2.5} />
+
+              <p className="line-clamp-3 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+                {course.description || "Tavsif kiritilmagan."}
+              </p>
+
+              <div className={`grid gap-2 ${canManageCourses ? 'grid-cols-3' : 'grid-cols-1'}`}>
+                <button
+                  onClick={() => router.push(`/courses/${course.id}`)}
+                  className="flex items-center justify-center gap-2 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
+                >
+                  <Eye size={14} />
+                  Ochish
                 </button>
-                {!course.isActive && (
-                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-amber-500">
-                    Draft
-                  </span>
-                )}
+
+                {canManageCourses ? (
+                  <>
+                    <button
+                      onClick={() => openEditModal(course)}
+                      className="flex items-center justify-center gap-2 rounded-[14px] bg-amber-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                    >
+                      <Pencil size={14} />
+                      Tahrirlash
+                    </button>
+                    <button
+                      onClick={() => void handleDelete(course.id)}
+                      className="flex items-center justify-center gap-2 rounded-[14px] bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                    >
+                      <Trash2 size={14} />
+                      O'chirish
+                    </button>
+                  </>
+                ) : null}
               </div>
             </div>
-          ))
-        ) : (
-          <div className="rounded-[40px] border border-dashed border-gray-200 bg-gray-50 p-10 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              {fromCache
-                ? "Offline cache bo'sh: hozircha kurslar saqlanmagan"
-                : 'Hali kurslar mavjud emas'}
-            </p>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-8 flex justify-center border-t border-gray-100/50 pb-8 pt-8">
-        <div className="grid w-full grid-cols-2 gap-4">
-          <button className="flex items-center justify-center gap-3 rounded-[24px] bg-gray-50 p-4 text-[11px] font-black text-gray-400 transition-all hover:text-[#3D855A]">
-            <Layers size={18} /> Unit Library
-          </button>
-          <button className="flex items-center justify-center gap-3 rounded-[24px] bg-gray-50 p-4 text-[11px] font-black text-gray-400 transition-all hover:text-[#C78736]">
-            <ListTodo size={18} /> Master Tasks
-          </button>
+          ))}
         </div>
-      </div>
-    </div>
+      )}
+
+      {isFormOpen ? (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-4">
+          <div className="w-full max-w-lg rounded-[26px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">
+                  {editingCourse ? 'Kursni tahrirlash' : 'Yangi kurs yaratish'}
+                </h3>
+                <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  Course DTO maydonlari
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEditingCourse(null);
+                }}
+                className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)]"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <input
+                value={form.title}
+                onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
+                placeholder="Course title"
+                className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+              />
+
+              <select
+                value={form.level}
+                onChange={(event) => setForm((current) => ({ ...current, level: event.target.value as CefrLevel }))}
+                className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+              >
+                {CEFR_LEVELS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+
+              <textarea
+                value={form.description}
+                onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+                rows={4}
+                placeholder="Course description"
+                className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+              />
+
+              <label className="flex items-center gap-3 rounded-[16px] border border-[var(--app-border)] px-4 py-3 text-sm font-semibold text-[var(--app-text)]">
+                <input
+                  type="checkbox"
+                  checked={form.isActive}
+                  onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
+                />
+                Active
+              </label>
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEditingCourse(null);
+                }}
+                className="flex-1 rounded-[16px] border border-[var(--app-border)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)]"
+              >
+                Bekor qilish
+              </button>
+              <button
+                onClick={() => void handleSubmit()}
+                disabled={submitting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-[16px] bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white disabled:opacity-60"
+              >
+                {submitting ? <Loader2 size={14} className="animate-spin" /> : <PlusCircle size={14} />}
+                Saqlash
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </PageShell>
   );
 }

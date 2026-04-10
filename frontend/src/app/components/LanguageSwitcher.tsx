@@ -3,7 +3,7 @@
 import { Languages } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { locales, type AppLocale } from '@/i18n/config';
+import { localeCookieName, locales, type AppLocale } from '@/i18n/config';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { cn } from '@/app/components/ui/utils';
 
@@ -27,9 +27,9 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
     const newLocale = nextLocale as AppLocale;
     const strippedPath = stripLocaleFromPathname(pathname);
     const query = searchParams.toString();
-    const suffix = strippedPath === '/' ? '' : strippedPath;
-    const nextPath = `/${newLocale}${suffix}${query ? `?${query}` : ''}`;
+    const nextPath = `${strippedPath}${query ? `?${query}` : ''}`;
 
+    document.cookie = `${localeCookieName}=${newLocale}; path=/; max-age=31536000; samesite=lax`;
     router.replace(nextPath);
     router.refresh();
   };
@@ -37,7 +37,7 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   return (
     <label
       className={cn(
-        'app-touch inline-flex min-h-10 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold tracking-wide',
+        'app-touch inline-flex min-h-10 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold tracking-wide',
         className,
       )}
     >

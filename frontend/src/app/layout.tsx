@@ -15,12 +15,13 @@ if (typeof window === 'undefined') {
 import { generateSEO } from '@/lib/seo';
 
 // Global SEO Configuration
+export const runtime = 'edge';
 export const metadata = generateSEO();
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#3D855A',
+  themeColor: '#2563eb',
   colorScheme: 'light dark',
 };
 
@@ -35,7 +36,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="h-full" suppressHydrationWarning>
       <body
-        className="min-h-full antialiased bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[#3D855A] selection:text-white"
+        className="min-h-full antialiased bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[#2563eb] selection:text-white"
         suppressHydrationWarning
       >
         <AppProviders locale={locale} messages={messages}>

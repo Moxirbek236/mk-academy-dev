@@ -5,7 +5,7 @@ export default function StartHere() {
     <div className="pb-8 animate-in fade-in duration-500">
       <div className="bg-gradient-to-r from-[#1E293B] to-[#0F172A] rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6 group cursor-pointer hover:shadow-xl transition-all">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-white/10 transition-colors" />
-        <div className="absolute bottom-0 right-0 w-40 h-40 bg-[#3D855A]/20 rounded-full blur-3xl -mr-10 -mb-10" />
+        <div className="absolute bottom-0 right-0 w-40 h-40 bg-[#2563eb]/20 rounded-full blur-3xl -mr-10 -mb-10" />
         
         <div className="relative z-10">
           <span className="bg-white/10 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-white/20 uppercase tracking-wider">Placement Test</span>
@@ -20,7 +20,7 @@ export default function StartHere() {
       </div>
 
       <div className="flex items-center justify-between mb-4 mt-8">
-        <h3 className="text-[13px] font-bold text-[#3D855A] tracking-wider uppercase">Kunlik Maqsad</h3>
+        <h3 className="text-[13px] font-bold text-[#2563eb] tracking-wider uppercase">Kunlik Maqsad</h3>
         <button className="text-xs font-bold text-gray-400 flex items-center gap-0.5 hover:text-gray-900 transition-colors">
           O'zgartirish <ChevronRight size={14} />
         </button>

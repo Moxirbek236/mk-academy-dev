@@ -1,103 +1,114 @@
-import { useState, useEffect } from 'react';
-import { Shield, Users, FileText, PlusCircle, Activity, ChevronRight, Settings, TrendingUp, Presentation, School, UserPlus, ClipboardList, Loader2, MessageSquare } from 'lucide-react';
-import api from '@/lib/api';
+'use client';
+
+import {
+  Activity,
+  ChevronRight,
+  ClipboardList,
+  FileText,
+  MessageSquare,
+  PlusCircle,
+  Presentation,
+  School,
+  Settings,
+  Shield,
+  TrendingUp,
+  UserPlus,
+  Users,
+} from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useDashboard } from '@/hooks/useDashboard';
+import { PageErrorState, PageLoadingState, StatCard } from '@/app/components/ui/PagePrimitives';
 
 export function AdminDashboard() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const t = useTranslations('DashboardAdmin');
+  const uiT = useTranslations('UiStates');
+  const { data, loading, error, refetch } = useDashboard();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get('/dashboard/stats');
-        setData(res.data?.data || res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  if (loading) {
+    return <PageLoadingState title={uiT('loadingTitle')} description={uiT('loadingDescription')} />;
+  }
 
-  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
+  if (error) {
+    return (
+      <PageErrorState
+        title={uiT('errorTitle')}
+        description={error}
+        retryLabel={uiT('retry')}
+        onRetry={() => {
+          void refetch();
+        }}
+      />
+    );
+  }
 
   const stats = [
-    { label: 'JAMI O\'QUVCHILAR', value: (data?.totalStudents || 0).toLocaleString(), color: 'text-emerald-550', bg: 'bg-emerald-50', icon: Users, trend: `+${data?.recentRegistrations || 0}` },
-    { label: 'O\'RTACHA NATIJA', value: `${data?.averageResult || 0}%`, color: 'text-blue-550', bg: 'bg-blue-50', icon: ClipboardList, trend: '+3%' },
-    { label: 'FAOL GURUHLAR', value: `${data?.activeGroups || 0} ta`, color: 'text-amber-550', bg: 'bg-amber-50', icon: Presentation, trend: '+2' },
-    { label: 'MARKAZ IMTIYOZI', value: '4.8', color: 'text-purple-550', bg: 'bg-purple-50', icon: School, trend: 'Top' },
+    { label: t('totalStudents'), value: (data?.totalStudents || 0).toLocaleString(), icon: Users, hint: `+${data?.recentRegistrations || 0}`, tone: 'primary' as const },
+    { label: t('averageResult'), value: `${data?.averageResult || 0}%`, icon: ClipboardList, hint: '+3%', tone: 'info' as const },
+    { label: t('activeGroups'), value: `${data?.activeGroups || 0} ta`, icon: Presentation, hint: '+2', tone: 'accent' as const },
+    { label: t('centerScore'), value: '4.8', icon: School, hint: 'Top', tone: 'muted' as const },
+  ];
+
+  const actions = [
+    { label: t('newCourse'), desc: t('newCourseDescription'), icon: PlusCircle, color: 'text-[var(--app-primary)]', bg: 'bg-[var(--app-primary)]/10', hover: 'hover:border-[var(--app-primary)]/30' },
+    { label: t('leads'), desc: t('leadsDescription'), icon: MessageSquare, color: 'text-blue-500', bg: 'bg-blue-50', hover: 'hover:border-blue-200' },
+    { label: t('mentors'), desc: t('mentorsDescription'), icon: UserPlus, color: 'text-amber-500', bg: 'bg-amber-50', hover: 'hover:border-amber-200' },
+    { label: t('exams'), desc: t('examsDescription'), icon: FileText, color: 'text-purple-500', bg: 'bg-purple-50', hover: 'hover:border-purple-200' },
   ];
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-      <div className="flex items-center justify-between mb-10 px-2">
-         <div className="flex items-center gap-4">
-            <div className="app-card p-4 bg-white shadow-xl rounded-[24px] group hover:rotate-[10deg] transition-all">
-               <Shield size={28} className="text-[var(--app-primary)]" />
-            </div>
-            <div>
-               <h2 className="text-2xl font-black text-[var(--app-text)] tracking-tight">Center Admin</h2>
-               <p className="text-[10px] font-black text-[var(--app-muted)] uppercase tracking-[0.15em] mt-1 flex items-center gap-1.5 leading-none">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--app-primary)] animate-pulse" />
-                  Management Active
-               </p>
-            </div>
-         </div>
-         <button className="app-touch flex items-center justify-center p-3.5 rounded-[22px] bg-white border border-[var(--app-border)] shadow-sm text-gray-400 hover:text-[var(--app-text)] hover:bg-gray-50 transition-all hover:scale-110 active:scale-95">
-            <Settings size={22} strokeWidth={2.5} />
-         </button>
+      <div className="mb-10 flex items-center justify-between px-2">
+        <div className="flex items-center gap-4">
+          <div className="app-card rounded-[16px] bg-[var(--app-surface)] p-4 shadow-sm transition-all">
+            <Shield size={28} className="text-[var(--app-primary)]" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-black tracking-tight text-[var(--app-text)]">{t('title')}</h2>
+            <p className="mt-1 flex items-center gap-1.5 text-[10px] font-black uppercase leading-none tracking-[0.15em] text-[var(--app-muted)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--app-primary)]" />
+              {t('status')}
+            </p>
+          </div>
+        </div>
+        <button className="app-touch flex items-center justify-center rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-3.5 text-[var(--app-muted)] shadow-sm transition-all hover:text-[var(--app-text)] active:scale-95">
+          <Settings size={22} strokeWidth={2.5} />
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-10">
-        {stats.map((stat: any, idx: number) => (
-          <div key={idx} className="app-card p-6 flex flex-col group cursor-default">
-            <div className="flex justify-between items-start mb-6">
-               <div className={`p-4 rounded-[22px] ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform shadow-sm`}>
-                  <stat.icon size={26} strokeWidth={2.5} />
-               </div>
-               <span className="text-[9px] font-black text-[var(--app-primary)] bg-[var(--app-primary)]/10 px-2.5 py-1 rounded-full uppercase tracking-tighter">{stat.trend}</span>
-            </div>
-            <p className="text-[10px] font-black text-[var(--app-muted)] tracking-wider mb-2 uppercase opacity-80">{stat.label}</p>
-            <p className="text-3xl font-black text-[var(--app-text)] tracking-tighter">{stat.value}</p>
-          </div>
+      <div className="mb-10 grid grid-cols-2 gap-4">
+        {stats.map((stat, index) => (
+          <StatCard key={index} label={stat.label} value={stat.value} icon={stat.icon} hint={stat.hint} tone={stat.tone} />
         ))}
       </div>
 
-      <h2 className="text-[12px] font-black text-[var(--app-muted)] tracking-[0.15em] uppercase mb-6 px-3 flex items-center justify-between">
-         Quick Actions
-         <Activity size={16} className="text-[var(--app-primary)]" />
+      <h2 className="mb-6 flex items-center justify-between px-3 text-[12px] font-black uppercase tracking-[0.15em] text-[var(--app-muted)]">
+        {t('quickActions')}
+        <Activity size={16} className="text-[var(--app-primary)]" />
       </h2>
       <div className="flex flex-col gap-4 pb-12">
-         {[
-           { label: 'Yangi Kurs', desc: 'O\'quv rejasini boshqarish', icon: PlusCircle, color: 'text-[var(--app-primary)]', bg: 'bg-[var(--app-primary)]/10', hover: 'hover:border-[var(--app-primary)]/30' },
-           { label: 'Murojaatlar', desc: 'Landing page murojaatlari', icon: MessageSquare, color: 'text-blue-500', bg: 'bg-blue-50', hover: 'hover:border-blue-200', href: '/leads' },
-           { label: 'Mentorlar', desc: 'Mentorlarni ro\'yxatga olish', icon: UserPlus, color: 'text-amber-500', bg: 'bg-amber-50', hover: 'hover:border-amber-200' },
-           { label: 'Imtihonlar', desc: 'Testlar tahlili', icon: FileText, color: 'text-purple-500', bg: 'bg-purple-50', hover: 'hover:border-purple-200' }
-         ].map((action, i) => (
-           <button 
-             key={i} 
-             onClick={action.href ? () => window.location.href = action.href : undefined} 
-             className={`flex items-center gap-5 app-card p-6 active:scale-[0.98] transition-all text-left ${action.hover} group`}
-           >
-              <div className={`p-5 rounded-[24px] ${action.bg} ${action.color} group-hover:scale-110 transition-transform`}>
-                 <action.icon size={28} strokeWidth={2.5} />
-              </div>
-              <div className="flex-1 min-w-0">
-                 <h3 className="font-extrabold text-[var(--app-text)] text-lg leading-tight">{action.label}</h3>
-                 <p className="text-[11px] text-[var(--app-muted)] font-bold mt-1 tracking-tight truncate">{action.desc}</p>
-              </div>
-              <div className="p-2.5 rounded-xl bg-gray-50 text-gray-300 group-hover:bg-[var(--app-primary)] group-hover:text-white transition-all">
-                 <ChevronRight size={20} strokeWidth={3} />
-              </div>
-           </button>
-         ))}
+        {actions.map((action, index) => (
+          <button
+            key={index}
+            className={`app-card group flex items-center gap-5 p-6 text-left transition-all active:scale-[0.98] ${action.hover}`}
+          >
+            <div className={`rounded-[16px] p-5 transition-transform group-hover:scale-105 ${action.bg} ${action.color}`}>
+              <action.icon size={28} strokeWidth={2.5} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-lg font-extrabold leading-tight text-[var(--app-text)]">{action.label}</h3>
+              <p className="mt-1 truncate text-[11px] font-bold tracking-tight text-[var(--app-muted)]">{action.desc}</p>
+            </div>
+            <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
+              <ChevronRight size={20} strokeWidth={3} />
+            </div>
+          </button>
+        ))}
       </div>
 
       <div className="mt-4 flex justify-center pb-8">
-         <button className="flex items-center gap-2 text-[11px] font-black text-gray-400 hover:text-[var(--app-primary)] transition-all uppercase tracking-widest leading-none border border-gray-100 px-6 py-3 rounded-full hover:bg-white hover:shadow-md">
-            <TrendingUp size={16} /> View Detailed Stats
-         </button>
+        <button className="flex items-center gap-2 rounded-full border border-[var(--app-border)] px-6 py-3 text-[11px] font-black uppercase leading-none tracking-widest text-[var(--app-muted)] transition-all hover:bg-[var(--app-surface)] hover:text-[var(--app-primary)]">
+          <TrendingUp size={16} /> {t('viewDetailedStats')}
+        </button>
       </div>
     </div>
   );

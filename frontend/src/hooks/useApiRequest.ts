@@ -1,0 +1,85 @@
+'use client';
+
+import { useCallback, useEffect, useState } from 'react';
+import axios from 'axios';
+import { AppApiError } from '@/lib/offline/errors';
+
+interface UseApiRequestOptions<T> {
+  enabled?: boolean;
+  debounceMs?: number;
+  initialData: T;
+  request: () => Promise<T>;
+}
+
+function normalizeRequestError(error: unknown) {
+  if (error instanceof AppApiError) {
+    return error.message;
+  }
+
+  if (axios.isAxiosError(error)) {
+    const responseMessage =
+      typeof error.response?.data?.message === 'string'
+        ? error.response.data.message
+        : Array.isArray(error.response?.data?.message)
+          ? error.response.data.message.join(', ')
+          : null;
+
+    if (responseMessage) return responseMessage;
+    if (error.message) return error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Server bilan ishlashda noma'lum xatolik yuz berdi";
+}
+
+export function useApiRequest<T>({
+  enabled = true,
+  debounceMs = 0,
+  initialData,
+  request,
+}: UseApiRequestOptions<T>) {
+  const [data, setData] = useState<T>(initialData);
+  const [loading, setLoading] = useState(enabled);
+  const [error, setError] = useState<string | null>(null);
+
+  const execute = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await request();
+      setData(response);
+    } catch (requestError) {
+      setError(normalizeRequestError(requestError));
+    } finally {
+      setLoading(false);
+    }
+  }, [request]);
+
+  useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
+    if (debounceMs > 0) {
+      const timer = window.setTimeout(() => {
+        void execute();
+      }, debounceMs);
+
+      return () => window.clearTimeout(timer);
+    }
+
+    void execute();
+  }, [debounceMs, enabled, execute]);
+
+  return {
+    data,
+    loading,
+    error,
+    refetch: execute,
+  };
+}

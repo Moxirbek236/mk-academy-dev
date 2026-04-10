@@ -25,8 +25,6 @@ export class AuthService {
       throw new BadRequestException('Phone and password do not found');
     }
 
-    
-
     const isPasswordValid = await bcrypt.compare(payload.password, user.passwordHash);
 
     if (!isPasswordValid) {

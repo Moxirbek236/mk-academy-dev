@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 import { CreateTransactionDto } from './dto';
 
@@ -8,6 +9,20 @@ import { CreateTransactionDto } from './dto';
 @Controller('finance')
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
+
+  @UseGuards(AuthGuard)
+  @Get('summary')
+  @ApiOperation({ summary: 'Get finance summary for the current user scope' })
+  getSummary(@Req() req: any) {
+    return this.financeService.getSummary(req['user']);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('transactions')
+  @ApiOperation({ summary: 'Get finance transactions for the current user scope' })
+  getTransactions(@Req() req: any) {
+    return this.financeService.getTransactions(req['user']);
+  }
 
   @Post('transaction')
   @ApiOperation({ summary: 'Create a financial transaction' })

@@ -1,6 +1,6 @@
 import { cookies, headers } from 'next/headers';
 import { getRequestConfig } from 'next-intl/server';
-import { defaultLocale, isAppLocale, localeCookieName } from './config';
+import { defaultLocale, defaultTimeZone, isAppLocale, localeCookieName } from './config';
 
 const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true';
 
@@ -9,6 +9,8 @@ export default getRequestConfig(async () => {
     return {
       locale: defaultLocale,
       messages: (await import(`../messages/${defaultLocale}.json`)).default,
+      timeZone: defaultTimeZone,
+      now: new Date(),
     };
   }
 
@@ -28,5 +30,6 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: (await import(`../messages/${locale}.json`)).default,
+    timeZone: defaultTimeZone,
   };
 });

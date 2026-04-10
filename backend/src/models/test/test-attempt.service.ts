@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
 import { XPService } from '../gamification/xp.service';
+import { UserRole } from 'src/core/enums';
 
 @Injectable()
 export class TestAttemptService {
@@ -22,6 +23,84 @@ export class TestAttemptService {
   }
 
   async findByStudent(studentId: number) {
-    return (this.prisma.testAttempt as any).findMany({ where: { studentId: +studentId } });
+    return (this.prisma.testAttempt as any).findMany({
+      where: { studentId: +studentId },
+      include: {
+        test: {
+          select: {
+            id: true,
+            title: true,
+            type: true,
+            passingScore: true,
+          },
+        },
+      },
+      orderBy: { startedAt: 'desc' },
+    });
+  }
+
+  async findForCurrentUser(currentUser: { id: number; role: string }) {
+    const role = String(currentUser.role || '').toUpperCase();
+
+    if (role === UserRole.SUPERADMIN || role === UserRole.ADMIN) {
+      return (this.prisma.testAttempt as any).findMany({
+        include: {
+          test: {
+            select: {
+              id: true,
+              title: true,
+              type: true,
+              passingScore: true,
+            },
+          },
+          student: {
+            select: {
+              id: true,
+              fullName: true,
+            },
+          },
+        },
+        orderBy: { startedAt: 'desc' },
+        take: 50,
+      });
+    }
+
+    if (role === UserRole.TEACHER) {
+      return (this.prisma.testAttempt as any).findMany({
+        where: {
+          test: {
+            assignments: {
+              some: {
+                isActive: true,
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
+                },
+              },
+            },
+          },
+        },
+        include: {
+          test: {
+            select: {
+              id: true,
+              title: true,
+              type: true,
+              passingScore: true,
+            },
+          },
+          student: {
+            select: {
+              id: true,
+              fullName: true,
+            },
+          },
+        },
+        orderBy: { startedAt: 'desc' },
+        take: 50,
+      });
+    }
+
+    return this.findByStudent(currentUser.id);
   }
 }

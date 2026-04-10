@@ -1,6 +1,16 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, Req, Put, ParseIntPipe } from '@nestjs/common';
 import { UserService } from './user.service';
+<<<<<<< HEAD
 import { CreateUserDto, UpdateUserDto, QueryUserDto } from './dto';
+=======
+import {
+  CreateUserDto,
+  UpdateCurrentProfileDto,
+  UpdateUserDto,
+  QueryUserDto,
+  QueryUserSuperAdminDto,
+} from './dto';
+>>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UserRole } from 'src/core/enums';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -17,7 +27,7 @@ import { QueryUserTeacherDto } from './dto/query.teacher.dto';
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/teacher")
@@ -45,7 +55,11 @@ export class UserController {
       }),
     }),
   )
+<<<<<<< HEAD
   createTeacher(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
+=======
+  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
+>>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
@@ -77,7 +91,11 @@ export class UserController {
       }),
     }),
   )
+<<<<<<< HEAD
   createStudent(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
+=======
+  createStudent(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
+>>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
@@ -109,49 +127,60 @@ export class UserController {
       }),
     }),
   )
+<<<<<<< HEAD
   createAdmin(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
+=======
+  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
+>>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
     return this.userService.createAdmin(payload, req['user'], file?.filename);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Get all users based on current user role' })
-  @Get()
-  findAll(@Req() req: Request, @Query() query: any) {
-    const userRole = req['user']?.role;
-    if (userRole === UserRole.SUPERADMIN) {
-      return this.userService.findAllSuperAdmin(query);
-    }
-    if (userRole === UserRole.ADMIN) {
-      return this.userService.findAllAdmin(query);
-    }
-    return this.userService.findAllTeacher(req['user'], query);
-  }
-
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
-  @Get("superAdmin/all")
+  @Get("superAdmin/getAllRoles")
   findAllSuperAdmin(@Req() req: Request, @Query() query: QueryUserSuperAdminDto) {
     return this.userService.findAllSuperAdmin(query);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get users list for the current authenticated role' })
+  @Get()
+  findAll(@Req() req: Request, @Query() query: QueryUserSuperAdminDto) {
+    return this.userService.findAll(req['user'], query);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get current user profile' })
+  @Get('profile')
+  getProfile(@Req() req: Request) {
+    return this.userService.getCurrentProfile(req['user']);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Update current user profile' })
+  @Patch('profile')
+  updateProfile(@Req() req: Request, @Body() payload: UpdateCurrentProfileDto) {
+    return this.userService.updateCurrentProfile(req['user'], payload);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.ADMIN}` })
   @Roles(UserRole.ADMIN)
-  @Get("admin/all")
+  @Get("admin/getAll_Students_And_Techers")
   findAllAdmin(@Req() req: Request, @Query() query: QueryUserAdminDto) {
     return this.userService.findAllAdmin(query);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: `${UserRole.TEACHER} ${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
-  @Roles(UserRole.TEACHER, UserRole.SUPERADMIN, UserRole.ADMIN)
-  @Get("teacher/all")
+  @UseGuards(AuthGuard, RolesGuard)
+  @ApiOperation({ summary: `${UserRole.TEACHER}` })
+  @Roles(UserRole.TEACHER)
+  @Get("teacher/getAll_Students")
   findAllTeacher(@Req() req: Request, @Query() query: QueryUserTeacherDto) {
     return this.userService.findAllTeacher(req['user'], query);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}, ${UserRole.TEACHER}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.TEACHER)
   @Get(':id')
@@ -159,7 +188,7 @@ export class UserController {
     return this.userService.findOne(id, req['user']);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Delete(':id')
@@ -167,7 +196,7 @@ export class UserController {
     return this.userService.remove(id, req['user']);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Patch('active/:id')

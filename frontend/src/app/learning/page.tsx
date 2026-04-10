@@ -1,93 +1,107 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { BookOpen, Search, Trophy, Sparkles, ChevronRight, Loader2, Lock } from 'lucide-react';
+
+import { useMemo, useState } from 'react';
+import { BookOpen, ChevronRight, Lock, Search, Sparkles, Trophy } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { LessonCard } from '../components/LessonCard';
-import api from '@/lib/api';
-import { useAuth } from '@/hooks/useAuth';
+import { useCourses } from '@/hooks/useCourses';
+import {
+  PageEmptyState,
+  PageErrorState,
+  PageLoadingState,
+  PageShell,
+} from '@/app/components/ui/PagePrimitives';
 
 export default function LearningPage() {
-  const [courses, setCourses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const { data, loading, error, refetch } = useCourses({
+    search: searchTerm,
+    page: 1,
+    limit: 24,
+  });
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const res = await api.get('/courses/my-learning');
-        setCourses(res.data?.data || res.data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCourses();
-  }, []);
+  const courses = useMemo(() => data.items || [], [data.items]);
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <PageShell title="Darslar" subtitle="Sizning kurslaringiz">
       <div className="flex items-center justify-between mb-8 px-1">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Darslar</h1>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 tracking-tight flex items-center gap-2">
-            <Sparkles size={12} className="text-[#3D855A]" /> Sizning kurslaringiz
+            <Sparkles size={12} className="text-[#2563eb]" /> Sizning kurslaringiz
           </p>
         </div>
         <div className="flex items-center gap-2 bg-amber-50 text-amber-600 px-4 py-2 rounded-2xl border border-amber-100 shadow-sm">
-           <Trophy size={18} strokeWidth={2.5} />
-           <span className="text-[14px] font-black tracking-tighter">LVL 2</span>
+          <Trophy size={18} strokeWidth={2.5} />
+          <span className="text-[14px] font-black tracking-tighter">LVL 2</span>
         </div>
       </div>
 
-      {/* Course Search */}
       <div className="relative mb-8">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input 
-          type="text" 
-          placeholder="Mavzu yoki dars bo'yicha qidirish..." 
-          className="w-full bg-white border border-gray-100 rounded-[24px] py-4 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Mavzu yoki dars bo'yicha qidirish..."
+          className="w-full bg-white border border-gray-100 rounded-[24px] py-4 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#2563eb] transition-all shadow-sm"
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 pb-20">
-        {loading ? (
-           <div className="flex justify-center p-20 col-span-full"><Loader2 className="animate-spin text-[#3D855A]" size={36} /></div>
-        ) : courses.length > 0 ? (
-           courses.map((course, idx) => (
-             <div 
-               key={course.id}
-               onClick={() => course.isActive && router.push(`/course/${course.id}`)}
-               className={`bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#3D855A]/30 hover:shadow-xl active:scale-[0.98] transition-all group overflow-hidden cursor-pointer ${!course.isActive ? 'opacity-60 grayscale cursor-not-allowed' : ''}`}
-             >
-                <div className={`w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-xl transition-all shadow-inner bg-[#F2F8F5] text-[#3D855A] group-hover:bg-[#3D855A] group-hover:text-white group-hover:rotate-6 shrink-0`}>
-                  {course.isActive ? <BookOpen size={24} strokeWidth={2.5} /> : <Lock size={24} strokeWidth={2.5} />}
+      {loading ? (
+        <PageLoadingState title="Kurslar yuklanmoqda" description="Sizga tegishli kurslar olinmoqda" />
+      ) : error ? (
+        <PageErrorState
+          title="Kurslarni olishda xatolik"
+          description={error}
+          retryLabel="Qayta urinish"
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 pb-20">
+          {courses.length > 0 ? (
+            courses.map((course: any) => (
+              <div
+                key={course.id}
+                onClick={() => course.isActive !== false && router.push(`/course/${course.id}`)}
+                className={`bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#2563eb]/30 hover:shadow-xl active:scale-[0.98] transition-all group overflow-hidden cursor-pointer ${
+                  course.isActive === false ? 'opacity-60 grayscale cursor-not-allowed' : ''
+                }`}
+              >
+                <div className="w-16 h-16 rounded-[24px] flex items-center justify-center font-black text-xl transition-all shadow-inner bg-[#eff6ff] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white group-hover:rotate-6 shrink-0">
+                  {course.isActive === false ? <Lock size={24} strokeWidth={2.5} /> : <BookOpen size={24} strokeWidth={2.5} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-extrabold text-[#111827] text-lg tracking-tight truncate">{course.title}</h3>
                   <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
-                    <span className="text-[9px] font-black uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-md text-gray-500 whitespace-nowrap">{course.level}</span>
-                    <span className="text-[9px] font-black uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-md text-[#3D855A] whitespace-nowrap">{(course._count?.tasks || 0) + (course._count?.tests || 0)} Units</span>
+                    <span className="text-[9px] font-black uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-md text-gray-500 whitespace-nowrap">
+                      {course.level || 'NO LEVEL'}
+                    </span>
+                    <span className="text-[9px] font-black uppercase tracking-tighter bg-blue-50 px-2 py-0.5 rounded-md text-[#2563eb] whitespace-nowrap">
+                      {course.isActive === false ? 'Locked' : 'Open'}
+                    </span>
                   </div>
                 </div>
                 <ChevronRight size={20} className="text-gray-300 group-hover:translate-x-1 transition-transform shrink-0" />
-             </div>
-           ))
-        ) : (
-          <div className="p-16 text-center bg-gray-50 rounded-[46px] border border-dashed border-gray-200 col-span-full">
-             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-                <BookOpen size={30} className="text-gray-200" />
-             </div>
-             <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Hali hech qanday darsga a&apos;zo bo&apos;lmagansiz</p>
-          </div>
-        )}
-      </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full">
+              <PageEmptyState
+                title="Kurslar topilmadi"
+                description="Hozircha sizga tegishli kurslar yoki qidiruvga mos natija yo'q."
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-6 flex justify-center text-center pb-12">
         <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest tracking-tighter opacity-80">
           MK ACADEMY LEARNING PATHWAY
         </p>
       </div>
-    </div>
+    </PageShell>
   );
 }
