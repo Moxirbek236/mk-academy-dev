@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 function normalizeOrigin(origin: string): string {
@@ -82,6 +82,11 @@ async function bootstrap() {
     }),
   );
 
+  const port = Number(process.env.PORT) || 3001;
+  const host = process.env.HOST || '0.0.0.0';
+
+  await app.listen(port, host);
+  console.log(`Backend is running on: http://${host}:${port}`);
   await app.listen(process.env.PORT || 3000);
 }
 

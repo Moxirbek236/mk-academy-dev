@@ -193,6 +193,7 @@ export default function LeadsPage() {
                   </div>
                 </div>
 
+<<<<<<< HEAD
               <div className="flex items-center gap-2 ml-auto md:ml-0 overflow-x-auto no-scrollbar">
                 <button onClick={() => updateStatus(lead.id, 'CONTACTED')} title="Bog'lanildi" className="p-3 rounded-2xl bg-amber-50 text-amber-500 hover:bg-amber-500 hover:text-white transition-all shadow-sm active:scale-90">
                    <Clock size={18} strokeWidth={2.5} />
@@ -206,6 +207,38 @@ export default function LeadsPage() {
                 <button onClick={() => deleteLead(lead.id)} title="O'chirish" className="p-3 rounded-2xl bg-gray-50 text-gray-400 hover:bg-gray-900 hover:text-white transition-all shadow-sm active:scale-90">
                    <MoreVertical size={18} strokeWidth={2.5} />
                 </button>
+=======
+                <div className="no-scrollbar ml-auto flex items-center gap-2 overflow-x-auto md:ml-0">
+                  <button
+                    onClick={() => void updateStatus(lead.id, 'CONTACTED')}
+                    title="Bog'lanildi"
+                    className="rounded-2xl bg-amber-50 p-3 text-amber-500 shadow-sm transition-all active:scale-90 hover:bg-amber-500 hover:text-white"
+                  >
+                    <Clock size={18} strokeWidth={2.5} />
+                  </button>
+                  <button
+                    onClick={() => void updateStatus(lead.id, 'ENROLLED')}
+                    title="O'qishga kirdi"
+                    className="rounded-2xl bg-emerald-50 p-3 text-[#3D855A] shadow-sm transition-all active:scale-90 hover:bg-[#3D855A] hover:text-white"
+                  >
+                    <CheckCircle size={18} strokeWidth={2.5} />
+                  </button>
+                  <button
+                    onClick={() => void updateStatus(lead.id, 'REJECTED')}
+                    title="Rad etildi"
+                    className="rounded-2xl bg-red-50 p-3 text-red-500 shadow-sm transition-all active:scale-90 hover:bg-red-500 hover:text-white"
+                  >
+                    <XCircle size={18} strokeWidth={2.5} />
+                  </button>
+                  <button
+                    onClick={() => void deleteLead(lead.id)}
+                    title="O'chirish"
+                    className="rounded-2xl bg-gray-50 p-3 text-gray-400 shadow-sm transition-all active:scale-90 hover:bg-gray-900 hover:text-white"
+                  >
+                    <MoreVertical size={18} strokeWidth={2.5} />
+                  </button>
+                </div>
+>>>>>>> 718493ba637b8f2c4097d0d6735e6fef7bcd263c
               </div>
             </div>
 

@@ -14,15 +14,17 @@ export class XPService {
     await this.prisma.leaderboard.upsert({
       where: { id: +userId }, // Assuming user id maps to leaderboard id for simplicity or use unique [studentId, scope]
       update: { score: { increment: amount } },
-      create: { studentId: +userId, score: amount, scope: 'GLOBAL' }
+      create: { studentId: +userId, score: amount, scope: 'GLOBAL' },
+      select: { id: true },
     } as any);
 
     return transaction;
   }
 
   async getRank(userId: number) {
-    const userEntry = await (this.prisma.leaderboard as any).findFirst({ 
-      where: { studentId: +userId } 
+    const userEntry = await (this.prisma.leaderboard as any).findFirst({
+      where: { studentId: +userId },
+      select: { score: true },
     });
     if (!userEntry) return 0;
     

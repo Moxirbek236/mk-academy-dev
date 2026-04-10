@@ -9,7 +9,14 @@ export class LeaderboardService {
     return this.prisma.leaderboard.findMany({
       orderBy: { score: 'desc' },
       take: +limit,
-      include: { student: { select: { id: true, fullName: true, avatarUrl: true } } }
+      select: {
+        id: true,
+        score: true,
+        rank: true,
+        scope: true,
+        period: true,
+        student: { select: { id: true, fullName: true, avatarUrl: true } },
+      },
     });
   }
 }

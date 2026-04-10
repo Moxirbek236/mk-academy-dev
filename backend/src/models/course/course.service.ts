@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateCourseDto, QueryCourseDto, UpdateCourseDto } from './dto';
 import { Prisma } from '@prisma/client';
+import { UserRole } from 'src/core/enums';
 @Injectable()
 export class CourseService {
   constructor(private prisma: PrismaService) { }
@@ -47,12 +48,17 @@ export class CourseService {
       message: "Course is successfully  deleted"
     }
   }
-  async getAllCourses(query: QueryCourseDto) {
+  async getAllCourses(query: QueryCourseDto,role:string) {
+        const where: any = {};
+
+    if(role===UserRole.STUDENT){
+      where.isActive=true
+    }
+
     const page = query.page || 1;
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
 
     if (query.level) {
       where.level = query.level;
@@ -62,7 +68,6 @@ export class CourseService {
       where.title = { contains: query.search, mode: 'insensitive' };
     }
 
-    // Mana bu qism doim ishlaydi, search bo‘lsa ham, bo‘lmasa ham
     const [data, total] = await Promise.all([
       this.prisma.course.findMany({
         skip,

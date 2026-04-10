@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
+import { localizePath } from '@/i18n/localizedPath';
+import { motion } from 'framer-motion';
 
 interface BottomNavProps {
   role?: string | null;
@@ -45,24 +47,31 @@ export function BottomNav({ role }: BottomNavProps) {
   ];
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-gray-100 bg-white/95 px-3 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(2,6,23,0.12)] backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/95">
+    <div className="fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-gray-100 bg-white/95 px-3 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-15px_40px_rgba(2,6,23,0.12)] backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90 sm:bottom-4 sm:rounded-[2.5rem] sm:border sm:px-4 sm:pb-3 sm:shadow-2xl">
       {navItems.map((item) => {
         const isActive =
           normalizedPathname === item.path ||
-          (item.path !== '/' && normalizedPathname.startsWith(item.path));
+            (item.path !== '/' && normalizedPathname.startsWith(item.path));
         const Icon = item.icon;
-        const localizedHref = item.path === '/' ? `/${locale}` : `/${locale}${item.path}`;
+        const localizedHref = localizePath(locale, item.path);
         
         return (
           <Link 
             key={item.path} 
             href={localizedHref}
-            className={`app-touch flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 transition-all ${isActive ? 'text-[#3D855A]' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900 focus:scale-95 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+            className={`app-touch flex min-h-[48px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[24px] px-1 transition-all duration-300 active:scale-90 ${isActive ? 'text-[var(--app-primary)]' : 'text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
           >
-            <div className={`rounded-2xl p-2.5 transition-all group-active:scale-90 ${isActive ? 'bg-[#F2F8F5] shadow-sm dark:bg-slate-800' : ''}`}>
-              <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+            <div className={`relative flex items-center justify-center rounded-2xl p-2 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
+              {isActive && (
+                <motion.div 
+                  layoutId="activeTab"
+                  className="absolute inset-0 rounded-2xl bg-[var(--app-primary)]/10 dark:bg-[var(--app-primary)]/20"
+                  transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
+                />
+              )}
+              <Icon size={24} strokeWidth={isActive ? 2.5 : 2} className="relative z-10" />
             </div>
-            <span className={`truncate text-[10px] tracking-tight ${isActive ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+            <span className={`relative z-10 truncate text-[9px] uppercase tracking-[0.08em] ${isActive ? 'font-black opacity-100' : 'font-bold opacity-60'}`}>{item.label}</span>
           </Link>
         );
       })}

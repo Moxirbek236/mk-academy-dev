@@ -31,6 +31,7 @@ export class RolesGuard implements CanActivate {
             (role) => role.toUpperCase() === user.role?.toUpperCase()
         );
 
+        
         if (!hasRole) {
             throw new ForbiddenException("Sizda ushbu amal uchun huquq yo'q");
         }

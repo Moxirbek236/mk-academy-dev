@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
+import { localizePath } from '@/i18n/localizedPath';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -31,7 +32,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
 
   useEffect(() => {
     if (mounted && !loading && !token && !isPublicRoute) {
-      router.replace(`/${locale}/landing`);
+      router.replace(localizePath(locale, '/landing'));
     }
   }, [mounted, loading, token, isPublicRoute, locale, router]);
 

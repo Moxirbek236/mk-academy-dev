@@ -2,31 +2,40 @@
 
 @layer base {
   :root {
-    --app-bg: #f7fbf8;
+    --app-bg: #f8fafc;
     --app-surface: #ffffff;
-    --app-surface-soft: #f2f8f5;
-    --app-border: #dceee3;
-    --app-text: #111827;
-    --app-muted: #6b7280;
-    --app-primary: #3d855a;
+    --app-surface-soft: #f1f5f9;
+    --app-border: #e2e8f0;
+    --app-text: #0f172a;
+    --app-muted: #64748b;
+    --app-primary: #10b981;
+    --app-primary-dark: #059669;
+    --app-secondary: #3b82f6;
+    --app-accent: #f59e0b;
+    
     --app-safe-top: env(safe-area-inset-top, 0px);
     --app-safe-right: env(safe-area-inset-right, 0px);
     --app-safe-bottom: env(safe-area-inset-bottom, 0px);
     --app-safe-left: env(safe-area-inset-left, 0px);
+    
+    --radius-premium: 2.25rem;
+    --shadow-premium: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
   }
 
   .dark {
     --app-bg: #020617;
     --app-surface: #0f172a;
-    --app-surface-soft: #162338;
+    --app-surface-soft: #1e293b;
     --app-border: #334155;
     --app-text: #f1f5f9;
     --app-muted: #94a3b8;
-    --app-primary: #5bc28b;
+    --app-primary: #34d399;
+    --app-primary-dark: #10b981;
   }
 
   * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
   }
 
   html,
@@ -44,30 +53,14 @@
     min-height: 100svh;
     min-height: 100dvh;
     color: var(--app-text);
-    transition: background-color 180ms ease, color 180ms ease;
-    overscroll-behavior-x: none;
+    transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    overscroll-behavior-y: contain;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  input,
-  select,
-  textarea,
-  button {
-    font: inherit;
-  }
-
-  input,
-  select,
-  textarea {
-    font-size: 16px;
-    line-height: 1.35;
-  }
-
-  img,
-  video,
-  canvas,
-  svg {
-    max-width: 100%;
-    height: auto;
+  /* Premium Typography */
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.025em;
   }
 }
 
@@ -78,85 +71,107 @@
   }
 
   .pb-safe {
-    padding-bottom: calc(0.75rem + var(--app-safe-bottom));
+    padding-bottom: calc(1rem + var(--app-safe-bottom));
   }
 
   .pt-safe {
-    padding-top: calc(0.75rem + var(--app-safe-top));
+    padding-top: calc(1rem + var(--app-safe-top));
   }
 
   .px-safe {
-    padding-left: max(0.75rem, var(--app-safe-left));
-    padding-right: max(0.75rem, var(--app-safe-right));
+    padding-left: max(1.25rem, var(--app-safe-left));
+    padding-right: max(1.25rem, var(--app-safe-right));
   }
 
   .pb-nav-safe {
-    padding-bottom: calc(5.75rem + var(--app-safe-bottom));
+    padding-bottom: calc(6.5rem + var(--app-safe-bottom));
   }
 
   .app-page {
-    width: min(100%, 72rem);
+    width: min(100%, 80rem);
     margin-inline: auto;
-    padding-inline: clamp(0.75rem, 3.2vw, 1.5rem);
+    padding-inline: clamp(1rem, 5vw, 2.5rem);
   }
 
-  .app-touch {
-    min-height: 44px;
-    min-width: 44px;
+  .app-card {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-premium);
+    box-shadow: var(--shadow-premium);
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .app-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 30px -5px rgb(0 0 0 / 0.08);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .dark .glass {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-premium {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 1.75rem;
+    font-weight: 800;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 1.5rem;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .btn-premium::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 200ms;
+  }
+
+  .btn-premium:hover::after {
+    opacity: 1;
+  }
+
+  .btn-pill {
+    border-radius: 9999px;
   }
 
   .no-scrollbar {
     scrollbar-width: none;
-    -ms-overflow-style: none;
   }
 
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
-  .theme-surface {
-    background-color: var(--app-surface);
-    border-color: var(--app-border);
-    color: var(--app-text);
+  /* Animated background for specific sections */
+  .bg-mesh {
+    background-color: var(--app-bg);
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(161, 74%, 44%, 0.1) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(217, 91%, 60%, 0.05) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(161, 74%, 44%, 0.1) 0, transparent 50%);
   }
 
-  /* Compatibility layer for existing Tailwind classes in dark mode */
-  .dark .bg-white {
-    background-color: rgb(15 23 42 / 0.88) !important;
-  }
-
-  .dark .bg-gray-50 {
-    background-color: rgb(30 41 59 / 0.55) !important;
-  }
-
-  .dark .bg-gray-100 {
-    background-color: rgb(51 65 85 / 0.55) !important;
-  }
-
-  .dark .border-gray-100,
-  .dark .border-gray-200 {
-    border-color: rgb(51 65 85 / 0.7) !important;
-  }
-
-  .dark .text-gray-900 {
-    color: rgb(241 245 249) !important;
-  }
-
-  .dark .text-gray-800 {
-    color: rgb(226 232 240) !important;
-  }
-
-  .dark .text-gray-700 {
-    color: rgb(203 213 225) !important;
-  }
-
-  .dark .text-gray-600,
-  .dark .text-gray-500,
-  .dark .text-gray-400 {
-    color: rgb(148 163 184) !important;
-  }
-
-  .dark .text-gray-300 {
-    color: rgb(100 116 139) !important;
+  .dark .bg-mesh {
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(161, 74%, 44%, 0.15) 0, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(217, 91%, 60%, 0.1) 0, transparent 50%);
   }
 }

@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './dto';
 import { User } from '@prisma/client';
 import { UserRole } from 'src/core/enums';
@@ -7,7 +8,6 @@ import { join } from 'path';
 import * as fs from 'fs';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { group } from 'console';
 import { QueryUserTeacherDto } from './dto/query.teacher.dto';
 import { QueryUserAdminDto } from './dto/query.admin.dto';
 
@@ -37,12 +37,21 @@ export class UserService {
         avatarUrl: filename ?? null,
         passwordHash: passHash,
         role: UserRole.TEACHER
+      },
+      select:{
+        id:true,
+        fullName:true,
+        isActive:true,
+        phone:true,
+        avatarUrl:true,
+        role:true
       }
     })
 
     await this.prisma.userProfile.create({
       data: {
         userId: user.id,
+        isActive:true
       }
     })
 
@@ -77,9 +86,10 @@ export class UserService {
       }
     })
 
+    //User profile yaratiladi bir vaqtda
     await this.prisma.userProfile.create({
       data: {
-        userId: user.id,
+        userId: user.id
       }
     })
 
@@ -126,10 +136,11 @@ export class UserService {
     }
   }
 
-  async findAllSuperAdmin(query: QueryUserDto): Promise<User[]> {
+  async findAllSuperAdmin(query: QueryUserSuperAdminDto): Promise<User[]> {
     try {
       let users = await this.prisma.user.findMany({
         where: {
+          
         },
         include: {
           groupsCreated: true
@@ -161,13 +172,13 @@ export class UserService {
       }
 
       users = users.map(user => {
-      if (user.role === 'STUDENT' || user.role === 'TEACHER' || user.role === 'ADMIN') {
-        return {
-          ...user, groupsCreated: []
-        };
-      }
-      return user;
-    });
+        if (user.role === 'STUDENT' || user.role === 'TEACHER' || user.role === 'ADMIN') {
+          return {
+            ...user, groupsCreated: []
+          };
+        }
+        return user;
+      });
 
       return users;
     } catch (err) {
@@ -215,11 +226,11 @@ export class UserService {
       }
 
       users = users.map(user => {
-      if (user.role === 'STUDENT' || user.role === 'TEACHER') {
-        return { ...user, groupsCreated: [] };
-      }
-      return user;
-    });
+        if (user.role === 'STUDENT' || user.role === 'TEACHER') {
+          return { ...user, groupsCreated: [] };
+        }
+        return user;
+      });
 
       return users;
     } catch (err) {
@@ -235,11 +246,7 @@ export class UserService {
       let users = await this.prisma.user.findMany({
         where: {
           isActive: true,
-          groupsCreated: {
-            some: {
-              teacherId: currentUser.id,
-            },
-          },
+          role: UserRole.TEACHER
         }
       });
 
@@ -318,10 +325,10 @@ export class UserService {
         where: { id },
         data: { isActive: false },
       });
-      
-      return { 
+
+      return {
         success: true,
-        message: 'User deleted successfully' 
+        message: 'User deleted successfully'
       };
     }
     throw new ForbiddenException('Access denied');
@@ -338,8 +345,8 @@ export class UserService {
     }
 
     if (currentUser.id === id) {
-    throw new ForbiddenException('You cannot activate yourself');
-  }
+      throw new ForbiddenException('You cannot activate yourself');
+    }
 
     if (currentUser.role === UserRole.SUPERADMIN) {
       await this.prisma.userProfile.update({
@@ -351,9 +358,9 @@ export class UserService {
         data: { isActive: true },
       });
 
-      return { 
+      return {
         success: true,
-        message: 'User activated successfully' 
+        message: 'User activated successfully'
       };
     }
 
@@ -366,7 +373,7 @@ export class UserService {
           'Admin cannot active admin or super admin',
         );
       }
-      
+
       await this.prisma.userProfile.update({
         where: { userId: id },
         data: { isActive: true },
@@ -377,9 +384,9 @@ export class UserService {
         data: { isActive: true },
       });
 
-      return { 
+      return {
         success: true,
-        message: 'User activated successfully' 
+        message: 'User activated successfully'
       };
     }
 

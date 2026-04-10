@@ -7,13 +7,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import { localizePath } from '@/i18n/localizedPath';
 
 export default function TasksClient() {
   const router = useRouter();
   const locale = useLocale();
   const { id } = useParams();
   const { role, loading: authLoading } = useAuth();
-  const localized = (path: string) => `/${locale}${path === '/' ? '' : path}`;
   
   const [currentStep, setCurrentStep] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -82,7 +82,7 @@ export default function TasksClient() {
           Tests va vazifalar faqat <span className="text-[#3D855A]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
         </p>
         <button 
-          onClick={() => router.push(localized('/'))}
+          onClick={() => router.push(localizePath(locale, '/'))}
           className="bg-[#3D855A] text-white font-black py-4 px-10 rounded-[28px] shadow-xl shadow-[#3D855A]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
         >
           <ArrowLeft size={16} strokeWidth={3} /> Portalga Qaytish
@@ -110,7 +110,7 @@ export default function TasksClient() {
 
         <div className="flex flex-col w-full gap-4 max-w-xs">
           <button 
-            onClick={() => router.push(localized('/'))}
+            onClick={() => router.push(localizePath(locale, '/'))}
             className="w-full bg-[#3D855A] text-white font-black py-5 rounded-[32px] shadow-xl shadow-[#3D855A]/30 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
           >
             Darslarga qaytish <ChevronRight size={18} strokeWidth={3} />

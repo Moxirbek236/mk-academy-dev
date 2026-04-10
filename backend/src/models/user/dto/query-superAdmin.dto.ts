@@ -3,7 +3,7 @@ import { IsOptional, IsString, IsEnum, IsBoolean } from 'class-validator';
 import { UserRole } from '../../../core/enums';
 import { Transform } from 'class-transformer';
 
-export class QueryUserDto {
+export class QueryUserSuperAdminDto {
 
     @ApiPropertyOptional({ enum: [UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN] })
     @IsOptional()

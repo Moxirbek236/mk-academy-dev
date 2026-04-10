@@ -6,11 +6,15 @@ import api from '@/lib/api';
 export default function GroupsPage() {
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const res = await api.get('/groups');
+        const res = await api.get('/groups', {
+          params: { name: searchTerm }
+        });
         setGroups(res.data?.data || res.data || []);
       } catch (err) {
         console.error(err);
@@ -18,8 +22,12 @@ export default function GroupsPage() {
         setLoading(false);
       }
     };
-    fetchData();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#3D855A]" size={40} /></div>;
 
@@ -41,6 +49,8 @@ export default function GroupsPage() {
           <input 
             type="text" 
             placeholder="Guruhlarni qidirish..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border border-gray-100 rounded-[20px] py-4 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#3D855A] transition-all shadow-sm"
           />
         </div>

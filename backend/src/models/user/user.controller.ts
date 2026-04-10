@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, Req, Put, ParseIntPipe } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, QueryUserDto } from './dto';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { CreateUserDto, UpdateUserDto, QueryUserDto } from './dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UserRole } from 'src/core/enums';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
@@ -13,11 +13,11 @@ import { QueryUserTeacherDto } from './dto/query.teacher.dto';
 
 @ApiTags('users')
 @Controller('users')
-@ApiBearerAuth()
+// @ApiBearerAuth()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-  
-  @UseGuards(AuthGuard, RolesGuard)
+  constructor(private readonly userService: UserService) { }
+
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/teacher")
@@ -26,7 +26,7 @@ export class UserController {
     schema: {
       type: 'object',
       properties: {
-        phone: { type: 'string', example:'+998XXXXXXXXX' },
+        phone: { type: 'string', example: '+998XXXXXXXXX' },
         passwordHash: { type: 'string' },
         fullName: { type: 'string' },
         avatarUrl: { type: 'string', format: 'binary' },
@@ -45,11 +45,11 @@ export class UserController {
       }),
     }),
   )
-  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: any) {
+  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/student")
@@ -58,7 +58,7 @@ export class UserController {
     schema: {
       type: 'object',
       properties: {
-        phone: { type: 'string', example:'+998XXXXXXXXX' },
+        phone: { type: 'string', example: '+998XXXXXXXXX' },
         passwordHash: { type: 'string' },
         fullName: { type: 'string' },
         avatarUrl: { type: 'string', format: 'binary' },
@@ -77,11 +77,11 @@ export class UserController {
       }),
     }),
   )
-  createStudent(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: any) {
+  createStudent(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
   @Post("create/admin")
@@ -90,7 +90,7 @@ export class UserController {
     schema: {
       type: 'object',
       properties: {
-        phone: { type: 'string', example:'+998XXXXXXXXX' },
+        phone: { type: 'string', example: '+998XXXXXXXXX' },
         passwordHash: { type: 'string' },
         fullName: { type: 'string' },
         avatarUrl: { type: 'string', format: 'binary' },
@@ -109,19 +109,33 @@ export class UserController {
       }),
     }),
   )
-  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: any) {
+  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
     return this.userService.createAdmin(payload, req['user'], file?.filename);
   }
-  
-  @UseGuards(AuthGuard, RolesGuard)
+
+  // @UseGuards(AuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Get all users based on current user role' })
+  @Get()
+  findAll(@Req() req: Request, @Query() query: any) {
+    const userRole = req['user']?.role;
+    if (userRole === UserRole.SUPERADMIN) {
+      return this.userService.findAllSuperAdmin(query);
+    }
+    if (userRole === UserRole.ADMIN) {
+      return this.userService.findAllAdmin(query);
+    }
+    return this.userService.findAllTeacher(req['user'], query);
+  }
+
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
   @Get("superAdmin/all")
-  findAllSuperAdmin(@Req() req: Request, @Query() query: QueryUserDto) {
+  findAllSuperAdmin(@Req() req: Request, @Query() query: QueryUserSuperAdminDto) {
     return this.userService.findAllSuperAdmin(query);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.ADMIN}` })
   @Roles(UserRole.ADMIN)
   @Get("admin/all")
@@ -129,23 +143,23 @@ export class UserController {
     return this.userService.findAllAdmin(query);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: `${UserRole.TEACHER}` })
-  @Roles(UserRole.TEACHER)
+  // @UseGuards(AuthGuard, RolesGuard)
+  @ApiOperation({ summary: `${UserRole.TEACHER} ${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
+  @Roles(UserRole.TEACHER, UserRole.SUPERADMIN, UserRole.ADMIN)
   @Get("teacher/all")
   findAllTeacher(@Req() req: Request, @Query() query: QueryUserTeacherDto) {
     return this.userService.findAllTeacher(req['user'], query);
-  } 
-  
-  @UseGuards(AuthGuard, RolesGuard)
+  }
+
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}, ${UserRole.TEACHER}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.TEACHER)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     return this.userService.findOne(id, req['user']);
   }
-  
-  @UseGuards(AuthGuard, RolesGuard)
+
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Delete(':id')
@@ -153,7 +167,7 @@ export class UserController {
     return this.userService.remove(id, req['user']);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Patch('active/:id')

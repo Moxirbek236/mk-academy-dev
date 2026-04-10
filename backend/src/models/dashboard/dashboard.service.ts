@@ -34,7 +34,6 @@ export class DashboardService {
       pendingHomeworks,
       revenueAggregate,
       averageResultAggregate,
-      myLeaderboard,
       userAverageResultAggregate,
     ] = await Promise.all([
       prisma.user.count({ where: { role: 'STUDENT' } }),
@@ -53,15 +52,20 @@ export class DashboardService {
       prisma.testAttempt.aggregate({
         _avg: { score: true },
       }),
-      prisma.leaderboard.findFirst({
-        where: { studentId: currentUser.id },
-        orderBy: { id: 'desc' },
-      }),
       prisma.testAttempt.aggregate({
         where: { studentId: currentUser.id },
         _avg: { score: true },
       }),
     ]);
+
+    // Graceful fallback for partially migrated databases where leaderboards schema can lag behind.
+    const myLeaderboard = await prisma.leaderboard
+      .findFirst({
+        where: { studentId: currentUser.id },
+        orderBy: { id: 'desc' },
+        select: { rank: true, score: true },
+      })
+      .catch(() => null);
 
     const averageResult = Math.round(Number(averageResultAggregate?._avg?.score || 0));
     const personalProgress = Math.round(Number(userAverageResultAggregate?._avg?.score || averageResult));
@@ -87,4 +91,3 @@ export class DashboardService {
     };
   }
 }
-

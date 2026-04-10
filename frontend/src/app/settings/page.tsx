@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from 'next-themes';
 import api from '@/lib/api';
+import { localizePath } from '@/i18n/localizedPath';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function SettingsPage() {
   const { resolvedTheme, setTheme } = useTheme();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const localized = (path: string) => `/${locale}${path === '/' ? '' : path}`;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -33,7 +33,7 @@ export default function SettingsPage() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    router.push(localized('/landing'));
+    router.push(localizePath(locale, '/landing'));
   };
 
   const sections = [
@@ -98,7 +98,7 @@ export default function SettingsPage() {
               {section.items.map((item, iIdx) => (
                 <button 
                   key={iIdx} 
-                  onClick={item.action ? item.action : () => router.push(localized(item.path || '/'))}
+                  onClick={item.action ? item.action : () => router.push(localizePath(locale, item.path || '/'))}
                   className="group flex w-full items-center gap-3 rounded-2xl p-3.5 transition-colors active:scale-[0.98] hover:bg-[#F2F8F5] sm:gap-4 sm:rounded-3xl sm:p-4"
                 >
                   <div className="shrink-0 rounded-[16px] bg-[#F2F8F5] p-3 text-[#3D855A] transition-transform group-hover:scale-105 sm:rounded-[18px] sm:p-3.5">

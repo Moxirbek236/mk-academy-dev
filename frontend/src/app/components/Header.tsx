@@ -18,10 +18,10 @@ export function Header({ role }: HeaderProps) {
 
   return (
     <div
-      className={`relative z-0 overflow-hidden rounded-b-[32px] bg-gradient-to-br px-4 pb-7 pt-[calc(0.75rem+env(safe-area-inset-top))] text-white shadow-md sm:px-5 sm:pb-10 sm:pt-7 ${
+      className={`relative z-0 overflow-hidden rounded-b-[40px] bg-gradient-to-br px-4 pb-7 pt-[calc(1rem+env(safe-area-inset-top))] text-white shadow-2xl sm:px-6 sm:pb-12 sm:pt-8 ${
         isAdmin
-          ? 'from-[#2B6A47] via-[#3A8B60] to-[#2F744E]'
-          : 'from-[#236842] via-[#317F53] to-[#255e3c]'
+          ? 'from-[#065f46] via-[#10b981] to-[#059669]'
+          : 'from-[#064e3b] via-[#10b981] to-[#047857]'
       }`}
     >
       {/* Decorative Elements */}
@@ -56,12 +56,12 @@ export function Header({ role }: HeaderProps) {
         <>
           <div className="relative z-10 mt-6 sm:mt-8">
             <p className="mb-2 text-[10px] font-bold uppercase tracking-widest opacity-80 sm:text-[11px]">{t('progress')}</p>
-            <div className="h-2.5 w-full bg-white/20 rounded-full overflow-hidden border border-white/20">
-              <div className="h-full bg-gradient-to-r from-[#83D1A5] to-[#5BC28B] w-1/5 rounded-full shadow-[0_0_15px_rgba(131,209,165,0.5)]" />
+            <div className="h-3 w-full bg-black/15 rounded-full overflow-hidden border border-white/10 backdrop-blur-sm">
+              <div className="h-full bg-gradient-to-r from-[#34d399] to-[#fbbf24] w-1/5 rounded-full shadow-[0_0_20px_rgba(52,211,153,0.6)]" />
             </div>
-            <div className="flex justify-between items-center mt-2.5">
-               <span className="text-xs font-black sm:text-sm">20% {t('done')}</span>
-               <span className="text-[10px] font-bold bg-white/10 px-2 py-0.5 rounded-lg border border-white/5 uppercase">Level A2</span>
+            <div className="flex justify-between items-center mt-3">
+               <span className="text-xs font-black sm:text-sm tracking-tight">20% {t('done')}</span>
+               <span className="text-[9px] font-black bg-white/20 px-3 py-1 rounded-full border border-white/20 uppercase tracking-widest shadow-sm">Level A2</span>
             </div>
           </div>
 
