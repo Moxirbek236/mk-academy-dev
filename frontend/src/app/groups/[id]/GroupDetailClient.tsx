@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { getGroupById, getGroupMembers, addGroupMember, removeGroupMember } from '@/lib/backend-api';
+import { getGroupById, getGroupMembers, addGroupMember, removeGroupMember, getCoursesByGroup, removeGroupCourse } from '@/lib/backend-api';
 import {
   ChevronLeft,
   PlusCircle,
@@ -18,6 +18,8 @@ import {
   UserPlus,
   UserMinus,
   RefreshCw,
+  BookOpen,
+  ChevronRight,
 } from 'lucide-react';
 
 export default function GroupDetailClient() {
@@ -37,6 +39,10 @@ export default function GroupDetailClient() {
   const [studentIdInput, setStudentIdInput] = useState('');
   const [addLoading, setAddLoading] = useState(false);
 
+  // Courses state
+  const [courses, setCourses] = useState<any[]>([]);
+  const [courseError, setCourseError] = useState<string | null>(null);
+
   const isAdmin = role === 'admin' || role === 'superadmin';
   const groupId = Number(id);
 
@@ -53,6 +59,16 @@ export default function GroupDetailClient() {
     }
   }, [groupId]);
 
+  const fetchCourses = useCallback(async () => {
+    if (!groupId) return;
+    try {
+      const data = await getCoursesByGroup(groupId);
+      setCourses(Array.isArray(data) ? data : []);
+    } catch {
+      setCourses([]);
+    }
+  }, [groupId]);
+
   useEffect(() => {
     const fetchGroup = async () => {
       try {
@@ -65,6 +81,7 @@ export default function GroupDetailClient() {
         } else {
           await fetchMembers();
         }
+        await fetchCourses();
       } catch (err: any) {
         setError(
           err?.response?.data?.message ||
@@ -234,6 +251,80 @@ export default function GroupDetailClient() {
               <PlusCircle size={20} className="shrink-0 text-gray-300 transition-colors group-hover:text-amber-500" />
             </button>
           </div>
+        </div>
+
+        {/* ── Guruhga biriktirilgan Kurslar ── */}
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
+              <BookOpen size={14} className="text-[var(--app-primary)]" />
+              Kurslar
+            </h2>
+            <span className="rounded-xl bg-[var(--app-surface-soft)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)]">
+              {courses.length} ta
+            </span>
+          </div>
+
+          {courses.length === 0 ? (
+            <div className="flex flex-col items-center rounded-[28px] border border-dashed border-[var(--app-border)] p-8 text-center">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[20px] bg-[var(--app-surface-soft)] text-[var(--app-muted)]">
+                <BookOpen size={24} strokeWidth={1.5} />
+              </div>
+              <p className="text-sm font-black text-[var(--app-text)]">Kurslar yo'q</p>
+              <p className="mt-1 max-w-[180px] text-xs font-bold text-[var(--app-muted)]">
+                Bu guruhga hozircha kurs biriktirilmagan.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {courses.map((gCourse: any, idx: number) => {
+                const course = gCourse.course;
+                return (
+                  <div
+                    key={gCourse.id ?? idx}
+                    className="group flex items-center gap-4 rounded-[24px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm transition-all hover:border-[var(--app-primary)]/30 hover:shadow-md"
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-blue-50 text-[#2563eb] text-lg font-black transition-transform group-hover:scale-110">
+                      {course?.title?.charAt(0) || 'K'}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate text-sm font-black tracking-tight text-[var(--app-text)]">
+                        {course?.title || "Noma'lum kurs"}
+                      </h3>
+                      <span className="mt-1 inline-block rounded-md bg-blue-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#2563eb]">
+                        {course?.level || 'A1'}
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {isAdmin && (
+                        <button
+                          onClick={async () => {
+                            if (!confirm('Bu kursni guruhdan olib tashlamoqchimisiz?')) return;
+                            try {
+                              await removeGroupCourse(gCourse.id);
+                              setCourses((prev) => prev.filter((_, i) => i !== idx));
+                            } catch (err: any) {
+                              setActionError(err?.response?.data?.message || "O'chirib bo'lmadi");
+                            }
+                          }}
+                          className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-50 text-red-400 transition-all hover:bg-red-500 hover:text-white active:scale-90"
+                          title="Kursni guruhdan olib tashlash"
+                        >
+                          ✕
+                        </button>
+                      )}
+                      <button
+                        onClick={() => router.push(`/courses/${course?.id}`)}
+                        className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gray-50 text-gray-400 transition-all group-hover:bg-[#2563eb] group-hover:text-white active:scale-95"
+                      >
+                        <ChevronRight size={18} strokeWidth={3} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* ── Members ── */}

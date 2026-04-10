@@ -1,33 +1,48 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Book, ChevronLeft, Loader2, PlayCircle, Trophy, Zap, Clock, Star, Users, CheckCircle2, ListTodo, MoreVertical, Heart, Share2, Info, ChevronRight, GraduationCap } from 'lucide-react';
+import { Book, ChevronLeft, Loader2, PlayCircle, Trophy, Zap, Users, Info, ChevronRight, ListTodo } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
+import { getGroupsByCourse, assignCourseToGroup, removeGroupCourse } from '@/lib/backend-api';
+import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 
 export default function CourseDetailClient() {
   const { id } = useParams();
+  const { role } = useAuth();
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [courseGroups, setCourseGroups] = useState<any[]>([]);
+  const [assignGroupId, setAssignGroupId] = useState('');
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignError, setAssignError] = useState<string | null>(null);
   const router = useRouter();
+
+  const isAdmin = role === 'admin' || role === 'superadmin';
+  const courseId = Number(id);
+
+  const fetchGroups = async (cId: number) => {
+    try {
+      const data = await getGroupsByCourse(cId);
+      setCourseGroups(Array.isArray(data) ? data : []);
+    } catch {
+      setCourseGroups([]);
+    }
+  };
 
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const res = await api.get(`/courses/${id}`);
+        const res = await api.get(`/courses/${courseId}`);
         setCourse(res.data?.data || res.data);
-        
-        // Fetch groups assigned to this course
-        const groupCourseRes = await api.get('/group-course', { params: { courseId: id } });
-        setCourseGroups(groupCourseRes.data?.data || groupCourseRes.data || []);
+        await fetchGroups(courseId);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchCourse();
-  }, [id]);
+    if (courseId) fetchCourse();
+  }, [courseId]);
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#2563eb]" size={40} /></div>;
 
@@ -118,39 +133,107 @@ export default function CourseDetailClient() {
         </section>
 
         <section>
+          {/* Header */}
           <div className="flex items-center justify-between mb-4">
              <h2 className="text-[11px] font-black text-gray-300 uppercase tracking-[0.2em]">KURS GURUHLARI</h2>
-             <span className="text-[10px] font-black text-amber-500 bg-amber-50 px-2.5 py-1 rounded-md uppercase">{courseGroups.length} ta</span>
+             <span className="text-[10px] font-black text-amber-500 bg-amber-50 px-2.5 py-1 rounded-md uppercase">
+               {courseGroups.length} ta
+             </span>
           </div>
 
+          {/* Admin: assign new group to this course */}
+          {isAdmin && (
+            <div className="mb-4 flex gap-2">
+              <input
+                type="number"
+                value={assignGroupId}
+                onChange={(e) => setAssignGroupId(e.target.value)}
+                placeholder="Guruh ID sini kiriting..."
+                className="flex-1 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[#2563eb]"
+              />
+              <button
+                disabled={assignLoading || !assignGroupId}
+                onClick={async () => {
+                  const gid = parseInt(assignGroupId.trim());
+                  if (!gid || isNaN(gid)) return;
+                  setAssignLoading(true);
+                  setAssignError(null);
+                  try {
+                    await assignCourseToGroup(gid, courseId);
+                    setAssignGroupId('');
+                    await fetchGroups(courseId);
+                  } catch (err: any) {
+                    setAssignError(err?.response?.data?.message || "Guruh biriktirib bo'lmadi");
+                  } finally {
+                    setAssignLoading(false);
+                  }
+                }}
+                className="shrink-0 rounded-[18px] bg-[#2563eb] px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
+              >
+                {assignLoading ? '...' : '+ Biriktir'}
+              </button>
+            </div>
+          )}
+
+          {assignError && (
+            <div className="mb-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-xs font-bold text-red-600">
+              {assignError}
+            </div>
+          )}
+
           {courseGroups.length === 0 ? (
-             <div className="bg-gradient-to-br from-[#eff6ff] via-[#f8fbff] to-white rounded-[44px] p-10 text-gray-900 border border-[#dbeafe] text-center">
-                 <h3 className="text-2xl font-black tracking-tight leading-tight mb-3">Guruhlar mavjud emas</h3>
-                 <p className="text-sm font-bold text-gray-500 max-w-[200px] mx-auto">Hozircha bu kursga hech qanday guruh biriktirilmagan.</p>
+             <div className="rounded-[40px] border border-dashed border-gray-100 bg-gradient-to-br from-[#eff6ff] via-[#f8fbff] to-white p-10 text-center">
+                 <h3 className="text-xl font-black tracking-tight leading-tight mb-2 text-gray-800">Guruhlar mavjud emas</h3>
+                 <p className="text-sm font-bold text-gray-400 max-w-[200px] mx-auto">
+                   Hozircha bu kursga hech qanday guruh biriktirilmagan.
+                 </p>
              </div>
           ) : (
              <div className="flex flex-col gap-3">
-                {courseGroups.map((gCourse, index) => {
+                {courseGroups.map((gCourse: any, index: number) => {
                   const group = gCourse.group;
                   return (
-                     <div key={index} className="bg-white p-5 rounded-[28px] border border-gray-100 flex items-center justify-between group hover:border-[#2563eb]/20 transition-all shadow-sm shadow-blue-900/5">
-                        <div className="flex items-center gap-4">
+                     <div key={gCourse.id ?? index} className="bg-white p-5 rounded-[28px] border border-gray-100 flex items-center justify-between group hover:border-[#2563eb]/20 transition-all shadow-sm shadow-blue-900/5">
+                        <div className="flex items-center gap-4 min-w-0 flex-1">
                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-blue-50 text-[var(--app-primary)] text-lg font-black transition-transform group-hover:scale-110">
                               {group?.name?.charAt(0) || 'G'}
                            </div>
-                           <div>
-                              <h4 className="font-extrabold text-[#111827] text-base tracking-tight leading-none mb-1">{group?.name}</h4>
+                           <div className="min-w-0">
+                              <h4 className="font-extrabold text-[#111827] text-base tracking-tight leading-none mb-1 truncate">
+                                {group?.name || 'Noma\'lum guruh'}
+                              </h4>
                               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
-                                {group?.inviteCode || 'Noma\'lum'}
+                                {group?.inviteCode || '—'}
                               </p>
                            </div>
                         </div>
-                        <button 
-                           onClick={() => router.push(`/groups/${group?.id}`)}
-                           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-[#2563eb] group-hover:text-white transition-all active:scale-95"
-                        >
-                           <ChevronRight size={18} strokeWidth={3} />
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {/* Remove from course (admin only) */}
+                          {isAdmin && (
+                            <button
+                              onClick={async () => {
+                                if (!confirm('Bu guruhni kursdan olib tashlamoqchimisiz?')) return;
+                                try {
+                                  await removeGroupCourse(gCourse.id);
+                                  setCourseGroups((prev) => prev.filter((_, i) => i !== index));
+                                } catch (err: any) {
+                                  setAssignError(err?.response?.data?.message || "O'chirib bo'lmadi");
+                                }
+                              }}
+                              className="flex h-9 w-9 items-center justify-center rounded-2xl bg-red-50 text-red-400 transition-all hover:bg-red-500 hover:text-white active:scale-90"
+                              title="Kursdan olib tashlash"
+                            >
+                              ✕
+                            </button>
+                          )}
+                          {/* Navigate to group */}
+                          <button
+                             onClick={() => router.push(`/groups/${group?.id}`)}
+                             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-[#2563eb] group-hover:text-white transition-all active:scale-95"
+                          >
+                             <ChevronRight size={18} strokeWidth={3} />
+                          </button>
+                        </div>
                      </div>
                   );
                 })}

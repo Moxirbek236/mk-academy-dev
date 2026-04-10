@@ -47,7 +47,6 @@ export const PRIVATE_ROBOTS_PATHS = [
   '/learning',
   '/books',
   '/tasks',
-  '/courses',
   '/unit',
   '/course',
   '/start',

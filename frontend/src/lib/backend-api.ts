@@ -445,8 +445,80 @@ export async function removeGroupMember(groupId: number, studentId: number) {
   return unwrapApiData<any>(response.data);
 }
 
+// ── Group Course ──────────────────────────────────────────────────────────────
+
+export interface GroupCourseQuery {
+  page?: number;
+  limit?: number;
+  groupId?: number;
+  courseId?: number;
+  isActive?: boolean;
+}
+
+/**
+ * GET /group-course
+ * Barcha group-course bog'lanishlarini olish (filter: groupId, courseId, page, limit)
+ */
+export async function listGroupCourses(query?: GroupCourseQuery) {
+  const response = await api.get('/group-course', { params: query });
+  // returns { data: [...], meta: { total, page, limit, totalPages } }
+  const body = response.data;
+  return {
+    data: (body?.data ?? body) as any[],
+    meta: body?.meta as { total: number; page: number; limit: number; totalPages: number } | undefined,
+  };
+}
+
+/**
+ * GET /group-course/:id — bitta GroupCourse yozuvini olish
+ */
+export async function getGroupCourseById(id: number) {
+  const response = await api.get(`/group-course/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+/**
+ * POST /group-course — guruhga kurs biriktirish (admin/superadmin)
+ */
+export async function assignCourseToGroup(groupId: number, courseId: number) {
+  const response = await api.post('/group-course', { groupId, courseId });
+  return unwrapApiData<any>(response.data);
+}
+
+/**
+ * PATCH /group-course/:id — bog'lanishni yangilash (admin/superadmin)
+ */
+export async function updateGroupCourse(id: number, payload: { groupId?: number; courseId?: number; isActive?: boolean }) {
+  const response = await api.patch(`/group-course/${id}`, payload);
+  return unwrapApiData<any>(response.data);
+}
+
+/**
+ * DELETE /group-course/:id — soft delete (admin/superadmin)
+ */
+export async function removeGroupCourse(id: number) {
+  const response = await api.delete(`/group-course/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+/**
+ * Convenience: kursga biriktirilgan guruhlar ro'yxati
+ */
+export async function getGroupsByCourse(courseId: number) {
+  const { data } = await listGroupCourses({ courseId, isActive: true, limit: 100 });
+  return data;
+}
+
+/**
+ * Convenience: guruhga biriktirilgan kurslar ro'yxati
+ */
+export async function getCoursesByGroup(groupId: number) {
+  const { data } = await listGroupCourses({ groupId, isActive: true, limit: 100 });
+  return data;
+}
 
 export async function listBooks() {
+
   const response = await api.get('/books');
   return unwrapApiData<any[]>(response.data) ?? [];
 }
@@ -580,3 +652,4 @@ export async function removeNotification(id: number) {
   const response = await api.delete(`/notifications/${id}`);
   return unwrapApiData<any>(response.data);
 }
+
