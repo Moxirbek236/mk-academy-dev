@@ -4,7 +4,7 @@ import { generateSEO } from '@/lib/seo';
 import { getServerCenterBranding } from '@/lib/server-center-branding';
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // Fixed getApiUrl for server-side use in metadata
@@ -14,7 +14,7 @@ function getApiUrl() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
   const centerBranding = await getServerCenterBranding();
   
   try {
@@ -55,6 +55,9 @@ export function generateStaticParams() {
   return [{ id: '1' }, { id: '2' }, { id: '3' }];
 }
 
-export default function CourseDetailPage() {
+export default async function CourseDetailPage({ params }: Props) {
+  // Although CourseDetailClient uses useParams(), 
+  // the Page component must satisfy Next.js 15 constraints.
+  await params; 
   return <CourseDetailClient />;
 }

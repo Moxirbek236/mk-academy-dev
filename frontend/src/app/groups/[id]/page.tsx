@@ -4,7 +4,7 @@ import { generateSEO } from '@/lib/seo';
 import { getServerCenterBranding } from '@/lib/server-center-branding';
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // Internal API url helper
@@ -14,7 +14,7 @@ function getApiUrl() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
   const centerBranding = await getServerCenterBranding();
   
   try {
@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function GroupDetailPage() {
+export default async function GroupDetailPage({ params }: Props) {
+  await params;
   return <GroupDetailClient />;
 }
