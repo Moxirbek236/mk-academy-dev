@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getSiteUrl } from '@/lib/site';
 
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Har soatda yangilab turadi
 
