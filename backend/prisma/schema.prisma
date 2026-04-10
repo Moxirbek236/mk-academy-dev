@@ -8,34 +8,33 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  phone        String?  @unique
-  passwordHash String   @map("password_hash")
-  role         String   @default("STUDENT")
-  fullName     String   @map("full_name")
-  avatarUrl    String?  @map("avatar_url")
-  cefrLevel    String?  @map("cefr_level")
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  profile             UserProfile?
-  refreshTokens       RefreshToken[]
-  groupsCreated       Group[]              @relation("TeacherGroups")
+  id                  Int                  @id @default(autoincrement())
+  phone               String?              @unique
+  passwordHash        String               @map("password_hash")
+  role                String               @default("STUDENT")
+  fullName            String               @map("full_name")
+  avatarUrl           String?              @map("avatar_url")
+  cefrLevel           String?              @map("cefr_level")
+  isActive            Boolean              @default(true) @map("is_active")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
   groupMemberships    GroupMember[]
-  vocabularyProgress  VocabularyProgress[]
-  wordLists           WordList[]
-  tasks               StudentTask[]
+  groupsCreated       Group[]              @relation("TeacherGroups")
+  leaderboards        Leaderboard[]
+  notifications       Notification[]
+  ratings             Rating[]
+  refreshTokens       RefreshToken[]
+  achievements        StudentAchievement[]
   gradedTasks         StudentTask[]        @relation("GradedTasks")
-  createdTests        Test[]               @relation("CreatedTests")
+  tasks               StudentTask[]
   createdTasks        Task[]               @relation("CreatedTasks")
   testAttempts        TestAttempt[]
-  achievements        StudentAchievement[]
-  xpTransactions      XpTransaction[]
-  leaderboards        Leaderboard[]
-  ratings             Rating[]
-  notifications       Notification[]
+  createdTests        Test[]               @relation("CreatedTests")
   financeTransactions FinanceTransaction[]
+  profile             UserProfile?
+  vocabularyProgress  VocabularyProgress[]
+  wordLists           WordList[]
+  xpTransactions      XpTransaction[]
 
   @@map("users")
 }
@@ -43,11 +42,11 @@ model User {
 model RefreshToken {
   id         Int      @id @default(autoincrement())
   userId     Int      @map("user_id")
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tokenHash  String   @unique @map("token_hash")
   expiresAt  DateTime @map("expires_at")
   deviceInfo String?  @map("device_info")
   isActive   Boolean  @default(true) @map("is_active")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
 }
@@ -55,31 +54,29 @@ model RefreshToken {
 model UserProfile {
   id                   Int       @id @default(autoincrement())
   userId               Int       @unique @map("user_id")
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   email                String?
   dateOfBirth          DateTime? @map("date_of_birth")
   language             String    @default("UZ")
   timezone             String    @default("Asia/Tashkent")
   notificationSettings String?   @map("notification_settings")
   isActive             Boolean   @default(true) @map("is_active")
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_profiles")
 }
 
 model Group {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  teacherId   Int      @map("teacher_id")
-  teacher     User     @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
-  inviteCode  String   @unique @map("invite_code")
-  isAvailable Boolean  @default(true) @map("is_available")
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  members      GroupMember[]
+  id           Int               @id @default(autoincrement())
+  name         String
+  description  String?
+  teacherId    Int               @map("teacher_id")
+  inviteCode   String            @unique @map("invite_code")
+  isActive     Boolean           @default(true) @map("is_active")
+  createdAt    DateTime          @default(now()) @map("created_at")
   assignments  GroupAssignment[]
   courses      GroupCourse[]
+  members      GroupMember[]
+  teacher      User              @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
   leaderboards Leaderboard[]
 
   @@map("groups")
@@ -88,12 +85,12 @@ model Group {
 model GroupMember {
   id        Int      @id @default(autoincrement())
   groupId   Int      @map("group_id")
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   studentId Int      @map("student_id")
-  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   joinedAt  DateTime @default(now()) @map("joined_at")
   status    String   @default("ACTIVE")
   isActive  Boolean  @default(true) @map("is_active")
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, studentId])
   @@map("group_members")
@@ -102,31 +99,30 @@ model GroupMember {
 model GroupAssignment {
   id         Int       @id @default(autoincrement())
   groupId    Int       @map("group_id")
-  group      Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
   testId     Int?      @map("test_id")
-  test       Test?     @relation(fields: [testId], references: [id], onDelete: Cascade)
   taskId     Int?      @map("task_id")
-  task       Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   dueDate    DateTime? @map("due_date")
   isRequired Boolean   @default(true) @map("is_required")
   isActive   Boolean   @default(true) @map("is_active")
   createdAt  DateTime  @default(now()) @map("created_at")
+  task       Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  test       Test?     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  group      Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@map("group_assignments")
 }
 
 model Course {
-  id          Int      @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   title       String
   description String?
-  level       String   @default("A1")
-  imageUrl    String?  @map("image_url")
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  tests  Test[]
-  tasks  Task[]
-  groups GroupCourse[]
+  level       String        @default("A1")
+  imageUrl    String?       @map("image_url")
+  isActive    Boolean       @default(true) @map("is_active")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  groups      GroupCourse[]
+  tasks       Task[]
+  tests       Test[]
 
   @@map("courses")
 }
@@ -134,11 +130,11 @@ model Course {
 model GroupCourse {
   id         Int      @id @default(autoincrement())
   groupId    Int      @map("group_id")
-  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   courseId   Int      @map("course_id")
-  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   assignedAt DateTime @default(now()) @map("assigned_at")
   isActive   Boolean  @default(true) @map("is_active")
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, courseId])
   @@map("group_courses")
@@ -161,34 +157,33 @@ model Book {
 model Rating {
   id         Int      @id @default(autoincrement())
   userId     Int      @map("user_id")
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   targetType String   @map("target_type")
   targetId   String   @map("target_id")
   score      Int
   reviewText String?  @map("review_text")
   isActive   Boolean  @default(true) @map("is_active")
   createdAt  DateTime @default(now()) @map("created_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, targetType, targetId])
   @@map("ratings")
 }
 
 model Vocabulary {
-  id                 Int     @id @default(autoincrement())
-  word               String  @unique
+  id                 Int                  @id @default(autoincrement())
+  word               String               @unique
   translation        String
   pronunciation      String?
-  partOfSpeech       String? @map("part_of_speech")
-  exampleSentence    String? @map("example_sentence")
-  exampleTranslation String? @map("example_translation")
-  imageUrl           String? @map("image_url")
-  audioUrl           String? @map("audio_url")
-  difficulty         Int     @default(1)
-  cefrLevel          String? @map("cefr_level")
-  isActive           Boolean @default(true) @map("is_active")
-
-  progress      VocabularyProgress[]
-  wordListItems WordListItem[]
+  partOfSpeech       String?              @map("part_of_speech")
+  exampleSentence    String?              @map("example_sentence")
+  exampleTranslation String?              @map("example_translation")
+  imageUrl           String?              @map("image_url")
+  audioUrl           String?              @map("audio_url")
+  difficulty         Int                  @default(1)
+  cefrLevel          String?              @map("cefr_level")
+  isActive           Boolean              @default(true) @map("is_active")
+  progress           VocabularyProgress[]
+  wordListItems      WordListItem[]
 
   @@map("vocabularies")
 }
@@ -196,9 +191,7 @@ model Vocabulary {
 model VocabularyProgress {
   id             Int        @id @default(autoincrement())
   studentId      Int        @map("student_id")
-  student        User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
   vocabularyId   Int        @map("vocabulary_id")
-  vocabulary     Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
   status         String     @default("NEW")
   easeFactor     Float      @default(2.5) @map("ease_factor")
   intervalDays   Int        @default(0) @map("interval_days")
@@ -207,20 +200,21 @@ model VocabularyProgress {
   wrongCount     Int        @default(0) @map("wrong_count")
   lastReviewedAt DateTime?  @map("last_reviewed_at")
   isActive       Boolean    @default(true) @map("is_active")
+  vocabulary     Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  student        User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, vocabularyId])
   @@map("vocabulary_progress")
 }
 
 model WordList {
-  id        Int     @id @default(autoincrement())
-  studentId Int     @map("student_id")
-  student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  id        Int            @id @default(autoincrement())
+  studentId Int            @map("student_id")
   name      String
-  isPublic  Boolean @default(false) @map("is_public")
-  isActive  Boolean @default(true) @map("is_active")
-
-  items WordListItem[]
+  isPublic  Boolean        @default(false) @map("is_public")
+  isActive  Boolean        @default(true) @map("is_active")
+  items     WordListItem[]
+  student   User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@map("word_lists")
 }
@@ -228,32 +222,31 @@ model WordList {
 model WordListItem {
   id           Int        @id @default(autoincrement())
   wordListId   Int        @map("word_list_id")
-  wordList     WordList   @relation(fields: [wordListId], references: [id], onDelete: Cascade)
   vocabularyId Int        @map("vocabulary_id")
-  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
   addedAt      DateTime   @default(now()) @map("added_at")
   isActive     Boolean    @default(true) @map("is_active")
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  wordList     WordList   @relation(fields: [wordListId], references: [id], onDelete: Cascade)
 
   @@unique([wordListId, vocabularyId])
   @@map("word_list_items")
 }
 
 model Task {
-  id           Int     @id @default(autoincrement())
+  id           Int               @id @default(autoincrement())
   title        String
   description  String?
-  type         String  @default("READING")
+  type         String            @default("READING")
   instructions String?
-  maxScore     Int     @default(100) @map("max_score")
-  createdById  Int?    @map("created_by")
-  createdBy    User?   @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: SetNull)
-  isActive     Boolean @default(true) @map("is_active")
-
+  maxScore     Int               @default(100) @map("max_score")
+  createdById  Int?              @map("created_by")
+  isActive     Boolean           @default(true) @map("is_active")
+  courseId     Int?              @map("course_id")
+  assignments  GroupAssignment[]
   studentTasks StudentTask[]
   attachments  TaskAttachment[]
-  assignments  GroupAssignment[]
-  courseId     Int?              @map("course_id")
-  course       Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  course       Course?           @relation(fields: [courseId], references: [id])
+  createdBy    User?             @relation("CreatedTasks", fields: [createdById], references: [id])
 
   @@map("tasks")
 }
@@ -261,9 +254,7 @@ model Task {
 model StudentTask {
   id                Int       @id @default(autoincrement())
   studentId         Int       @map("student_id")
-  student           User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
   taskId            Int       @map("task_id")
-  task              Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
   status            String    @default("PENDING")
   submittedAt       DateTime? @map("submitted_at")
   submissionContent String?   @map("submission_content")
@@ -271,8 +262,10 @@ model StudentTask {
   teacherFeedback   String?   @map("teacher_feedback")
   gradedAt          DateTime? @map("graded_at")
   gradedById        Int?      @map("graded_by")
-  gradedBy          User?     @relation("GradedTasks", fields: [gradedById], references: [id], onDelete: SetNull)
   isActive          Boolean   @default(true) @map("is_active")
+  gradedBy          User?     @relation("GradedTasks", fields: [gradedById], references: [id])
+  task              Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  student           User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, taskId])
   @@map("student_tasks")
@@ -281,57 +274,55 @@ model StudentTask {
 model TaskAttachment {
   id         Int     @id @default(autoincrement())
   taskId     Int     @map("task_id")
-  task       Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
   fileUrl    String  @map("file_url")
   fileType   String  @map("file_type")
   uploadedBy String  @map("uploaded_by")
   isActive   Boolean @default(true) @map("is_active")
+  task       Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@map("task_attachments")
 }
 
 model Test {
-  id               Int     @id @default(autoincrement())
+  id               Int               @id @default(autoincrement())
   title            String
   description      String?
-  type             String  @default("PRACTICE")
-  cefrLevel        String? @map("cefr_level")
-  timeLimitMinutes Int?    @map("time_limit_minutes")
-  passingScore     Int     @default(0) @map("passing_score")
-  shuffleQuestions Boolean @default(false) @map("shuffle_questions")
-  maxAttempts      Int?    @map("max_attempts")
-  isAdaptive       Boolean @default(false) @map("is_adaptive")
-  isPublished      Boolean @default(false) @map("is_published")
-  timeLimit        Int?    @map("time_limit")
-  createdById      Int?    @map("created_by")
-  createdBy        User?   @relation("CreatedTests", fields: [createdById], references: [id], onDelete: SetNull)
-  isActive         Boolean @default(true) @map("is_active")
-
-  questions   Question[]
-  attempts    TestAttempt[]
-  assignments GroupAssignment[]
-  courseId    Int?              @map("course_id")
-  course      Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  type             String            @default("PRACTICE")
+  cefrLevel        String?           @map("cefr_level")
+  timeLimitMinutes Int?              @map("time_limit_minutes")
+  passingScore     Int               @default(0) @map("passing_score")
+  shuffleQuestions Boolean           @default(false) @map("shuffle_questions")
+  maxAttempts      Int?              @map("max_attempts")
+  isAdaptive       Boolean           @default(false) @map("is_adaptive")
+  isPublished      Boolean           @default(false) @map("is_published")
+  timeLimit        Int?              @map("time_limit")
+  createdById      Int?              @map("created_by")
+  isActive         Boolean           @default(true) @map("is_active")
+  courseId         Int?              @map("course_id")
+  assignments      GroupAssignment[]
+  questions        Question[]
+  attempts         TestAttempt[]
+  course           Course?           @relation(fields: [courseId], references: [id])
+  createdBy        User?             @relation("CreatedTests", fields: [createdById], references: [id])
 
   @@map("tests")
 }
 
 model Question {
-  id            Int     @id @default(autoincrement())
-  testId        Int     @map("test_id")
-  test          Test    @relation(fields: [testId], references: [id], onDelete: Cascade)
-  type          String  @default("MCQ")
-  inputType     String  @default("OPTIONS") @map("input_type")
-  questionText  String  @map("question_text")
+  id            Int                @id @default(autoincrement())
+  testId        Int                @map("test_id")
+  type          String             @default("MCQ")
+  inputType     String             @default("OPTIONS") @map("input_type")
+  questionText  String             @map("question_text")
   options       String?
-  correctAnswer String? @map("correct_answer")
+  correctAnswer String?            @map("correct_answer")
   explanation   String?
-  points        Int     @default(1)
-  difficulty    Int     @default(1)
+  points        Int                @default(1)
+  difficulty    Int                @default(1)
   skill         String?
-  isActive      Boolean @default(true) @map("is_active")
-
-  analytics QuestionAnalytics?
+  isActive      Boolean            @default(true) @map("is_active")
+  analytics     QuestionAnalytics?
+  test          Test               @relation(fields: [testId], references: [id], onDelete: Cascade)
 
   @@map("questions")
 }
@@ -339,9 +330,7 @@ model Question {
 model TestAttempt {
   id               Int       @id @default(autoincrement())
   studentId        Int       @map("student_id")
-  student          User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
   testId           Int       @map("test_id")
-  test             Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
   startedAt        DateTime  @default(now()) @map("started_at")
   submittedAt      DateTime? @map("submitted_at")
   score            Int?
@@ -351,6 +340,8 @@ model TestAttempt {
   answers          String?
   feedback         String?
   isActive         Boolean   @default(true) @map("is_active")
+  test             Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  student          User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@map("test_attempts")
 }
@@ -358,26 +349,25 @@ model TestAttempt {
 model QuestionAnalytics {
   id             Int      @id @default(autoincrement())
   questionId     Int      @unique @map("question_id")
-  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   totalAttempts  Int      @default(0) @map("total_attempts")
   correctCount   Int      @default(0) @map("correct_count")
   avgTimeSeconds Float    @default(0) @map("avg_time_seconds")
   isActive       Boolean  @default(true) @map("is_active")
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@map("question_analytics")
 }
 
 model Achievement {
-  id             Int     @id @default(autoincrement())
-  title          String
-  description    String?
-  iconUrl        String? @map("icon_url")
-  conditionType  String  @map("condition_type")
-  conditionValue Int     @map("condition_value")
-  xpReward       Int     @default(0) @map("xp_reward")
-  badgeColor     String? @map("badge_color")
-  isActive       Boolean @default(true) @map("is_active")
-
+  id                  Int                  @id @default(autoincrement())
+  title               String
+  description         String?
+  iconUrl             String?              @map("icon_url")
+  conditionType       String               @map("condition_type")
+  conditionValue      Int                  @map("condition_value")
+  xpReward            Int                  @default(0) @map("xp_reward")
+  badgeColor          String?              @map("badge_color")
+  isActive            Boolean              @default(true) @map("is_active")
   studentAchievements StudentAchievement[]
 
   @@map("achievements")
@@ -386,11 +376,11 @@ model Achievement {
 model StudentAchievement {
   id            Int         @id @default(autoincrement())
   studentId     Int         @map("student_id")
-  student       User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
   achievementId Int         @map("achievement_id")
-  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   earnedAt      DateTime    @default(now()) @map("earned_at")
   isActive      Boolean     @default(true) @map("is_active")
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  student       User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, achievementId])
   @@map("student_achievements")
@@ -399,12 +389,12 @@ model StudentAchievement {
 model XpTransaction {
   id          Int      @id @default(autoincrement())
   studentId   Int      @map("student_id")
-  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   amount      Int
   reason      String
   referenceId String?  @map("reference_id")
   createdAt   DateTime @default(now()) @map("created_at")
   isActive    Boolean  @default(true) @map("is_active")
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@map("xp_transactions")
 }
@@ -413,13 +403,13 @@ model Leaderboard {
   id        Int     @id @default(autoincrement())
   scope     String  @default("GLOBAL")
   groupId   Int?    @map("group_id")
-  group     Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   studentId Int     @map("student_id")
-  student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   score     Int     @default(0)
   rank      Int?
   period    String?
   isActive  Boolean @default(true) @map("is_active")
+  student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  group     Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@map("leaderboards")
 }
@@ -427,7 +417,6 @@ model Leaderboard {
 model Notification {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      String
   title     String
   body      String
@@ -435,6 +424,7 @@ model Notification {
   isRead    Boolean  @default(false) @map("is_read")
   createdAt DateTime @default(now()) @map("created_at")
   isActive  Boolean  @default(true) @map("is_active")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
@@ -442,7 +432,6 @@ model Notification {
 model FinanceTransaction {
   id        Int      @id @default(autoincrement())
   userId    Int?     @map("user_id")
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   amount    Float
   currency  String   @default("UZS")
   type      String   @default("INCOME")
@@ -451,6 +440,7 @@ model FinanceTransaction {
   reason    String?
   createdAt DateTime @default(now()) @map("created_at")
   isActive  Boolean  @default(true) @map("is_active")
+  user      User?    @relation(fields: [userId], references: [id])
 
   @@map("transactions")
 }

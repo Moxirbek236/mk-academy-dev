@@ -13,11 +13,11 @@ import { QueryUserTeacherDto } from './dto/query.teacher.dto';
 
 @ApiTags('users')
 @Controller('users')
-@ApiBearerAuth()
+// @ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/teacher")
@@ -49,7 +49,7 @@ export class UserController {
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/student")
@@ -81,7 +81,7 @@ export class UserController {
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
   @Post("create/admin")
@@ -113,7 +113,7 @@ export class UserController {
     return this.userService.createAdmin(payload, req['user'], file?.filename);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
   @Get("superAdmin/all")
@@ -121,7 +121,7 @@ export class UserController {
     return this.userService.findAllSuperAdmin(query);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.ADMIN}` })
   @Roles(UserRole.ADMIN)
   @Get("admin/all")
@@ -129,7 +129,7 @@ export class UserController {
     return this.userService.findAllAdmin(query);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.TEACHER} ${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.TEACHER, UserRole.SUPERADMIN, UserRole.ADMIN)
   @Get("teacher/all")
@@ -137,7 +137,7 @@ export class UserController {
     return this.userService.findAllTeacher(req['user'], query);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}, ${UserRole.TEACHER}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.TEACHER)
   @Get(':id')
@@ -145,7 +145,7 @@ export class UserController {
     return this.userService.findOne(id, req['user']);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Delete(':id')
@@ -153,7 +153,7 @@ export class UserController {
     return this.userService.remove(id, req['user']);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Patch('active/:id')
