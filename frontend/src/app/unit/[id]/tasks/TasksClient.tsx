@@ -9,20 +9,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { localizePath } from '@/i18n/localizedPath';
 import { useExamSecurity } from '@/hooks/useExamSecurity';
+import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
+import { getRoleHomePath } from '@/lib/role-access';
 
 export default function TasksClient() {
   const router = useRouter();
   const locale = useLocale();
   const { id } = useParams();
   const { role, loading: authLoading } = useAuth();
+  const { centerBranding } = useCenterBranding();
   
   const [currentStep, setCurrentStep] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [isWrong, setIsWrong] = useState(false);
   const { privacyVisible, watermarkText } = useExamSecurity({
-    enabled: !authLoading && role === 'student' && !showResult,
-    watermarkLabel: `MK Academy Exam | Unit ${String(id)}`,
+    enabled: !authLoading && role === 'student',
+    watermarkLabel: `${centerBranding.shortName} Exam | Unit ${String(id)}`,
   });
 
   const questions = [
@@ -87,7 +90,7 @@ export default function TasksClient() {
           Tests va vazifalar faqat <span className="text-[#2563eb]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
         </p>
         <button 
-          onClick={() => router.push(localizePath(locale, '/'))}
+          onClick={() => router.push(localizePath(locale, getRoleHomePath(role)))}
           className="bg-[#2563eb] text-white font-black py-4 px-10 rounded-[28px] shadow-xl shadow-[#2563eb]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
         >
           <ArrowLeft size={16} strokeWidth={3} /> Portalga Qaytish
@@ -115,7 +118,7 @@ export default function TasksClient() {
 
         <div className="flex flex-col w-full gap-4 max-w-xs">
           <button 
-            onClick={() => router.push(localizePath(locale, '/'))}
+            onClick={() => router.push(localizePath(locale, getRoleHomePath(role)))}
             className="w-full bg-[#2563eb] text-white font-black py-5 rounded-[32px] shadow-xl shadow-[#2563eb]/30 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
           >
             Darslarga qaytish <ChevronRight size={18} strokeWidth={3} />
@@ -310,7 +313,9 @@ export default function TasksClient() {
       </div>
 
       <div className="mt-12 text-center opacity-30 pb-32">
-         <p className="text-[10px] font-black uppercase tracking-[0.6em] text-gray-400">MK ACADEMY AI ENGINE â€¢ PREMIUM ASSESSMENT</p>
+         <p className="text-[10px] font-black uppercase tracking-[0.6em] text-gray-400">
+           {`${centerBranding.shortName.toUpperCase()} EXAM ENGINE • PREMIUM ASSESSMENT`}
+         </p>
       </div>
     </div>
   );

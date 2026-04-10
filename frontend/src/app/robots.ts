@@ -1,16 +1,16 @@
 import { MetadataRoute } from 'next';
+import { PRIVATE_ROBOTS_PATHS, getSiteUrl } from '@/lib/site';
 
 export const dynamic = 'force-static';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mk-academy-dev.pages.dev';
-
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/admin/', '/superadmin/', '/_next/'],
+      disallow: ['/api/', '/_next/', ...PRIVATE_ROBOTS_PATHS],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${getSiteUrl()}/sitemap.xml`,
+    host: getSiteUrl(),
   };
 }

@@ -1,45 +1,41 @@
-'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
-import { StudentDashboard } from './components/dashboards/StudentDashboard';
-import { MentorDashboard } from './components/dashboards/MentorDashboard';
-import { AdminDashboard } from './components/dashboards/AdminDashboard';
-import { SuperadminDashboard } from './components/dashboards/SuperadminDashboard';
-import { localizePath } from '@/i18n/localizedPath';
-import { useAuth } from '@/hooks/useAuth';
+import { Metadata } from 'next';
+import { LandingPage } from './components/LandingPage';
+import StructuredData from './components/SEO/StructuredData';
+import HomeRouteGate from './HomeRouteGate';
+import { generateSEO } from '@/lib/seo';
+import { getServerCenterBranding } from '@/lib/server-center-branding';
+import { getPublicStructuredData } from '@/lib/site';
 
-export default function Dashboard() {
-  const router = useRouter();
-  const locale = useLocale();
-  const { role, token, loading } = useAuth();
+export async function generateMetadata(): Promise<Metadata> {
+  const centerBranding = await getServerCenterBranding();
 
-  useEffect(() => {
-    if (!loading && !token) {
-      router.replace(localizePath(locale, '/landing'));
-    }
-  }, [loading, token, router, locale]);
+  return generateSEO(
+    `${centerBranding.name} | Ingliz tili kurslari, IELTS, CEFR`,
+    `${centerBranding.description} ${centerBranding.name} o'zbek, rus va ingliz tillarida ta'lim tajribasini taklif qiladi. Zamonaviy metodika asosida dars qiling.`,
+    '/',
+    centerBranding.logoUrl,
+    centerBranding.name,
+    {
+      keywords: [
+        centerBranding.name,
+        centerBranding.shortName,
+        'ingliz tili o\'rganish',
+        'IELTS tayyorlov onlayn',
+        'CEFR kurslari',
+        'english learning platform uzbekistan',
+      ],
+    },
+  );
+}
 
-  if (loading || !token) return null;
+export default async function HomePage() {
+  const centerBranding = await getServerCenterBranding();
 
-  const currentRole = role?.toLowerCase();
-  let content;
-
-  switch (currentRole) {
-    case 'teacher':
-    case 'mentor':
-      content = <MentorDashboard />;
-      break;
-    case 'admin':
-      content = <AdminDashboard />;
-      break;
-    case 'superadmin':
-      content = <SuperadminDashboard />;
-      break;
-    default:
-      content = <StudentDashboard />;
-      break;
-  }
-
-  return <div className="app-page pb-6 sm:pb-8">{content}</div>;
+  return (
+    <>
+      <StructuredData data={getPublicStructuredData(centerBranding)} />
+      <HomeRouteGate />
+      <LandingPage />
+    </>
+  );
 }

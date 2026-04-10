@@ -227,6 +227,29 @@
     "time2Hours": "2 часа назад",
     "time1Day": "1 день назад"
   },
+  "Notifications": {
+    "title": "Уведомления",
+    "subtitle": "Обновления по экзаменам, лидам и состоянию системы.",
+    "subtitleWithCount": "{count} непрочитанных уведомлений",
+    "unreadCount": "{count} непрочитанных",
+    "markAll": "Прочитать все",
+    "viewAll": "Смотреть все",
+    "emptyTitle": "Уведомлений пока нет",
+    "emptyDescription": "Когда появятся новые события, они будут видны здесь.",
+    "loadingTitle": "Загрузка уведомлений",
+    "loadingDescription": "Проверяем последние уведомления для вашего аккаунта.",
+    "errorTitle": "Не удалось загрузить уведомления",
+    "retry": "Повторить",
+    "permissionTitle": "Уведомления устройства выключены",
+    "permissionDescription": "Включите уведомления, чтобы получать напоминания в приложении и браузере.",
+    "enable": "Включить",
+    "markRead": "Отметить как прочитанное",
+    "delete": "Удалить",
+    "open": "Открыть",
+    "enabledToast": "Уведомления успешно включены.",
+    "deniedToast": "Уведомления заблокированы на этом устройстве.",
+    "fetchError": "Не удалось загрузить уведомления."
+  },
   "SettingsPage": {
     "title": "Настройки",
     "personal": "Личные данные",
@@ -241,13 +264,14 @@
     "twoFactor": "Двухэтапная аутентификация",
     "disabled": "Выключено",
     "notifications": "Уведомления",
+    "centerBranding": "Брендинг центра",
     "notificationsEnabled": "Всё включено",
     "language": "Язык",
     "themeMode": "Ночной режим",
     "themeEnabled": "Включено",
     "themeDisabled": "Выключено",
     "logout": "Выйти",
-    "logoutDescription": "Выход из MK Academy",
+    "logoutDescription": "Выход из {name}",
     "roleLabel": "{role} role",
     "languages": {
       "uz": "Узбекский",
@@ -255,5 +279,20 @@
       "en": "Английский"
     },
     "version": "App version 2.4.0 * Rev 102"
+  },
+  "CenterSettingsPage": {
+    "title": "Брендинг центра",
+    "subtitle": "Обновите название центра, короткое имя и логотип.",
+    "nameLabel": "Название центра",
+    "shortNameLabel": "Короткое имя",
+    "logoUrlLabel": "URL логотипа",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Кратко опишите ваш учебный центр.",
+    "previewTitle": "Предпросмотр",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "saveSuccess": "Сохранено",
+    "accessDeniedTitle": "Доступ запрещён",
+    "accessDeniedDescription": "Только admin и superadmin могут изменять брендинг центра."
   }
 }

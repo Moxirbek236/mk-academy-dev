@@ -116,6 +116,39 @@ export type FinanceTransactionPayload = {
   reason: string;
 };
 
+export type AppNotification = {
+  id: number;
+  type: string;
+  title: string;
+  body: string;
+  data?: Record<string, any> | null;
+  isRead: boolean;
+  createdAt: string;
+  isActive?: boolean;
+};
+
+export type NotificationFeed = {
+  items: AppNotification[];
+  unreadCount: number;
+};
+
+export type CenterSettings = {
+  id?: number;
+  name: string;
+  shortName: string;
+  logoUrl: string;
+  description: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type CenterSettingsPayload = {
+  name?: string;
+  shortName?: string;
+  logoUrl?: string;
+  description?: string;
+};
+
 function normalizeRole(role?: string | null): AppRole {
   const value = role?.toLowerCase();
   if (value === 'superadmin' || value === 'admin' || value === 'teacher' || value === 'mentor') {
@@ -174,6 +207,21 @@ export async function getSystemHealth() {
 export async function getSystemStats() {
   const response = await api.get('/system/stats');
   return unwrapApiData<any>(response.data);
+}
+
+export async function getPublicCenterSettings() {
+  const response = await api.get('/center-settings/public');
+  return unwrapApiData<CenterSettings>(response.data);
+}
+
+export async function getCenterSettings() {
+  const response = await api.get('/center-settings');
+  return unwrapApiData<CenterSettings>(response.data);
+}
+
+export async function updateCenterSettings(payload: CenterSettingsPayload) {
+  const response = await api.patch('/center-settings', payload);
+  return unwrapApiData<CenterSettings>(response.data);
 }
 
 export async function listUsersScoped(query: UserListQuery = {}) {
@@ -489,5 +537,25 @@ export async function getFinanceTransactions() {
 
 export async function createFinanceTransaction(payload: FinanceTransactionPayload) {
   const response = await api.post('/finance/transaction', payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function getMyNotifications() {
+  const response = await api.get('/notifications/me');
+  return unwrapApiData<NotificationFeed>(response.data);
+}
+
+export async function markNotificationAsRead(id: number) {
+  const response = await api.patch(`/notifications/${id}/read`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function markAllNotificationsAsRead() {
+  const response = await api.patch('/notifications/read-all');
+  return unwrapApiData<NotificationFeed>(response.data);
+}
+
+export async function removeNotification(id: number) {
+  const response = await api.delete(`/notifications/${id}`);
   return unwrapApiData<any>(response.data);
 }

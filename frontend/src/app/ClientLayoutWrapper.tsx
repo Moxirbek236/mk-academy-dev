@@ -14,6 +14,7 @@ import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
 import { getRoleHomePath, isRoleAllowedForPath } from '@/lib/role-access';
 import { isNativeApp } from '@/lib/native-app';
+import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const locale = useLocale();
   const t = useTranslations('Common');
   const { role, loading, token } = useAuth();
+  const { centerBranding } = useCenterBranding();
   const [mounted, setMounted] = useState(false);
   const [nativeApp, setNativeApp] = useState(false);
 
@@ -51,12 +53,12 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const normalizedPath = stripLocaleFromPathname(pathname || '/');
 
   // Public routes that don't need auth
-  const isPublicRoute = ['/login', '/landing'].includes(normalizedPath);
+  const isPublicRoute = ['/', '/login', '/landing'].includes(normalizedPath);
   const isAuthorizedRoute = isPublicRoute || isRoleAllowedForPath(normalizedPath, role);
 
   useEffect(() => {
     if (mounted && !loading && !token && !isPublicRoute) {
-      router.replace(localizePath(locale, '/landing'));
+      router.replace(localizePath(locale, '/'));
     }
   }, [mounted, loading, token, isPublicRoute, locale, router]);
 
@@ -74,7 +76,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
                <Loader2 size={32} className="text-white animate-spin" />
             </div>
             <p className="ml-1 text-[10px] font-black uppercase tracking-[0.32em] text-gray-500">
-              {t('loading')} {t('appName')}
+              {t('loading')} {centerBranding.shortName}
             </p>
          </div>
       </div>
@@ -96,7 +98,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
       <div className={`flex-1 flex min-h-screen-safe flex-col ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
         <OfflineStatusBanner />
-        <main className={`w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-8 lg:pt-10' : ''}`}>
+        <main className={`w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-5 sm:pt-7 lg:pt-10' : ''}`}>
           {nativeApp ? (
             <div>{children}</div>
           ) : (

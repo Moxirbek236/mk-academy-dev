@@ -1,22 +1,17 @@
 import { MetadataRoute } from 'next';
+import { getSiteUrl } from '@/lib/site';
 
 export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mk-academy-dev.pages.dev';
-
-  // Define your static routes here
   const routes = [
     '',
     '/landing',
-    '/login',
-    '/courses',
-    '/books',
   ].map((route) => ({
-    url: `${baseUrl}${route}`,
+    url: `${getSiteUrl()}${route}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: route === '' || route === '/landing' ? 1 : 0.8,
+    changeFrequency: route === '' ? ('daily' as const) : ('weekly' as const),
+    priority: route === '' ? 1 : 0.6,
   }));
 
   return routes;

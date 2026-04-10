@@ -14,3 +14,4 @@ export * from './finance/finance.module';
 export * from './system/system.module';
 export * from './lead/lead.module';
 export * from './dashboard/dashboard.module';
+export * from './center-settings/center-settings.module';

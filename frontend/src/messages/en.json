@@ -227,6 +227,29 @@
     "time2Hours": "2 hours ago",
     "time1Day": "1 day ago"
   },
+  "Notifications": {
+    "title": "Notifications",
+    "subtitle": "Role-based updates from exams, leads and system activity.",
+    "subtitleWithCount": "{count} unread notifications",
+    "unreadCount": "{count} unread",
+    "markAll": "Mark all",
+    "viewAll": "View all",
+    "emptyTitle": "No notifications yet",
+    "emptyDescription": "When new activity appears, it will show up here.",
+    "loadingTitle": "Loading notifications",
+    "loadingDescription": "We are checking the latest alerts for your account.",
+    "errorTitle": "Notifications failed to load",
+    "retry": "Retry",
+    "permissionTitle": "Device notifications are off",
+    "permissionDescription": "Enable notifications to receive reminders in the app and browser.",
+    "enable": "Enable",
+    "markRead": "Mark read",
+    "delete": "Delete",
+    "open": "Open",
+    "enabledToast": "Notifications enabled successfully.",
+    "deniedToast": "Notifications were blocked on this device.",
+    "fetchError": "Failed to load notifications."
+  },
   "SettingsPage": {
     "title": "Settings",
     "personal": "Personal Information",
@@ -241,13 +264,14 @@
     "twoFactor": "Two-factor authentication",
     "disabled": "Disabled",
     "notifications": "Notifications",
+    "centerBranding": "Center branding",
     "notificationsEnabled": "Everything enabled",
     "language": "Language",
     "themeMode": "Theme mode",
     "themeEnabled": "Enabled",
     "themeDisabled": "Disabled",
     "logout": "Sign out",
-    "logoutDescription": "Logout from MK Academy",
+    "logoutDescription": "Logout from {name}",
     "roleLabel": "{role} role",
     "languages": {
       "uz": "Uzbek",
@@ -255,5 +279,20 @@
       "en": "English"
     },
     "version": "App version 2.4.0 * Rev 102"
+  },
+  "CenterSettingsPage": {
+    "title": "Center branding",
+    "subtitle": "Update your center name, short name and logo.",
+    "nameLabel": "Center name",
+    "shortNameLabel": "Short name",
+    "logoUrlLabel": "Logo URL",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Briefly describe your education center.",
+    "previewTitle": "Live preview",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saveSuccess": "Saved",
+    "accessDeniedTitle": "Access denied",
+    "accessDeniedDescription": "Only admins and superadmins can update center branding."
   }
 }

@@ -2,31 +2,39 @@ import { Metadata } from 'next';
 import { LandingPage } from '../components/LandingPage';
 import { generateSEO } from '@/lib/seo';
 import StructuredData from '../components/SEO/StructuredData';
+import { getServerCenterBranding } from '@/lib/server-center-branding';
+import { getPublicStructuredData } from '@/lib/site';
 
-export const metadata: Metadata = generateSEO(
-  'MK Academy — Ingliz Tili O\'rganish Platformasi',
-  'Ingliz tilini CEFR standarti (A1-C2) bo\'yicha noldan professional darajagacha o\'rganing.',
-  '/landing'
-);
+export async function generateMetadata(): Promise<Metadata> {
+  const centerBranding = await getServerCenterBranding();
 
-export default function Page() {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'EducationalOrganization',
-    name: 'MK Academy',
-    description: 'Ingliz tilini CEFR standarti bo\'yicha o\'rganish uchun platforma',
-    url: 'https://mk-academy.netlify.app',
-    logo: 'https://mk-academy.netlify.app/icon.jpg',
-    sameAs: [],
-    offers: {
-      '@type': 'Offer',
-      category: 'Education',
+  return generateSEO(
+    `${centerBranding.name} haqida | Eng Zo'r Ingliz Tili Platformasi`,
+    `${centerBranding.description} ${centerBranding.name} o'zbek, rus va ingliz tillarida ta'lim tajribasini taklif qiladi. Uyingizdan chiqmasdan, oson va samarali ingliz tilini o'rganing.`,
+    '/landing',
+    centerBranding.logoUrl,
+    centerBranding.name,
+    {
+      canonicalPath: '/',
+      keywords: [
+        centerBranding.name,
+        centerBranding.shortName,
+        'eng yaxshi ingliz tili markazi',
+        'ingliz tili onlayn',
+        'IELTS darslari',
+        'CEFR sertifikati',
+        'online ta\'lim',
+      ],
     },
-  };
+  );
+}
+
+export default async function Page() {
+  const centerBranding = await getServerCenterBranding();
 
   return (
     <>
-      <StructuredData data={jsonLd} />
+      <StructuredData data={getPublicStructuredData(centerBranding)} />
       <LandingPage />
     </>
   );

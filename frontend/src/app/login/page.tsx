@@ -9,6 +9,8 @@ import { getUserFriendlyErrorMessage } from '@/lib/offline/errors';
 import { localizePath } from '@/i18n/localizedPath';
 import { clearStoredAuth, getStoredRole, getStoredToken, setStoredAuth, setStoredRole } from '@/lib/auth-storage';
 import { isNativeApp } from '@/lib/native-app';
+import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
+import { getRoleHomePath } from '@/lib/role-access';
 
 type JwtPayload = {
   role?: string;
@@ -77,6 +79,7 @@ function normalizePhone(phone: string): string {
 export default function LoginPage() {
   const router = useRouter();
   const locale = useLocale();
+  const { centerBranding } = useCenterBranding();
   const [formData, setFormData] = useState({ phone: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
@@ -106,7 +109,7 @@ export default function LoginPage() {
         await setStoredRole(decodedRole);
       }
 
-      router.replace(localizePath(locale, '/'));
+      router.replace(localizePath(locale, getRoleHomePath(storedRole || decodedRole)));
     };
 
     void checkSession();
@@ -127,7 +130,7 @@ export default function LoginPage() {
 
       if (token) {
         await setStoredAuth(token, role);
-        router.replace(localizePath(locale, '/'));
+        router.replace(localizePath(locale, getRoleHomePath(role)));
       } else {
         setError('Tizimga kirishda xatolik yuz berdi');
       }
@@ -193,13 +196,15 @@ export default function LoginPage() {
           <div className="mb-8 flex flex-col items-center sm:mb-10">
             <div className="mb-5 h-16 w-16 overflow-hidden rounded-[18px] shadow-md shadow-[#2563eb]/20">
               <img 
-                src="https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg" 
-                alt="Logo" 
+                src={centerBranding.logoUrl}
+                alt={centerBranding.shortName}
                 className="h-full w-full object-cover"
               />
             </div>
             <h1 className="mb-2 text-3xl font-black tracking-tighter text-gray-900 dark:text-slate-100 sm:text-4xl">Xush Kelibsiz</h1>
-            <p className="px-3 text-center text-sm font-bold text-gray-500 dark:text-slate-400">MK Academy platformasiga kirish uchun ma&apos;lumotlarni kiriting.</p>
+            <p className="px-3 text-center text-sm font-bold text-gray-500 dark:text-slate-400">
+              {centerBranding.shortName} platformasiga kirish uchun ma&apos;lumotlarni kiriting.
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -295,13 +300,15 @@ export default function LoginPage() {
             className="mb-5 h-16 w-16 overflow-hidden rounded-[24px] shadow-lg shadow-[#2563eb]/30"
           >
             <img 
-              src="https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg" 
-              alt="Logo" 
+              src={centerBranding.logoUrl}
+              alt={centerBranding.shortName}
               className="w-full h-full object-cover"
             />
           </motion.div>
           <h1 className="mb-2 text-3xl font-black tracking-tighter text-gray-900 dark:text-slate-100 sm:text-4xl">Xush Kelibsiz</h1>
-          <p className="px-3 text-center text-sm font-bold text-gray-500 dark:text-slate-400">MK Academy platformasiga kirish uchun ma&apos;lumotlarni kiriting.</p>
+          <p className="px-3 text-center text-sm font-bold text-gray-500 dark:text-slate-400">
+            {centerBranding.shortName} platformasiga kirish uchun ma&apos;lumotlarni kiriting.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">

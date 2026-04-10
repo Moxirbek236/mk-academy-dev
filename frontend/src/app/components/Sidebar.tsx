@@ -5,11 +5,13 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
+import { NotificationBell } from './notifications/NotificationBell';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
 import { getNavigationConfig } from '@/lib/navigation-config';
 import { clearStoredAuth } from '@/lib/auth-storage';
 import { useSystemHealth } from '@/hooks/useSystemStats';
+import { useCenterBranding } from './branding/CenterBrandingProvider';
 
 interface SidebarProps {
   role?: string | null;
@@ -24,6 +26,7 @@ export function Sidebar({ role }: SidebarProps) {
   const normalizedPathname = stripLocaleFromPathname(pathname);
   const navItems = getNavigationConfig(role, 'sidebar');
   const { data: health } = useSystemHealth(true);
+  const { centerBranding } = useCenterBranding();
   const systemHealthy = ['ok', 'healthy'].includes(String(health?.status || '').toLowerCase());
 
   function handleLogout() {
@@ -38,17 +41,20 @@ export function Sidebar({ role }: SidebarProps) {
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 overflow-hidden rounded-[14px] border border-[var(--app-border)] shadow-sm">
             <img 
-              src="https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg" 
-              alt="Logo" 
+              src={centerBranding.logoUrl}
+              alt={centerBranding.shortName}
               className="w-full h-full object-cover"
             />
           </div>
           <div>
-            <h1 className="text-lg font-black leading-none tracking-tight text-[var(--app-text)]">{commonT('appName')}</h1>
+            <h1 className="text-lg font-black leading-none tracking-tight text-[var(--app-text)]">
+              {centerBranding.shortName}
+            </h1>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">{t('brandSub')}</p>
           </div>
         </div>
         <div className="mt-6 flex items-center gap-2">
+          <NotificationBell />
           <LanguageSwitcher className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
           <ThemeToggle className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
         </div>

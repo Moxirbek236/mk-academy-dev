@@ -34,6 +34,21 @@ async function main() {
     },
   });
 
+  await prisma.centerSettings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: 'MK Academy',
+      shortName: 'MK Academy',
+      logoUrl:
+        'https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg',
+      description:
+        "Ingliz tilini CEFR standarti bo'yicha noldan professional darajagacha o'rganish platformasi.",
+      isActive: true,
+    },
+  });
+
   console.log(`Seed ready for ${user.fullName} (${phone})`);
 }
 

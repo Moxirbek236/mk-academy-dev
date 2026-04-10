@@ -17,11 +17,11 @@ export type RoleCapability =
   | 'manage_tests';
 
 const ROLE_HOME_PATHS: Record<string, string> = {
-  superadmin: '/',
-  admin: '/',
-  teacher: '/',
-  mentor: '/',
-  student: '/',
+  superadmin: '/dashboard',
+  admin: '/dashboard',
+  teacher: '/dashboard',
+  mentor: '/dashboard',
+  student: '/dashboard',
 };
 
 const RESTRICTED_PREFIXES: Array<{ prefix: string; roles: string[] }> = [
