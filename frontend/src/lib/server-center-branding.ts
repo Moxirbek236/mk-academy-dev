@@ -12,7 +12,7 @@ function getApiUrl() {
 export async function getServerCenterBranding() {
   try {
     const response = await fetch(`${getApiUrl()}/center-settings/public`, {
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     });
 
     if (!response.ok) {

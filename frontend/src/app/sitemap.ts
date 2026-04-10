@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next';
 import { getSiteUrl } from '@/lib/site';
 
 export const runtime = 'edge';
-export const dynamic = 'force-dynamic';
-export const revalidate = 3600; // Har soatda yangilab turadi
+export const dynamic = 'force-static';
+export const revalidate = 86400; // Har bir kunda bir marta yangilab turadi (build paytida)
 
 const DEFAULT_API_URL = 'https://mk-academy-dev.onrender.com/api';
 function getApiUrl() {
