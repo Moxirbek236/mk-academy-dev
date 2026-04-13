@@ -12,6 +12,13 @@ interface NotificationBellProps {
   className?: string;
 }
 
+type DesktopPanelStyle = {
+  left: number;
+  top: number;
+  width: number;
+  maxHeight: number;
+};
+
 export function NotificationBell({ className = '' }: NotificationBellProps) {
   const router = useRouter();
   const locale = useLocale();
@@ -20,6 +27,8 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
     useNotifications();
   const [open, setOpen] = useState(false);
   const [useSheetLayout, setUseSheetLayout] = useState(false);
+  const [desktopPanelStyle, setDesktopPanelStyle] = useState<DesktopPanelStyle | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const previewItems = items.slice(0, 5);
 
@@ -42,6 +51,44 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
       return;
     }
 
+    function updateDesktopPanelPosition() {
+      const trigger = buttonRef.current;
+      if (!trigger) return;
+
+      const rect = trigger.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const horizontalMargin = 12;
+      const verticalMargin = 12;
+      const preferredWidth = 352;
+      const width = Math.min(preferredWidth, viewportWidth - horizontalMargin * 2);
+      const maxPanelHeight = Math.max(
+        180,
+        Math.min(384, viewportHeight - verticalMargin * 2),
+      );
+      const top = Math.max(
+        verticalMargin,
+        Math.min(
+          rect.bottom + 12,
+          viewportHeight - maxPanelHeight - verticalMargin,
+        ),
+      );
+      const left = Math.max(
+        horizontalMargin,
+        Math.min(
+          rect.right - width,
+          viewportWidth - width - horizontalMargin,
+        ),
+      );
+
+      setDesktopPanelStyle({
+        left,
+        top,
+        width,
+        maxHeight: maxPanelHeight,
+      });
+    }
+
     function handleClickOutside(event: PointerEvent) {
       if (!containerRef.current?.contains(event.target as Node)) {
         setOpen(false);
@@ -54,11 +101,16 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
       }
     }
 
+    updateDesktopPanelPosition();
     document.addEventListener('pointerdown', handleClickOutside);
     document.addEventListener('keydown', handleEscape);
+    window.addEventListener('resize', updateDesktopPanelPosition);
+    window.addEventListener('scroll', updateDesktopPanelPosition, true);
     return () => {
       document.removeEventListener('pointerdown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('resize', updateDesktopPanelPosition);
+      window.removeEventListener('scroll', updateDesktopPanelPosition, true);
     };
   }, [open, useSheetLayout]);
 
@@ -68,7 +120,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
         <span className="h-1.5 w-12 rounded-full bg-[var(--app-border)]" />
       </div>
 
-      <div className="flex items-center justify-between border-b border-[var(--app-border)] px-4 py-3">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--app-border)] px-4 py-3">
         <div className="min-w-0">
           <p className="text-sm font-black tracking-tight text-[var(--app-text)]">{t('title')}</p>
           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
@@ -119,7 +171,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
                 </div>
               </button>
               <div className="mt-3 flex items-center justify-between gap-3">
-                <span className="min-w-0 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
+                <span className="min-w-0 flex-1 truncate text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
                   {new Date(item.createdAt).toLocaleString()}
                 </span>
                 <button
@@ -156,6 +208,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       <button
+        ref={buttonRef}
         onClick={() => setOpen((current) => !current)}
         className="app-touch relative flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-primary)] shadow-sm transition-all sm:h-11 sm:w-11"
         aria-label={t('title')}
@@ -180,8 +233,20 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
           </SheetContent>
         </Sheet>
       ) : open ? (
-        <div className="absolute right-0 top-[calc(100%+0.75rem)] z-[140] w-[min(92vw,22rem)]">
-          <div className="flex max-h-[24rem] flex-col overflow-hidden rounded-[24px] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-2xl">
+        <div
+          className="fixed z-[140]"
+          style={{
+            left: desktopPanelStyle?.left ?? 12,
+            top: desktopPanelStyle?.top ?? 72,
+            width: desktopPanelStyle?.width ?? 352,
+          }}
+        >
+          <div
+            className="flex flex-col overflow-hidden rounded-[24px] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-2xl"
+            style={{
+              maxHeight: desktopPanelStyle?.maxHeight ?? 384,
+            }}
+          >
             {panelContent}
           </div>
         </div>
