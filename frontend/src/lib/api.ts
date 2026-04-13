@@ -7,6 +7,7 @@ import { isNetworkOnline } from '@/lib/offline/network';
 import { clearStoredAuth, getStoredToken } from '@/lib/auth-storage';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { isMockApiEnabled, mockApiAdapter } from '@/mocks/mock-api';
+import { getApiBaseUrl } from '@/lib/api-url';
 
 interface OfflineRequestMeta {
   cacheKey?: string;
@@ -25,13 +26,6 @@ export type OfflineAwareAxiosResponse<T = unknown> = AxiosResponse<T> & {
   offline?: OfflineResponseMeta;
 };
 
-const DEFAULT_API_URL = 'https://mk-academy-dev.onrender.com/api';
-
-const getBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  return DEFAULT_API_URL;
-};
-
 function getCacheScope(token: string | null): string {
   if (!token) return 'public';
   return `token:${token.slice(-12)}`;
@@ -41,7 +35,7 @@ function resolveRequestUrl(config: ApiRequestConfig): string {
   const rawUrl = config.url || '';
   if (/^https?:\/\//.test(rawUrl)) return rawUrl;
 
-  const base = config.baseURL || getBaseUrl();
+  const base = config.baseURL || getApiBaseUrl();
   const normalizedBase = base.endsWith('/') ? base : `${base}/`;
   const normalizedPath = rawUrl.startsWith('/') ? rawUrl.slice(1) : rawUrl;
   return `${normalizedBase}${normalizedPath}`;
@@ -57,7 +51,7 @@ function isMutationRequest(config: ApiRequestConfig): boolean {
 }
 
 const api = axios.create({
-  baseURL: getBaseUrl(),
+  baseURL: getApiBaseUrl(),
   adapter: isMockApiEnabled() ? mockApiAdapter : undefined,
   timeout: 30000,
   headers: {
@@ -68,6 +62,11 @@ const api = axios.create({
 api.interceptors.request.use(async (incomingConfig) => {
   const config = incomingConfig as ApiRequestConfig;
   const token = await getStoredToken();
+  const rawUrl = config.url || '';
+
+  if (!/^https?:\/\//.test(rawUrl)) {
+    config.baseURL = getApiBaseUrl();
+  }
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

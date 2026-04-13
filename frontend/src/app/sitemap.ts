@@ -1,13 +1,9 @@
 import { MetadataRoute } from 'next';
+import { getApiBaseUrl } from '@/lib/api-url';
 import { getSiteUrl } from '@/lib/site';
 
 export const dynamic = 'force-static';
 export const revalidate = 86400; // Har bir kunda bir marta yangilab turadi (build paytida)
-
-const DEFAULT_API_URL = 'https://mk-academy-dev.onrender.com/api';
-function getApiUrl() {
-  return (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL).replace(/\/$/, '');
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
@@ -31,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 2. Dynamic courses
   let courseRoutes: MetadataRoute.Sitemap = [];
   try {
-    const res = await fetch(`${getApiUrl()}/courses`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${getApiBaseUrl()}/courses`, { next: { revalidate: 3600 } });
     const payload = await res.json();
     const courses = (payload?.data ?? payload) as any[];
 

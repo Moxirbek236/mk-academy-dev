@@ -2,16 +2,11 @@ import {
   DEFAULT_CENTER_BRANDING,
   normalizeCenterBranding,
 } from '@/lib/branding';
-
-const DEFAULT_API_URL = 'https://mk-academy-dev.onrender.com/api';
-
-function getApiUrl() {
-  return (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL).replace(/\/$/, '');
-}
+import { getApiBaseUrl } from '@/lib/api-url';
 
 export async function getServerCenterBranding() {
   try {
-    const response = await fetch(`${getApiUrl()}/center-settings/public`, {
+    const response = await fetch(`${getApiBaseUrl()}/center-settings/public`, {
       next: { revalidate: 3600 },
     });
 
