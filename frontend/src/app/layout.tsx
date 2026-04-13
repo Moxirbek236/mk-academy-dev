@@ -14,8 +14,6 @@ if (typeof window === 'undefined') {
 }
 
 import { generateSEO } from '@/lib/seo';
-
-export const runtime = 'edge';
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
