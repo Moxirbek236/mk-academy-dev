@@ -22,15 +22,23 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
   const previewItems = items.slice(0, 5);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: PointerEvent) {
       if (!containerRef.current?.contains(event.target as Node)) {
         setOpen(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener('pointerdown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('pointerdown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
     };
   }, []);
 
@@ -50,87 +58,104 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-[calc(100%+0.75rem)] z-[120] w-[min(92vw,22rem)] overflow-hidden rounded-[24px] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-2xl">
-          <div className="flex items-center justify-between border-b border-[var(--app-border)] px-4 py-3">
-            <div>
-              <p className="text-sm font-black tracking-tight text-[var(--app-text)]">{t('title')}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
-                {t('unreadCount', { count: unreadCount })}
-              </p>
-            </div>
-            <button
-              onClick={() => void markAllAsRead()}
-              className="flex items-center gap-1 rounded-full bg-[var(--app-surface-soft)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)]"
-            >
-              <CheckCheck size={12} />
-              {t('markAll')}
-            </button>
-          </div>
+        <div className="fixed inset-0 z-[140] lg:absolute lg:inset-auto lg:right-0 lg:top-[calc(100%+0.75rem)]">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="absolute inset-0 bg-slate-950/18 backdrop-blur-[1px] lg:hidden"
+            aria-label={t('title')}
+          />
 
-          {previewItems.length > 0 ? (
-            <div className="max-h-[24rem] overflow-y-auto p-2">
-              {previewItems.map((item) => (
-                <div
-                  key={item.id}
-                  className={`rounded-[18px] border p-3 transition-colors ${
-                    item.isRead
-                      ? 'border-transparent bg-transparent'
-                      : 'border-[var(--app-border)] bg-[var(--app-surface-soft)]'
-                  }`}
+          <div className="absolute inset-x-0 bottom-0 px-3 pb-[var(--app-safe-bottom)] pt-8 lg:relative lg:inset-auto lg:w-[min(92vw,22rem)] lg:px-0 lg:pb-0 lg:pt-0">
+            <div className="flex max-h-[min(72dvh,34rem)] w-full flex-col overflow-hidden rounded-[22px] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[0_-18px_45px_rgba(15,23,42,0.18)] lg:max-h-[24rem] lg:rounded-[24px] lg:shadow-2xl">
+              <div className="flex justify-center border-b border-[var(--app-border)] py-2 lg:hidden">
+                <span className="h-1.5 w-12 rounded-full bg-[var(--app-border)]" />
+              </div>
+
+              <div className="flex items-center justify-between border-b border-[var(--app-border)] px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-black tracking-tight text-[var(--app-text)]">{t('title')}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
+                    {t('unreadCount', { count: unreadCount })}
+                  </p>
+                </div>
+                <button
+                  onClick={() => void markAllAsRead()}
+                  className="ml-3 shrink-0 rounded-full bg-[var(--app-surface-soft)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)]"
                 >
+                  <span className="flex items-center gap-1">
+                    <CheckCheck size={12} />
+                    {t('markAll')}
+                  </span>
+                </button>
+              </div>
+
+              {previewItems.length > 0 ? (
+                <div className="flex-1 overflow-y-auto p-2 pb-3">
+                  {previewItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`rounded-[18px] border p-3 transition-colors ${
+                        item.isRead
+                          ? 'border-transparent bg-transparent'
+                          : 'border-[var(--app-border)] bg-[var(--app-surface-soft)]'
+                      }`}
+                    >
+                      <button
+                        onClick={() => {
+                          void openNotification(item);
+                          setOpen(false);
+                        }}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-black tracking-tight text-[var(--app-text)]">
+                              {item.title}
+                            </p>
+                            <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-muted)]">
+                              {item.body}
+                            </p>
+                          </div>
+                          {!item.isRead ? (
+                            <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--app-primary)]" />
+                          ) : null}
+                        </div>
+                      </button>
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <span className="min-w-0 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
+                          {new Date(item.createdAt).toLocaleString()}
+                        </span>
+                        <button
+                          onClick={() => void removeItem(item.id)}
+                          className="shrink-0 rounded-full bg-red-50 p-2 text-red-500"
+                          aria-label={t('delete')}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
                   <button
                     onClick={() => {
-                      void openNotification(item);
+                      router.push(localizePath(locale, '/notifications'));
                       setOpen(false);
                     }}
-                    className="w-full text-left"
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-[18px] border border-[var(--app-border)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-primary)]"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-sm font-black tracking-tight text-[var(--app-text)]">
-                          {item.title}
-                        </p>
-                        <p className="mt-1 text-xs font-semibold leading-5 text-[var(--app-muted)]">
-                          {item.body}
-                        </p>
-                      </div>
-                      {!item.isRead ? (
-                        <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--app-primary)]" />
-                      ) : null}
-                    </div>
+                    {t('viewAll')}
+                    <ChevronRight size={14} />
                   </button>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
-                      {new Date(item.createdAt).toLocaleString()}
-                    </span>
-                    <button
-                      onClick={() => void removeItem(item.id)}
-                      className="rounded-full bg-red-50 p-2 text-red-500"
-                      aria-label={t('delete')}
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
                 </div>
-              ))}
-
-              <button
-                onClick={() => {
-                  router.push(localizePath(locale, '/notifications'));
-                  setOpen(false);
-                }}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-[18px] border border-[var(--app-border)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-primary)]"
-              >
-                {t('viewAll')}
-                <ChevronRight size={14} />
-              </button>
+              ) : (
+                <div className="p-6 text-center">
+                  <p className="text-sm font-black text-[var(--app-text)]">{t('emptyTitle')}</p>
+                  <p className="mt-2 text-xs font-semibold text-[var(--app-muted)]">{t('emptyDescription')}</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="p-6 text-center">
-              <p className="text-sm font-black text-[var(--app-text)]">{t('emptyTitle')}</p>
-              <p className="mt-2 text-xs font-semibold text-[var(--app-muted)]">{t('emptyDescription')}</p>
-            </div>
-          )}
+          </div>
         </div>
       ) : null}
     </div>

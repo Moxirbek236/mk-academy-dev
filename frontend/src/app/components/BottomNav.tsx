@@ -21,8 +21,8 @@ export function BottomNav({ role }: BottomNavProps) {
   const navItems = getNavigationConfig(role, 'bottom');
 
   return (
-    <div className="app-bottom-nav-safe fixed inset-x-0 bottom-0 z-50 sm:bottom-4 sm:px-4 sm:pb-0">
-      <div className="mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-surface)_94%,transparent)] px-3 pt-2 pb-3 shadow-[0_-12px_28px_rgba(15,23,42,0.08)] backdrop-blur-md sm:rounded-[20px] sm:border sm:px-4">
+    <div className="app-bottom-nav-safe fixed inset-x-0 bottom-0 z-50 pb-0 sm:bottom-4 sm:px-4 sm:pb-0">
+      <div className="mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-surface)_94%,transparent)] px-3 pt-2 pb-[calc(0.75rem+var(--app-safe-bottom))] shadow-[0_-12px_28px_rgba(15,23,42,0.08)] backdrop-blur-md sm:rounded-[20px] sm:border sm:px-4 sm:pb-3">
         {navItems.map((item) => {
           const isActive =
             normalizedPathname === item.path ||
