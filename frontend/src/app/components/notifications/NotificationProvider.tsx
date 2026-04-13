@@ -1,5 +1,6 @@
 'use client';
 
+import { Capacitor } from '@capacitor/core';
 import {
   createContext,
   useCallback,
@@ -23,6 +24,7 @@ import {
 } from '@/lib/backend-api';
 import {
   getDeviceNotificationPermission,
+  initializeDeviceNotifications,
   requestDeviceNotificationPermission,
   sendDeviceNotification,
   type DeviceNotificationPermission,
@@ -47,6 +49,52 @@ type NotificationContextValue = {
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
 const PUBLIC_PATHS = new Set(['/login', '/landing']);
+const DELIVERED_NOTIFICATIONS_STORAGE_KEY_PREFIX =
+  'mk-academy:device-notifications:delivered:v1:';
+
+function getDeliveredNotificationsStorageKey(token: string | null) {
+  const scope = token ? token.slice(-16) : 'guest';
+  return `${DELIVERED_NOTIFICATIONS_STORAGE_KEY_PREFIX}${scope}`;
+}
+
+function loadDeliveredNotificationIds(storageKey: string): Set<number> {
+  if (typeof window === 'undefined') {
+    return new Set<number>();
+  }
+
+  try {
+    const raw = window.localStorage.getItem(storageKey);
+    if (!raw) return new Set<number>();
+
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return new Set<number>();
+
+    return new Set(
+      parsed
+        .map((value) => Number(value))
+        .filter((value) => Number.isInteger(value) && value > 0),
+    );
+  } catch {
+    return new Set<number>();
+  }
+}
+
+function persistDeliveredNotificationIds(storageKey: string, ids: Set<number>) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const next = Array.from(ids).slice(-300);
+  window.localStorage.setItem(storageKey, JSON.stringify(next));
+}
+
+function normalizeRoute(route: unknown) {
+  if (typeof route !== 'string' || !route.trim()) {
+    return null;
+  }
+
+  return route.startsWith('/') ? route : `/${route}`;
+}
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { token, loading: authLoading } = useAuth();
@@ -61,8 +109,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permission, setPermission] = useState<DeviceNotificationPermission>('prompt');
+  const deliveredStorageKey = getDeliveredNotificationsStorageKey(token);
   const hydratedRef = useRef(false);
-  const deliveredIdsRef = useRef<Set<number>>(new Set());
+  const deliveredIdsRef = useRef<Set<number>>(new Set<number>());
+  const itemsRef = useRef<AppNotification[]>([]);
 
   const syncPermission = useCallback(async () => {
     const currentPermission = await getDeviceNotificationPermission();
@@ -74,38 +124,51 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setUnreadCount(feed.unreadCount || 0);
   }, []);
 
+  useEffect(() => {
+    deliveredIdsRef.current = loadDeliveredNotificationIds(deliveredStorageKey);
+    hydratedRef.current = false;
+  }, [deliveredStorageKey]);
+
+  const rememberDeliveredNotification = useCallback((id: number) => {
+    deliveredIdsRef.current.add(id);
+    persistDeliveredNotificationIds(deliveredStorageKey, deliveredIdsRef.current);
+  }, [deliveredStorageKey]);
+
   const emitRuntimeNotifications = useCallback(
-    async (nextItems: AppNotification[]) => {
+    async (nextItems: AppNotification[], options?: { showToast?: boolean }) => {
       const freshItems = nextItems.filter(
         (item) => !item.isRead && !deliveredIdsRef.current.has(item.id),
       );
 
       for (const item of freshItems) {
-        deliveredIdsRef.current.add(item.id);
+        rememberDeliveredNotification(item.id);
 
-        const route =
-          typeof item.data?.route === 'string' ? localizePath(locale, item.data.route) : null;
+        const rawRoute = normalizeRoute(item.data?.route);
+        const route = rawRoute ? localizePath(locale, rawRoute) : null;
 
-        toast(item.title, {
-          description: item.body,
-          action: route
-            ? {
-                label: t('open'),
-                onClick: () => {
-                  router.push(route);
-                },
-              }
-            : undefined,
-        });
+        if (options?.showToast) {
+          toast(item.title, {
+            description: item.body,
+            action: route
+              ? {
+                  label: t('open'),
+                  onClick: () => {
+                    router.push(route);
+                  },
+                }
+              : undefined,
+          });
+        }
 
         void sendDeviceNotification({
           id: item.id,
           title: item.title,
           body: item.body,
+          route: rawRoute ?? undefined,
         });
       }
     },
-    [locale, router, t],
+    [locale, rememberDeliveredNotification, router, t],
   );
 
   const refresh = useCallback(async () => {
@@ -115,7 +178,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       setError(null);
       hydratedRef.current = false;
-      deliveredIdsRef.current.clear();
       return;
     }
 
@@ -130,14 +192,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         unreadCount: feed?.unreadCount || 0,
       });
 
-      if (!hydratedRef.current) {
-        nextItems.forEach((item) => {
-          deliveredIdsRef.current.add(item.id);
-        });
-        hydratedRef.current = true;
-      } else {
-        await emitRuntimeNotifications(nextItems);
-      }
+      await emitRuntimeNotifications(nextItems, {
+        showToast: hydratedRef.current,
+      });
+      hydratedRef.current = true;
     } catch (notificationError) {
       setError(
         notificationError instanceof Error
@@ -176,6 +234,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setPermission(nextPermission);
 
     if (nextPermission === 'granted') {
+      await emitRuntimeNotifications(itemsRef.current, { showToast: false });
       toast.success(t('enabledToast'));
       return;
     }
@@ -183,7 +242,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     if (nextPermission === 'denied') {
       toast.error(t('deniedToast'));
     }
-  }, [t]);
+  }, [emitRuntimeNotifications, t]);
 
   const openNotification = useCallback(
     async (notification: AppNotification) => {
@@ -204,8 +263,38 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  useEffect(() => {
     void syncPermission();
   }, [syncPermission]);
+
+  useEffect(() => {
+    void initializeDeviceNotifications({
+      onOpenNotification: ({ route }) => {
+        const normalizedRoute = normalizeRoute(route);
+        if (normalizedRoute) {
+          router.push(localizePath(locale, normalizedRoute));
+          return;
+        }
+
+        router.push(localizePath(locale, '/notifications'));
+      },
+    });
+  }, [locale, router]);
+
+  useEffect(() => {
+    if (!enabled || permission !== 'prompt') {
+      return;
+    }
+
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    void requestPermissionHandler();
+  }, [enabled, permission, requestPermissionHandler]);
 
   useEffect(() => {
     void refresh();
@@ -216,7 +305,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     const timer = window.setInterval(() => {
       void refresh();
-    }, 60_000);
+    }, 30_000);
 
     return () => window.clearInterval(timer);
   }, [enabled, refresh]);

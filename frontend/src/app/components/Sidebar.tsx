@@ -37,26 +37,28 @@ export function Sidebar({ role }: SidebarProps) {
 
   return (
     <div className="fixed left-0 top-0 z-[60] hidden h-screen w-72 flex-col border-r border-[var(--app-border)] bg-[var(--app-surface)] shadow-[8px_0_24px_-24px_rgba(15,23,42,0.35)] lg:flex">
-      <div className="p-8">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 overflow-hidden rounded-[14px] border border-[var(--app-border)] shadow-sm">
+      <div className="p-6 xl:p-8">
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-[14px] border border-[var(--app-border)] shadow-sm">
             <img 
               src={centerBranding.logoUrl}
               alt={centerBranding.shortName}
               className="w-full h-full object-cover"
             />
           </div>
-          <div>
-            <h1 className="text-lg font-black leading-none tracking-tight text-[var(--app-text)]">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base font-black leading-tight tracking-tight text-[var(--app-text)] xl:text-lg">
               {centerBranding.shortName}
             </h1>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">{t('brandSub')}</p>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
+              {t('brandSub')}
+            </p>
           </div>
         </div>
-        <div className="mt-6 flex items-center gap-2">
-          <NotificationBell />
-          <LanguageSwitcher className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
-          <ThemeToggle className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
+        <div className="mt-5 flex flex-wrap items-stretch gap-2">
+          <NotificationBell className="shrink-0" />
+          <LanguageSwitcher className="min-w-0 flex-1 basis-[calc(50%-0.25rem)] border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
+          <ThemeToggle className="min-w-0 flex-1 basis-[calc(50%-0.25rem)] border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
         </div>
       </div>
 
