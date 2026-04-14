@@ -57,7 +57,16 @@ function unique(values: string[]) {
 }
 
 export function getSiteUrl() {
-  return DEFAULT_SITE_URL.replace(/\/+$/, '');
+  const configuredUrl = DEFAULT_SITE_URL.trim().replace(/^['"]|['"]$/g, '');
+
+  try {
+    const url = new URL(configuredUrl);
+    url.hash = '';
+    url.search = '';
+    return url.toString().replace(/\/+$/, '');
+  } catch {
+    return 'https://mk-academy-dev.pages.dev';
+  }
 }
 
 export function getBrandKeywordVariants(brandName = 'MK Academy') {

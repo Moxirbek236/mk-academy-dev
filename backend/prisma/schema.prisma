@@ -430,22 +430,6 @@ model Notification {
   @@map("notifications")
 }
 
-model FinanceTransaction {
-  id        Int      @id @default(autoincrement())
-  userId    Int?     @map("user_id")
-  amount    Float
-  currency  String   @default("UZS")
-  type      String   @default("INCOME")
-  method    String?  @default("PAYME")
-  status    String   @default("COMPLETED")
-  reason    String?
-  createdAt DateTime @default(now()) @map("created_at")
-  isActive  Boolean  @default(true) @map("is_active")
-  user      User?    @relation(fields: [userId], references: [id])
-
-  @@map("transactions")
-}
-
 model SystemStats {
   id         Int      @id @default(autoincrement())
   cpuUsage   Float    @map("cpu_usage")
@@ -469,17 +453,4 @@ model Lead {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("leads")
-}
-
-model CenterSettings {
-  id          Int      @id @default(autoincrement())
-  name        String   @default("MK Academy")
-  shortName   String   @default("MK Academy") @map("short_name")
-  logoUrl     String?  @map("logo_url")
-  description String? 
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  @@map("center_settings")
 }
