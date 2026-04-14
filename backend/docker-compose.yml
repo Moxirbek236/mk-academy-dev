@@ -1,0 +1,19 @@
+services:
+  api:
+    build: .
+    container_name: vocab_api
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=file:/app/data/prod.db
+      - NODE_ENV=production
+      - JWT_SECRET=supersecretkey
+      - PORT=4000
+      # boshqa .env variablelaring
+    volumes:
+      - sqlite_data:/app/data
+
+volumes:
+  sqlite_data:
+    driver: local
