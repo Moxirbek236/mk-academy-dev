@@ -131,5 +131,10 @@ export class UserProfileService {
         language: til
       },
     })
+
+    return {
+      success: true,
+      message: 'User profile updated successfully'
+    }
   }
 }

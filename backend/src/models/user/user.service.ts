@@ -137,12 +137,9 @@ export class UserService {
 
   async findAllSuperAdmin(query: QueryUserSuperAdminDto): Promise<User[]> {
     const page = query.page || 1;
-    const limit = query.limit || 10;
-    const skip = (page - 1) * limit;
+    const limit = query.limit;
     try {
       let users = await this.prisma.user.findMany({
-        skip,
-        take: limit,
         include: {
           groupsCreated: true,
           groupMemberships: {
@@ -189,6 +186,12 @@ export class UserService {
         users = users.filter(user => user.isActive === query.isActive);
       }
 
+      if (limit) {
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        users = users.slice(start, end);
+      }
+
 
       users = users.map(user => {
         if (['STUDENT', 'TEACHER', 'ADMIN'].includes(user.role)) {
@@ -210,6 +213,8 @@ export class UserService {
     }
   }
   async findAllAdmin(query: QueryUserAdminDto) {
+    const page = query.page || 1;
+    const limit = query.limit;
     try {
       let users = await this.prisma.user.findMany({
         where: {
@@ -258,6 +263,12 @@ export class UserService {
         users = users.filter(user => user.isActive === query.isActive);
       }
 
+      if (limit) {
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        users = users.slice(start, end);
+      }
+
       users = users.map(user => {
         if (user.role === UserRole.STUDENT || user.role === UserRole.TEACHER) {
           return {
@@ -279,6 +290,8 @@ export class UserService {
   }
 
   async findAllTeacher(currentUser: { id: number }, query: QueryUserTeacherDto) {
+    const page = query.page || 1;
+    const limit = query.limit;
     try {
       let users = await this.prisma.user.findMany({
         where: {
@@ -300,6 +313,12 @@ export class UserService {
         users = users.filter(user =>
           user.fullName.toLowerCase().includes(search),
         );
+      }
+
+      if (limit) {
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        users = users.slice(start, end);
       }
 
       return users;

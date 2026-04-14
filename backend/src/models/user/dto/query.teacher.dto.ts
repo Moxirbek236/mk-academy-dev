@@ -8,4 +8,18 @@ export class QueryUserTeacherDto {
     @IsOptional()
     @IsString()
     fullName?: string;
+
+    @ApiPropertyOptional({ default: 1 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    page?: number;
+
+    @ApiPropertyOptional({ default: 10 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    limit?: number;
 }

@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsOptional, IsString, IsEnum, IsBoolean } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsOptional, IsString, IsEnum, IsBoolean, IsInt, Min } from 'class-validator';
 import { UserRole } from 'src/core/enums';
 
 export class QueryUserAdminDto {
@@ -29,4 +29,18 @@ export class QueryUserAdminDto {
     })
     @IsBoolean()
     isActive?: boolean
+
+    @ApiPropertyOptional({ default: 1 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    page?: number;
+
+    @ApiPropertyOptional({ default: 10 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    limit?: number;
 }
