@@ -415,6 +415,21 @@ model Leaderboard {
   @@map("leaderboards")
 }
 
+model FinanceTransaction {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  amount    Float
+  type      String
+  reason    String
+  status    String   @default("COMPLETED")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isActive  Boolean  @default(true) @map("is_active")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("finance_transactions")
+}
+
 model Notification {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")

@@ -56,3 +56,9 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
+
+# Local database and runtime uploads
+prisma/dev.db
+prisma/dev.db-journal
+uploads/
+src/uploads/

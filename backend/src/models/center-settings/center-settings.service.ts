@@ -57,7 +57,7 @@ export class CenterSettingsService {
 
   private async ensureSettings() {
     try {
-      const existing = await (this.prisma.centerSettings as any).findFirst({
+      const existing = await (this.prisma as any).centerSettings.findFirst({
         where: {
           isActive: true,
         },
@@ -70,7 +70,7 @@ export class CenterSettingsService {
         return existing;
       }
 
-      return await (this.prisma.centerSettings as any).create({
+      return await (this.prisma as any).centerSettings.create({
         data: {
           ...DEFAULT_CENTER_SETTINGS,
           isActive: true,
@@ -130,7 +130,7 @@ export class CenterSettingsService {
     }
 
     try {
-      const updated = await (this.prisma.centerSettings as any).update({
+      const updated = await (this.prisma as any).centerSettings.update({
         where: {
           id: current.id,
         },
