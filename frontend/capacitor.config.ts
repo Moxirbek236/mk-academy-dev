@@ -8,7 +8,8 @@ const config: CapacitorConfig = {
   appName: `MK Academy ${roleName}`,
   webDir: 'out',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    cleartext: true,
   }
 };
 

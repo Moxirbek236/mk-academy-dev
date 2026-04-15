@@ -521,7 +521,7 @@ Run from `frontend/`.
 | `npm run build:next` | Runs `next build`. |
 | `npm run build` | Runs custom build wrapper. |
 | `npm run start` | Starts production Next.js server. |
-| `npm run cap-sync` | Builds Next.js and runs Capacitor sync. |
+| `npm run cap-sync` | Builds native export output and runs Capacitor sync. |
 | `npm run cap-android` | Opens Android project through Capacitor. |
 | `npm run lint` | Runs configured Next lint command. |
 

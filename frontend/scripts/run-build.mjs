@@ -84,12 +84,14 @@ function withEdgeRuntimeSetting(enabled) {
 const capacitorExport = process.env.CAPACITOR_EXPORT ?? readDotenvValue('CAPACITOR_EXPORT');
 const shouldUseNodeRuntime = capacitorExport === 'true';
 const restoreLayout = withEdgeRuntimeSetting(!shouldUseNodeRuntime);
+let exitCode = 1;
 
 try {
   if (process.env.SKIP_TYPECHECK !== 'true') {
     const typecheckExitCode = await runNpmScript('typecheck', process.env);
     if (typecheckExitCode !== 0) {
-      process.exit(typecheckExitCode);
+      exitCode = typecheckExitCode;
+      throw new Error('TYPECHECK_FAILED');
     }
   }
 
@@ -102,11 +104,15 @@ try {
       : nodeOptions,
   };
 
-  const exitCode = await runNpmScript('build:next', env);
-
-  process.exit(exitCode);
+  exitCode = await runNpmScript('build:next', env);
 } catch (error) {
-  throw error;
+  if (error instanceof Error && error.message === 'TYPECHECK_FAILED') {
+    // Preserve the original typecheck exit code after restoring the file state.
+  } else {
+    throw error;
+  }
 } finally {
   restoreLayout();
 }
+
+process.exit(exitCode);

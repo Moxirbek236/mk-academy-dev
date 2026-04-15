@@ -7,7 +7,7 @@
     "build:next": "next build",
     "build": "node scripts/run-build.mjs",
     "typecheck": "tsc --noEmit --pretty false",
-    "cap-sync": "next build && npx cap sync",
+    "cap-sync": "node scripts/run-cap-sync.mjs",
     "cap-android": "npx cap open android",
     "start": "next start",
     "lint": "next lint"
