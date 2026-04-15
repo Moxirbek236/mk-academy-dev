@@ -72,12 +72,13 @@ async function main() {
   ];
 
   for (const courseData of coursesData) {
-    const course = await prisma.course.upsert({
-      where: { title: courseData.title },
-      update: {},
-      create: { ...courseData, isActive: true },
-    });
-    console.log('Course created:', course.title);
+    let course = await prisma.course.findFirst({ where: { title: courseData.title } });
+    if (!course) {
+      course = await prisma.course.create({
+        data: { ...courseData, isActive: true },
+      });
+    }
+    console.log('Course prepared:', course.title);
 
     // Assign Course to Group
     await prisma.groupCourse.upsert({
