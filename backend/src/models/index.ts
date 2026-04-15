@@ -3,6 +3,7 @@ export * from './user/user.module';
 export * from './user-profile/user-profile.module';
 export * from './course/course.module';
 export * from './group/group.module';
+export * from './group-course/group-course.module';
 export * from './group-assignment/group-assignment.module';
 export * from './book/book.module';
 export * from './vocabulary/vocabulary.module';

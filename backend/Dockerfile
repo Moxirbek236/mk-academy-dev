@@ -72,6 +72,6 @@ EXPOSE 3232
 
 # Salomatlik tekshiruvi
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-  CMD wget -qO- http://localhost:3232/api/health || exit 1
+  CMD wget -qO- http://localhost:3232/api/system/health || exit 1
 
 ENTRYPOINT ["./entrypoint.sh"]

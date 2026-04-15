@@ -19,7 +19,7 @@ services:
       # SQLite ma'lumotlar bazasi — container o'chirilsa ham saqlanib qoladi
       - sqlite_data:/app/data
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3232/api/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3232/api/system/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

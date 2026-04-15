@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
 import { Status, UserRole } from 'src/core/enums';
 
@@ -6,62 +6,127 @@ import { Status, UserRole } from 'src/core/enums';
 export class GroupMemberService {
   constructor(private prisma: PrismaService) { }
 
-  async addMember(groupId: number, studentId: number) {
+  private readonly memberSelect = {
+    id: true,
+    groupId: true,
+    studentId: true,
+    status: true,
+    isActive: true,
+    joinedAt: true,
+    student: {
+      select: {
+        id: true,
+        fullName: true,
+        phone: true,
+        avatarUrl: true,
+        cefrLevel: true,
+        role: true,
+      }
+    },
+    group: {
+      select: {
+        id: true,
+        name: true,
+      }
+    }
+  } as const;
 
-    const checkgroupId = await this.prisma.group.findUnique({
-      where: { id: +groupId, isActive: true }
+  async addMember(groupId: number, studentId: number) {
+    const normalizedGroupId = +groupId;
+    const normalizedStudentId = +studentId;
+
+    const checkgroupId = await this.prisma.group.findFirst({
+      where: { id: normalizedGroupId, isActive: true }
     });
     if (!checkgroupId) {
       throw new NotFoundException('Bunday group topilmadi');
     }
 
-    const checkStudentId = await this.prisma.user.findUnique({ where: { id: +studentId, isActive: true, role: UserRole.STUDENT } });
+    const checkStudentId = await this.prisma.user.findFirst({
+      where: { id: normalizedStudentId, isActive: true, role: UserRole.STUDENT }
+    });
     if (!checkStudentId) {
       throw new NotFoundException('Bunday student topilmadi');
     }
 
-    const createdMember = await this.prisma.groupMember.create({
-      data: { groupId: +groupId, studentId: +studentId, },
-      select: {
-        id: true,
-        groupId: true,
-        studentId: true,
-        status: true,
-        student: {
-          select: {
-            id: true,
-            fullName: true,
-          }
-        },
-        group: {
-          select: {
-            id: true,
-            name: true,
-          }
+    const existingMembership = await this.prisma.groupMember.findUnique({
+      where: {
+        groupId_studentId: {
+          groupId: normalizedGroupId,
+          studentId: normalizedStudentId,
         }
       }
     });
+
+    if (existingMembership?.isActive) {
+      throw new ConflictException('Bu student allaqachon guruhga biriktirilgan');
+    }
+
+    const createdMember = existingMembership
+      ? await this.prisma.groupMember.update({
+        where: { id: existingMembership.id },
+        data: {
+          status: Status.ACTIVE,
+          isActive: true,
+          joinedAt: new Date(),
+        },
+        select: this.memberSelect,
+      })
+      : await this.prisma.groupMember.create({
+        data: {
+          groupId: normalizedGroupId,
+          studentId: normalizedStudentId,
+          status: Status.ACTIVE,
+        },
+        select: this.memberSelect,
+      });
+
     return {
-      message: "Student guruhga qo'shildi",
+      message: existingMembership
+        ? "Student guruhga qayta qo'shildi"
+        : "Student guruhga qo'shildi",
       data: createdMember
     }
   }
 
   async removeMember(groupId: number, studentId: number) {
-    const checkgroupId = await this.prisma.group.findUnique({
-      where: { id: +groupId, isActive: true }
+    const normalizedGroupId = +groupId;
+    const normalizedStudentId = +studentId;
+
+    const checkgroupId = await this.prisma.group.findFirst({
+      where: { id: normalizedGroupId, isActive: true }
     });
     if (!checkgroupId) {
       throw new NotFoundException('Bunday group topilmadi');
     }
 
-    const checkStudentId = await this.prisma.user.findUnique({ where: { id: +studentId, isActive: true, role: UserRole.STUDENT } });
+    const checkStudentId = await this.prisma.user.findFirst({
+      where: { id: normalizedStudentId, isActive: true, role: UserRole.STUDENT }
+    });
     if (!checkStudentId) {
       throw new NotFoundException('Bunday student topilmadi');
     }
 
+    const membership = await this.prisma.groupMember.findUnique({
+      where: {
+        groupId_studentId: {
+          groupId: normalizedGroupId,
+          studentId: normalizedStudentId,
+        }
+      }
+    });
+
+    if (!membership || !membership.isActive) {
+      throw new NotFoundException('Bu student guruhda faol emas');
+    }
+
     const removedMember = await this.prisma.groupMember.update({
-      where: { groupId_studentId: { groupId: +groupId, studentId: +studentId } },
+      where: {
+        groupId_studentId: {
+          groupId: normalizedGroupId,
+          studentId: normalizedStudentId,
+        }
+      },
       data: { status: Status.INACTIVE, isActive: false },
     });
     return {
@@ -71,23 +136,14 @@ export class GroupMemberService {
   }
 
   async findMembers(groupId: number) {
-    const group = await this.prisma.group.findUnique({ where: { id: +groupId } });
+    const group = await this.prisma.group.findFirst({
+      where: { id: +groupId, isActive: true }
+    });
     if (!group) throw new NotFoundException('Bunday guruh topilmadi');
 
     return this.prisma.groupMember.findMany({
       where: { groupId: +groupId, isActive: true },
-      include: {
-        student: {
-          select: {
-            id: true,
-            fullName: true,
-            phone: true,
-            avatarUrl: true,
-            cefrLevel: true,
-            role: true,
-          }
-        }
-      },
+      select: this.memberSelect,
       orderBy: { joinedAt: 'asc' }
     });
   }
