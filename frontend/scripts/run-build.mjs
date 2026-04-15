@@ -6,6 +6,8 @@ import path from 'node:path';
 const projectRoot = process.cwd();
 const buildGlobalsPath = path.join(projectRoot, 'scripts', 'register-build-globals.cjs');
 const rootLayoutPath = path.join(projectRoot, 'src', 'app', 'layout.tsx');
+const appApiPath = path.join(projectRoot, 'src', 'app', 'api');
+const tempAppApiPath = path.join(projectRoot, 'src', 'app', '_api');
 const npmCommand = os.platform() === 'win32' ? 'npm.cmd' : 'npm';
 const isWindows = os.platform() === 'win32';
 const edgeRuntimeLine = "export const runtime = 'edge';";
@@ -84,6 +86,23 @@ function withEdgeRuntimeSetting(enabled) {
 const capacitorExport = process.env.CAPACITOR_EXPORT ?? readDotenvValue('CAPACITOR_EXPORT');
 const shouldUseNodeRuntime = capacitorExport === 'true';
 const restoreLayout = withEdgeRuntimeSetting(!shouldUseNodeRuntime);
+
+function toggleApiFolder(hide) {
+  if (hide) {
+    if (fs.existsSync(appApiPath)) {
+      fs.renameSync(appApiPath, tempAppApiPath);
+    }
+  } else {
+    if (fs.existsSync(tempAppApiPath)) {
+      fs.renameSync(tempAppApiPath, appApiPath);
+    }
+  }
+}
+
+if (shouldUseNodeRuntime) {
+  toggleApiFolder(true);
+}
+
 let exitCode = 1;
 
 try {
@@ -113,6 +132,9 @@ try {
   }
 } finally {
   restoreLayout();
+  if (shouldUseNodeRuntime) {
+    toggleApiFolder(false);
+  }
 }
 
 process.exit(exitCode);
