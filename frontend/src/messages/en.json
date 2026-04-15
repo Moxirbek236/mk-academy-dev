@@ -43,6 +43,7 @@
     "home": "Home",
     "students": "Students",
     "courses": "Courses",
+    "tests": "Tests",
     "reports": "Reports",
     "monitor": "Monitor",
     "groups": "Groups",
@@ -62,6 +63,7 @@
     "home": "Home",
     "students": "Students",
     "courses": "Courses",
+    "tests": "Tests",
     "reports": "Reports",
     "monitor": "Monitor",
     "groups": "Groups",
@@ -263,8 +265,10 @@
     "passwordUpdated": "Last updated 2 months ago",
     "twoFactor": "Two-factor authentication",
     "disabled": "Disabled",
+    "downloads": "Downloads",
+    "mobileApps": "Mobile apps",
+    "mobileAppsValue": "Android and iOS",
     "notifications": "Notifications",
-    "centerBranding": "Center branding",
     "notificationsEnabled": "Everything enabled",
     "language": "Language",
     "themeMode": "Theme mode",
@@ -280,19 +284,22 @@
     },
     "version": "App version 2.4.0 * Rev 102"
   },
-  "CenterSettingsPage": {
-    "title": "Center branding",
-    "subtitle": "Update your center name, short name and logo.",
-    "nameLabel": "Center name",
-    "shortNameLabel": "Short name",
-    "logoUrlLabel": "Logo URL",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Briefly describe your education center.",
-    "previewTitle": "Live preview",
-    "save": "Save changes",
-    "saving": "Saving...",
-    "saveSuccess": "Saved",
-    "accessDeniedTitle": "Access denied",
-    "accessDeniedDescription": "Only admins and superadmins can update center branding."
+  "DownloadsPage": {
+    "title": "Downloads",
+    "subtitle": "Latest app files for Android phones and iOS.",
+    "back": "Back",
+    "download": "Download",
+    "fileLabel": "File",
+    "release": "Release",
+    "latestTitle": "Updated after every push",
+    "latestDescription": "When GitHub Actions finishes a new build, the Android and iOS files here are replaced with the latest version.",
+    "android": {
+      "title": "Android app",
+      "description": "APK file for Android phones."
+    },
+    "ios": {
+      "title": "iOS app",
+      "description": "IPA file for iPhone and iPad."
+    }
   }
 }

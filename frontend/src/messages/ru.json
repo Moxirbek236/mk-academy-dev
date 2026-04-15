@@ -43,6 +43,7 @@
     "home": "Главная",
     "students": "Ученики",
     "courses": "Курсы",
+    "tests": "Тесты",
     "reports": "Отчёты",
     "monitor": "Монитор",
     "groups": "Группы",
@@ -62,6 +63,7 @@
     "home": "Главная",
     "students": "Ученики",
     "courses": "Курсы",
+    "tests": "Тесты",
     "reports": "Отчёты",
     "monitor": "Монитор",
     "groups": "Группы",
@@ -263,8 +265,10 @@
     "passwordUpdated": "Последнее обновление 2 месяца назад",
     "twoFactor": "Двухэтапная аутентификация",
     "disabled": "Выключено",
+    "downloads": "Загрузки",
+    "mobileApps": "Мобильные приложения",
+    "mobileAppsValue": "Android и iOS",
     "notifications": "Уведомления",
-    "centerBranding": "Брендинг центра",
     "notificationsEnabled": "Всё включено",
     "language": "Язык",
     "themeMode": "Ночной режим",
@@ -280,19 +284,22 @@
     },
     "version": "App version 2.4.0 * Rev 102"
   },
-  "CenterSettingsPage": {
-    "title": "Брендинг центра",
-    "subtitle": "Обновите название центра, короткое имя и логотип.",
-    "nameLabel": "Название центра",
-    "shortNameLabel": "Короткое имя",
-    "logoUrlLabel": "URL логотипа",
-    "descriptionLabel": "Описание",
-    "descriptionPlaceholder": "Кратко опишите ваш учебный центр.",
-    "previewTitle": "Предпросмотр",
-    "save": "Сохранить",
-    "saving": "Сохранение...",
-    "saveSuccess": "Сохранено",
-    "accessDeniedTitle": "Доступ запрещён",
-    "accessDeniedDescription": "Только admin и superadmin могут изменять брендинг центра."
+  "DownloadsPage": {
+    "title": "Загрузки",
+    "subtitle": "Последние файлы приложения для Android и iOS.",
+    "back": "Назад",
+    "download": "Скачать",
+    "fileLabel": "Файл",
+    "release": "Release",
+    "latestTitle": "Обновляется после каждого push",
+    "latestDescription": "Когда GitHub Actions завершает новую сборку, Android и iOS файлы здесь заменяются последней версией.",
+    "android": {
+      "title": "Android приложение",
+      "description": "APK файл для Android телефонов."
+    },
+    "ios": {
+      "title": "iOS приложение",
+      "description": "IPA файл для iPhone и iPad."
+    }
   }
 }

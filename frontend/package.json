@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build:next": "next build",
     "build": "node scripts/run-build.mjs",
+    "typecheck": "tsc --noEmit --pretty false",
     "cap-sync": "next build && npx cap sync",
     "cap-android": "npx cap open android",
     "start": "next start",

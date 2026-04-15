@@ -4,6 +4,7 @@ import { getSiteUrl } from '@/lib/site';
 
 export const dynamic = 'force-static';
 export const revalidate = 86400; // Har bir kunda bir marta yangilab turadi (build paytida)
+const includeDynamicCourses = process.env.NEXT_PUBLIC_SITEMAP_INCLUDE_COURSES === 'true';
 
 type CourseSitemapItem = {
   id?: string | number;
@@ -59,9 +60,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
+    {
+      url: absoluteUrl(siteUrl, '/landing'),
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
   ];
 
   let courseRoutes: MetadataRoute.Sitemap = [];
+  if (!includeDynamicCourses) {
+    return staticRoutes;
+  }
+
   try {
     const res = await fetch(`${getApiBaseUrl()}/courses`, { next: { revalidate: 3600 } });
 
@@ -89,7 +100,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ];
       });
   } catch (err) {
-    console.error('Sitemap course fetch error:', err);
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Sitemap course fetch skipped:', err);
+    }
   }
 
   return [...staticRoutes, ...courseRoutes];

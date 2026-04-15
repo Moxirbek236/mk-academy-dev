@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import GroupDetailClient from './GroupDetailClient';
 import { generateSEO } from '@/lib/seo';
 import { getServerCenterBranding } from '@/lib/server-center-branding';
-import { getApiBaseUrl } from '@/lib/api-url';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -11,34 +10,15 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const centerBranding = await getServerCenterBranding();
-  
-  try {
-    const response = await fetch(`${getApiBaseUrl()}/groups/${id}`, { cache: 'no-store' });
-    const payload = await response.json();
-    const group = payload?.data ?? payload;
 
-    if (!group) throw new Error('Group not found');
-
-    return generateSEO(
-      `${group.name} | ${centerBranding.name} O'quv Guruhlari`,
-      `${group.name} guruhining tafsilotlari va o'quv jarayoni.`,
-      `/groups/${id}`,
-      centerBranding.logoUrl,
-      centerBranding.name,
-      {
-        noIndex: true, // Privacy for group pages
-      }
-    );
-  } catch {
-    return generateSEO(
-      `Guruh tafsilotlari | ${centerBranding.name}`,
-      centerBranding.description,
-      `/groups/${id}`,
-      centerBranding.logoUrl,
-      centerBranding.name,
-      { noIndex: true }
-    );
-  }
+  return generateSEO(
+    `Guruh tafsilotlari | ${centerBranding.name}`,
+    centerBranding.description,
+    `/groups/${id}`,
+    centerBranding.logoUrl,
+    centerBranding.name,
+    { noIndex: true },
+  );
 }
 
 export function generateStaticParams() {

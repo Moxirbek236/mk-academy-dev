@@ -36,7 +36,7 @@ The application is built for multi-role usage:
 - Public landing page for MK Academy.
 - Public study request form through leads.
 - SEO metadata, Open Graph data, structured data, `robots.txt`, and `sitemap.xml`.
-- Dynamic center branding from backend settings.
+- Static MK Academy branding used across SEO, layout, login, and landing pages.
 - Multilingual foundation with Uzbek, Russian, and English messages.
 
 ### Authentication and Roles
@@ -236,7 +236,6 @@ Important backend modules:
 - `system`: health and server stats.
 - `lead`: landing page requests.
 - `dashboard`: dashboard statistics.
-- `center-settings`: public and private center branding.
 
 Swagger is available at:
 
@@ -271,7 +270,7 @@ Main frontend areas:
 - `src/app/finance/page.tsx`: finance dashboard.
 - `src/app/leads/page.tsx`: lead management.
 - `src/app/system/page.tsx`: system health.
-- `src/app/settings/*`: profile, center settings, email/settings placeholders.
+- `src/app/settings/*`: profile, email/settings placeholders.
 - `src/app/notifications/page.tsx`: notifications.
 - `src/app/vocabulary-practice/page.tsx`: vocabulary practice.
 
@@ -342,8 +341,6 @@ Main domain models:
 - `SystemStats`
 - `Lead`
 
-The project also has a migration for `center_settings`, used by the center branding API.
-
 ## Getting Started
 
 ### Prerequisites
@@ -403,7 +400,7 @@ npx prisma generate
 npx prisma migrate dev
 ```
 
-Seed default superadmin and center settings:
+Seed default superadmin:
 
 ```bash
 npm run seed
@@ -450,6 +447,8 @@ NEXT_PUBLIC_NATIVE_API_URL=https://mk-academy-dev.onrender.com/api
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=
 NEXT_PUBLIC_USE_MOCK_DATA=false
+NEXT_PUBLIC_GITHUB_REPOSITORY=Moxirbek236/mk-academy-dev
+NEXT_PUBLIC_MOBILE_RELEASE_TAG=frontend-mobile-latest
 CAPACITOR_EXPORT=false
 ```
 
@@ -488,6 +487,8 @@ http://localhost:3000
 | `NEXT_PUBLIC_APP_URL` | Public website URL used for SEO, sitemap, robots, canonical links. | `http://localhost:3000` |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Google Search Console verification token. | empty or token |
 | `NEXT_PUBLIC_USE_MOCK_DATA` | Enables frontend mock API adapter. | `false` |
+| `NEXT_PUBLIC_GITHUB_REPOSITORY` | Repository used for mobile app download links. | `Moxirbek236/mk-academy-dev` |
+| `NEXT_PUBLIC_MOBILE_RELEASE_TAG` | GitHub Release tag used for latest mobile files. | `frontend-mobile-latest` |
 | `NEXT_PUBLIC_APP_ROLE` | Capacitor app flavor role. | `student` |
 | `CAPACITOR_EXPORT` | Enables static export mode for native builds. | `false` |
 
@@ -499,7 +500,7 @@ Run from `backend/`.
 
 | Command | Description |
 | --- | --- |
-| `npm run seed` | Creates default superadmin and default center settings. |
+| `npm run seed` | Creates default superadmin. |
 | `npm run prisma:generate` | Generates Prisma client. |
 | `npm run build` | Generates Prisma client and builds NestJS. |
 | `npm run start` | Starts built app from `dist`. |
@@ -559,7 +560,6 @@ All API endpoints are under:
 | Ratings | `GET /ratings`, `GET /ratings/target`, `POST /ratings`, `DELETE /ratings/:id` | Ratings and reviews. |
 | Gamification | `GET /achievements`, `GET /leaderboard`, `POST /xp/add/:userId`, `GET /xp/rank/:userId` | Achievements, XP, leaderboard. |
 | System | `GET /system/health`, `GET /system/stats` | API health and server resource stats. |
-| Center Settings | `GET /center-settings/public`, `GET /center-settings`, `PATCH /center-settings` | Public/private branding settings. |
 
 For exact request/response schemas, open Swagger:
 
@@ -703,6 +703,15 @@ Supported build matrix in GitHub Actions:
 - `admin`
 - `superadmin`
 
+The frontend settings page also has a Downloads screen. It points to the latest mobile release assets:
+
+```text
+https://github.com/Moxirbek236/mk-academy-dev/releases/download/frontend-mobile-latest/MK_Academy_Android.apk
+https://github.com/Moxirbek236/mk-academy-dev/releases/download/frontend-mobile-latest/MK_Academy_iOS.ipa
+```
+
+The `Frontend Mobile Apps Build (Android & iOS)` workflow publishes those files to the `frontend-mobile-latest` GitHub Release after every push to `main` or `master`.
+
 ## Deployment
 
 ### Backend Deployment
@@ -761,6 +770,8 @@ NEXT_PUBLIC_API_URL=https://your-backend-domain.com/api
 NEXT_PUBLIC_APP_URL=https://your-frontend-domain.com
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=
 NEXT_PUBLIC_USE_MOCK_DATA=false
+NEXT_PUBLIC_GITHUB_REPOSITORY=your-org/your-repo
+NEXT_PUBLIC_MOBILE_RELEASE_TAG=frontend-mobile-latest
 CAPACITOR_EXPORT=false
 ```
 
@@ -855,4 +866,3 @@ The sitemap fetches courses from the API. If `/api/courses` requires authenticat
 ## License
 
 This repository is currently marked as private/unlicensed in package metadata. Add a license file before publishing as open source.
-

@@ -7,13 +7,12 @@ import { getServerCenterBranding } from '@/lib/server-center-branding';
 
 // Fix Node 25 experimental localStorage issue
 if (typeof window === 'undefined') {
-  // @ts-ignore
-  delete global.localStorage;
-  // @ts-ignore
-  delete global.sessionStorage;
+  Reflect.deleteProperty(globalThis, 'localStorage');
+  Reflect.deleteProperty(globalThis, 'sessionStorage');
 }
 
 import { generateSEO } from '@/lib/seo';
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,

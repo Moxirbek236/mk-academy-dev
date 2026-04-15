@@ -1,15 +1,15 @@
 'use client';
 
 import { useCallback } from 'react';
-import { listTests } from '@/lib/backend-api';
+import { listTests, type TestListQuery } from '@/lib/backend-api';
 import { useApiRequest } from '@/hooks/useApiRequest';
 
-export function useTests(enabled = true) {
-  const request = useCallback(() => listTests(), []);
+export function useTests(query: TestListQuery = {}, enabled = true) {
+  const request = useCallback(() => listTests(query), [query]);
 
   return useApiRequest({
     enabled,
-    initialData: [] as any[],
+    initialData: { items: [], meta: null } as Awaited<ReturnType<typeof listTests>>,
     request,
   });
 }

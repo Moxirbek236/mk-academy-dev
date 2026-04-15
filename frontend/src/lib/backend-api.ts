@@ -98,9 +98,111 @@ export type TaskPayload = {
 export type TestPayload = {
   title: string;
   description?: string;
-  duration: number;
+  type?: string;
+  cefrLevel?: CefrLevel | '';
+  duration?: number;
+  timeLimitMinutes?: number;
   passingScore: number;
   courseId?: number | null;
+  shuffleQuestions?: boolean;
+  maxAttempts?: number | null;
+  isAdaptive?: boolean;
+  isPublished?: boolean;
+  questions?: TestQuestionPayload[];
+};
+
+export type TestQuestionPayload = {
+  type?: string;
+  inputType?: string;
+  questionText: string;
+  options?: unknown;
+  correctAnswer?: unknown;
+  explanation?: string;
+  points?: number;
+  difficulty?: number;
+  skill?: string;
+};
+
+export type TestListQuery = ListQuery & {
+  courseId?: number | null;
+  cefrLevel?: CefrLevel | '';
+  type?: string;
+  isPublished?: boolean | '';
+  isActive?: boolean | '';
+};
+
+export type TestAttemptSubmitPayload = {
+  testId?: number;
+  attemptId?: number;
+  answers?: Record<string, unknown> | Array<Record<string, unknown>>;
+  timeSpentSeconds?: number;
+  score?: number;
+  percentage?: number;
+  passed?: boolean;
+  studentId?: number;
+};
+
+export type TestQuestion = {
+  id: number;
+  testId?: number;
+  type?: string;
+  inputType?: string;
+  questionText: string;
+  options?: unknown;
+  correctAnswer?: unknown;
+  explanation?: string | null;
+  points?: number;
+  difficulty?: number;
+  skill?: string | null;
+  isActive?: boolean;
+};
+
+export type TestItem = {
+  id: number;
+  title: string;
+  description?: string | null;
+  type?: string;
+  cefrLevel?: CefrLevel | string | null;
+  duration?: number | null;
+  timeLimitMinutes?: number | null;
+  timeLimit?: number | null;
+  passingScore?: number;
+  courseId?: number | null;
+  shuffleQuestions?: boolean;
+  maxAttempts?: number | null;
+  isAdaptive?: boolean;
+  isPublished?: boolean;
+  isActive?: boolean;
+  course?: { id: number; title: string; level?: string | null } | null;
+  createdBy?: { id: number; fullName?: string | null; role?: string | null } | null;
+  questions?: TestQuestion[];
+  _count?: { questions?: number; attempts?: number };
+};
+
+export type TestAttempt = {
+  id: number;
+  studentId: number;
+  testId: number;
+  startedAt: string;
+  submittedAt?: string | null;
+  score?: number | null;
+  percentage?: number | null;
+  passed?: boolean | null;
+  timeSpentSeconds?: number | null;
+  answers?: any;
+  feedback?: any;
+  test?: {
+    id: number;
+    title: string;
+    type?: string;
+    passingScore?: number;
+    timeLimitMinutes?: number | null;
+  };
+  student?: {
+    id: number;
+    fullName?: string | null;
+    role?: string | null;
+  };
 };
 
 export type LeadPayload = {
@@ -130,23 +232,6 @@ export type AppNotification = {
 export type NotificationFeed = {
   items: AppNotification[];
   unreadCount: number;
-};
-
-export type CenterSettings = {
-  id?: number;
-  name: string;
-  shortName: string;
-  logoUrl: string;
-  description: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-export type CenterSettingsPayload = {
-  name?: string;
-  shortName?: string;
-  logoUrl?: string;
-  description?: string;
 };
 
 function normalizeRole(role?: string | null): AppRole {
@@ -207,21 +292,6 @@ export async function getSystemHealth() {
 export async function getSystemStats() {
   const response = await api.get('/system/stats');
   return unwrapApiData<any>(response.data);
-}
-
-export async function getPublicCenterSettings() {
-  const response = await api.get('/center-settings/public');
-  return unwrapApiData<CenterSettings>(response.data);
-}
-
-export async function getCenterSettings() {
-  const response = await api.get('/center-settings');
-  return unwrapApiData<CenterSettings>(response.data);
-}
-
-export async function updateCenterSettings(payload: CenterSettingsPayload) {
-  const response = await api.patch('/center-settings', payload);
-  return unwrapApiData<CenterSettings>(response.data);
 }
 
 export async function listUsersScoped(query: UserListQuery = {}) {
@@ -568,24 +638,197 @@ export async function deleteTask(id: number) {
   return unwrapApiData<any>(response.data);
 }
 
-export async function listTests() {
-  const response = await api.get('/tests');
-  return unwrapApiData<any[]>(response.data) ?? [];
+function normalizeTestListQuery(query: TestListQuery = {}) {
+  const params: Record<string, unknown> = normalizeListQuery(query);
+
+  if (query.courseId) params.courseId = query.courseId;
+  if (query.cefrLevel) params.cefrLevel = query.cefrLevel;
+  if (query.type?.trim()) params.type = query.type.trim();
+  if (typeof query.isPublished === 'boolean') params.isPublished = String(query.isPublished);
+  if (typeof query.isActive === 'boolean') params.isActive = String(query.isActive);
+
+  return params;
+}
+
+function normalizeTestPayload(payload: Partial<TestPayload>) {
+  const normalized: Record<string, unknown> = {
+    ...payload,
+  };
+
+  const timeLimitMinutes = payload.timeLimitMinutes ?? payload.duration;
+  if (timeLimitMinutes !== undefined) {
+    normalized.timeLimitMinutes = Number(timeLimitMinutes);
+    normalized.duration = Number(timeLimitMinutes);
+  }
+
+  if (payload.cefrLevel === '') {
+    delete normalized.cefrLevel;
+  }
+
+  if (payload.courseId === undefined || payload.courseId === null || Number(payload.courseId) <= 0) {
+    normalized.courseId = null;
+  }
+
+  if (payload.maxAttempts === undefined || payload.maxAttempts === null || Number(payload.maxAttempts) <= 0) {
+    normalized.maxAttempts = null;
+  }
+
+  return normalized;
+}
+
+function isEmptyValue(value: unknown) {
+  if (value === undefined || value === null) return true;
+  if (typeof value === 'string') return value.trim().length === 0;
+  if (Array.isArray(value)) return value.length === 0;
+  return false;
+}
+
+export function validateQuestionPayload(question: Partial<TestQuestionPayload>, index = 0) {
+  const errors: string[] = [];
+  const label = `${index + 1}-savol`;
+  const options = Array.isArray(question.options)
+    ? question.options.map((item) => String(item).trim()).filter(Boolean)
+    : [];
+  const inputType = String(question.inputType || question.type || '').toUpperCase();
+  const requiresOptions = inputType.includes('OPTION') || inputType.includes('MCQ');
+
+  if (!question.questionText?.trim()) {
+    errors.push(`${label}: savol matni kiritilishi kerak`);
+  }
+
+  if (requiresOptions && options.length < 2) {
+    errors.push(`${label}: kamida 2 ta javob varianti kerak`);
+  }
+
+  if (isEmptyValue(question.correctAnswer)) {
+    errors.push(`${label}: to'g'ri javob kiritilishi kerak`);
+  } else if (requiresOptions && options.length > 0) {
+    const correctAnswer = String(question.correctAnswer).trim();
+    if (!options.includes(correctAnswer)) {
+      errors.push(`${label}: to'g'ri javob variantlar ichida bo'lishi kerak`);
+    }
+  }
+
+  if (question.points !== undefined && Number(question.points) < 1) {
+    errors.push(`${label}: ball 1 dan kam bo'lmasligi kerak`);
+  }
+
+  if (question.difficulty !== undefined && Number(question.difficulty) < 1) {
+    errors.push(`${label}: qiyinlik darajasi 1 dan kam bo'lmasligi kerak`);
+  }
+
+  return errors;
+}
+
+export function validateTestPayload(payload: Partial<TestPayload>) {
+  const errors: string[] = [];
+  const timeLimitMinutes = Number(payload.timeLimitMinutes ?? payload.duration ?? 0);
+
+  if (!payload.title?.trim()) {
+    errors.push('Test nomi kiritilishi kerak');
+  }
+
+  if (!Number.isFinite(timeLimitMinutes) || timeLimitMinutes < 1) {
+    errors.push("Test davomiyligi kamida 1 daqiqa bo'lishi kerak");
+  }
+
+  if (!Number.isFinite(Number(payload.passingScore)) || Number(payload.passingScore) < 0 || Number(payload.passingScore) > 100) {
+    errors.push("O'tish foizi 0 dan 100 gacha bo'lishi kerak");
+  }
+
+  if (payload.maxAttempts !== undefined && payload.maxAttempts !== null && Number(payload.maxAttempts) < 1) {
+    errors.push("Urinishlar soni 1 dan kam bo'lmasligi kerak");
+  }
+
+  payload.questions?.forEach((question, index) => {
+    errors.push(...validateQuestionPayload(question, index));
+  });
+
+  return errors;
+}
+
+export function validateAttemptAnswers(test: TestItem, answers: Record<string, unknown>) {
+  const errors: string[] = [];
+  const questions = test.questions?.filter((question) => question.isActive !== false) ?? [];
+
+  questions.forEach((question, index) => {
+    const value = answers[String(question.id)];
+    const label = `${index + 1}-savol`;
+
+    if (isEmptyValue(value)) {
+      errors.push(`${label}: javob tanlanmagan`);
+      return;
+    }
+
+    const options = normalizeQuestionOptions(question.options);
+    if (options.length > 0 && !options.includes(String(value).trim())) {
+      errors.push(`${label}: javob mavjud variantlardan tanlanishi kerak`);
+    }
+  });
+
+  return errors;
+}
+
+export function normalizeQuestionOptions(options: unknown): string[] {
+  if (Array.isArray(options)) {
+    return options.map((item) => String(item).trim()).filter(Boolean);
+  }
+
+  if (typeof options === 'string') {
+    try {
+      const parsed = JSON.parse(options);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => String(item).trim()).filter(Boolean);
+      }
+    } catch {
+      return options
+        .split(/\r?\n|,/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+  }
+
+  if (options && typeof options === 'object') {
+    return Object.values(options).map((item) => String(item).trim()).filter(Boolean);
+  }
+
+  return [];
+}
+
+export async function listTests(query: TestListQuery = {}) {
+  const response = await api.get('/tests', { params: normalizeTestListQuery(query) });
+  const payload = response.data;
+  return {
+    items: unwrapApiData<TestItem[]>(payload) ?? [],
+    meta: payload?.meta ?? null,
+  };
 }
 
 export async function getTestById(id: number) {
   const response = await api.get(`/tests/${id}`);
-  return unwrapApiData<any>(response.data);
+  return unwrapApiData<TestItem>(response.data);
 }
 
 export async function createTest(payload: TestPayload) {
-  const response = await api.post('/tests', payload);
-  return unwrapApiData<any>(response.data);
+  const errors = validateTestPayload(payload);
+  if (errors.length) throw new Error(errors.join('\n'));
+
+  const response = await api.post('/tests', normalizeTestPayload(payload));
+  return unwrapApiData<TestItem>(response.data);
 }
 
 export async function updateTest(id: number, payload: Partial<TestPayload>) {
-  const response = await api.patch(`/tests/${id}`, payload);
-  return unwrapApiData<any>(response.data);
+  const errors = validateTestPayload({
+    title: payload.title || 'existing',
+    duration: payload.duration ?? payload.timeLimitMinutes ?? 1,
+    passingScore: payload.passingScore ?? 0,
+    questions: payload.questions,
+    maxAttempts: payload.maxAttempts,
+  });
+  if (errors.length) throw new Error(errors.join('\n'));
+
+  const response = await api.patch(`/tests/${id}`, normalizeTestPayload(payload));
+  return unwrapApiData<TestItem>(response.data);
 }
 
 export async function deleteTest(id: number) {
@@ -593,9 +836,63 @@ export async function deleteTest(id: number) {
   return unwrapApiData<any>(response.data);
 }
 
+export async function createQuestion(testId: number, payload: TestQuestionPayload) {
+  const errors = validateQuestionPayload(payload);
+  if (errors.length) throw new Error(errors.join('\n'));
+
+  const response = await api.post(`/questions/test/${testId}`, payload);
+  return unwrapApiData<TestQuestion>(response.data);
+}
+
+export async function updateQuestion(id: number, payload: Partial<TestQuestionPayload>) {
+  const errors = validateQuestionPayload({
+    questionText: payload.questionText || 'existing',
+    correctAnswer: payload.correctAnswer ?? 'existing',
+    ...payload,
+  });
+  if (errors.length) throw new Error(errors.join('\n'));
+
+  const response = await api.patch(`/questions/${id}`, payload);
+  return unwrapApiData<TestQuestion>(response.data);
+}
+
+export async function deleteQuestion(id: number) {
+  const response = await api.delete(`/questions/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function startTestAttempt(testId: number) {
+  const response = await api.post(`/tests/${testId}/start`);
+  return response.data as {
+    status?: number;
+    success?: boolean;
+    message?: string;
+    data: TestAttempt;
+    test: TestItem;
+  };
+}
+
+export async function submitTestAttempt(testId: number, payload: TestAttemptSubmitPayload, test?: TestItem) {
+  if (test && payload.answers && !Array.isArray(payload.answers)) {
+    const errors = validateAttemptAnswers(test, payload.answers);
+    if (errors.length) throw new Error(errors.join('\n'));
+  }
+
+  const response = await api.post(`/tests/${testId}/submit`, {
+    ...payload,
+    testId,
+  });
+  return unwrapApiData<TestAttempt>(response.data);
+}
+
+export async function getMyTestAttempts() {
+  const response = await api.get('/tests/my-attempts');
+  return unwrapApiData<TestAttempt[]>(response.data) ?? [];
+}
+
 export async function getStudentTestAttempts(studentId: number) {
   const response = await api.get(`/test-attempts/student/${studentId}`);
-  return unwrapApiData<any[]>(response.data) ?? [];
+  return unwrapApiData<TestAttempt[]>(response.data) ?? [];
 }
 
 export async function createLead(payload: LeadPayload) {
@@ -652,4 +949,3 @@ export async function removeNotification(id: number) {
   const response = await api.delete(`/notifications/${id}`);
   return unwrapApiData<any>(response.data);
 }
-

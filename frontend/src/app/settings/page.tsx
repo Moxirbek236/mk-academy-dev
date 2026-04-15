@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Building2, ChevronRight, Crown, Globe, Key, LogOut, Mail, Moon, Phone, Shield, User } from 'lucide-react';
+import { Bell, ChevronRight, Crown, Download, Globe, Key, LogOut, Mail, Moon, Phone, Shield, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
@@ -28,7 +28,6 @@ export default function SettingsPage() {
   const { centerBranding } = useCenterBranding();
   const { resolvedTheme, setTheme } = useTheme();
   const { data: profile, loading, error, refetch } = useProfile();
-  const canManageCenterBranding = role === 'superadmin' || role === 'admin';
 
   const handleLogout = () => {
     void clearStoredAuth().finally(() => {
@@ -53,18 +52,14 @@ export default function SettingsPage() {
       ],
     },
     {
+      title: t('downloads'),
+      items: [
+        { icon: Download, label: t('mobileApps'), value: t('mobileAppsValue'), path: '/settings/downloads' },
+      ],
+    },
+    {
       title: t('system'),
       items: [
-        ...(canManageCenterBranding
-          ? [
-              {
-                icon: Building2,
-                label: t('centerBranding'),
-                value: centerBranding.name,
-                path: '/settings/center',
-              } satisfies SettingsItem,
-            ]
-          : []),
         { icon: Bell, label: t('notifications'), value: t('notificationsEnabled'), path: '/notifications' },
         {
           icon: Globe,

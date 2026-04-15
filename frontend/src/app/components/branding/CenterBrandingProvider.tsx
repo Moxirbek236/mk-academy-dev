@@ -2,17 +2,10 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useMemo,
-  useState,
   type ReactNode,
 } from 'react';
-import {
-  getPublicCenterSettings,
-  updateCenterSettings,
-  type CenterSettingsPayload,
-} from '@/lib/backend-api';
 import {
   DEFAULT_CENTER_BRANDING,
   normalizeCenterBranding,
@@ -21,9 +14,6 @@ import {
 
 type CenterBrandingContextValue = {
   centerBranding: CenterBranding;
-  refresh: () => Promise<CenterBranding>;
-  saveSettings: (payload: CenterSettingsPayload) => Promise<CenterBranding>;
-  saving: boolean;
 };
 
 const CenterBrandingContext =
@@ -36,37 +26,16 @@ export function CenterBrandingProvider({
   children: ReactNode;
   initialBranding?: CenterBranding;
 }) {
-  const [centerBranding, setCenterBranding] = useState<CenterBranding>(
-    normalizeCenterBranding(initialBranding || DEFAULT_CENTER_BRANDING),
+  const centerBranding = useMemo(
+    () => normalizeCenterBranding(initialBranding || DEFAULT_CENTER_BRANDING),
+    [initialBranding],
   );
-  const [saving, setSaving] = useState(false);
-
-  const refresh = useCallback(async () => {
-    const next = normalizeCenterBranding(await getPublicCenterSettings());
-    setCenterBranding(next);
-    return next;
-  }, []);
-
-  const saveSettings = useCallback(async (payload: CenterSettingsPayload) => {
-    setSaving(true);
-
-    try {
-      const next = normalizeCenterBranding(await updateCenterSettings(payload));
-      setCenterBranding(next);
-      return next;
-    } finally {
-      setSaving(false);
-    }
-  }, []);
 
   const value = useMemo<CenterBrandingContextValue>(
     () => ({
       centerBranding,
-      refresh,
-      saveSettings,
-      saving,
     }),
-    [centerBranding, refresh, saveSettings, saving],
+    [centerBranding],
   );
 
   return (

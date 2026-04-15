@@ -25,11 +25,20 @@ if (typeof window === 'undefined') {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   ...(isCapacitorExport ? { output: 'export' as const } : {}),
+  eslint: {
+    ignoreDuringBuilds: process.env.NEXT_SKIP_INTERNAL_CHECKS === 'true',
+  },
+  typescript: {
+    ignoreBuildErrors: process.env.NEXT_SKIP_INTERNAL_CHECKS === 'true',
+  },
   env: {
     NEXT_PUBLIC_DISABLE_LOCALE_PREFIX: isCapacitorExport ? 'true' : 'false',
   },
   images: {
     unoptimized: true,
+  },
+  experimental: {
+    cpus: 1,
   },
 };
 

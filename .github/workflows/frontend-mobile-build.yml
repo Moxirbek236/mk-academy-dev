@@ -1,9 +1,14 @@
 name: Frontend Mobile Apps Build (Android & iOS)
 
+permissions:
+  actions: read
+  contents: write
+
 on:
   push:
     branches:
       - main
+      - master
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-mobile-build.yml'
@@ -59,11 +64,15 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Prepare Android release asset
+        working-directory: ./frontend
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk MK_Academy_Android.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          path: frontend/MK_Academy_Android.apk
 
   build-ios:
     name: Build iOS App
@@ -126,3 +135,36 @@ jobs:
         with:
           name: ios-ipa
           path: frontend/ios/App/MK_Academy_iOS.ipa
+
+  publish-latest-release:
+    name: Publish latest mobile release
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download mobile artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: frontend-mobile-latest
+        run: |
+          cat > RELEASE_NOTES.md <<EOF
+          Latest frontend mobile builds.
+
+          Commit: $GITHUB_SHA
+          Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          EOF
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" --title "Frontend mobile latest" --notes-file RELEASE_NOTES.md
+          else
+            gh release create "$RELEASE_TAG" --title "Frontend mobile latest" --notes-file RELEASE_NOTES.md
+          fi
+
+          gh release upload "$RELEASE_TAG" \
+            release-assets/android-apk/MK_Academy_Android.apk \
+            release-assets/ios-ipa/MK_Academy_iOS.ipa \
+            --clobber

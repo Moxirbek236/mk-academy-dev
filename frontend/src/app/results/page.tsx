@@ -1,24 +1,26 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { TrendingUp, CheckCircle, Clock, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+import { getDashboardStats, getMyTestAttempts, type TestAttempt } from '@/lib/backend-api';
 
 export default function Results() {
-  const [attempts, setAttempts] = useState<any[]>([]);
+  const [attempts, setAttempts] = useState<TestAttempt[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setError(null);
         const [statsRes, attemptsRes] = await Promise.all([
-          api.get('/dashboard/stats'),
-          api.get('/tests/my-attempts')
+          getDashboardStats(),
+          getMyTestAttempts(),
         ]);
-        setStats(statsRes.data?.data || statsRes.data);
-        setAttempts(attemptsRes.data?.data || attemptsRes.data || []);
+        setStats(statsRes);
+        setAttempts(attemptsRes);
       } catch (err) {
-        console.error(err);
+        setError(err instanceof Error ? err.message : "Natijalarni yuklab bo'lmadi");
       } finally {
         setLoading(false);
       }
@@ -31,6 +33,12 @@ export default function Results() {
   return (
     <div className="app-page pb-nav-safe pt-4 animate-in fade-in duration-500 sm:pt-6">
       <h2 className="mb-5 text-xl font-extrabold tracking-tight text-gray-900 sm:mb-6 sm:text-[22px]">Sizning Natijalaringiz</h2>
+
+      {error ? (
+        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          {error}
+        </div>
+      ) : null}
 
       <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <div className="flex flex-col justify-between rounded-[20px] border border-[#dbeafe] bg-[#eff6ff] p-4 shadow-sm transition-all hover:shadow-xl sm:rounded-[34px] sm:p-6">
@@ -82,8 +90,8 @@ export default function Results() {
       
       <div className="grid grid-cols-1 gap-4 pb-20 md:grid-cols-2 lg:grid-cols-2 sm:gap-5">
         {attempts.length > 0 ? attempts.map((test, idx) => (
-          <div 
-            key={idx} 
+          <div
+            key={test.id || idx}
             className="group flex cursor-pointer items-center justify-between gap-3 rounded-[22px] border border-gray-100/60 bg-white p-4 shadow-sm transition-all hover:border-[#2563eb]/30 hover:shadow-2xl active:scale-95 sm:gap-5 sm:rounded-[36px] sm:p-6"
           >
             <div className="flex min-w-0 items-center gap-3 sm:gap-5">
@@ -98,7 +106,10 @@ export default function Results() {
               </div>
             </div>
             <div className="text-right shrink-0">
-              <span className={`text-xl font-black tracking-tighter sm:text-2xl ${test.score >= 90 ? 'text-[#2563eb]' : 'text-gray-900'}`}>{test.score || 0}%</span>
+              <span className={`text-xl font-black tracking-tighter sm:text-2xl ${Number(test.percentage || 0) >= 90 ? 'text-[#2563eb]' : 'text-gray-900'}`}>{Math.round(test.percentage || 0)}%</span>
+              <p className={`mt-1 text-[9px] font-black uppercase tracking-widest ${test.passed ? 'text-blue-600' : 'text-red-500'}`}>
+                {test.passed ? "O'tdi" : "O'tmadi"}
+              </p>
             </div>
           </div>
         )) : (
