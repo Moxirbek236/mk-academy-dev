@@ -124,7 +124,7 @@ export default function GroupsPage() {
           placeholder="Guruhlarni qidirish..."
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
-          className="w-full rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
+          className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none sm:rounded-[18px] sm:py-3.5"
         />
       </div>
 
@@ -148,13 +148,13 @@ export default function GroupsPage() {
       ) : groups.length > 0 ? (
         <div className="flex flex-col gap-4 pb-20">
           {groups.map((group: any) => (
-            <div key={group.id} className="app-card group flex flex-col gap-4 p-5">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-[var(--app-surface-soft)] text-lg font-black text-[var(--app-primary)]">
+            <div key={group.id} className="app-card group flex flex-col gap-4 p-4 sm:p-5">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--app-surface-soft)] text-base font-black text-[var(--app-primary)] sm:h-14 sm:w-14 sm:rounded-[18px] sm:text-lg">
                   {group.name?.charAt(0) || 'G'}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-lg font-extrabold tracking-tight text-[var(--app-text)]">{group.name}</h3>
+                  <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-text)] sm:text-lg">{group.name}</h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                       {group.teacher?.fullName || 'Teacher'}
@@ -174,7 +174,7 @@ export default function GroupsPage() {
                 <p className="text-sm font-semibold leading-relaxed text-[var(--app-muted)]">{group.description}</p>
               ) : null}
 
-              <div className={`grid gap-2 ${canManageGroups ? 'grid-cols-3' : 'grid-cols-1'}`}>
+              <div className={`grid gap-2 ${canManageGroups ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1'}`}>
                 <div className="flex items-center justify-center gap-2 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)]">
                   <ChevronRight size={14} />
                   Ko'rish
@@ -207,8 +207,8 @@ export default function GroupsPage() {
       )}
 
       {isFormOpen ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-4">
-          <div className="w-full max-w-lg rounded-[26px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-3 sm:px-4">
+          <div className="w-full max-w-md rounded-[20px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-2xl sm:max-w-lg sm:rounded-[26px] sm:p-6">
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">
@@ -273,7 +273,7 @@ export default function GroupsPage() {
               />
             </div>
 
-            <div className="mt-5 flex gap-3">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={() => {
                   setIsFormOpen(false);

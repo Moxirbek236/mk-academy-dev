@@ -17,11 +17,11 @@ export function PageShell({
 }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 app-page pb-nav-safe pt-4 lg:pb-14 sm:pt-6">
-      <div className="mb-8 flex items-center justify-between gap-4 px-1">
+      <div className="mb-5 flex flex-col gap-3 px-1 sm:mb-8 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-black tracking-tight text-[var(--app-text)]">{title}</h1>
+          <h1 className="truncate text-xl font-black tracking-tight text-[var(--app-text)] sm:text-2xl">{title}</h1>
           {subtitle ? (
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)] sm:text-[11px]">
               {subtitle}
             </p>
           ) : null}
@@ -74,9 +74,9 @@ export function StatCard({
   tone?: keyof typeof STAT_TONE_STYLES;
 }) {
   return (
-    <div className="app-card p-5">
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div className={`rounded-[14px] p-3 ${STAT_TONE_STYLES[tone]}`}>
+    <div className="app-card p-4 sm:p-5">
+      <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4 sm:gap-4">
+        <div className={`rounded-[14px] p-2.5 sm:p-3 ${STAT_TONE_STYLES[tone]}`}>
           <Icon size={20} strokeWidth={2.5} />
         </div>
         {hint ? (
@@ -86,7 +86,7 @@ export function StatCard({
         ) : null}
       </div>
       <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">{label}</p>
-      <p className="mt-2 text-2xl font-black tracking-tight text-[var(--app-text)]">{value}</p>
+      <p className="mt-2 text-xl font-black tracking-tight text-[var(--app-text)] sm:text-2xl">{value}</p>
     </div>
   );
 }
@@ -99,8 +99,8 @@ export function PageLoadingState({
   description?: string;
 }) {
   return (
-    <div className="app-card overflow-hidden p-6">
-      <div className="mb-5 flex items-center gap-3">
+    <div className="app-card overflow-hidden p-5 sm:p-6">
+      <div className="mb-4 flex items-center gap-3 sm:mb-5">
         <div className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)]">
           <Loader2 size={18} className="animate-spin" />
         </div>
@@ -136,7 +136,7 @@ export function PageErrorState({
   onRetry: () => void;
 }) {
   return (
-    <div className="app-card flex flex-col items-center px-6 py-10 text-center">
+    <div className="app-card flex flex-col items-center px-5 py-8 text-center sm:px-6 sm:py-10">
       <div className="rounded-[18px] bg-red-50 p-4 text-red-500">
         <AlertTriangle size={24} strokeWidth={2.5} />
       </div>
@@ -164,7 +164,7 @@ export function PageEmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="app-card flex flex-col items-center px-6 py-12 text-center">
+    <div className="app-card flex flex-col items-center px-5 py-10 text-center sm:px-6 sm:py-12">
       <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4 text-[var(--app-muted)]">
         <Inbox size={24} strokeWidth={2.5} />
       </div>

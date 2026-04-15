@@ -1,1 +1,0 @@
-// IFinanceTransaction interface

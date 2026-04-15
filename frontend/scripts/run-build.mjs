@@ -1,77 +1,140 @@
 import { spawn } from 'node:child_process';
-import { readFile, writeFile } from 'node:fs/promises';
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
 const projectRoot = process.cwd();
-const layoutPath = path.join(projectRoot, 'src', 'app', 'layout.tsx');
-const notFoundPath = path.join(projectRoot, 'src', 'app', 'not-found.tsx');
 const buildGlobalsPath = path.join(projectRoot, 'scripts', 'register-build-globals.cjs');
-const shouldUseNodeRuntime = process.env.CAPACITOR_EXPORT === 'true';
-const originalLayout = await readFile(layoutPath, 'utf8');
-const originalNotFound = await readFile(notFoundPath, 'utf8');
+const rootLayoutPath = path.join(projectRoot, 'src', 'app', 'layout.tsx');
+const appApiPath = path.join(projectRoot, 'src', 'app', 'api');
+const tempAppApiPath = path.join(projectRoot, 'src', 'app', '_api');
+const npmCommand = os.platform() === 'win32' ? 'npm.cmd' : 'npm';
+const isWindows = os.platform() === 'win32';
+const edgeRuntimeLine = "export const runtime = 'edge';";
 
-if (!originalLayout.includes("export const runtime = 'edge';")) {
-  throw new Error("Expected to find `export const runtime = 'edge';` in src/app/layout.tsx");
-}
-if (!originalNotFound.includes("export const runtime = 'edge';")) {
-  throw new Error("Expected to find `export const runtime = 'edge';` in src/app/not-found.tsx");
-}
+function readDotenvValue(key) {
+  const envPath = path.join(projectRoot, '.env');
+  if (!fs.existsSync(envPath)) return undefined;
 
-const patchedLayout = shouldUseNodeRuntime
-  ? originalLayout.replace("export const runtime = 'edge';", "export const runtime = 'nodejs';")
-  : originalLayout;
-const patchedNotFound = shouldUseNodeRuntime
-  ? originalNotFound.replace("export const runtime = 'edge';", "export const runtime = 'nodejs';")
-  : originalNotFound;
+  const rows = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+  const prefix = `${key}=`;
+  const row = rows.find((item) => item.trim().startsWith(prefix));
+  if (!row) return undefined;
 
-if (patchedLayout !== originalLayout) {
-  await writeFile(layoutPath, patchedLayout, 'utf8');
-}
-if (patchedNotFound !== originalNotFound) {
-  await writeFile(notFoundPath, patchedNotFound, 'utf8');
+  return row
+    .slice(row.indexOf('=') + 1)
+    .trim()
+    .replace(/^['"]|['"]$/g, '');
 }
 
-const restoreLayout = async () => {
-  await writeFile(layoutPath, originalLayout, 'utf8');
-  await writeFile(notFoundPath, originalNotFound, 'utf8');
-};
-
-try {
-  const exitCode = await new Promise((resolve, reject) => {
-    const npmCommand = os.platform() === 'win32' ? 'npm.cmd' : 'npm';
-    const nodeOptions = process.env.NODE_OPTIONS?.trim();
-    const env = {
-      ...process.env,
-      ...(shouldUseNodeRuntime
-        ? {
-            NODE_OPTIONS: nodeOptions
-              ? `${nodeOptions} --require=${buildGlobalsPath}`
-              : `--require=${buildGlobalsPath}`,
-          }
-        : {}),
-    };
-    const child = spawn(npmCommand, ['run', 'build:next'], {
+function runNpmScript(script, env) {
+  return new Promise((resolve, reject) => {
+    const command = isWindows ? `${npmCommand} run ${script}` : npmCommand;
+    const args = isWindows ? [] : ['run', script];
+    const child = spawn(command, args, {
       cwd: projectRoot,
       env,
-      shell: os.platform() === 'win32',
+      shell: isWindows,
       stdio: 'inherit',
     });
 
     child.on('error', reject);
     child.on('exit', (code, signal) => {
       if (signal) {
-        reject(new Error(`next build exited with signal ${signal}`));
+        reject(new Error(`${script} exited with signal ${signal}`));
         return;
       }
 
       resolve(code ?? 1);
     });
   });
-
-  await restoreLayout();
-  process.exit(exitCode);
-} catch (error) {
-  await restoreLayout();
-  throw error;
 }
+
+function withEdgeRuntimeSetting(enabled) {
+  const original = fs.readFileSync(rootLayoutPath, 'utf8');
+  const normalized = original.replace(/\r\n/g, '\n');
+  const withoutEdgeRuntime = normalized.replace(
+    /\nexport const runtime = 'edge';\n/g,
+    '\n',
+  );
+  let nextSource = withoutEdgeRuntime;
+
+  if (enabled && !withoutEdgeRuntime.includes(edgeRuntimeLine)) {
+    const anchor = "import { generateSEO } from '@/lib/seo';";
+    if (!withoutEdgeRuntime.includes(anchor)) {
+      throw new Error('Unable to inject edge runtime into src/app/layout.tsx');
+    }
+
+    nextSource = withoutEdgeRuntime.replace(
+      anchor,
+      `${anchor}\n${edgeRuntimeLine}`,
+    );
+  }
+
+  if (nextSource !== normalized) {
+    fs.writeFileSync(rootLayoutPath, nextSource, 'utf8');
+  }
+
+  return () => {
+    const restored = original.includes('\r\n')
+      ? original
+      : original.replace(/\r\n/g, '\n');
+    fs.writeFileSync(rootLayoutPath, restored, 'utf8');
+  };
+}
+
+const capacitorExport = process.env.CAPACITOR_EXPORT ?? readDotenvValue('CAPACITOR_EXPORT');
+const shouldUseNodeRuntime = capacitorExport === 'true';
+const restoreLayout = withEdgeRuntimeSetting(!shouldUseNodeRuntime);
+
+function toggleApiFolder(hide) {
+  if (hide) {
+    if (fs.existsSync(appApiPath)) {
+      fs.renameSync(appApiPath, tempAppApiPath);
+    }
+  } else {
+    if (fs.existsSync(tempAppApiPath)) {
+      fs.renameSync(tempAppApiPath, appApiPath);
+    }
+  }
+}
+
+if (shouldUseNodeRuntime) {
+  toggleApiFolder(true);
+}
+
+let exitCode = 1;
+
+try {
+  if (process.env.SKIP_TYPECHECK !== 'true') {
+    const typecheckExitCode = await runNpmScript('typecheck', process.env);
+    if (typecheckExitCode !== 0) {
+      exitCode = typecheckExitCode;
+      throw new Error('TYPECHECK_FAILED');
+    }
+  }
+
+  const nodeOptions = process.env.NODE_OPTIONS?.trim() || '--max-old-space-size=4096';
+  const env = {
+    ...process.env,
+    NEXT_SKIP_INTERNAL_CHECKS: 'true',
+    NODE_OPTIONS: shouldUseNodeRuntime
+      ? `${nodeOptions} --require=${buildGlobalsPath}`
+      : nodeOptions,
+  };
+
+  exitCode = await runNpmScript('build:next', env);
+} catch (error) {
+  if (error instanceof Error && error.message === 'TYPECHECK_FAILED') {
+    // Preserve the original typecheck exit code after restoring the file state.
+  } else {
+    throw error;
+  }
+} finally {
+  restoreLayout();
+  if (shouldUseNodeRuntime) {
+    toggleApiFolder(false);
+  }
+}
+
+process.exit(exitCode);

@@ -168,6 +168,15 @@
     text-rendering: optimizeSpeed;
   }
 
+  html[data-app-lite='true'] .app-page {
+    padding-inline: clamp(0.875rem, 4vw, 1.25rem);
+  }
+
+  html[data-app-lite='true'] .app-card {
+    border-radius: 1rem;
+    box-shadow: 0 10px 24px -16px rgb(15 23 42 / 0.2);
+  }
+
   .btn-premium {
     position: relative;
     display: inline-flex;
@@ -220,5 +229,20 @@
     background-image: 
       radial-gradient(at 0% 0%, rgba(96, 165, 250, 0.2) 0, transparent 52%),
       radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.14) 0, transparent 48%);
+  }
+
+  @media (max-width: 480px) {
+    .app-page {
+      padding-inline: 0.875rem;
+    }
+
+    .app-card {
+      border-radius: 1rem;
+    }
+
+    .btn-premium {
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+    }
   }
 }

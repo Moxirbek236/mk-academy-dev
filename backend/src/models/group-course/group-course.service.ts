@@ -25,11 +25,30 @@ export class GroupCourseService {
     });
     if (!course) throw new NotFoundException('Course topilmadi');
 
-    const exists = await this.prisma.groupCourse.findUnique({
+    const existingLink = await this.prisma.groupCourse.findUnique({
       where: { groupId_courseId: { groupId, courseId } },
+      include: {
+        group: true,
+        course: true,
+      },
     });
-    if (exists) {
+
+    if (existingLink?.isActive) {
       throw new ConflictException('Bu course allaqachon groupga biriktirilgan');
+    }
+
+    if (existingLink) {
+      return this.prisma.groupCourse.update({
+        where: { id: existingLink.id },
+        data: {
+          isActive: true,
+          assignedAt: new Date(),
+        },
+        include: {
+          group: true,
+          course: true,
+        },
+      });
     }
 
     return this.prisma.groupCourse.create({
@@ -53,12 +72,14 @@ export class GroupCourseService {
       courseId?: number;
     } = {};
 
-    if (query.isActive !== undefined) where.isActive = query.isActive;
+    if (query.isActive !== undefined) {
+      where.isActive = query.isActive;
+    } else {
+      where.isActive = true;
+    }
+
     if (query.groupId) where.groupId = query.groupId;
     if (query.courseId) where.courseId = query.courseId;
-
-    // agar filter berilmasa default: isActive = true
-    if (Object.keys(where).length === 0) where.isActive = true;
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.groupCourse.findMany({

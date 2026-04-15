@@ -1,0 +1,116 @@
+'use client';
+
+import { ArrowLeft, Download, ExternalLink, Github, RefreshCw, Smartphone, TabletSmartphone } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { localizePath } from '@/i18n/localizedPath';
+import { APP_DOWNLOADS } from '@/lib/app-downloads';
+import { PageShell } from '@/app/components/ui/PagePrimitives';
+
+const downloadItems = [
+  {
+    key: 'android',
+    icon: Smartphone,
+    fileName: APP_DOWNLOADS.android.fileName,
+    url: APP_DOWNLOADS.android.url,
+  },
+  {
+    key: 'ios',
+    icon: TabletSmartphone,
+    fileName: APP_DOWNLOADS.ios.fileName,
+    url: APP_DOWNLOADS.ios.url,
+  },
+] as const;
+
+export default function DownloadsPage() {
+  const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations('DownloadsPage');
+
+  return (
+    <PageShell
+      title={t('title')}
+      subtitle={t('subtitle')}
+      action={
+        <button
+          onClick={() => router.push(localizePath(locale, '/settings'))}
+          className="flex items-center gap-2 rounded-[8px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
+        >
+          <ArrowLeft size={14} />
+          {t('back')}
+        </button>
+      }
+    >
+      <div className="grid gap-4 lg:grid-cols-2">
+        {downloadItems.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <div key={item.key} className="app-card flex flex-col gap-5 p-5 sm:p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[8px] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
+                  <Icon size={24} strokeWidth={2.5} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-lg font-black tracking-tight text-[var(--app-text)]">
+                    {t(`${item.key}.title`)}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+                    {t(`${item.key}.description`)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-[8px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  {t('fileLabel')}
+                </p>
+                <p className="mt-1 break-all text-sm font-extrabold text-[var(--app-text)]">
+                  {item.fileName}
+                </p>
+              </div>
+
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center gap-3 rounded-[8px] bg-[var(--app-primary)] px-5 py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+              >
+                <Download size={18} />
+                {t('download')}
+              </a>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-5 rounded-[8px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
+              <RefreshCw size={20} strokeWidth={2.5} />
+            </div>
+            <div>
+              <p className="text-sm font-black uppercase tracking-widest text-[var(--app-text)]">
+                {t('latestTitle')}
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+                {t('latestDescription')}
+              </p>
+            </div>
+          </div>
+          <a
+            href={APP_DOWNLOADS.releaseUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[8px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
+          >
+            <Github size={16} />
+            {t('release')}
+            <ExternalLink size={14} />
+          </a>
+        </div>
+      </div>
+    </PageShell>
+  );
+}

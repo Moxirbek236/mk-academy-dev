@@ -43,6 +43,7 @@
     "home": "Bosh",
     "students": "O'quvchilar",
     "courses": "Kurslar",
+    "tests": "Testlar",
     "reports": "Hisobot",
     "monitor": "Monitor",
     "groups": "Guruhlar",
@@ -62,6 +63,7 @@
     "home": "Bosh",
     "students": "O'quvchilar",
     "courses": "Kurslar",
+    "tests": "Testlar",
     "reports": "Hisobot",
     "monitor": "Monitor",
     "groups": "Guruhlar",
@@ -227,6 +229,29 @@
     "time2Hours": "2 soat oldin",
     "time1Day": "1 kun oldin"
   },
+  "Notifications": {
+    "title": "Bildirishnomalar",
+    "subtitle": "Imtihonlar, leadlar va tizim holati bo'yicha yangilanishlar.",
+    "subtitleWithCount": "{count} ta o'qilmagan bildirishnoma",
+    "unreadCount": "{count} ta o'qilmagan",
+    "markAll": "Hammasini o'qish",
+    "viewAll": "Barchasini ko'rish",
+    "emptyTitle": "Hali bildirishnoma yo'q",
+    "emptyDescription": "Yangi faoliyat paydo bo'lsa, shu yerda ko'rinadi.",
+    "loadingTitle": "Bildirishnomalar yuklanmoqda",
+    "loadingDescription": "Akkauntingiz uchun so'nggi eslatmalar tekshirilmoqda.",
+    "errorTitle": "Bildirishnomalarni yuklab bo'lmadi",
+    "retry": "Qayta urinish",
+    "permissionTitle": "Qurilma bildirishnomalari o'chirilgan",
+    "permissionDescription": "Ilova va brauzerda eslatma olish uchun bildirishnomalarni yoqing.",
+    "enable": "Yoqish",
+    "markRead": "O'qilgan deb belgilash",
+    "delete": "O'chirish",
+    "open": "Ochish",
+    "enabledToast": "Bildirishnomalar muvaffaqiyatli yoqildi.",
+    "deniedToast": "Qurilmada bildirishnomalar bloklangan.",
+    "fetchError": "Bildirishnomalarni olib bo'lmadi."
+  },
   "SettingsPage": {
     "title": "Sozlamalar",
     "personal": "Shaxsiy ma'lumotlar",
@@ -240,6 +265,9 @@
     "passwordUpdated": "Oxirgi marta 2 oy oldin",
     "twoFactor": "Ikki bosqichli autentifikatsiya",
     "disabled": "O'chirilgan",
+    "downloads": "Yuklamalar",
+    "mobileApps": "Mobil ilovalar",
+    "mobileAppsValue": "Android va iOS",
     "notifications": "Bildirishnomalar",
     "notificationsEnabled": "Hammasi yoqilgan",
     "language": "Til",
@@ -247,7 +275,7 @@
     "themeEnabled": "Yoqilgan",
     "themeDisabled": "O'chirilgan",
     "logout": "Tizimdan chiqish",
-    "logoutDescription": "MK Academy'dan chiqish",
+    "logoutDescription": "{name} dan chiqish",
     "roleLabel": "{role} role",
     "languages": {
       "uz": "O'zbekcha",
@@ -255,5 +283,23 @@
       "en": "Inglizcha"
     },
     "version": "App version 2.4.0 * Rev 102"
+  },
+  "DownloadsPage": {
+    "title": "Yuklamalar",
+    "subtitle": "Telefon va iOS uchun eng oxirgi ilova fayllari.",
+    "back": "Orqaga",
+    "download": "Yuklab olish",
+    "fileLabel": "Fayl",
+    "release": "Release",
+    "latestTitle": "Har pushdan keyin yangilanadi",
+    "latestDescription": "GitHub Actions yangi build tayyorlaganda Android va iOS fayllari shu joyda oxirgi versiyaga almashadi.",
+    "android": {
+      "title": "Android ilova",
+      "description": "Android telefonlar uchun APK fayl."
+    },
+    "ios": {
+      "title": "iOS ilova",
+      "description": "iPhone va iPad uchun IPA fayl."
+    }
   }
 }

@@ -1,0 +1,40 @@
+services:
+  backend:
+    container_name: mk_academy_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3232}:3232"
+    environment:
+      NODE_ENV: production
+      PORT: 3232
+      DATABASE_URL: file:/app/data/prod.db
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-30d}
+      BCRYPT_SALT: ${BCRYPT_SALT:-10}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    volumes:
+      # SQLite ma'lumotlar bazasi — container o'chirilsa ham saqlanib qoladi
+      - sqlite_data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3232/api/system/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - mk_academy_network
+
+# ─── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  sqlite_data:
+    name: mk_academy_sqlite_data
+    driver: local
+
+# ─── Networks ──────────────────────────────────────────────────────────────────
+networks:
+  mk_academy_network:
+    name: mk_academy_network
+    driver: bridge

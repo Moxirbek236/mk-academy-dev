@@ -4,6 +4,8 @@ import { User, Layers, Activity, TrendingUp, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
+import { NotificationBell } from './notifications/NotificationBell';
+import { useCenterBranding } from './branding/CenterBrandingProvider';
 
 interface HeaderProps {
   role?: string | null;
@@ -11,6 +13,7 @@ interface HeaderProps {
 
 export function Header({ role }: HeaderProps) {
   const t = useTranslations('Header');
+  const { centerBranding } = useCenterBranding();
   const currentRole = role?.toLowerCase();
   const isStudent = currentRole === 'student' || !currentRole;
   const isTeacher = currentRole === 'teacher' || currentRole === 'mentor';
@@ -18,16 +21,18 @@ export function Header({ role }: HeaderProps) {
 
   return (
     <div
-      className={`relative z-0 overflow-hidden border-b border-[var(--app-border)] px-safe pb-6 pt-[calc(1rem+var(--app-safe-top))] shadow-sm sm:px-6 sm:pt-7 ${
+      className={`relative z-0 overflow-hidden border-b border-[var(--app-border)] px-safe pb-4 pt-[calc(0.85rem+var(--app-safe-top))] shadow-sm sm:px-6 sm:pb-6 sm:pt-7 ${
         isAdmin
           ? 'bg-[linear-gradient(180deg,rgba(37,99,235,0.12),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(96,165,250,0.18),rgba(19,32,44,0.98))]'
           : 'bg-[linear-gradient(180deg,rgba(37,99,235,0.10),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(96,165,250,0.16),rgba(19,32,44,0.98))]'
       }`}
     >
       <div className="relative z-10">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-2.5 sm:gap-3">
           <div className="min-w-0">
-          <h1 className="truncate text-[1.35rem] font-black tracking-tight text-[var(--app-text)] sm:text-2xl">{t('title')}</h1>
+          <h1 className="truncate text-[1.2rem] font-black tracking-tight text-[var(--app-text)] sm:text-2xl">
+            {centerBranding.shortName}
+          </h1>
           <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--app-muted)] sm:text-xs">
             {currentRole === 'superadmin'
               ? t('subtitleSuperadmin')
@@ -38,11 +43,12 @@ export function Header({ role }: HeaderProps) {
                   : t('subtitleStudent')}
           </p>
           </div>
-          <div className="app-touch flex h-11 w-11 items-center justify-center rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-primary)] shadow-sm transition-all group">
+          <div className="app-touch flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-primary)] shadow-sm transition-all group sm:h-11 sm:w-11">
             <User size={20} className="transition-transform group-hover:scale-105" />
           </div>
         </div>
-        <div className="mt-4 flex items-center gap-2 sm:justify-end">
+        <div className="mt-3 flex items-center gap-2 sm:mt-4 sm:justify-end">
+          <NotificationBell />
           <LanguageSwitcher className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
           <ThemeToggle className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
         </div>
@@ -79,7 +85,7 @@ export function Header({ role }: HeaderProps) {
       )}
 
       {isTeacher && (
-        <div className="flex gap-2.5 mt-8 relative z-10">
+        <div className="relative z-10 mt-6 grid grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2">
           <div className="flex flex-1 items-center gap-3 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
             <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2 text-[var(--app-primary)]"><Layers size={20} /></div>
             <div>
@@ -98,7 +104,7 @@ export function Header({ role }: HeaderProps) {
       )}
 
       {isAdmin && (
-        <div className="flex gap-2.5 mt-8 relative z-10">
+        <div className="relative z-10 mt-6 grid grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2">
            <div className="flex flex-1 items-center gap-3 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
              <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2 text-[var(--app-primary)]"><Activity size={20} /></div>
              <div>

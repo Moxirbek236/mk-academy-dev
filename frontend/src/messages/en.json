@@ -43,6 +43,7 @@
     "home": "Home",
     "students": "Students",
     "courses": "Courses",
+    "tests": "Tests",
     "reports": "Reports",
     "monitor": "Monitor",
     "groups": "Groups",
@@ -62,6 +63,7 @@
     "home": "Home",
     "students": "Students",
     "courses": "Courses",
+    "tests": "Tests",
     "reports": "Reports",
     "monitor": "Monitor",
     "groups": "Groups",
@@ -227,6 +229,29 @@
     "time2Hours": "2 hours ago",
     "time1Day": "1 day ago"
   },
+  "Notifications": {
+    "title": "Notifications",
+    "subtitle": "Role-based updates from exams, leads and system activity.",
+    "subtitleWithCount": "{count} unread notifications",
+    "unreadCount": "{count} unread",
+    "markAll": "Mark all",
+    "viewAll": "View all",
+    "emptyTitle": "No notifications yet",
+    "emptyDescription": "When new activity appears, it will show up here.",
+    "loadingTitle": "Loading notifications",
+    "loadingDescription": "We are checking the latest alerts for your account.",
+    "errorTitle": "Notifications failed to load",
+    "retry": "Retry",
+    "permissionTitle": "Device notifications are off",
+    "permissionDescription": "Enable notifications to receive reminders in the app and browser.",
+    "enable": "Enable",
+    "markRead": "Mark read",
+    "delete": "Delete",
+    "open": "Open",
+    "enabledToast": "Notifications enabled successfully.",
+    "deniedToast": "Notifications were blocked on this device.",
+    "fetchError": "Failed to load notifications."
+  },
   "SettingsPage": {
     "title": "Settings",
     "personal": "Personal Information",
@@ -240,6 +265,9 @@
     "passwordUpdated": "Last updated 2 months ago",
     "twoFactor": "Two-factor authentication",
     "disabled": "Disabled",
+    "downloads": "Downloads",
+    "mobileApps": "Mobile apps",
+    "mobileAppsValue": "Android and iOS",
     "notifications": "Notifications",
     "notificationsEnabled": "Everything enabled",
     "language": "Language",
@@ -247,7 +275,7 @@
     "themeEnabled": "Enabled",
     "themeDisabled": "Disabled",
     "logout": "Sign out",
-    "logoutDescription": "Logout from MK Academy",
+    "logoutDescription": "Logout from {name}",
     "roleLabel": "{role} role",
     "languages": {
       "uz": "Uzbek",
@@ -255,5 +283,23 @@
       "en": "English"
     },
     "version": "App version 2.4.0 * Rev 102"
+  },
+  "DownloadsPage": {
+    "title": "Downloads",
+    "subtitle": "Latest app files for Android phones and iOS.",
+    "back": "Back",
+    "download": "Download",
+    "fileLabel": "File",
+    "release": "Release",
+    "latestTitle": "Updated after every push",
+    "latestDescription": "When GitHub Actions finishes a new build, the Android and iOS files here are replaced with the latest version.",
+    "android": {
+      "title": "Android app",
+      "description": "APK file for Android phones."
+    },
+    "ios": {
+      "title": "iOS app",
+      "description": "IPA file for iPhone and iPad."
+    }
   }
 }

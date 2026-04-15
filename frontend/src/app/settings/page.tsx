@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, ChevronRight, Crown, Globe, Key, LogOut, Mail, Moon, Phone, Shield, User } from 'lucide-react';
+import { Bell, ChevronRight, Crown, Download, Globe, Key, LogOut, Mail, Moon, Phone, Shield, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
@@ -9,6 +9,7 @@ import { localizePath } from '@/i18n/localizedPath';
 import { clearStoredAuth } from '@/lib/auth-storage';
 import { useProfile } from '@/hooks/useProfile';
 import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
+import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
 
 type SettingsItem = {
   icon: typeof User;
@@ -24,6 +25,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const locale = useLocale();
   const { role } = useAuth();
+  const { centerBranding } = useCenterBranding();
   const { resolvedTheme, setTheme } = useTheme();
   const { data: profile, loading, error, refetch } = useProfile();
 
@@ -50,9 +52,15 @@ export default function SettingsPage() {
       ],
     },
     {
+      title: t('downloads'),
+      items: [
+        { icon: Download, label: t('mobileApps'), value: t('mobileAppsValue'), path: '/settings/downloads' },
+      ],
+    },
+    {
       title: t('system'),
       items: [
-        { icon: Bell, label: t('notifications'), value: t('notificationsEnabled'), path: '/settings/notifications' },
+        { icon: Bell, label: t('notifications'), value: t('notificationsEnabled'), path: '/notifications' },
         {
           icon: Globe,
           label: t('language'),
@@ -146,7 +154,9 @@ export default function SettingsPage() {
           </div>
           <div className="flex-1 text-left">
             <p className="text-[15px] font-black uppercase tracking-tight">{t('logout')}</p>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest opacity-60">{t('logoutDescription')}</p>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest opacity-60">
+              {t('logoutDescription', { name: centerBranding.shortName })}
+            </p>
           </div>
           <ChevronRight size={20} strokeWidth={3} className="opacity-30 transition-all group-hover:translate-x-1" />
         </button>

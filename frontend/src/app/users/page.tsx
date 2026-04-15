@@ -185,7 +185,7 @@ export default function UsersPage() {
             placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
+            className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none sm:rounded-[18px] sm:py-3.5"
           />
         </div>
 
@@ -253,9 +253,9 @@ export default function UsersPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 pb-20 xl:grid-cols-2">
           {users.map((user: any, index: number) => (
-            <div key={user.id || index} className="app-card flex flex-col gap-4 overflow-hidden p-5 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-[var(--app-surface-soft)] text-lg font-black text-[var(--app-primary)]">
+            <div key={user.id || index} className="app-card flex flex-col gap-4 overflow-hidden p-4 transition-all sm:p-5">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--app-surface-soft)] text-base font-black text-[var(--app-primary)] sm:h-14 sm:w-14 sm:rounded-[18px] sm:text-lg">
                   {user.fullName?.charAt(0) || 'U'}
                 </div>
 
@@ -315,8 +315,8 @@ export default function UsersPage() {
       )}
 
       {createRole ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-4">
-          <div className="w-full max-w-md rounded-[26px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-3 sm:px-4">
+          <div className="w-full max-w-md rounded-[20px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-2xl sm:rounded-[26px] sm:p-6">
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">{createRole} yaratish</h3>
@@ -363,7 +363,7 @@ export default function UsersPage() {
               </select>
             </div>
 
-            <div className="mt-5 flex gap-3">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={() => setCreateRole(null)}
                 className="flex-1 rounded-[16px] border border-[var(--app-border)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)]"
@@ -384,8 +384,8 @@ export default function UsersPage() {
       ) : null}
 
       {selectedUser ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-4">
-          <div className="w-full max-w-lg rounded-[26px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-3 sm:px-4">
+          <div className="w-full max-w-lg rounded-[20px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-2xl sm:rounded-[26px] sm:p-6">
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">

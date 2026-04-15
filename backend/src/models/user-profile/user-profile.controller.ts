@@ -37,8 +37,7 @@ export class UserProfileController {
           phone: { type: 'string', example:'+998XXXXXXXXX' },
           passwordHash: { type: 'string' },
           fullName: { type: 'string' },
-          avatarUrl: { type: 'string', format: 'binary' },
-          cefrLevel: { type: 'string', enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] },
+          avatarUrl: { type: 'string', format: 'binary' }
         },
       },
     })

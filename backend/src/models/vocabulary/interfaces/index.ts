@@ -1,1 +1,1 @@
-// Barrel export for Vocabulary interfaces
+export * from './vocabulary.interface';

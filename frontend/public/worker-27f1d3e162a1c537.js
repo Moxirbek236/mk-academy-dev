@@ -1,0 +1,1 @@
+self._ref=function(e){let s=e&&e.response;return s&&"opaqueredirect"===s.type?new Response(s.body,{status:200,statusText:"OK",headers:s.headers}):s};

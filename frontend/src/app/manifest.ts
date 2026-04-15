@@ -1,26 +1,27 @@
 import { MetadataRoute } from 'next';
+import { getServerCenterBranding } from '@/lib/server-center-branding';
 
 export const dynamic = 'force-static';
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const centerBranding = await getServerCenterBranding();
+
   return {
-    name: 'MK Academy',
-    short_name: 'MK Academy',
-    description: 'MK Academy — Ingliz tili o\'rganish platformasi. CEFR standarti bo\'yicha darslar.',
+    name: centerBranding.name,
+    short_name: centerBranding.shortName,
+    description: centerBranding.description,
     start_url: '/',
     display: 'standalone',
-    background_color: '#000000',
+    background_color: '#ffffff',
     theme_color: '#2563eb',
     icons: [
       {
-        src: 'https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg',
+        src: centerBranding.logoUrl,
         sizes: '192x192',
-        type: 'image/jpeg',
       },
       {
-        src: 'https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg',
+        src: centerBranding.logoUrl,
         sizes: '512x512',
-        type: 'image/jpeg',
       },
     ],
   };

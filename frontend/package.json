@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build:next": "next build",
     "build": "node scripts/run-build.mjs",
-    "cap-sync": "next build && npx cap sync",
+    "typecheck": "tsc --noEmit --pretty false",
+    "cap-sync": "node scripts/run-cap-sync.mjs",
     "cap-android": "npx cap open android",
     "start": "next start",
     "lint": "next lint"
@@ -16,6 +17,7 @@
     "@capacitor/cli": "^8.3.0",
     "@capacitor/core": "^8.3.0",
     "@capacitor/ios": "^8.3.0",
+    "@capacitor/local-notifications": "^8.0.2",
     "@capacitor/network": "^8.0.1",
     "@capacitor/preferences": "^8.0.1",
     "@ducanh2912/next-pwa": "^10.2.9",

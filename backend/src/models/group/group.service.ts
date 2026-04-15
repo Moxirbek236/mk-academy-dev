@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateGroupDto, UpdateGroupDto } from './dto';
+import { UserRole } from 'src/core/enums';
 
 @Injectable()
 export class GroupService {
@@ -33,30 +34,37 @@ export class GroupService {
     }
   }
 
-  async findAll(name?: string) {
+  //find many active groups
+  async findAll() {
     return await this.prisma.group.findMany({
       where: {
-        isActive: true,
-        name: name ? { contains: name } : undefined,
-      },
-      include: {
-        teacher: {
-          select: {
-            fullName: true,
-            avatarUrl: true,
-          },
-        },
-        _count: {
-          select: {
-            members: true,
-          },
-        },
-      },
+        isActive: true
+      }
     });
   }
 
+  //find one active group by id
   async findOne(id: number) {
-    const group = await this.prisma.group.findUnique({ where: { id }, include: { teacher: true, members: true } });
+    const group = await this.prisma.group.findUnique({
+      where: { id },
+      include: {
+        teacher: {
+          select: { id: true, fullName: true, phone: true, avatarUrl: true }
+        },
+        members: {
+          where: { isActive: true },
+          include: {
+            student: {
+              select: { id: true, fullName: true, phone: true, avatarUrl: true, cefrLevel: true }
+            }
+          },
+          orderBy: { joinedAt: 'asc' }
+        },
+        _count: {
+          select: { members: true }
+        }
+      }
+    });
     if (!group) {
       throw new NotFoundException('Bunday guruh mavjud emas');
     }
@@ -66,14 +74,38 @@ export class GroupService {
     return group;
   }
 
-  async update(id: number, dto: UpdateGroupDto) {
-    const checkGroupId = await this.prisma.group.findFirst({ where: { id } });
-    if (!checkGroupId) {
-      throw new NotFoundException('Bunday guruh mavjud emas');
+  //update group by id
+  async update(id: number, payload: UpdateGroupDto) {
+    await this.findOne(id);
+
+    const data: any = {};
+    if (payload.name !== undefined) data.name = payload.name;
+    if (payload.description !== undefined) data.description = payload.description;
+    if (payload.inviteCode !== undefined) data.inviteCode = payload.inviteCode;
+
+    // Faqat teacherId yuborilgan bo'lsa tekshir
+    if (payload.teacherId) {
+      const teacher = await this.prisma.user.findFirst({
+        where: { id: payload.teacherId, isActive: true, role: UserRole.TEACHER }
+      });
+      if (!teacher) {
+        throw new NotFoundException('Bunday o\'qituvchi mavjud emas');
+      }
+      data.teacherId = payload.teacherId;
     }
-    return this.prisma.group.update({ where: { id }, data: dto as any });
+
+    const updatedGroup = await this.prisma.group.update({
+      where: { id },
+      data
+    });
+
+    return {
+      message: "Guruh muvaffaqiyatli yangilandi",
+      data: updatedGroup
+    };
   }
 
+  //remove group by id (soft delete)
   async remove(id: number) {
     const group = await this.prisma.group.findFirst({ where: { id } });
     if (!group) {
@@ -82,9 +114,34 @@ export class GroupService {
     if (!group.isActive) {
       throw new BadRequestException('Bu guruh allaqachon o\'chirilgan');
     }
-    return this.prisma.group.update({
+    return await this.prisma.group.update({
       where: { id },
       data: { isActive: false }
+    });
+  }
+
+  //get members by group id
+  async getMembersByGroupId(groupId: number) {
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      include: { members: true }
+    });
+    if (!group) {
+      throw new NotFoundException('Bunday guruh mavjud emas');
+    }
+    return group.members;
+  }
+
+  async getGroupsByTeacherId(teacherId: number) {
+    const teacher = await this.prisma.user.findFirst({
+      where: { id: teacherId, isActive: true, role: UserRole.TEACHER }
+    });
+    if (!teacher) {
+      throw new NotFoundException('Bunday o\'qituvchi mavjud emas');
+    }
+
+    return await this.prisma.group.findMany({
+      where: { teacherId, isActive: true }
     });
   }
 }

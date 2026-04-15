@@ -35,14 +35,14 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   return (
     <label
       className={cn(
-        'app-touch inline-flex min-h-10 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold tracking-wide',
+        'app-touch inline-flex min-h-10 min-w-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold tracking-wide',
         className,
       )}
     >
-      {icon}
+      <span className="shrink-0">{icon}</span>
       <select
         aria-label="Theme mode"
-        className="min-h-8 bg-transparent text-[11px] uppercase outline-none sm:text-xs"
+        className="min-h-8 min-w-0 flex-1 bg-transparent text-[11px] uppercase outline-none sm:text-xs"
         value={mounted ? currentTheme : 'system'}
         onChange={(event) => setTheme(event.target.value)}
       >
