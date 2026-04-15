@@ -1,8 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, Req, Put, ParseIntPipe } from '@nestjs/common';
 import { UserService } from './user.service';
-<<<<<<< HEAD
-import { CreateUserDto, UpdateUserDto, QueryUserDto } from './dto';
-=======
 import {
   CreateUserDto,
   UpdateCurrentProfileDto,
@@ -10,7 +7,6 @@ import {
   QueryUserDto,
   QueryUserSuperAdminDto,
 } from './dto';
->>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UserRole } from 'src/core/enums';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -55,11 +51,7 @@ export class UserController {
       }),
     }),
   )
-<<<<<<< HEAD
-  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
-=======
   createTeacher(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
->>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
@@ -91,11 +83,7 @@ export class UserController {
       }),
     }),
   )
-<<<<<<< HEAD
-  createStudent(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
-=======
   createStudent(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
->>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
@@ -127,11 +115,7 @@ export class UserController {
       }),
     }),
   )
-<<<<<<< HEAD
-  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request ,@UploadedFile() file?: UploadedAvatarFile) {
-=======
   createAdmin(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
->>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
     return this.userService.createAdmin(payload, req['user'], file?.filename);
   }
 

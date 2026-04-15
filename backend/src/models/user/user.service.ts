@@ -1,9 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
-<<<<<<< HEAD
-import { CreateUserDto, UpdateUserDto } from './dto';
-import { CreateUserDto, QueryUserDto, UpdateUserDto } from './dto';
-=======
 import {
   CreateUserDto,
   QueryUserDto,
@@ -11,7 +7,6 @@ import {
   UpdateUserDto,
   QueryUserSuperAdminDto,
 } from './dto';
->>>>>>> 311dc82f57ba437610a1159ca0b5efa00f66da92
 import { User } from '@prisma/client';
 import { UserRole } from 'src/core/enums';
 import { join } from 'path';
