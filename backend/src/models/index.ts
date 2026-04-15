@@ -11,7 +11,6 @@ export * from './rating/rating.module';
 export * from './gamification/gamification.module';
 export * from './test/test.module';
 export * from './notification/notification.module';
-export * from './finance/finance.module';
 export * from './system/system.module';
 export * from './lead/lead.module';
 export * from './dashboard/dashboard.module';

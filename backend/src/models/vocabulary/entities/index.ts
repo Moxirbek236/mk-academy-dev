@@ -1,1 +1,1 @@
-// Barrel export for Vocabulary entities
+export * from './vocabulary.entity';
