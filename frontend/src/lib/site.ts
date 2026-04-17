@@ -1,7 +1,7 @@
 import type { CenterBranding } from '@/lib/branding';
 
 const DEFAULT_SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || 'https://mk-academy-dev.pages.dev';
+  process.env.NEXT_PUBLIC_APP_URL || 'https://mk-academy-dev.vercel.app';
 
 const STATIC_BRAND_ALIASES = [
   'MK Academy',
@@ -66,7 +66,7 @@ export function getSiteUrl() {
     url.search = '';
     return url.toString().replace(/\/+$/, '');
   } catch {
-    return 'https://mk-academy-dev.pages.dev';
+    return 'https://mk-academy-dev.vercel.app';
   }
 }
 
