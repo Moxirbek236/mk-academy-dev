@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateQuestionDto {
   @ApiPropertyOptional({ example: 'MCQ' })
@@ -15,7 +15,7 @@ export class CreateQuestionDto {
 
   @ApiProperty({ example: 'Choose the correct answer.' })
   @IsString()
-  questionText: string;
+  questionText!: string;
 
   @ApiPropertyOptional({
     example: ['A', 'B', 'C', 'D'],
@@ -26,12 +26,15 @@ export class CreateQuestionDto {
 
   @ApiPropertyOptional({
     example: 'A',
-    description: 'Array, object, number, boolean, or string. Stored as JSON when needed.',
+    description:
+      'Array, object, number, boolean, or string. Stored as JSON when needed.',
   })
   @IsOptional()
   correctAnswer?: unknown;
 
-  @ApiPropertyOptional({ example: 'Because this option matches the grammar rule.' })
+  @ApiPropertyOptional({
+    example: 'Because this option matches the grammar rule.',
+  })
   @IsOptional()
   @IsString()
   explanation?: string;
