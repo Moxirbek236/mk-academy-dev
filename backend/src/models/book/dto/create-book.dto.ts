@@ -1,34 +1,37 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsInt, IsUrl, IsEnum } from 'class-validator';
-import { CefrLevel } from '../../../core/enums';
+import { IsBoolean, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateBookDto {
-  @ApiProperty({ example: 'Clean Code' })
+  @ApiProperty({ example: 'Essential Grammar in Use' })
   @IsString()
   title: string;
 
-  @ApiPropertyOptional()
-  @IsString()
+  @ApiPropertyOptional({ example: 'Raymond Murphy' })
   @IsOptional()
+  @IsString()
   author?: string;
 
-  @ApiPropertyOptional()
-  @IsString()
+  @ApiPropertyOptional({ example: 'Best grammar book for A1-A2 students' })
   @IsOptional()
+  @IsString()
   description?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'https://example.com/book-cover.jpg' })
+  @IsOptional()
   @IsUrl()
-  @IsOptional()
-  imageUrl?: string;
+  coverImageUrl?: string;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ example: 'https://example.com/books/grammar.pdf' })
   @IsUrl()
-  @IsOptional()
-  downloadUrl?: string;
+  fileUrl: string;
 
-  @ApiPropertyOptional({ enum: CefrLevel, example: CefrLevel.B1 })
-  @IsEnum(CefrLevel)
+  @ApiPropertyOptional({ example: 'A2' })
   @IsOptional()
-  level?: CefrLevel;
+  @IsString()
+  cefrLevel?: string;
+
+  @ApiPropertyOptional({ example: true, default: true })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 }

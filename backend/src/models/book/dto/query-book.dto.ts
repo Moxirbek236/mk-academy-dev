@@ -1,30 +1,31 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, Min, IsEnum } from 'class-validator';
-import { Type } from 'class-transformer';
-import { CefrLevel } from '../../../core/enums';
+import { Transform } from 'class-transformer';
+import { IsBooleanString, IsOptional, IsString } from 'class-validator';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
-export class QueryBookDto {
-  @ApiPropertyOptional({ default: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number;
-
-  @ApiPropertyOptional({ default: 10 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  limit?: number;
-
-  @ApiPropertyOptional({ enum: CefrLevel })
-  @IsOptional()
-  @IsEnum(CefrLevel)
-  level?: CefrLevel;
-
-  @ApiPropertyOptional()
+export class BookQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Filter by CEFR level',
+  })
   @IsOptional()
   @IsString()
-  search?: string;
+  cefrLevel?: string;
+
+  @ApiPropertyOptional({
+    example: 'true',
+    description: 'Filter by active status',
+  })
+  @IsOptional()
+  @IsBooleanString()
+  isActive?: string;
+
+  @ApiPropertyOptional({
+    example: '',
+    description: 'Filter by author',
+  })
+  @IsOptional()
+  @IsString()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  author?: string;
 }
