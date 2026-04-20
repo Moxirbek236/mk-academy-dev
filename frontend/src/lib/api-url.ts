@@ -1,11 +1,36 @@
 import { Capacitor } from '@capacitor/core';
 
-const DEFAULT_API_ORIGIN = 'http://165.245.209.1:3232';
-const DEFAULT_API_URL = `${DEFAULT_API_ORIGIN}/api`;
+const DEFAULT_API_ORIGIN = 'http://api.mk-academia.uz';
+const DEFAULT_API_URL = normalizeConfiguredApiUrl(DEFAULT_API_ORIGIN);
 const FRONTEND_PROXY_PATH = '/api/proxy';
 
+function normalizeApiPath(pathname: string) {
+  const normalizedPath = pathname.replace(/\/+$/, '');
+
+  if (!normalizedPath || normalizedPath === '/') {
+    return '/api';
+  }
+
+  return normalizedPath;
+}
+
+function normalizeConfiguredApiUrl(url: string) {
+  const trimmedUrl = url.trim().replace(/^['"]|['"]$/g, '');
+  const parsedUrl = new URL(trimmedUrl);
+
+  parsedUrl.pathname = normalizeApiPath(parsedUrl.pathname);
+  parsedUrl.hash = '';
+  parsedUrl.search = '';
+
+  return parsedUrl.toString().replace(/\/+$/, '');
+}
+
 function normalizeApiUrl(url: string) {
-  return url.replace(/\/$/, '');
+  try {
+    return normalizeConfiguredApiUrl(url);
+  } catch {
+    return DEFAULT_API_URL;
+  }
 }
 
 function isLoopbackUrl(url: string) {

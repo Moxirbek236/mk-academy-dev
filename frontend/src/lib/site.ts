@@ -1,7 +1,7 @@
 import type { CenterBranding } from '@/lib/branding';
 
 const DEFAULT_SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || 'https://mk-academy-dev.vercel.app';
+  process.env.NEXT_PUBLIC_APP_URL || 'https://www.mk-academia.uz';
 
 const STATIC_BRAND_ALIASES = [
   'MK Academy',
@@ -57,8 +57,22 @@ function unique(values: string[]) {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
+function normalizeSiteInput(url: string) {
+  const trimmedUrl = url.trim().replace(/^['"]|['"]$/g, '');
+
+  if (!trimmedUrl) {
+    return 'https://www.mk-academia.uz';
+  }
+
+  if (/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(trimmedUrl)) {
+    return trimmedUrl;
+  }
+
+  return `https://${trimmedUrl.replace(/^\/+/, '')}`;
+}
+
 export function getSiteUrl() {
-  const configuredUrl = DEFAULT_SITE_URL.trim().replace(/^['"]|['"]$/g, '');
+  const configuredUrl = normalizeSiteInput(DEFAULT_SITE_URL);
 
   try {
     const url = new URL(configuredUrl);
@@ -66,7 +80,7 @@ export function getSiteUrl() {
     url.search = '';
     return url.toString().replace(/\/+$/, '');
   } catch {
-    return 'https://mk-academy-dev.vercel.app';
+    return 'https://www.mk-academia.uz';
   }
 }
 
