@@ -2,7 +2,6 @@ import { Capacitor } from '@capacitor/core';
 
 const DEFAULT_API_ORIGIN = 'http://api.mk-academia.uz';
 const DEFAULT_API_URL = normalizeConfiguredApiUrl(DEFAULT_API_ORIGIN);
-const DEFAULT_SECURE_WEB_API_URL = 'https://mk-academy-dev.onrender.com/api';
 const FRONTEND_PROXY_PATH = '/api/proxy';
 
 function normalizeApiPath(pathname: string) {
@@ -51,14 +50,6 @@ function isInsecureHttpUrl(url: string) {
   }
 }
 
-function isSecureHttpsUrl(url: string) {
-  try {
-    return new URL(url).protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
-
 function isNativeRuntime() {
   if (typeof window === 'undefined') return false;
   return Capacitor.isNativePlatform();
@@ -71,21 +62,6 @@ function isLocalWebRuntime() {
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1'
   );
-}
-
-function getSecureBrowserFallbackUrl(configuredNativeApiUrl?: string) {
-  const candidates = [configuredNativeApiUrl, DEFAULT_SECURE_WEB_API_URL];
-
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-
-    const normalizedCandidate = normalizeApiUrl(candidate);
-    if (isSecureHttpsUrl(normalizedCandidate) && !isLoopbackUrl(normalizedCandidate)) {
-      return normalizedCandidate;
-    }
-  }
-
-  return null;
 }
 
 function shouldUseBrowserProxy(url: string) {
@@ -110,26 +86,14 @@ export function getDirectApiBaseUrl() {
   }
 
   if (typeof window !== 'undefined') {
-    const secureBrowserFallbackUrl = getSecureBrowserFallbackUrl(configuredNativeApiUrl);
-
     if (configuredApiUrl) {
       const normalizedConfiguredApiUrl = normalizeApiUrl(configuredApiUrl);
-
-      if (
-        window.location.protocol === 'https:' &&
-        !isLocalWebRuntime() &&
-        isInsecureHttpUrl(normalizedConfiguredApiUrl) &&
-        secureBrowserFallbackUrl
-      ) {
-        return secureBrowserFallbackUrl;
-      }
 
       if (!isLoopbackUrl(normalizedConfiguredApiUrl) || isLocalWebRuntime()) {
         return normalizedConfiguredApiUrl;
       }
     }
 
-    if (secureBrowserFallbackUrl) return secureBrowserFallbackUrl;
     if (configuredNativeApiUrl) return normalizeApiUrl(configuredNativeApiUrl);
     return DEFAULT_API_URL;
   }
@@ -155,4 +119,4 @@ export function getApiBaseUrl() {
   return directApiUrl;
 }
 
-export { DEFAULT_API_ORIGIN, DEFAULT_API_URL, DEFAULT_SECURE_WEB_API_URL, FRONTEND_PROXY_PATH };
+export { DEFAULT_API_ORIGIN, DEFAULT_API_URL, FRONTEND_PROXY_PATH };

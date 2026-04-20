@@ -5,12 +5,13 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type RouteContext = {
-  params: Promise<{ path: string[] }> | { path: string[] };
+  params: Promise<{ path: string[] }>;
 };
 
 const HOP_BY_HOP_HEADERS = [
   'connection',
   'content-length',
+  'expect',
   'host',
   'keep-alive',
   'proxy-authenticate',
@@ -21,17 +22,30 @@ const HOP_BY_HOP_HEADERS = [
   'upgrade',
 ];
 
+const FORWARDED_REQUEST_HEADERS = [
+  'accept',
+  'accept-language',
+  'authorization',
+  'content-type',
+  'cookie',
+  'range',
+  'user-agent',
+] as const;
+
 async function proxyRequest(request: NextRequest, context: RouteContext) {
-  const { path } = await Promise.resolve(context.params);
+  const { path } = await context.params;
   const directApiBaseUrl = getDirectApiBaseUrl();
   const targetPath = Array.isArray(path) ? path.join('/') : '';
   const targetUrl = new URL(`${directApiBaseUrl}/${targetPath}`);
 
   targetUrl.search = request.nextUrl.search;
 
-  const headers = new Headers(request.headers);
-  for (const headerName of HOP_BY_HOP_HEADERS) {
-    headers.delete(headerName);
+  const headers = new Headers();
+  for (const headerName of FORWARDED_REQUEST_HEADERS) {
+    const headerValue = request.headers.get(headerName);
+    if (headerValue) {
+      headers.set(headerName, headerValue);
+    }
   }
 
   const init: RequestInit = {
@@ -42,7 +56,10 @@ async function proxyRequest(request: NextRequest, context: RouteContext) {
   };
 
   if (request.method !== 'GET' && request.method !== 'HEAD') {
-    init.body = await request.arrayBuffer();
+    const body = Buffer.from(await request.arrayBuffer());
+    if (body.byteLength > 0) {
+      init.body = body;
+    }
   }
 
   try {
