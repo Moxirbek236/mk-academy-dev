@@ -75,8 +75,7 @@ export class SystemService {
   }
 
   async getAuditLogs(limit = 5) {
-    const [recentUsers, recentLeads, recentTransactions, recentNotifications] =
-      await Promise.all([
+    const [recentUsers, recentLeads, recentNotifications] = await Promise.all([
         this.prisma.user.findMany({
           where: { isActive: true },
           orderBy: { createdAt: 'desc' },
@@ -95,18 +94,6 @@ export class SystemService {
             fullName: true,
             status: true,
             createdAt: true,
-          },
-        }),
-        this.prisma.financeTransaction.findMany({
-          where: { isActive: true },
-          orderBy: { createdAt: 'desc' },
-          take: limit,
-          include: {
-            user: {
-              select: {
-                fullName: true,
-              },
-            },
           },
         }),
         this.prisma.notification.findMany({
@@ -135,15 +122,6 @@ export class SystemService {
         time: this.formatRelativeTime(lead.createdAt),
         status: lead.status === 'NEW' ? 'Info' : 'Success',
         createdAt: lead.createdAt,
-      })),
-      ...recentTransactions.map((transaction) => ({
-        type: 'Finance',
-        title: `${transaction.type} transaction${
-          transaction.user?.fullName ? ` for ${transaction.user.fullName}` : ''
-        }`,
-        time: this.formatRelativeTime(transaction.createdAt),
-        status: transaction.status === 'COMPLETED' ? 'Success' : 'Warning',
-        createdAt: transaction.createdAt,
       })),
       ...recentNotifications.map((notification) => ({
         type: notification.type || 'System',
@@ -182,7 +160,7 @@ export class SystemService {
   }
 
   async getStats() {
-    const [system, auditLogs, totalUsers, totalGroups, totalCourses, totalLeads, totalTransactions] =
+    const [system, auditLogs, totalUsers, totalGroups, totalCourses, totalLeads] =
       await Promise.all([
         this.getCompactSystemStats(),
         this.getAuditLogs(),
@@ -190,7 +168,6 @@ export class SystemService {
         this.prisma.group.count({ where: { isActive: true } }),
         this.prisma.course.count({ where: { isActive: true } }),
         this.prisma.lead.count({ where: { isActive: true } }),
-        this.prisma.financeTransaction.count({ where: { isActive: true } }),
       ]);
 
     return {
@@ -202,7 +179,7 @@ export class SystemService {
           totalGroups,
           totalCourses,
           totalLeads,
-          totalTransactions,
+          totalTransactions: 0,
         },
         auditLogs,
       },

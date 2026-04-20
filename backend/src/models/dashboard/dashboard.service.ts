@@ -280,7 +280,6 @@ export class DashboardService {
       activeGroups,
       totalCourses,
       pendingHomeworks,
-      revenueAggregate,
       averageResultAggregate,
       auditLogs,
       system,
@@ -301,13 +300,6 @@ export class DashboardService {
       this.prisma.studentTask.count({
         where: { isActive: true, status: 'PENDING' },
       }),
-      this.prisma.financeTransaction.aggregate({
-        where: {
-          isActive: true,
-          type: 'INCOME',
-        },
-        _sum: { amount: true },
-      }),
       this.prisma.testAttempt.aggregate({
         where: { isActive: true },
         _avg: { score: true },
@@ -325,7 +317,7 @@ export class DashboardService {
       activeGroups,
       totalCourses,
       pendingHomeworks,
-      revenue: Number(revenueAggregate._sum.amount || 0),
+      revenue: 0,
       subscribers: totalStudents,
       averageResult: Math.round(Number(averageResultAggregate._avg.score || 0)),
       auditLogs,

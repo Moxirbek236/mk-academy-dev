@@ -29,7 +29,7 @@ import { Express } from 'express';
 import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 import { RolesGuard } from 'src/common/guards/role.guard';
 import { UserRole } from 'src/core/enums';
 import { Roles } from 'src/common/decorators/roles.decorator';
