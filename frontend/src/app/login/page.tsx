@@ -5,7 +5,7 @@ import { useLocale } from 'next-intl';
 import { Phone, Lock, ArrowRight, Loader2, Home, Eye, EyeOff, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
-import { getUserFriendlyErrorMessage } from '@/lib/offline/errors';
+import { getUserFriendlyErrorMessage, normalizeApiError } from '@/lib/offline/errors';
 import { localizePath } from '@/i18n/localizedPath';
 import { clearStoredAuth, getStoredRole, getStoredToken, setStoredAuth, setStoredRole } from '@/lib/auth-storage';
 import { isNativeApp } from '@/lib/native-app';
@@ -135,7 +135,17 @@ export default function LoginPage() {
         setError('Tizimga kirishda xatolik yuz berdi');
       }
     } catch (err: unknown) {
-      const message = getUserFriendlyErrorMessage(err, 'Telefon raqami yoki parol noto\'g\'ri');
+      const normalizedError = normalizeApiError(err);
+      const message = getUserFriendlyErrorMessage(normalizedError, 'Telefon raqami yoki parol noto\'g\'ri');
+
+      if (
+        normalizedError.code === 'BACKEND' &&
+        (normalizedError.status === 404 || normalizedError.status === 502)
+      ) {
+        setError("Server bilan bog'lanib bo'lmadi. Qayta urinib ko'ring");
+        return;
+      }
+
       if (
         message === 'Phone and password do not found' ||
         message === 'User is not active'

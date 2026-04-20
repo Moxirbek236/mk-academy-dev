@@ -1,8 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import axios from 'axios';
-import { AppApiError } from '@/lib/offline/errors';
+import { AppApiError, getUserFriendlyErrorMessage } from '@/lib/offline/errors';
 
 interface UseApiRequestOptions<T> {
   enabled?: boolean;
@@ -16,23 +15,7 @@ function normalizeRequestError(error: unknown) {
     return error.message;
   }
 
-  if (axios.isAxiosError(error)) {
-    const responseMessage =
-      typeof error.response?.data?.message === 'string'
-        ? error.response.data.message
-        : Array.isArray(error.response?.data?.message)
-          ? error.response.data.message.join(', ')
-          : null;
-
-    if (responseMessage) return responseMessage;
-    if (error.message) return error.message;
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Server bilan ishlashda noma'lum xatolik yuz berdi";
+  return getUserFriendlyErrorMessage(error, "Server bilan ishlashda noma'lum xatolik yuz berdi");
 }
 
 export function useApiRequest<T>({
