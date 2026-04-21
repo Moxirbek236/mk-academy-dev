@@ -614,6 +614,22 @@ async function handleRequest(config: RequestConfig) {
     return makeResponse(config, [...store.leads].sort((left, right) => right.createdAt.localeCompare(left.createdAt)));
   }
 
+  if (method === 'get' && pathname === '/leads/public/questions') {
+    const questions = store.leads
+      .filter((lead) => lead.isPublished && lead.message && lead.answer)
+      .sort((left, right) => (right.answeredAt || right.createdAt).localeCompare(left.answeredAt || left.createdAt))
+      .map(({ id, fullName, message, answer, answeredAt, createdAt }) => ({
+        id,
+        fullName,
+        message,
+        answer,
+        answeredAt,
+        createdAt,
+      }));
+
+    return makeResponse(config, questions);
+  }
+
   if (method === 'post' && pathname === '/leads') {
     const body = parseRequestData<{ fullName?: string; phone?: string; message?: string }>(config);
     const lead: MockLead = {
@@ -621,6 +637,9 @@ async function handleRequest(config: RequestConfig) {
       fullName: body.fullName?.trim() || 'Yangi lead',
       phone: body.phone?.trim() || '+998000000000',
       message: body.message?.trim() || '',
+      answer: null,
+      isPublished: false,
+      answeredAt: null,
       status: 'NEW',
       createdAt: new Date().toISOString(),
     };
@@ -640,6 +659,25 @@ async function handleRequest(config: RequestConfig) {
 
     if (body.status) {
       lead.status = body.status;
+    }
+
+    return makeResponse(config, lead);
+  }
+
+  if (method === 'patch' && segments[0] === 'leads' && segments[1] && segments[2] === 'answer') {
+    const leadId = Number(segments[1]);
+    const body = parseRequestData<{ answer?: string; isPublished?: boolean }>(config);
+    const lead = store.leads.find((item) => item.id === leadId);
+
+    if (!lead) {
+      throw makeError(config, 404, 'Lead not found');
+    }
+
+    lead.answer = body.answer?.trim() || '';
+    lead.isPublished = body.isPublished ?? true;
+    lead.answeredAt = new Date().toISOString();
+    if (lead.status === 'NEW') {
+      lead.status = 'CONTACTED';
     }
 
     return makeResponse(config, lead);
