@@ -2,7 +2,7 @@ import { Capacitor } from '@capacitor/core';
 
 const DEFAULT_API_ORIGIN = 'http://api.mk-academia.uz';
 const DEFAULT_API_URL = normalizeConfiguredApiUrl(DEFAULT_API_ORIGIN);
-const FRONTEND_PROXY_PATH = '/api/proxy';
+const FRONTEND_PROXY_PATH = '/api';
 
 function normalizeApiPath(pathname: string) {
   const normalizedPath = pathname.replace(/\/+$/, '');
@@ -25,11 +25,25 @@ function normalizeConfiguredApiUrl(url: string) {
   return parsedUrl.toString().replace(/\/+$/, '');
 }
 
-function normalizeApiUrl(url: string) {
+function tryNormalizeApiUrl(url?: string | null) {
+  if (!url?.trim()) return null;
+
   try {
     return normalizeConfiguredApiUrl(url);
   } catch {
-    return DEFAULT_API_URL;
+    return null;
+  }
+}
+
+function normalizeRelativeApiUrl(url?: string | null) {
+  const trimmedUrl = url?.trim().replace(/^['"]|['"]$/g, '');
+  if (!trimmedUrl?.startsWith('/')) return null;
+
+  try {
+    const parsedUrl = new URL(trimmedUrl, 'http://localhost');
+    return normalizeApiPath(parsedUrl.pathname);
+  } catch {
+    return FRONTEND_PROXY_PATH;
   }
 }
 
@@ -45,6 +59,16 @@ function isLoopbackUrl(url: string) {
 function isInsecureHttpUrl(url: string) {
   try {
     return new URL(url).protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+function isSameOriginUrl(url: string) {
+  if (typeof window === 'undefined') return false;
+
+  try {
+    return new URL(url).origin === window.location.origin;
   } catch {
     return false;
   }
@@ -66,7 +90,9 @@ function isLocalWebRuntime() {
 
 function shouldUseBrowserProxy(url: string) {
   if (typeof window === 'undefined') return false;
-  if (process.env.CAPACITOR_EXPORT === 'true') return false;
+  if (process.env.NEXT_PUBLIC_CAPACITOR_EXPORT === 'true' || process.env.CAPACITOR_EXPORT === 'true') {
+    return false;
+  }
   if (window.location.protocol !== 'https:') return false;
   if (isLoopbackUrl(url)) return false;
   return isInsecureHttpUrl(url);
@@ -78,42 +104,74 @@ export function getDirectApiBaseUrl() {
   const capacitorExport = process.env.CAPACITOR_EXPORT === 'true';
 
   if (isNativeRuntime()) {
-    if (configuredNativeApiUrl) return normalizeApiUrl(configuredNativeApiUrl);
-    if (configuredApiUrl && !isLoopbackUrl(configuredApiUrl)) {
-      return normalizeApiUrl(configuredApiUrl);
+    const nativeApiUrl = tryNormalizeApiUrl(configuredNativeApiUrl);
+    if (nativeApiUrl) return nativeApiUrl;
+
+    const apiUrl = tryNormalizeApiUrl(configuredApiUrl);
+    if (apiUrl && !isLoopbackUrl(apiUrl)) {
+      return apiUrl;
     }
+
     return DEFAULT_API_URL;
   }
 
   if (typeof window !== 'undefined') {
-    if (configuredApiUrl) {
-      const normalizedConfiguredApiUrl = normalizeApiUrl(configuredApiUrl);
+    const apiUrl = tryNormalizeApiUrl(configuredApiUrl);
 
-      if (!isLoopbackUrl(normalizedConfiguredApiUrl) || isLocalWebRuntime()) {
-        return normalizedConfiguredApiUrl;
-      }
+    if (apiUrl && (!isLoopbackUrl(apiUrl) || isLocalWebRuntime())) {
+      return apiUrl;
     }
 
-    if (configuredNativeApiUrl) return normalizeApiUrl(configuredNativeApiUrl);
+    const nativeApiUrl = tryNormalizeApiUrl(configuredNativeApiUrl);
+    if (nativeApiUrl) return nativeApiUrl;
+
     return DEFAULT_API_URL;
   }
 
-  if (configuredNativeApiUrl && (!configuredApiUrl || (capacitorExport && isLoopbackUrl(configuredApiUrl)))) {
-    return normalizeApiUrl(configuredNativeApiUrl);
+  const apiUrl = tryNormalizeApiUrl(configuredApiUrl);
+  const nativeApiUrl = tryNormalizeApiUrl(configuredNativeApiUrl);
+
+  if (nativeApiUrl && (!apiUrl || (capacitorExport && isLoopbackUrl(apiUrl)))) {
+    return nativeApiUrl;
   }
 
-  if (configuredApiUrl && (!capacitorExport || !isLoopbackUrl(configuredApiUrl))) {
-    return normalizeApiUrl(configuredApiUrl);
+  if (apiUrl && (!capacitorExport || !isLoopbackUrl(apiUrl))) {
+    return apiUrl;
   }
 
   return DEFAULT_API_URL;
 }
 
 export function getApiBaseUrl() {
+  if (typeof window !== 'undefined' && !isNativeRuntime()) {
+    const relativeApiUrl = normalizeRelativeApiUrl(process.env.NEXT_PUBLIC_API_URL);
+    if (relativeApiUrl) return relativeApiUrl;
+  }
+
   const directApiUrl = getDirectApiBaseUrl();
+
+  if (isSameOriginUrl(directApiUrl)) {
+    return normalizeRelativeApiUrl(new URL(directApiUrl).pathname) ?? FRONTEND_PROXY_PATH;
+  }
 
   if (shouldUseBrowserProxy(directApiUrl)) {
     return FRONTEND_PROXY_PATH;
+  }
+
+  return directApiUrl;
+}
+
+export function getBackendProxyBaseUrl(frontendOrigin?: string) {
+  const directApiUrl = getDirectApiBaseUrl();
+
+  if (frontendOrigin) {
+    try {
+      if (new URL(directApiUrl).origin === frontendOrigin) {
+        return tryNormalizeApiUrl(process.env.NEXT_PUBLIC_NATIVE_API_URL) ?? DEFAULT_API_URL;
+      }
+    } catch {
+      return DEFAULT_API_URL;
+    }
   }
 
   return directApiUrl;

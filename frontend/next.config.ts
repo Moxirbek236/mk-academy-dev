@@ -33,6 +33,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_DISABLE_LOCALE_PREFIX: isCapacitorExport ? 'true' : 'false',
+    NEXT_PUBLIC_CAPACITOR_EXPORT: isCapacitorExport ? 'true' : 'false',
   },
   images: {
     unoptimized: true,
