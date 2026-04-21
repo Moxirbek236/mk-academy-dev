@@ -25,6 +25,20 @@ if (typeof window === 'undefined') {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   ...(isCapacitorExport ? { output: 'export' as const } : {}),
+  async rewrites() {
+    if (isCapacitorExport) {
+      return [];
+    }
+
+    return {
+      beforeFiles: [
+        {
+          source: '/api/:path*',
+          destination: 'http://api.mk-academia.uz/api/:path*',
+        },
+      ],
+    };
+  },
   eslint: {
     ignoreDuringBuilds: process.env.NEXT_SKIP_INTERNAL_CHECKS === 'true',
   },

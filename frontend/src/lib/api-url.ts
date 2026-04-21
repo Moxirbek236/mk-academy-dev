@@ -11,6 +11,10 @@ function normalizeApiPath(pathname: string) {
     return '/api';
   }
 
+  if (normalizedPath === '/api/proxy') {
+    return '/api';
+  }
+
   return normalizedPath;
 }
 
