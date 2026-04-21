@@ -83,7 +83,10 @@ function withEdgeRuntimeSetting(enabled) {
   };
 }
 
-const capacitorExport = process.env.CAPACITOR_EXPORT ?? readDotenvValue('CAPACITOR_EXPORT');
+const isVercelBuild = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+const capacitorExport = isVercelBuild
+  ? 'false'
+  : process.env.CAPACITOR_EXPORT ?? readDotenvValue('CAPACITOR_EXPORT');
 const shouldUseNodeRuntime = capacitorExport === 'true';
 const restoreLayout = withEdgeRuntimeSetting(!shouldUseNodeRuntime);
 
@@ -117,6 +120,7 @@ try {
   const nodeOptions = process.env.NODE_OPTIONS?.trim() || '--max-old-space-size=4096';
   const env = {
     ...process.env,
+    CAPACITOR_EXPORT: shouldUseNodeRuntime ? 'true' : 'false',
     NEXT_SKIP_INTERNAL_CHECKS: 'true',
     NODE_OPTIONS: shouldUseNodeRuntime
       ? `${nodeOptions} --require=${buildGlobalsPath}`
