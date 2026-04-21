@@ -9,6 +9,7 @@ import {
   PageErrorState,
   PageLoadingState,
   PageShell,
+  RefreshButton,
 } from '@/app/components/ui/PagePrimitives';
 
 export default function LearningPage() {
@@ -23,7 +24,11 @@ export default function LearningPage() {
   const courses = useMemo(() => data.items || [], [data.items]);
 
   return (
-    <PageShell title="Darslar" subtitle="Sizning kurslaringiz">
+    <PageShell
+      title="Darslar"
+      subtitle="Sizning kurslaringiz"
+      action={<RefreshButton onRefresh={refetch} disabled={loading} />}
+    >
       <div className="mb-6 flex flex-col gap-3 px-1 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 tracking-tight flex items-center gap-2">

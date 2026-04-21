@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, Database, Globe, HardDrive, RefreshCw, Server, ShieldCheck, Zap } from 'lucide-react';
+import { Activity, Database, Globe, HardDrive, Server, ShieldCheck, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSystemStats } from '@/hooks/useSystemStats';
 import { isRoleAllowedForPath } from '@/lib/role-access';
@@ -8,6 +8,7 @@ import {
   PageErrorState,
   PageLoadingState,
   PageShell,
+  RefreshButton,
   StatCard,
 } from '@/app/components/ui/PagePrimitives';
 
@@ -29,14 +30,7 @@ export default function SystemPage() {
       title="System"
       subtitle={health?.status ? `Health: ${health.status}` : 'System monitoring'}
       action={
-        <button
-          onClick={() => {
-            void refetch();
-          }}
-          className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
-        >
-          <RefreshCw size={20} strokeWidth={2.5} />
-        </button>
+        <RefreshButton onRefresh={refetch} disabled={loading} />
       }
     >
       {loading ? (

@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { AlertTriangle, Inbox, Loader2 } from 'lucide-react';
+import { AlertTriangle, Inbox, Loader2, RefreshCw } from 'lucide-react';
 
 export function PageShell({
   title,
@@ -16,7 +17,7 @@ export function PageShell({
   children: ReactNode;
 }) {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 app-page pb-nav-safe pt-4 lg:pb-14 sm:pt-6">
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-150 app-page pb-nav-safe pt-4 lg:pb-14 sm:pt-6">
       <div className="mb-5 flex flex-col gap-3 px-1 sm:mb-8 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="min-w-0">
           <h1 className="truncate text-xl font-black tracking-tight text-[var(--app-text)] sm:text-2xl">{title}</h1>
@@ -30,6 +31,46 @@ export function PageShell({
       </div>
       {children}
     </div>
+  );
+}
+
+export function RefreshButton({
+  onRefresh,
+  disabled = false,
+  label = 'Yangilash',
+}: {
+  onRefresh: () => Promise<void> | void;
+  disabled?: boolean;
+  label?: string;
+}) {
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function handleRefresh() {
+    if (disabled || refreshing) return;
+
+    try {
+      setRefreshing(true);
+      await onRefresh();
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => void handleRefresh()}
+      disabled={disabled || refreshing}
+      title={label}
+      aria-label={label}
+      className="inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-primary)] shadow-sm transition-all hover:bg-[var(--app-surface-soft)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {refreshing ? (
+        <Loader2 size={18} strokeWidth={2.5} className="animate-spin" />
+      ) : (
+        <RefreshCw size={18} strokeWidth={2.5} />
+      )}
+    </button>
   );
 }
 

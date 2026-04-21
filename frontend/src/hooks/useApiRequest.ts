@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { AppApiError, getUserFriendlyErrorMessage } from '@/lib/offline/errors';
 
 interface UseApiRequestOptions<T> {
@@ -8,6 +9,8 @@ interface UseApiRequestOptions<T> {
   debounceMs?: number;
   initialData: T;
   request: () => Promise<T>;
+  requestKey?: readonly unknown[];
+  requiresAuth?: boolean;
 }
 
 function normalizeRequestError(error: unknown) {
@@ -18,33 +21,100 @@ function normalizeRequestError(error: unknown) {
   return getUserFriendlyErrorMessage(error, "Server bilan ishlashda noma'lum xatolik yuz berdi");
 }
 
+function serializeRequestKey(requestKey: readonly unknown[]) {
+  try {
+    return JSON.stringify(requestKey);
+  } catch {
+    return requestKey.map((item) => String(item)).join('|');
+  }
+}
+
 export function useApiRequest<T>({
   enabled = true,
   debounceMs = 0,
   initialData,
   request,
+  requestKey = [],
+  requiresAuth = true,
 }: UseApiRequestOptions<T>) {
+  const { token, loading: authLoading } = useAuth();
   const [data, setData] = useState<T>(initialData);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
+  const mountedRef = useRef(false);
+  const requestRef = useRef(request);
+  const requestIdRef = useRef(0);
+  const activeRequestRef = useRef<Promise<void> | null>(null);
+  const queuedRequestRef = useRef(false);
+  const canExecuteRef = useRef(false);
 
-  const execute = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const serializedRequestKey = useMemo(() => serializeRequestKey(requestKey), [requestKey]);
+  const authReady = !requiresAuth || (!authLoading && Boolean(token));
+  const shouldRequest = enabled && authReady;
 
-    try {
-      const response = await request();
-      setData(response);
-    } catch (requestError) {
-      setError(normalizeRequestError(requestError));
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    requestRef.current = request;
   }, [request]);
 
   useEffect(() => {
-    if (!enabled) {
+    canExecuteRef.current = shouldRequest;
+  }, [shouldRequest]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const execute = useCallback(async () => {
+    if (!canExecuteRef.current) {
       setLoading(false);
+      return;
+    }
+
+    if (activeRequestRef.current) {
+      queuedRequestRef.current = true;
+      return activeRequestRef.current;
+    }
+
+    const runRequestQueue = async () => {
+      do {
+        queuedRequestRef.current = false;
+
+        const requestId = requestIdRef.current + 1;
+        requestIdRef.current = requestId;
+        setLoading(true);
+        setError(null);
+
+        try {
+          const response = await requestRef.current();
+          if (mountedRef.current && requestIdRef.current === requestId) {
+            setData(response);
+          }
+        } catch (requestError) {
+          if (mountedRef.current && requestIdRef.current === requestId) {
+            setError(normalizeRequestError(requestError));
+          }
+        } finally {
+          if (mountedRef.current && requestIdRef.current === requestId && !queuedRequestRef.current) {
+            setLoading(false);
+          }
+        }
+      } while (mountedRef.current && queuedRequestRef.current);
+
+      activeRequestRef.current = null;
+    };
+
+    activeRequestRef.current = runRequestQueue();
+    return activeRequestRef.current;
+  }, []);
+
+  useEffect(() => {
+    if (!shouldRequest) {
+      setLoading(false);
+      setError(null);
       return;
     }
 
@@ -57,7 +127,7 @@ export function useApiRequest<T>({
     }
 
     void execute();
-  }, [debounceMs, enabled, execute]);
+  }, [debounceMs, execute, serializedRequestKey, shouldRequest]);
 
   return {
     data,

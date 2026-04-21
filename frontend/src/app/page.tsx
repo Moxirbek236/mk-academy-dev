@@ -34,8 +34,9 @@ export default async function HomePage() {
   return (
     <>
       <StructuredData data={getPublicStructuredData(centerBranding)} />
-      <HomeRouteGate />
-      <LandingPage />
+      <HomeRouteGate>
+        <LandingPage />
+      </HomeRouteGate>
     </>
   );
 }

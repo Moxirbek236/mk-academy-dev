@@ -10,6 +10,8 @@ export function usePublishedLeadQuestions(enabled = true) {
   return useApiRequest({
     enabled,
     initialData: [] as PublicLeadQuestion[],
+    requestKey: ['published-lead-questions'],
+    requiresAuth: false,
     request,
   });
 }

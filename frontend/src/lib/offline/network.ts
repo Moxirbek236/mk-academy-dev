@@ -66,8 +66,16 @@ export async function getCurrentNetworkStatus(): Promise<NetworkStatusSnapshot> 
 }
 
 export async function isNetworkOnline(): Promise<boolean> {
-  const status = await getCurrentNetworkStatus();
-  return status.isOnline;
+  await bootstrapNetworkWatcher();
+
+  if (typeof navigator !== 'undefined') {
+    latestStatus = {
+      isOnline: navigator.onLine,
+      connectionType: latestStatus.connectionType,
+    };
+  }
+
+  return latestStatus.isOnline;
 }
 
 export function subscribeNetworkStatus(listener: NetworkListener): () => void {
@@ -79,4 +87,3 @@ export function subscribeNetworkStatus(listener: NetworkListener): () => void {
     listeners.delete(listener);
   };
 }
-

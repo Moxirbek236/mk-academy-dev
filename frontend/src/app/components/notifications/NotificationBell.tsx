@@ -23,14 +23,27 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations('Notifications');
-  const { items, unreadCount, markAllAsRead, removeItem, openNotification } =
+  const { items, unreadCount, refresh, markAllAsRead, removeItem, openNotification } =
     useNotifications();
   const [open, setOpen] = useState(false);
   const [useSheetLayout, setUseSheetLayout] = useState(false);
   const [desktopPanelStyle, setDesktopPanelStyle] = useState<DesktopPanelStyle | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const refreshedForOpenRef = useRef(false);
   const previewItems = items.slice(0, 5);
+
+  useEffect(() => {
+    if (!open) {
+      refreshedForOpenRef.current = false;
+      return;
+    }
+
+    if (!refreshedForOpenRef.current) {
+      refreshedForOpenRef.current = true;
+      void refresh();
+    }
+  }, [open, refresh]);
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 1023px)');

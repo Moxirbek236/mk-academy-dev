@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { localizePath } from '@/i18n/localizedPath';
 import { clearStoredAuth } from '@/lib/auth-storage';
 import { useProfile } from '@/hooks/useProfile';
-import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
+import { PageErrorState, PageLoadingState, PageShell, RefreshButton } from '@/app/components/ui/PagePrimitives';
 import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
 
 type SettingsItem = {
@@ -95,7 +95,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <PageShell title={t('title')}>
+    <PageShell title={t('title')} action={<RefreshButton onRefresh={refetch} disabled={loading} />}>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <div className="mt-1 flex items-center gap-2">

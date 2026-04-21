@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CheckCircle2, Clock, Eye, Loader2, MessageSquare, RefreshCw, Search, Send, Trash2, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Eye, Loader2, MessageSquare, Search, Send, Trash2, XCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLeads } from '@/hooks/useLeads';
 import { answerLeadQuestion, deleteLead, type LeadItem, type LeadStatus, updateLeadStatus } from '@/lib/backend-api';
@@ -11,6 +11,7 @@ import {
   PageErrorState,
   PageLoadingState,
   PageShell,
+  RefreshButton,
 } from '@/app/components/ui/PagePrimitives';
 
 const LEAD_FILTERS: Array<LeadStatus | 'ALL'> = ['ALL', 'NEW', 'CONTACTED', 'ENROLLED', 'REJECTED'];
@@ -89,14 +90,7 @@ export default function LeadsPage() {
       title="Leads"
       subtitle={`Jami murojaat: ${filteredLeads.length} ta`}
       action={
-        <button
-          onClick={() => {
-            void refetch();
-          }}
-          className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
-        >
-          <RefreshCw size={20} strokeWidth={2.5} />
-        </button>
+        <RefreshButton onRefresh={refetch} disabled={loading} />
       }
     >
       <div className="mb-5 space-y-3">

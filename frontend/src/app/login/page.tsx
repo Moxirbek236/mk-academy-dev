@@ -124,7 +124,7 @@ export default function LoginPage() {
         phone: normalizePhone(formData.phone),
         password: formData.password,
       };
-      const res = await api.post('/auth/login', payload, { timeout: 30000 });
+      const res = await api.post('/auth/login', payload);
       const body = res.data;
       const { token, role } = extractLoginData(body);
 

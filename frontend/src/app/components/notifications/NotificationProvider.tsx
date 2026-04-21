@@ -12,22 +12,9 @@ import {
 } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  getMyNotifications,
-  markAllNotificationsAsRead,
-  markNotificationAsRead,
-  removeNotification,
-  type AppNotification,
-} from '@/lib/backend-api';
-import {
-  getDeviceNotificationPermission,
-  initializeDeviceNotifications,
-  requestDeviceNotificationPermission,
-  sendDeviceNotification,
-  type DeviceNotificationPermission,
-} from '@/lib/device-notifications';
+import type { AppNotification } from '@/lib/backend-api';
+import type { DeviceNotificationPermission } from '@/lib/device-notifications';
 import { localizePath } from '@/i18n/localizedPath';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { NotificationPermissionPrompt } from './NotificationPermissionPrompt';
@@ -135,6 +122,14 @@ function normalizeRoute(route: unknown) {
   return route.startsWith('/') ? route : `/${route}`;
 }
 
+function loadNotificationApi() {
+  return import('@/lib/backend-api');
+}
+
+function loadDeviceNotifications() {
+  return import('@/lib/device-notifications');
+}
+
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { token, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -157,6 +152,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const itemsRef = useRef<AppNotification[]>([]);
 
   const syncPermission = useCallback(async () => {
+    const { getDeviceNotificationPermission } = await loadDeviceNotifications();
     const currentPermission = await getDeviceNotificationPermission();
     setPermission(currentPermission);
   }, []);
@@ -204,14 +200,23 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         (item) => !item.isRead && !deliveredIdsRef.current.has(item.id),
       );
 
+      if (freshItems.length === 0) {
+        return;
+      }
+
+      const { sendDeviceNotification } = await loadDeviceNotifications();
+      const toastApi = options?.showToast
+        ? (await import('sonner')).toast
+        : null;
+
       for (const item of freshItems) {
         rememberDeliveredNotification(item.id);
 
         const rawRoute = normalizeRoute(item.data?.route);
         const route = rawRoute ? localizePath(locale, rawRoute) : null;
 
-        if (options?.showToast) {
-          toast(item.title, {
+        if (toastApi) {
+          toastApi(item.title, {
             description: item.body,
             action: route
               ? {
@@ -249,6 +254,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
+      const { getMyNotifications } = await loadNotificationApi();
       const feed = await getMyNotifications();
       const nextItems = feed?.items || [];
       applyFeed({
@@ -272,6 +278,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [applyFeed, emitRuntimeNotifications, enabled, t]);
 
   const markAsReadHandler = useCallback(async (id: number) => {
+    const { markNotificationAsRead } = await loadNotificationApi();
     await markNotificationAsRead(id);
     setItems((current) =>
       current.map((item) => (item.id === id ? { ...item, isRead: true } : item)),
@@ -280,12 +287,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const markAllHandler = useCallback(async () => {
+    const { markAllNotificationsAsRead } = await loadNotificationApi();
     const feed = await markAllNotificationsAsRead();
     applyFeed(feed);
   }, [applyFeed]);
 
   const removeHandler = useCallback(
     async (id: number) => {
+      const { removeNotification } = await loadNotificationApi();
       await removeNotification(id);
       setItems((current) => current.filter((item) => item.id !== id));
       setUnreadCount((current) => {
@@ -297,17 +306,20 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   );
 
   const requestPermissionHandler = useCallback(async () => {
+    const { requestDeviceNotificationPermission } = await loadDeviceNotifications();
     const nextPermission = await requestDeviceNotificationPermission();
     setPermission(nextPermission);
     dismissPermissionPrompt();
 
     if (nextPermission === 'granted') {
       await emitRuntimeNotifications(itemsRef.current, { showToast: false });
+      const { toast } = await import('sonner');
       toast.success(t('enabledToast'));
       return;
     }
 
     if (nextPermission === 'denied') {
+      const { toast } = await import('sonner');
       toast.error(t('deniedToast'));
     }
   }, [dismissPermissionPrompt, emitRuntimeNotifications, t]);
@@ -335,36 +347,54 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [items]);
 
   useEffect(() => {
+    if (!enabled) {
+      setPermission('prompt');
+      return;
+    }
+
     void syncPermission();
-  }, [syncPermission]);
+  }, [enabled, syncPermission]);
 
   useEffect(() => {
-    void initializeDeviceNotifications({
-      onOpenNotification: ({ route }) => {
-        const normalizedRoute = normalizeRoute(route);
-        if (normalizedRoute) {
-          router.push(localizePath(locale, normalizedRoute));
-          return;
-        }
-
-        router.push(localizePath(locale, '/notifications'));
-      },
-    });
-  }, [locale, router]);
-
-  useEffect(() => {
-    void refresh();
-
     if (!enabled) {
       return;
     }
 
-    const timer = window.setInterval(() => {
-      void refresh();
-    }, 30_000);
+    let cancelled = false;
 
-    return () => window.clearInterval(timer);
-  }, [enabled, refresh]);
+    void loadDeviceNotifications().then(({ initializeDeviceNotifications }) => {
+      if (cancelled) {
+        return;
+      }
+
+      void initializeDeviceNotifications({
+        onOpenNotification: ({ route }) => {
+          const normalizedRoute = normalizeRoute(route);
+          if (normalizedRoute) {
+            router.push(localizePath(locale, normalizedRoute));
+            return;
+          }
+
+          router.push(localizePath(locale, '/notifications'));
+        },
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, locale, router]);
+
+  useEffect(() => {
+    if (!enabled) {
+      setItems([]);
+      setUnreadCount(0);
+      setLoading(false);
+      setError(null);
+      hydratedRef.current = false;
+      return;
+    }
+  }, [enabled]);
 
   const value = useMemo<NotificationContextValue>(
     () => ({

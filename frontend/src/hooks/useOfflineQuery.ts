@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AxiosRequestConfig } from 'axios';
 import { offlineGet, type AppApiError } from '@/lib/offline/request';
 import { normalizeApiError } from '@/lib/offline/errors';
@@ -29,6 +29,14 @@ function isEmptyData(value: unknown): boolean {
   return false;
 }
 
+function serializeRequestKey(url: string, config?: AxiosRequestConfig) {
+  try {
+    return JSON.stringify([url, config]);
+  } catch {
+    return url;
+  }
+}
+
 export function useOfflineQuery<T>(options: UseOfflineQueryOptions<T>): UseOfflineQueryResult<T> {
   const { url, config, enabled = true, initialData } = options;
 
@@ -37,28 +45,74 @@ export function useOfflineQuery<T>(options: UseOfflineQueryOptions<T>): UseOffli
   const [error, setError] = useState<AppApiError | null>(null);
   const [fromCache, setFromCache] = useState(false);
   const [cachedAt, setCachedAt] = useState<string | undefined>(undefined);
+  const mountedRef = useRef(false);
+  const requestIdRef = useRef(0);
+  const activeRequestRef = useRef<Promise<void> | null>(null);
+  const queuedRequestRef = useRef(false);
+  const urlRef = useRef(url);
+  const configRef = useRef(config);
+  const enabledRef = useRef(enabled);
+  const requestKey = useMemo(() => serializeRequestKey(url, config), [config, url]);
 
-  const refetch = useCallback(async () => {
-    if (!enabled) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const result = await offlineGet<T>(url, config);
-      setData(result.data);
-      setFromCache(result.fromCache);
-      setCachedAt(result.cachedAt);
-    } catch (fetchError) {
-      setError(normalizeApiError(fetchError));
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    urlRef.current = url;
+    configRef.current = config;
+    enabledRef.current = enabled;
   }, [config, enabled, url]);
 
   useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const refetch = useCallback(async () => {
+    if (!enabledRef.current) return;
+
+    if (activeRequestRef.current) {
+      queuedRequestRef.current = true;
+      return activeRequestRef.current;
+    }
+
+    const runRequestQueue = async () => {
+      do {
+        queuedRequestRef.current = false;
+
+        const requestId = requestIdRef.current + 1;
+        requestIdRef.current = requestId;
+        setLoading(true);
+        setError(null);
+
+        try {
+          const result = await offlineGet<T>(urlRef.current, configRef.current);
+          if (mountedRef.current && requestIdRef.current === requestId) {
+            setData(result.data);
+            setFromCache(result.fromCache);
+            setCachedAt(result.cachedAt);
+          }
+        } catch (fetchError) {
+          if (mountedRef.current && requestIdRef.current === requestId) {
+            setError(normalizeApiError(fetchError));
+          }
+        } finally {
+          if (mountedRef.current && requestIdRef.current === requestId && !queuedRequestRef.current) {
+            setLoading(false);
+          }
+        }
+      } while (mountedRef.current && queuedRequestRef.current);
+
+      activeRequestRef.current = null;
+    };
+
+    activeRequestRef.current = runRequestQueue();
+    return activeRequestRef.current;
+  }, []);
+
+  useEffect(() => {
     void refetch();
-  }, [refetch]);
+  }, [enabled, refetch, requestKey]);
 
   useRefetchOnReconnect(refetch);
 
@@ -74,4 +128,3 @@ export function useOfflineQuery<T>(options: UseOfflineQueryOptions<T>): UseOffli
     refetch,
   };
 }
-

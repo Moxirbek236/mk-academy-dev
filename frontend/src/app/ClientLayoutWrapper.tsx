@@ -7,7 +7,6 @@ import { Sidebar } from './components/Sidebar';
 import { OfflineStatusBanner } from './components/OfflineStatusBanner';
 import { GlobalApiNotice } from './components/GlobalApiNotice';
 import { useAuth } from '@/hooks/useAuth';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
@@ -58,7 +57,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
 
   useEffect(() => {
     if (mounted && !loading && !token && !isPublicRoute) {
-      router.replace(localizePath(locale, '/'));
+      router.replace(localizePath(locale, '/login'));
     }
   }, [mounted, loading, token, isPublicRoute, locale, router]);
 
@@ -99,21 +98,9 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
         {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
         <OfflineStatusBanner />
         <main className={`w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-5 sm:pt-7 lg:pt-10' : ''}`}>
-          {nativeApp ? (
-            <div>{children}</div>
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={pathname}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                {children}
-              </motion.div>
-            </AnimatePresence>
-          )}
+          <div key={pathname} className={nativeApp ? undefined : 'motion-page'}>
+            {children}
+          </div>
         </main>
         {!hideNav && <div className="lg:hidden"><BottomNav role={role} /></div>}
       </div>

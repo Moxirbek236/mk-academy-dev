@@ -2,26 +2,27 @@
 
 import { ClipboardList } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useApiRequest } from '@/hooks/useApiRequest';
-import { listTasks } from '@/lib/backend-api';
+import { useTasks } from '@/hooks/useTasks';
 import {
   PageEmptyState,
   PageErrorState,
   PageLoadingState,
   PageShell,
+  RefreshButton,
   SectionHeader,
 } from '@/app/components/ui/PagePrimitives';
 
 export default function TasksPage() {
   const navT = useTranslations('BottomNav');
   const uiT = useTranslations('UiStates');
-  const { data, loading, error, refetch } = useApiRequest({
-    initialData: [] as any[],
-    request: () => listTasks(),
-  });
+  const { data, loading, error, refetch } = useTasks();
 
   return (
-    <PageShell title={navT('tasks')} subtitle={uiT('loadingDescription')}>
+    <PageShell
+      title={navT('tasks')}
+      subtitle={uiT('loadingDescription')}
+      action={<RefreshButton onRefresh={refetch} disabled={loading} />}
+    >
       <SectionHeader title={navT('tasks')} icon={ClipboardList} />
 
       {loading ? (

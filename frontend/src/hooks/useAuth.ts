@@ -1,11 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { getStoredRole, getStoredToken, subscribeAuthChange } from '@/lib/auth-storage';
+import { getCachedAuthSnapshot, getStoredRole, getStoredToken, subscribeAuthChange } from '@/lib/auth-storage';
 
 export function useAuth() {
-  const [role, setRole] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(() => getCachedAuthSnapshot().role?.toLowerCase() || null);
+  const [token, setToken] = useState<string | null>(() => getCachedAuthSnapshot().token);
+  const [loading, setLoading] = useState(() => {
+    const snapshot = getCachedAuthSnapshot();
+    return !snapshot.token || !snapshot.role;
+  });
 
   useEffect(() => {
     let active = true;

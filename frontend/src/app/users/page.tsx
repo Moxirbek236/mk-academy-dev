@@ -4,12 +4,10 @@ import { useMemo, useState } from 'react';
 import {
   CheckCircle2,
   Eye,
-  Filter,
   Loader2,
   Search,
   Shield,
   UserPlus,
-  UserRound,
   XCircle,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -17,14 +15,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUsers } from '@/hooks/useUsers';
 import {
   activateUser,
+  CEFR_LEVELS,
   createAdmin,
   createStudent,
   createTeacher,
   getUserById,
+  removeUser,
   type CefrLevel,
   type UserDirectoryRole,
-  CEFR_LEVELS,
-  removeUser,
 } from '@/lib/backend-api';
 import { hasRoleCapability, isRoleAllowedForPath } from '@/lib/role-access';
 import {
@@ -32,6 +30,7 @@ import {
   PageErrorState,
   PageLoadingState,
   PageShell,
+  RefreshButton,
 } from '@/app/components/ui/PagePrimitives';
 
 type CreateRole = 'ADMIN' | 'TEACHER' | 'STUDENT';
@@ -70,7 +69,7 @@ export default function UsersPage() {
   const [submitting, setSubmitting] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailLoading, setDetailLoading] = useState<number | null>(null);
 
   const query = useMemo(
     () => ({
@@ -132,14 +131,14 @@ export default function UsersPage() {
 
   async function handleOpenDetails(id: number) {
     try {
-      setDetailLoading(true);
+      setDetailLoading(id);
       setMutationError(null);
       const data = await getUserById(id);
       setSelectedUser(data);
     } catch (detailError) {
       setMutationError(detailError instanceof Error ? detailError.message : "Foydalanuvchi ma'lumotini ochib bo'lmadi");
     } finally {
-      setDetailLoading(false);
+      setDetailLoading(null);
     }
   }
 
@@ -162,19 +161,20 @@ export default function UsersPage() {
       title={t('title')}
       subtitle={t('total', { count: users.length })}
       action={
-        canManageUsers ? (
-          <div className="flex items-center gap-2">
-            {createOptions.map((option) => (
-              <button
-                key={option.role}
-                onClick={() => setCreateRole(option.role)}
-                className="rounded-[14px] bg-[var(--app-primary)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        ) : undefined
+        <div className="flex items-center gap-2">
+          <RefreshButton onRefresh={refetch} disabled={loading} />
+          {canManageUsers
+            ? createOptions.map((option) => (
+                <button
+                  key={option.role}
+                  onClick={() => setCreateRole(option.role)}
+                  className="rounded-[14px] bg-[var(--app-primary)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+                >
+                  {option.label}
+                </button>
+              ))
+            : null}
+        </div>
       }
     >
       <div className="mb-5 flex flex-col gap-3">
@@ -244,9 +244,7 @@ export default function UsersPage() {
           title={uiT('errorTitle')}
           description={error || uiT('errorDescription')}
           retryLabel={uiT('retry')}
-          onRetry={() => {
-            void refetch();
-          }}
+          onRetry={() => void refetch()}
         />
       ) : users.length === 0 ? (
         <PageEmptyState title={t('emptyTitle')} description={t('emptyDescription')} />
@@ -272,11 +270,7 @@ export default function UsersPage() {
                         {user.cefrLevel}
                       </span>
                     ) : null}
-                    <span
-                      className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${
-                        user.isActive ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'
-                      }`}
-                    >
+                    <span className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${user.isActive ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'}`}>
                       {user.isActive ? 'ACTIVE' : 'INACTIVE'}
                     </span>
                   </div>
@@ -288,16 +282,14 @@ export default function UsersPage() {
                   onClick={() => void handleOpenDetails(user.id)}
                   className="flex items-center justify-center gap-2 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
                 >
-                  {detailLoading && selectedUser?.id !== user.id ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
+                  {detailLoading === user.id ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
                   Detail
                 </button>
 
                 {canManageUsers ? (
                   <button
                     onClick={() => void handleToggleActive(user)}
-                    className={`flex items-center justify-center gap-2 rounded-[14px] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 ${
-                      user.isActive ? 'bg-red-500' : 'bg-blue-500'
-                    }`}
+                    className={`flex items-center justify-center gap-2 rounded-[14px] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 ${user.isActive ? 'bg-red-500' : 'bg-blue-500'}`}
                   >
                     {user.isActive ? <XCircle size={14} /> : <CheckCircle2 size={14} />}
                     {user.isActive ? "O'chirish" : 'Faollashtirish'}
@@ -388,9 +380,7 @@ export default function UsersPage() {
           <div className="w-full max-w-lg rounded-[20px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-2xl sm:rounded-[26px] sm:p-6">
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">
-                  {selectedUser.fullName}
-                </h3>
+                <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">{selectedUser.fullName}</h3>
                 <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                   User detail
                 </p>
@@ -401,36 +391,18 @@ export default function UsersPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Phone</p>
-                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{selectedUser.phone || '-'}</p>
-              </div>
-              <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Role</p>
-                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{selectedUser.role || '-'}</p>
-              </div>
-              <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">CEFR</p>
-                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{selectedUser.cefrLevel || '-'}</p>
-              </div>
-              <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Status</p>
-                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{selectedUser.isActive ? 'ACTIVE' : 'INACTIVE'}</p>
-              </div>
-            </div>
-
-            {Array.isArray(selectedUser.groupsCreated) && selectedUser.groupsCreated.length > 0 ? (
-              <div className="mt-4 rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Groups</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {selectedUser.groupsCreated.map((group: any) => (
-                    <span key={group.id} className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)]">
-                      {group.name}
-                    </span>
-                  ))}
+              {[
+                ['Phone', selectedUser.phone || '-'],
+                ['Role', selectedUser.role || '-'],
+                ['CEFR', selectedUser.cefrLevel || '-'],
+                ['Status', selectedUser.isActive ? 'ACTIVE' : 'INACTIVE'],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">{label}</p>
+                  <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{value}</p>
                 </div>
-              </div>
-            ) : null}
+              ))}
+            </div>
           </div>
         </div>
       ) : null}

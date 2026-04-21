@@ -1,6 +1,7 @@
 'use client';
 
 import { Bell, CheckCheck, ShieldAlert, Trash2 } from 'lucide-react';
+import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { PageEmptyState, PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
 import { useNotifications } from '@/app/components/notifications/NotificationProvider';
@@ -20,6 +21,10 @@ export default function NotificationsPage() {
     requestPermission,
     openNotification,
   } = useNotifications();
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   if (loading) {
     return (

@@ -29,5 +29,6 @@ export function useCourses(
     debounceMs: 250,
     initialData: { items: [] as any[], meta: null as any },
     request,
+    requestKey: [filters.search, filters.level, filters.page, filters.limit],
   });
 }

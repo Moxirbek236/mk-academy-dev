@@ -13,6 +13,7 @@ import {
   PageErrorState,
   PageLoadingState,
   PageShell,
+  RefreshButton,
 } from '@/app/components/ui/PagePrimitives';
 
 const EMPTY_FORM = {
@@ -107,14 +108,17 @@ export default function GroupsPage() {
       title="Guruhlar"
       subtitle={`Jami: ${groups.length} ta`}
       action={
-        canManageGroups ? (
-          <button
-            onClick={openCreateModal}
-            className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
-          >
-            <PlusCircle size={20} strokeWidth={2.5} />
-          </button>
-        ) : undefined
+        <div className="flex items-center gap-2">
+          <RefreshButton onRefresh={refetch} disabled={loading} />
+          {canManageGroups ? (
+            <button
+              onClick={openCreateModal}
+              className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+            >
+              <PlusCircle size={20} strokeWidth={2.5} />
+            </button>
+          ) : null}
+        </div>
       }
     >
       <div className="mb-5 relative">

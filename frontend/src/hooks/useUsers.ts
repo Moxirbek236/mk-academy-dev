@@ -32,5 +32,15 @@ export function useUsers(
     debounceMs: 350,
     initialData: [] as any[],
     request,
+    requestKey: [
+      role,
+      strategy,
+      query.page,
+      query.limit,
+      query.fullName,
+      query.GroupName,
+      query.user,
+      query.isActive,
+    ],
   });
 }

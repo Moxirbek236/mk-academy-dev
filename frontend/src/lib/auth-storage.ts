@@ -23,6 +23,13 @@ function removeLocalValue(key: string) {
   localStorage.removeItem(key);
 }
 
+export function getCachedAuthSnapshot(): { token: string | null; role: string | null } {
+  return {
+    token: getLocalValue(TOKEN_KEY),
+    role: getLocalValue(ROLE_KEY),
+  };
+}
+
 function emitAuthChange() {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent(AUTH_CHANGE_EVENT));

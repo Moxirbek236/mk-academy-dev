@@ -25,9 +25,9 @@ export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname() || '/';
   const normalizedPathname = stripLocaleFromPathname(pathname);
   const navItems = getNavigationConfig(role, 'sidebar');
-  const { data: health } = useSystemHealth(true);
+  const { data: health } = useSystemHealth(false);
   const { centerBranding } = useCenterBranding();
-  const systemHealthy = ['ok', 'healthy'].includes(String(health?.status || '').toLowerCase());
+  const systemHealthy = !health || ['ok', 'healthy'].includes(String(health?.status || '').toLowerCase());
 
   function handleLogout() {
     void clearStoredAuth().finally(() => {
@@ -75,7 +75,7 @@ export function Sidebar({ role }: SidebarProps) {
               <Link 
                 key={item.path} 
                 href={localizedHref}
-                prefetch={false}
+                prefetch
                 className={`flex items-center gap-4 px-5 py-3.5 rounded-[16px] transition-all group ${
                   isActive 
                     ? 'border border-[color:color-mix(in_srgb,var(--app-primary)_20%,var(--app-border))] bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)] text-[var(--app-primary)]'
