@@ -211,6 +211,29 @@ export type LeadPayload = {
   message?: string;
 };
 
+export type LeadItem = LeadPayload & {
+  id: number;
+  status: LeadStatus;
+  answer?: string | null;
+  isPublished?: boolean;
+  answeredAt?: string | null;
+  createdAt?: string;
+};
+
+export type PublicLeadQuestion = {
+  id: number;
+  fullName?: string | null;
+  message?: string | null;
+  answer?: string | null;
+  answeredAt?: string | null;
+  createdAt?: string | null;
+};
+
+export type LeadAnswerPayload = {
+  answer: string;
+  isPublished?: boolean;
+};
+
 export type FinanceTransactionPayload = {
   userId: number;
   amount: number;
@@ -902,12 +925,22 @@ export async function createLead(payload: LeadPayload) {
 
 export async function listLeads() {
   const response = await api.get('/leads');
-  return unwrapApiData<any[]>(response.data) ?? [];
+  return unwrapApiData<LeadItem[]>(response.data) ?? [];
 }
 
 export async function updateLeadStatus(id: number, status: LeadStatus) {
   const response = await api.patch(`/leads/${id}/status`, { status });
   return unwrapApiData<any>(response.data);
+}
+
+export async function answerLeadQuestion(id: number, payload: LeadAnswerPayload) {
+  const response = await api.patch(`/leads/${id}/answer`, payload);
+  return unwrapApiData<LeadItem>(response.data);
+}
+
+export async function listPublishedLeadQuestions() {
+  const response = await api.get('/leads/public/questions');
+  return unwrapApiData<PublicLeadQuestion[]>(response.data) ?? [];
 }
 
 export async function deleteLead(id: number) {

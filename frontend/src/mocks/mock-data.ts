@@ -79,6 +79,9 @@ export interface MockLead {
   fullName: string;
   phone: string;
   message?: string;
+  answer?: string | null;
+  isPublished?: boolean;
+  answeredAt?: string | null;
   status: 'NEW' | 'CONTACTED' | 'ENROLLED' | 'REJECTED';
   createdAt: string;
 }
@@ -592,6 +595,10 @@ const mockLeadsSeed: MockLead[] = [
     fullName: 'Zafar Ibrohimov',
     phone: '+998991234567',
     message: "IELTS preparation group haqida ma'lumot kerak.",
+    answer:
+      "IELTS Foundation guruhlarida reading, listening, writing va speaking haftasiga 3 marta o'tiladi. Dastlab diagnostic test orqali darajangiz aniqlanadi.",
+    isPublished: true,
+    answeredAt: '2026-04-08T10:20:00.000Z',
     status: 'NEW',
     createdAt: '2026-04-07T08:40:00.000Z',
   },
@@ -600,6 +607,10 @@ const mockLeadsSeed: MockLead[] = [
     fullName: 'Malika Ergasheva',
     phone: '+998971112233',
     message: "Farzandim uchun beginner group qidiryapman.",
+    answer:
+      "Beginner guruhlar A1 darajadan boshlanadi. Darslar bolalar va o'smirlar uchun alohida metodika bilan olib boriladi.",
+    isPublished: true,
+    answeredAt: '2026-04-07T09:30:00.000Z',
     status: 'CONTACTED',
     createdAt: '2026-04-06T14:10:00.000Z',
   },
@@ -608,6 +619,9 @@ const mockLeadsSeed: MockLead[] = [
     fullName: 'Jamshid Turgunov',
     phone: '+998901234100',
     message: "Speaking club schedule qiziqtiryapti.",
+    answer: "Speaking Club Pro haftada 2 marta kechki payt o'tiladi va har darsda real dialog, debate hamda IELTS speaking formatlari mashq qilinadi.",
+    isPublished: true,
+    answeredAt: '2026-04-06T11:10:00.000Z',
     status: 'ENROLLED',
     createdAt: '2026-04-05T12:05:00.000Z',
   },
@@ -616,6 +630,9 @@ const mockLeadsSeed: MockLead[] = [
     fullName: 'Nodira Qodirova',
     phone: '+998933336699',
     message: "Faqat online format bormi?",
+    answer: null,
+    isPublished: false,
+    answeredAt: null,
     status: 'REJECTED',
     createdAt: '2026-04-03T09:15:00.000Z',
   },
