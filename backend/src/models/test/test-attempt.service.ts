@@ -424,41 +424,30 @@ export class TestAttemptService {
     if (role === UserRole.TEACHER) {
       const attempts = await (this.prisma.testAttempt as any).findMany({
         where: {
-          OR: [
-            {
-              test: {
-                createdById: currentUser.id,
-              },
-            },
-            {
-              test: {
-                assignments: {
-                  some: {
-                    isActive: true,
-                    group: {
-                      teacherId: currentUser.id,
-                      isActive: true,
-                    },
-                  },
+          isActive: true,
+          student: {
+            groupMemberships: {
+              some: {
+                isActive: true,
+                status: 'ACTIVE',
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
                 },
               },
             },
-            {
-              test: {
-                course: {
-                  groups: {
-                    some: {
-                      isActive: true,
-                      group: {
-                        teacherId: currentUser.id,
-                        isActive: true,
-                      },
-                    },
-                  },
+          },
+          test: {
+            assignments: {
+              some: {
+                isActive: true,
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
                 },
               },
             },
-          ],
+          },
         },
         include: this.attemptInclude(),
         orderBy: { startedAt: 'desc' },

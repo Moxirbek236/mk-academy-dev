@@ -699,6 +699,7 @@ export async function getGroupMembersViaGroup(groupId: number) {
 
 export type GroupAssignmentPayload = {
   groupId: number;
+  studentId?: number | null;
   taskId?: number | null;
   testId?: number | null;
   dueDate?: string | null;

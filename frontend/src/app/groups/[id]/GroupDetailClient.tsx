@@ -6,10 +6,12 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   addGroupMember,
   assignCourseToGroup,
+  createGroupAssignment,
   getCoursesByGroup,
   getGroupById,
   getGroupMembers,
   listCourses,
+  listTests,
   listUsers,
   removeGroupCourse,
   removeGroupMember,
@@ -30,6 +32,7 @@ import {
   RefreshCw,
   BookOpen,
   ChevronRight,
+  Send,
 } from 'lucide-react';
 
 export default function GroupDetailClient() {
@@ -58,7 +61,18 @@ export default function GroupDetailClient() {
   const [assignCourseLoading, setAssignCourseLoading] = useState(false);
   const [courseError, setCourseError] = useState<string | null>(null);
 
+  // Test assignment state
+  const [testOptions, setTestOptions] = useState<any[]>([]);
+  const [testsLoading, setTestsLoading] = useState(false);
+  const [assignTestId, setAssignTestId] = useState('');
+  const [assignTestStudentId, setAssignTestStudentId] = useState('');
+  const [assignTestDueDate, setAssignTestDueDate] = useState('');
+  const [assignTestLoading, setAssignTestLoading] = useState(false);
+  const [testAssignmentError, setTestAssignmentError] = useState<string | null>(null);
+  const [testAssignmentSuccess, setTestAssignmentSuccess] = useState<string | null>(null);
+
   const isAdmin = role === 'admin' || role === 'superadmin';
+  const canAssignTests = isAdmin || role === 'teacher';
   const groupId = Number(id);
 
   const fetchMembers = useCallback(async () => {
@@ -94,6 +108,19 @@ export default function GroupDetailClient() {
     }
   }, [isAdmin]);
 
+  const fetchTestOptions = useCallback(async () => {
+    if (!canAssignTests) return;
+    setTestsLoading(true);
+    try {
+      const data = await listTests({ page: 1, limit: 100, isActive: true, isPublished: true });
+      setTestOptions(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      setTestOptions([]);
+    } finally {
+      setTestsLoading(false);
+    }
+  }, [canAssignTests]);
+
   const fetchStudentOptions = useCallback(async () => {
     if (!isAdmin) return;
     setStudentsLoading(true);
@@ -121,6 +148,7 @@ export default function GroupDetailClient() {
         }
         await fetchCourses();
         await fetchCourseOptions();
+        await fetchTestOptions();
       } catch (err: any) {
         setError(
           err?.response?.data?.message ||
@@ -132,7 +160,7 @@ export default function GroupDetailClient() {
       }
     };
     if (groupId) fetchGroup();
-  }, [groupId, fetchMembers, fetchCourses, fetchCourseOptions]);
+  }, [groupId, fetchMembers, fetchCourses, fetchCourseOptions, fetchTestOptions]);
 
   useEffect(() => {
     if (showAddModal) {
@@ -195,10 +223,57 @@ export default function GroupDetailClient() {
     }
   };
 
+  const handleAssignTest = async () => {
+    const testId = Number(assignTestId);
+    const studentId = assignTestStudentId ? Number(assignTestStudentId) : null;
+
+    if (!testId || Number.isNaN(testId)) {
+      setTestAssignmentError('Test tanlang');
+      return;
+    }
+
+    if (assignTestStudentId && (!studentId || Number.isNaN(studentId))) {
+      setTestAssignmentError("O'quvchi tanlovi noto'g'ri");
+      return;
+    }
+
+    setAssignTestLoading(true);
+    setTestAssignmentError(null);
+    setTestAssignmentSuccess(null);
+
+    try {
+      await createGroupAssignment({
+        groupId,
+        testId,
+        studentId,
+        dueDate: assignTestDueDate ? new Date(assignTestDueDate).toISOString() : null,
+        isRequired: true,
+      });
+      setAssignTestId('');
+      setAssignTestStudentId('');
+      setAssignTestDueDate('');
+      setTestAssignmentSuccess("Test muvaffaqiyatli e'lon qilindi");
+    } catch (err: any) {
+      setTestAssignmentError(err?.response?.data?.message || "Testni e'lon qilib bo'lmadi");
+    } finally {
+      setAssignTestLoading(false);
+    }
+  };
+
   const assignedCourseIds = new Set(courses.map((item) => item.courseId ?? item.course?.id));
   const courseSelectOptions = courseOptions.filter((course) => !assignedCourseIds.has(course.id));
   const activeStudentIds = new Set(members.map((member) => member.studentId ?? member.student?.id ?? member.id));
   const studentSelectOptions = studentOptions.filter((student) => !activeStudentIds.has(student.id));
+  const memberTargetOptions = members
+    .map((member) => {
+      const student = member.student ?? member;
+      const id = student?.id ?? member.studentId;
+      return {
+        id,
+        name: student?.fullName ?? student?.full_name ?? `Student #${id}`,
+      };
+    })
+    .filter((student) => Boolean(student.id));
 
   // ── Loading ──
   if (loading) {
@@ -298,12 +373,16 @@ export default function GroupDetailClient() {
         </div>
 
         {/* ── Task / Exam Biriktirish ── */}
+        {canAssignTests && (
         <div>
           <h2 className="mb-4 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
             Vazifa &amp; Imtihonlar
           </h2>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button className="group app-touch flex flex-1 items-center gap-4 rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition-all hover:border-blue-300 hover:shadow-md active:scale-95">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <button
+              onClick={() => router.push('/tasks')}
+              className="group app-touch flex items-center gap-4 rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition-all hover:border-blue-300 hover:shadow-md active:scale-95"
+            >
               <div className="rounded-[18px] bg-blue-50 p-3 text-[#2563eb] transition-transform group-hover:scale-110 group-hover:rotate-3">
                 <FileText size={24} />
               </div>
@@ -314,18 +393,91 @@ export default function GroupDetailClient() {
               <PlusCircle size={20} className="shrink-0 text-gray-300 transition-colors group-hover:text-[#2563eb]" />
             </button>
 
-            <button className="group app-touch flex flex-1 items-center gap-4 rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-sm transition-all hover:border-amber-300 hover:shadow-md active:scale-95">
-              <div className="rounded-[18px] bg-amber-50 p-3 text-amber-500 transition-transform group-hover:scale-110 group-hover:-rotate-3">
-                <ClipboardList size={24} />
+            <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-[18px] bg-amber-50 p-3 text-amber-500">
+                    <ClipboardList size={22} />
+                  </div>
+                  <div>
+                    <p className="mb-0.5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                      IMTIHON E'LON QILISH
+                    </p>
+                    <p className="text-sm font-black text-[var(--app-text)]">
+                      Tayyor testni guruhga yoki o'quvchiga biriktirish
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => router.push('/tests')}
+                  className="inline-flex items-center justify-center gap-2 rounded-[16px] border border-[var(--app-border)] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)] transition-all active:scale-95"
+                >
+                  <PlusCircle size={13} />
+                  Yangi test
+                </button>
               </div>
-              <div className="min-w-0 flex-1 text-left">
-                <p className="mb-0.5 text-[10px] font-black uppercase tracking-widest text-gray-400">YANGI IMTIHON</p>
-                <p className="truncate text-sm font-black text-[var(--app-text)]">Exam belgilash</p>
+
+              {testAssignmentError ? (
+                <div className="mb-3 rounded-[16px] border border-red-100 bg-red-50 px-4 py-3 text-xs font-bold text-red-600">
+                  {testAssignmentError}
+                </div>
+              ) : null}
+
+              {testAssignmentSuccess ? (
+                <div className="mb-3 rounded-[16px] border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-700">
+                  {testAssignmentSuccess}
+                </div>
+              ) : null}
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <select
+                  value={assignTestId}
+                  onChange={(event) => setAssignTestId(event.target.value)}
+                  className="min-w-0 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)] md:col-span-3"
+                >
+                  <option value="">
+                    {testsLoading ? 'Testlar yuklanmoqda...' : 'Tayyor test tanlang...'}
+                  </option>
+                  {testOptions.map((test) => (
+                    <option key={test.id} value={test.id}>
+                      {test.title} #{test.id}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={assignTestStudentId}
+                  onChange={(event) => setAssignTestStudentId(event.target.value)}
+                  className="min-w-0 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)] md:col-span-2"
+                >
+                  <option value="">Butun guruh</option>
+                  {memberTargetOptions.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.name} #{student.id}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="datetime-local"
+                  value={assignTestDueDate}
+                  onChange={(event) => setAssignTestDueDate(event.target.value)}
+                  className="min-w-0 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)]"
+                />
               </div>
-              <PlusCircle size={20} className="shrink-0 text-gray-300 transition-colors group-hover:text-amber-500" />
-            </button>
+
+              <button
+                onClick={() => void handleAssignTest()}
+                disabled={assignTestLoading || !assignTestId}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-[16px] bg-amber-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95 disabled:opacity-60"
+              >
+                {assignTestLoading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                E'lon qilish
+              </button>
+            </div>
           </div>
         </div>
+        )}
 
         {/* ── Guruhga biriktirilgan Kurslar ── */}
         <div>

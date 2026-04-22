@@ -168,6 +168,18 @@ export class DashboardService {
       this.prisma.testAttempt.aggregate({
         where: {
           isActive: true,
+          student: {
+            groupMemberships: {
+              some: {
+                isActive: true,
+                status: 'ACTIVE',
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
+                },
+              },
+            },
+          },
           test: {
             assignments: {
               some: {

@@ -96,7 +96,7 @@ const EMPTY_FORM: TestFormState = {
   shuffleQuestions: false,
   maxAttempts: '3',
   isAdaptive: false,
-  isPublished: false,
+  isPublished: true,
   questions: [],
 };
 

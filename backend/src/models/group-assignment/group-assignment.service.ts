@@ -17,6 +17,7 @@ type CurrentUser = {
 type AssignmentWithRelations = {
   id: number;
   groupId: number;
+  studentId: number | null;
   taskId: number | null;
   testId: number | null;
   dueDate: Date | null;
@@ -35,6 +36,11 @@ type AssignmentWithRelations = {
   test: {
     id: number;
     title: string;
+  } | null;
+  student: {
+    id: number;
+    fullName: string;
+    phone: string | null;
   } | null;
 };
 
@@ -81,12 +87,48 @@ export class GroupAssignmentService {
     studentId: number,
   ) {
     const membership = await this.prisma.groupMember.findFirst({
-      where: { groupId, studentId, isActive: true },
+      where: {
+        groupId,
+        studentId,
+        isActive: true,
+        status: 'ACTIVE',
+        student: {
+          isActive: true,
+          role: UserRole.STUDENT,
+        },
+      },
     });
 
     if (!membership) {
       throw new ForbiddenException(
         "Bu vazifa siz a'zo bo'lgan guruhga tegishli emas",
+      );
+    }
+  }
+
+  private async checkStudentCanReceiveAssignment(
+    groupId: number,
+    studentId: number,
+  ) {
+    const membership = await this.prisma.groupMember.findFirst({
+      where: {
+        groupId,
+        studentId,
+        isActive: true,
+        status: 'ACTIVE',
+        student: {
+          isActive: true,
+          role: UserRole.STUDENT,
+        },
+      },
+      select: {
+        studentId: true,
+      },
+    });
+
+    if (!membership) {
+      throw new BadRequestException(
+        "Tanlangan o'quvchi bu guruhda faol emas",
       );
     }
   }
@@ -119,6 +161,30 @@ export class GroupAssignmentService {
     return test;
   }
 
+  private async publishTestIfNeeded(testId: number, currentUser: CurrentUser) {
+    const test = await this.getActiveTest(testId);
+
+    if (
+      currentUser.role === UserRole.TEACHER &&
+      !test.isPublished &&
+      test.createdById !== currentUser.id
+    ) {
+      throw new ForbiddenException(
+        "Siz faqat tayyor testni yoki o'zingiz yaratgan draft testni e'lon qila olasiz",
+      );
+    }
+
+    if (!test.isPublished) {
+      await this.prisma.test.update({
+        where: { id: testId },
+        data: { isPublished: true },
+        select: { id: true },
+      });
+    }
+
+    return test;
+  }
+
   private assignmentInclude() {
     return {
       group: {
@@ -139,6 +205,13 @@ export class GroupAssignmentService {
         select: {
           id: true,
           title: true,
+        },
+      },
+      student: {
+        select: {
+          id: true,
+          fullName: true,
+          phone: true,
         },
       },
     };
@@ -192,6 +265,7 @@ export class GroupAssignmentService {
         data: {
           route: `/tests/${assignment.test.id}`,
           groupId: assignment.groupId,
+          studentId: assignment.studentId,
           assignmentId: assignment.id,
           entityType: 'test',
           entityId: assignment.test.id,
@@ -225,6 +299,7 @@ export class GroupAssignmentService {
       data: {
         route: `/tasks?assignmentId=${assignment.id}`,
         groupId: assignment.groupId,
+        studentId: assignment.studentId,
         assignmentId: assignment.id,
         entityType: 'task',
         entityId: assignment.task?.id ?? assignment.taskId,
@@ -238,6 +313,7 @@ export class GroupAssignmentService {
       where: {
         groupId,
         isActive: true,
+        status: 'ACTIVE',
         student: {
           isActive: true,
           role: UserRole.STUDENT,
@@ -255,7 +331,9 @@ export class GroupAssignmentService {
     event: 'created' | 'updated' | 'removed',
     assignment: AssignmentWithRelations,
   ) {
-    const studentIds = await this.getActiveStudentIds(assignment.groupId);
+    const studentIds = assignment.studentId
+      ? [assignment.studentId]
+      : await this.getActiveStudentIds(assignment.groupId);
 
     if (!studentIds.length) {
       return;
@@ -290,12 +368,17 @@ export class GroupAssignmentService {
     }
 
     if (dto.testId) {
-      await this.getActiveTest(dto.testId);
+      await this.publishTestIfNeeded(dto.testId, currentUser);
+    }
+
+    if (dto.studentId) {
+      await this.checkStudentCanReceiveAssignment(dto.groupId, dto.studentId);
     }
 
     const createdAssignment = (await this.prisma.groupAssignment.create({
       data: {
         groupId: dto.groupId,
+        studentId: dto.studentId ?? null,
         taskId: dto.taskId ?? null,
         testId: dto.testId ?? null,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
@@ -331,9 +414,10 @@ export class GroupAssignmentService {
         isActive: true,
         ...(groupName ? { name: { contains: groupName } } : {}),
         members: {
-          some: { studentId: currentUser.id, isActive: true },
+          some: { studentId: currentUser.id, isActive: true, status: 'ACTIVE' },
         },
       };
+      where.OR = [{ studentId: null }, { studentId: currentUser.id }];
     }
 
     const assignments = await this.prisma.groupAssignment.findMany({
@@ -359,6 +443,13 @@ export class GroupAssignmentService {
             type: true,
             passingScore: true,
             isActive: true,
+          },
+        },
+        student: {
+          select: {
+            id: true,
+            fullName: true,
+            phone: true,
           },
         },
       },
@@ -401,6 +492,13 @@ export class GroupAssignmentService {
             isActive: true,
           },
         },
+        student: {
+          select: {
+            id: true,
+            fullName: true,
+            phone: true,
+          },
+        },
       },
     });
 
@@ -425,6 +523,10 @@ export class GroupAssignmentService {
 
     if (currentUser.role === UserRole.STUDENT) {
       await this.checkStudentGroupMembership(assignment.groupId, currentUser.id);
+
+      if (assignment.studentId && assignment.studentId !== currentUser.id) {
+        throw new ForbiddenException('Bu vazifa sizga biriktirilmagan');
+      }
     }
 
     return {
@@ -438,12 +540,6 @@ export class GroupAssignmentService {
     dto: UpdateGroupAssignmentDto,
     currentUser: CurrentUser,
   ) {
-    if (dto.taskId && dto.testId) {
-      throw new BadRequestException(
-        'Bir vaqtda faqat bitta: taskId yoki testId kiritilishi mumkin',
-      );
-    }
-
     const assignment = await this.prisma.groupAssignment.findUnique({
       where: { id },
       include: {
@@ -466,6 +562,23 @@ export class GroupAssignmentService {
       );
     }
 
+    const nextTaskId = dto.taskId === undefined ? assignment.taskId : dto.taskId;
+    const nextTestId = dto.testId === undefined ? assignment.testId : dto.testId;
+
+    if (!nextTaskId && !nextTestId) {
+      throw new BadRequestException(
+        "Kamida bitta vazifa (taskId) yoki test (testId) kiritilishi shart",
+      );
+    }
+
+    if (nextTaskId && nextTestId) {
+      throw new BadRequestException(
+        'Bir vaqtda faqat bitta: taskId yoki testId kiritilishi mumkin',
+      );
+    }
+
+    const targetGroupId = dto.groupId ?? assignment.groupId;
+
     if (dto.groupId && dto.groupId !== assignment.groupId) {
       const newGroup = await this.getActiveGroup(dto.groupId);
 
@@ -479,14 +592,25 @@ export class GroupAssignmentService {
     }
 
     if (dto.testId) {
-      await this.getActiveTest(dto.testId);
+      await this.publishTestIfNeeded(dto.testId, currentUser);
+    }
+
+    if (dto.studentId) {
+      await this.checkStudentCanReceiveAssignment(targetGroupId, dto.studentId);
     }
 
     const updateData: any = {};
 
     if (dto.groupId !== undefined) updateData.groupId = dto.groupId;
-    if (dto.taskId !== undefined) updateData.taskId = dto.taskId;
-    if (dto.testId !== undefined) updateData.testId = dto.testId;
+    if (dto.studentId !== undefined) updateData.studentId = dto.studentId ?? null;
+    if (dto.taskId !== undefined) {
+      updateData.taskId = dto.taskId;
+      if (dto.taskId) updateData.testId = null;
+    }
+    if (dto.testId !== undefined) {
+      updateData.testId = dto.testId;
+      if (dto.testId) updateData.taskId = null;
+    }
     if (dto.isRequired !== undefined) updateData.isRequired = dto.isRequired;
     if (dto.dueDate !== undefined) {
       updateData.dueDate = dto.dueDate ? new Date(dto.dueDate) : null;
