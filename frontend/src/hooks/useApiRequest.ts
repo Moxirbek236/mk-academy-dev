@@ -21,7 +21,7 @@ type SharedRequestCacheEntry = {
 };
 
 const REQUEST_SOFT_TIMEOUT_MS = 5500;
-const RECENT_REQUEST_TTL_MS = 1200;
+const RECENT_REQUEST_TTL_MS = 30_000;
 const RECENT_ERROR_TTL_MS = 250;
 const inFlightRequests = new Map<string, Promise<unknown>>();
 const recentRequests = new Map<string, SharedRequestCacheEntry>();
@@ -107,6 +107,8 @@ export function useApiRequest<T>({
   const queuedForceRef = useRef(false);
   const canExecuteRef = useRef(false);
   const sharedRequestKeyRef = useRef('');
+  const lastAutoRequestKeyRef = useRef<string | null>(null);
+  const hasLoadedOnceRef = useRef(false);
 
   const serializedRequestKey = useMemo(() => serializeRequestKey(requestKey), [requestKey]);
   const authReady = !requiresAuth || (!authLoading && Boolean(token));
@@ -134,7 +136,7 @@ export function useApiRequest<T>({
     };
   }, []);
 
-  const execute = useCallback(async (options?: { force?: boolean }) => {
+  const execute = useCallback(async (options?: { force?: boolean; background?: boolean }) => {
     if (!canExecuteRef.current) {
       setLoading(false);
       return;
@@ -157,14 +159,16 @@ export function useApiRequest<T>({
 
         const requestId = requestIdRef.current + 1;
         requestIdRef.current = requestId;
-        setLoading(true);
+        if (!options?.background && !hasLoadedOnceRef.current) {
+          setLoading(true);
+        }
         setError(null);
 
         const softTimeout = window.setTimeout(() => {
           if (mountedRef.current && requestIdRef.current === requestId) {
             setLoading(false);
             setError(
-              'Maʼlumotlarni yuklab boʼlmadi. Qayta yuklash uchun "Qayta yuklash" tugmasini bosing.',
+              'Ma\'lumotlarni yuklab bo\'lmadi. Qayta yuklash uchun "Qayta yuklash" tugmasini bosing.',
             );
           }
         }, softTimeoutMs);
@@ -176,6 +180,7 @@ export function useApiRequest<T>({
             shouldForce,
           );
           if (mountedRef.current && requestIdRef.current === requestId) {
+            hasLoadedOnceRef.current = true;
             setData(response);
             setError(null);
           }
@@ -202,19 +207,27 @@ export function useApiRequest<T>({
     if (!shouldRequest) {
       setLoading(false);
       setError(null);
+      lastAutoRequestKeyRef.current = null;
       return;
     }
 
+    const autoRequestKey = `${sharedRequestKey}:${debounceMs}`;
+    if (lastAutoRequestKeyRef.current === autoRequestKey) {
+      return;
+    }
+
+    lastAutoRequestKeyRef.current = autoRequestKey;
+
     if (debounceMs > 0) {
       const timer = window.setTimeout(() => {
-        void execute();
+        void execute({ background: hasLoadedOnceRef.current });
       }, debounceMs);
 
       return () => window.clearTimeout(timer);
     }
 
-    void execute();
-  }, [debounceMs, execute, serializedRequestKey, shouldRequest]);
+    void execute({ background: hasLoadedOnceRef.current });
+  }, [debounceMs, execute, sharedRequestKey, shouldRequest]);
 
   return {
     data,

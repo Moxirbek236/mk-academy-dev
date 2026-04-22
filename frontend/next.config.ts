@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next';
-import withPWAInit from '@ducanh2912/next-pwa';
+import withPWAInit, { runtimeCaching } from '@ducanh2912/next-pwa';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
@@ -8,12 +8,15 @@ const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true' && !isVercelBu
 
 const withPWA = withPWAInit({
   dest: 'public',
-  cacheOnFrontEndNav: true,
+  cacheOnFrontEndNav: false,
   aggressiveFrontEndNavCaching: false,
   cacheStartUrl: false,
   dynamicStartUrl: false,
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === 'development' || isCapacitorExport,
+  workboxOptions: {
+    runtimeCaching: runtimeCaching.filter((entry) => entry.options?.cacheName !== 'apis'),
+  },
 });
 
 if (typeof window === 'undefined') {
