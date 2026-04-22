@@ -245,6 +245,7 @@
     "permissionTitle": "Device notifications are off",
     "permissionDescription": "Enable notifications to receive reminders in the app and browser.",
     "enable": "Enable",
+    "later": "Later",
     "markRead": "Mark read",
     "delete": "Delete",
     "open": "Open",

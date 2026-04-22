@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { OFFLINE_MUTATION_MESSAGE } from '@/lib/offline/constants';
 
+const DEFAULT_BACKEND_ERROR_MESSAGE = 'Server xatoligi yuz berdi';
+
 export type AppApiErrorCode =
   | 'OFFLINE'
   | 'OFFLINE_NO_CACHE'
@@ -34,16 +36,40 @@ export function isAppApiError(error: unknown): error is AppApiError {
   return error instanceof AppApiError;
 }
 
+function looksLikeHtmlDocument(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+
+  return (
+    /^<!doctype html/i.test(trimmed) ||
+    /^<html[\s>]/i.test(trimmed) ||
+    /^<!DOCTYPE html/i.test(trimmed) ||
+    (trimmed.startsWith('<') && trimmed.includes('</html>'))
+  );
+}
+
+function sanitizeBackendMessage(message: string): string | null {
+  const normalized = message.trim();
+
+  if (!normalized) return null;
+  if (looksLikeHtmlDocument(normalized)) return null;
+
+  return normalized;
+}
+
 function extractBackendMessage(data: unknown): string | null {
   if (!data) return null;
-  if (typeof data === 'string') return data;
+  if (typeof data === 'string') return sanitizeBackendMessage(data);
 
   if (typeof data === 'object') {
     const maybeMessage = (data as { message?: unknown }).message;
-    if (typeof maybeMessage === 'string') return maybeMessage;
+    if (typeof maybeMessage === 'string') return sanitizeBackendMessage(maybeMessage);
     if (Array.isArray(maybeMessage)) {
-      const first = maybeMessage.find((item) => typeof item === 'string');
-      return typeof first === 'string' ? first : null;
+      const first = maybeMessage
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => sanitizeBackendMessage(item))
+        .find(Boolean);
+      return first ?? null;
     }
   }
 
@@ -60,7 +86,7 @@ export function normalizeApiError(error: unknown): AppApiError {
       return new AppApiError({
         code: 'BACKEND',
         status: error.response.status,
-        message: backendMessage || 'Server xatoligi yuz berdi',
+        message: backendMessage || DEFAULT_BACKEND_ERROR_MESSAGE,
         cause: error,
       });
     }
@@ -108,10 +134,12 @@ export function getUserFriendlyErrorMessage(error: unknown, fallback?: string): 
     case 'CACHE_PARSE':
       return "Cache ma'lumotini o'qishda xatolik yuz berdi";
     case 'BACKEND':
-      return normalized.message || fallback || 'Server xatoligi yuz berdi';
+      if (!normalized.message || normalized.message === DEFAULT_BACKEND_ERROR_MESSAGE) {
+        return fallback || DEFAULT_BACKEND_ERROR_MESSAGE;
+      }
+      return normalized.message;
     case 'UNKNOWN':
     default:
       return fallback || normalized.message || "Noma'lum xatolik yuz berdi";
   }
 }
-

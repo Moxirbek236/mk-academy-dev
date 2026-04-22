@@ -1,6 +1,5 @@
 'use client';
 
-import { Capacitor } from '@capacitor/core';
 import {
   createContext,
   useCallback,
@@ -31,6 +30,7 @@ import {
 } from '@/lib/device-notifications';
 import { localizePath } from '@/i18n/localizedPath';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
+import { NotificationPermissionPrompt } from './NotificationPermissionPrompt';
 
 type NotificationContextValue = {
   items: AppNotification[];
@@ -51,10 +51,18 @@ const NotificationContext = createContext<NotificationContextValue | null>(null)
 const PUBLIC_PATHS = new Set(['/login', '/landing']);
 const DELIVERED_NOTIFICATIONS_STORAGE_KEY_PREFIX =
   'mk-academy:device-notifications:delivered:v1:';
+const PERMISSION_PROMPT_STORAGE_KEY_PREFIX =
+  'mk-academy:device-notifications:permission-prompt:v1:';
+const PERMISSION_PROMPT_SNOOZE_MS = 24 * 60 * 60 * 1000;
 
 function getDeliveredNotificationsStorageKey(token: string | null) {
   const scope = token ? token.slice(-16) : 'guest';
   return `${DELIVERED_NOTIFICATIONS_STORAGE_KEY_PREFIX}${scope}`;
+}
+
+function getPermissionPromptStorageKey(token: string | null) {
+  const scope = token ? token.slice(-16) : 'guest';
+  return `${PERMISSION_PROMPT_STORAGE_KEY_PREFIX}${scope}`;
 }
 
 function loadDeliveredNotificationIds(storageKey: string): Set<number> {
@@ -88,6 +96,37 @@ function persistDeliveredNotificationIds(storageKey: string, ids: Set<number>) {
   window.localStorage.setItem(storageKey, JSON.stringify(next));
 }
 
+function loadPermissionPromptDismissed(storageKey: string) {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(storageKey);
+    if (!raw) return false;
+
+    const dismissedAt = Number(raw);
+    if (!Number.isFinite(dismissedAt)) return false;
+
+    if (Date.now() - dismissedAt < PERMISSION_PROMPT_SNOOZE_MS) {
+      return true;
+    }
+
+    window.localStorage.removeItem(storageKey);
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function persistPermissionPromptDismissed(storageKey: string) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(storageKey, String(Date.now()));
+}
+
 function normalizeRoute(route: unknown) {
   if (typeof route !== 'string' || !route.trim()) {
     return null;
@@ -109,7 +148,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permission, setPermission] = useState<DeviceNotificationPermission>('prompt');
+  const [permissionPromptDismissed, setPermissionPromptDismissed] =
+    useState(false);
   const deliveredStorageKey = getDeliveredNotificationsStorageKey(token);
+  const permissionPromptStorageKey = getPermissionPromptStorageKey(token);
   const hydratedRef = useRef(false);
   const deliveredIdsRef = useRef<Set<number>>(new Set<number>());
   const itemsRef = useRef<AppNotification[]>([]);
@@ -119,20 +161,42 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setPermission(currentPermission);
   }, []);
 
-  const applyFeed = useCallback((feed: { items: AppNotification[]; unreadCount: number }) => {
-    setItems(feed.items || []);
-    setUnreadCount(feed.unreadCount || 0);
-  }, []);
+  const applyFeed = useCallback(
+    (feed: { items: AppNotification[]; unreadCount: number }) => {
+      setItems(feed.items || []);
+      setUnreadCount(feed.unreadCount || 0);
+    },
+    [],
+  );
 
   useEffect(() => {
-    deliveredIdsRef.current = loadDeliveredNotificationIds(deliveredStorageKey);
+    deliveredIdsRef.current = loadDeliveredNotificationIds(
+      deliveredStorageKey,
+    );
     hydratedRef.current = false;
   }, [deliveredStorageKey]);
 
-  const rememberDeliveredNotification = useCallback((id: number) => {
-    deliveredIdsRef.current.add(id);
-    persistDeliveredNotificationIds(deliveredStorageKey, deliveredIdsRef.current);
-  }, [deliveredStorageKey]);
+  useEffect(() => {
+    setPermissionPromptDismissed(
+      loadPermissionPromptDismissed(permissionPromptStorageKey),
+    );
+  }, [permissionPromptStorageKey]);
+
+  const rememberDeliveredNotification = useCallback(
+    (id: number) => {
+      deliveredIdsRef.current.add(id);
+      persistDeliveredNotificationIds(
+        deliveredStorageKey,
+        deliveredIdsRef.current,
+      );
+    },
+    [deliveredStorageKey],
+  );
+
+  const dismissPermissionPrompt = useCallback(() => {
+    setPermissionPromptDismissed(true);
+    persistPermissionPromptDismissed(permissionPromptStorageKey);
+  }, [permissionPromptStorageKey]);
 
   const emitRuntimeNotifications = useCallback(
     async (nextItems: AppNotification[], options?: { showToast?: boolean }) => {
@@ -220,18 +284,22 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     applyFeed(feed);
   }, [applyFeed]);
 
-  const removeHandler = useCallback(async (id: number) => {
-    await removeNotification(id);
-    setItems((current) => current.filter((item) => item.id !== id));
-    setUnreadCount((current) => {
-      const removed = items.find((item) => item.id === id);
-      return removed && !removed.isRead ? Math.max(0, current - 1) : current;
-    });
-  }, [items]);
+  const removeHandler = useCallback(
+    async (id: number) => {
+      await removeNotification(id);
+      setItems((current) => current.filter((item) => item.id !== id));
+      setUnreadCount((current) => {
+        const removed = items.find((item) => item.id === id);
+        return removed && !removed.isRead ? Math.max(0, current - 1) : current;
+      });
+    },
+    [items],
+  );
 
   const requestPermissionHandler = useCallback(async () => {
     const nextPermission = await requestDeviceNotificationPermission();
     setPermission(nextPermission);
+    dismissPermissionPrompt();
 
     if (nextPermission === 'granted') {
       await emitRuntimeNotifications(itemsRef.current, { showToast: false });
@@ -242,7 +310,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     if (nextPermission === 'denied') {
       toast.error(t('deniedToast'));
     }
-  }, [emitRuntimeNotifications, t]);
+  }, [dismissPermissionPrompt, emitRuntimeNotifications, t]);
 
   const openNotification = useCallback(
     async (notification: AppNotification) => {
@@ -283,18 +351,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       },
     });
   }, [locale, router]);
-
-  useEffect(() => {
-    if (!enabled || permission !== 'prompt') {
-      return;
-    }
-
-    if (!Capacitor.isNativePlatform()) {
-      return;
-    }
-
-    void requestPermissionHandler();
-  }, [enabled, permission, requestPermissionHandler]);
 
   useEffect(() => {
     void refresh();
@@ -339,9 +395,21 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     ],
   );
 
+  const showPermissionPrompt =
+    enabled && permission === 'prompt' && !permissionPromptDismissed;
+
   return (
     <NotificationContext.Provider value={value}>
       {children}
+      <NotificationPermissionPrompt
+        open={showPermissionPrompt}
+        title={t('permissionTitle')}
+        description={t('permissionDescription')}
+        enableLabel={t('enable')}
+        laterLabel={t('later')}
+        onEnable={() => void requestPermissionHandler()}
+        onLater={dismissPermissionPrompt}
+      />
     </NotificationContext.Provider>
   );
 }

@@ -175,13 +175,38 @@ export async function sendDeviceNotification(input: {
     return true;
   }
 
+  const normalizedRoute = normalizeRoute(input.route);
+
   if (typeof window !== 'undefined' && 'Notification' in window) {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+
+        if (registration?.showNotification) {
+          await registration.showNotification(input.title, {
+            body: input.body,
+            tag: `mk-academy-${input.id}`,
+            data: {
+              id: input.id,
+              route: normalizedRoute,
+            },
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+          });
+
+          return true;
+        }
+      } catch {
+        // Fall back to the regular Notification API.
+      }
+    }
+
     const notification = new Notification(input.title, {
       body: input.body,
       tag: `mk-academy-${input.id}`,
       data: {
         id: input.id,
-        route: normalizeRoute(input.route),
+        route: normalizedRoute,
       },
     });
 
@@ -190,7 +215,7 @@ export async function sendDeviceNotification(input: {
       notification.close();
       openNotificationHandler?.({
         id: input.id,
-        route: normalizeRoute(input.route),
+        route: normalizedRoute,
       });
     };
 

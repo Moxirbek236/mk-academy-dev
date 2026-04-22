@@ -25,6 +25,8 @@ function resolveAllowedOrigins(): string[] {
     .map((origin) => normalizeOrigin(String(origin)));
 
   const defaults = [
+    'https://www.mk-academia.uz',
+    'http://www.mk-academia.uz',
     'https://mk-academy-dev.vercel.app',
     'https://mk-academy.netlify.app',
     'http://localhost',

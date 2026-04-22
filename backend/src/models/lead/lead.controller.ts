@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { LeadService } from './lead.service';
-import { CreateLeadDto, UpdateLeadStatusDto } from './dto';
+import { CreateLeadDto, UpdateLeadAnswerDto, UpdateLeadStatusDto } from './dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('leads')
@@ -21,10 +21,22 @@ export class LeadController {
     return this.leadService.findAll();
   }
 
+  @Get('public/questions')
+  @ApiOperation({ summary: 'Get answered course questions for the landing page' })
+  findPublishedQuestions() {
+    return this.leadService.findPublishedQuestions();
+  }
+
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update request status (Admin only)' })
   updateStatus(@Param('id') id: string, @Body() dto: UpdateLeadStatusDto) {
     return this.leadService.updateStatus(+id, dto);
+  }
+
+  @Patch(':id/answer')
+  @ApiOperation({ summary: 'Answer a course question and optionally publish it on landing page' })
+  updateAnswer(@Param('id') id: string, @Body() dto: UpdateLeadAnswerDto) {
+    return this.leadService.updateAnswer(+id, dto);
   }
 
   @Delete(':id')

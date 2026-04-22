@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { listLeads } from '@/lib/backend-api';
+import { listLeads, type LeadItem } from '@/lib/backend-api';
 import { useApiRequest } from '@/hooks/useApiRequest';
 
 export function useLeads(enabled = true) {
@@ -9,7 +9,7 @@ export function useLeads(enabled = true) {
 
   return useApiRequest({
     enabled,
-    initialData: [] as any[],
+    initialData: [] as LeadItem[],
     request,
   });
 }

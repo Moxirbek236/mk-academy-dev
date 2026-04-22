@@ -3,7 +3,8 @@ import withPWAInit from '@ducanh2912/next-pwa';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
-const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true';
+const isVercelBuild = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true' && !isVercelBuild;
 
 const withPWA = withPWAInit({
   dest: 'public',
@@ -25,6 +26,20 @@ if (typeof window === 'undefined') {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   ...(isCapacitorExport ? { output: 'export' as const } : {}),
+  async rewrites() {
+    if (isCapacitorExport) {
+      return [];
+    }
+
+    return {
+      beforeFiles: [
+        {
+          source: '/api/:path*',
+          destination: 'http://api.mk-academia.uz/api/:path*',
+        },
+      ],
+    };
+  },
   eslint: {
     ignoreDuringBuilds: process.env.NEXT_SKIP_INTERNAL_CHECKS === 'true',
   },
@@ -33,6 +48,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_DISABLE_LOCALE_PREFIX: isCapacitorExport ? 'true' : 'false',
+    NEXT_PUBLIC_CAPACITOR_EXPORT: isCapacitorExport ? 'true' : 'false',
   },
   images: {
     unoptimized: true,
