@@ -233,35 +233,36 @@ export function LandingPage() {
 
   return (
     <div className="landing-shell motion-page min-h-screen-safe overflow-x-clip text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white">
-      <nav className="fixed top-0 z-50 w-full border-b border-[var(--app-border)] bg-white/78 backdrop-blur-xl dark:bg-slate-950/78">
+      <nav className="landing-nav fixed top-0 z-50 w-full border-b border-[var(--app-border)] bg-white/78 backdrop-blur-xl dark:bg-slate-950/78">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-6">
           <button
             type="button"
             onClick={goLogin}
-            className="motion-link group flex items-center gap-3 text-left"
+            className="landing-brand motion-link group flex items-center gap-3 text-left"
             aria-label={`${centerBranding.shortName} login`}
           >
-            <span className="relative h-11 w-11 overflow-hidden rounded-2xl border border-white bg-white shadow-lg shadow-[var(--app-primary)]/14">
+            <span className="landing-brand-mark relative h-11 w-11 overflow-hidden rounded-2xl border border-white bg-white shadow-lg shadow-[var(--app-primary)]/14">
               <Image
                 src={centerBranding.logoUrl}
                 alt={centerBranding.shortName}
                 fill
                 priority
                 sizes="44px"
-                className="object-cover"
+                className="landing-media object-cover"
               />
             </span>
-            <span className="text-xl font-black sm:text-2xl">
+            <span className="landing-brand-text text-xl font-black sm:text-2xl">
               {centerBranding.shortName}
             </span>
           </button>
 
-          <div className="hidden items-center gap-5 text-xs font-black uppercase text-[var(--app-muted)] md:flex">
-            {NAV_LINKS.map((item) => (
+          <div className="landing-nav-list hidden items-center gap-5 text-xs font-black uppercase text-[var(--app-muted)] md:flex">
+            {NAV_LINKS.map((item, index) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="motion-link hover:text-[var(--app-primary)]"
+                className="landing-nav-link motion-link hover:text-[var(--app-primary)]"
+                style={motionOrder(index)}
               >
                 {item.label}
               </a>
@@ -277,7 +278,7 @@ export function LandingPage() {
 
           <button
             onClick={goLogin}
-            className="motion-button flex items-center justify-center rounded-2xl bg-[var(--app-primary)] px-5 py-2 text-xs font-black uppercase text-white shadow-lg shadow-[var(--app-primary)]/20 md:hidden"
+            className="landing-primary-cta motion-button flex items-center justify-center rounded-2xl bg-[var(--app-primary)] px-5 py-2 text-xs font-black uppercase text-white shadow-lg shadow-[var(--app-primary)]/20 md:hidden"
           >
             <LogIn size={14} className="mr-2" />
             Kirish
@@ -286,30 +287,30 @@ export function LandingPage() {
       </nav>
 
       <main>
-        <section className="mx-auto grid min-h-[88svh] max-w-7xl items-center gap-12 px-5 pb-16 pt-28 sm:px-6 sm:pt-36 lg:grid-cols-[1.05fr_0.95fr] lg:pb-20">
-          <div className="motion-section text-center lg:text-left">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-white/84 px-4 py-2 text-[var(--app-primary-dark)] shadow-sm">
-              <Sparkles size={16} className="text-blue-500" />
+        <section className="landing-hero mx-auto grid min-h-[88svh] max-w-7xl items-center gap-12 px-5 pb-16 pt-28 sm:px-6 sm:pt-36 lg:grid-cols-[1.05fr_0.95fr] lg:pb-20">
+          <div className="motion-section motion-stagger text-center lg:text-left">
+            <div className="landing-pill mb-7 inline-flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-white/84 px-4 py-2 text-[var(--app-primary-dark)] shadow-sm" style={motionOrder(0)}>
+              <Sparkles size={16} className="landing-icon-pulse text-blue-500" />
               <span className="text-xs font-black uppercase">
                 Zamonaviy ta'lim tajribasi
               </span>
             </div>
 
-            <h1 className="text-5xl font-black leading-[0.96] sm:text-6xl md:text-7xl">
+            <h1 className="landing-title text-5xl font-black leading-[0.96] sm:text-6xl md:text-7xl" style={motionOrder(1)}>
               {centerBranding.shortName}
-              <span className="block bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-primary-dark)] bg-clip-text text-transparent">
+              <span className="landing-title-accent block bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-primary-dark)] bg-clip-text text-transparent">
                 Ta'lim platformasi
               </span>
             </h1>
 
-            <p className="mx-auto mt-7 max-w-2xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg lg:mx-0">
+            <p className="landing-copy mx-auto mt-7 max-w-2xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg lg:mx-0" style={motionOrder(2)}>
               {centerBranding.description}
             </p>
 
-            <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <div className="landing-cta-row mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start" style={motionOrder(3)}>
               <button
                 onClick={goLogin}
-                className="btn-premium motion-button group border-none bg-[var(--app-primary)] px-9 py-4 text-base text-white shadow-xl shadow-[var(--app-primary)]/25"
+                className="landing-primary-cta btn-premium motion-button group border-none bg-[var(--app-primary)] px-9 py-4 text-base text-white shadow-xl shadow-[var(--app-primary)]/25"
               >
                 Boshlash
                 <ArrowRight
@@ -319,17 +320,17 @@ export function LandingPage() {
               </button>
               <button
                 onClick={scrollToContact}
-                className="app-card motion-button flex items-center justify-center border-none bg-white px-9 py-4 text-base font-black uppercase text-[var(--app-text)]"
+                className="landing-secondary-cta app-card motion-button flex items-center justify-center border-none bg-white px-9 py-4 text-base font-black uppercase text-[var(--app-text)]"
               >
                 Savol berish
               </button>
             </div>
 
-            <div className="motion-stagger mt-10 grid grid-cols-3 gap-3">
+            <div className="motion-stagger mt-10 grid grid-cols-3 gap-3" style={motionOrder(4)}>
               {HERO_STATS.map((stat, index) => (
                 <div
                   key={stat.label}
-                  className="rounded-2xl border border-[var(--app-border)] bg-white/74 p-4 text-left shadow-sm"
+                  className="landing-stat-card rounded-2xl border border-[var(--app-border)] bg-white/74 p-4 text-left shadow-sm"
                   style={motionOrder(index)}
                 >
                   <p className="text-xl font-black text-[var(--app-text)] sm:text-2xl">
@@ -344,16 +345,16 @@ export function LandingPage() {
           </div>
 
           <div className="motion-section hidden lg:block">
-            <div className="app-card motion-card relative overflow-hidden bg-white/82 p-6 shadow-2xl shadow-slate-900/10">
+            <div className="landing-visual-card app-card motion-card relative overflow-hidden bg-white/82 p-6 shadow-2xl shadow-slate-900/10">
               <div className="mb-6 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="relative h-14 w-14 overflow-hidden rounded-2xl bg-[var(--app-surface-soft)]">
+                  <div className="landing-brand-mark relative h-14 w-14 overflow-hidden rounded-2xl bg-[var(--app-surface-soft)]">
                     <Image
                       src={centerBranding.logoUrl}
                       alt={centerBranding.name}
                       fill
                       sizes="56px"
-                      className="object-cover"
+                      className="landing-media object-cover"
                     />
                   </div>
                   <div>
@@ -368,7 +369,7 @@ export function LandingPage() {
                 </span>
               </div>
 
-              <div className="grid gap-3">
+              <div className="motion-stagger grid gap-3">
                 {[
                   ["O'quv reja", 'Ready'],
                   ['Vazifalar', 'Active'],
@@ -376,7 +377,8 @@ export function LandingPage() {
                 ].map(([label, value], index) => (
                   <div
                     key={label}
-                    className="rounded-2xl border border-slate-100 bg-white p-4"
+                    className="landing-visual-row rounded-2xl border border-slate-100 bg-white p-4"
+                    style={motionOrder(index)}
                   >
                     <div className="mb-3 flex items-center justify-between text-sm font-black">
                       <span>{label}</span>
@@ -384,7 +386,7 @@ export function LandingPage() {
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                       <div
-                        className="h-full rounded-full bg-[var(--app-primary)]"
+                        className="landing-progress-fill h-full rounded-full bg-[var(--app-primary)]"
                         style={{ width: index === 0 ? '78%' : index === 1 ? '58%' : '70%' }}
                       />
                     </div>
@@ -393,13 +395,13 @@ export function LandingPage() {
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-[var(--app-surface-soft)] p-4">
+                <div className="landing-metric-tile rounded-2xl bg-[var(--app-surface-soft)] p-4">
                   <p className="text-2xl font-black">Plan</p>
                   <p className="text-xs font-bold text-[var(--app-muted)]">
                     tartibli dars oqimi
                   </p>
                 </div>
-                <div className="rounded-2xl bg-[var(--app-primary)] p-4 text-white">
+                <div className="landing-metric-tile rounded-2xl bg-[var(--app-primary)] p-4 text-white">
                   <p className="text-2xl font-black">Flow</p>
                   <p className="text-xs font-bold text-white/78">
                     tezkor feedback
@@ -431,10 +433,10 @@ export function LandingPage() {
               {ABOUT_BULLETS.map((item, index) => (
                 <div
                   key={item}
-                  className="app-card motion-card flex items-center gap-4 p-4"
+                  className="landing-list-item app-card motion-card flex items-center gap-4 p-4"
                   style={motionOrder(index)}
                 >
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--app-primary)]" />
+                  <CheckCircle2 className="landing-icon-pulse h-5 w-5 shrink-0 text-[var(--app-primary)]" />
                   <p className="text-sm font-black text-[var(--app-text)]">
                     {item}
                   </p>
@@ -474,7 +476,7 @@ export function LandingPage() {
               </div>
               <button
                 onClick={scrollToContact}
-                className="btn-premium motion-button w-full border-none bg-[var(--app-primary)] px-6 py-3 text-white shadow-lg shadow-[var(--app-primary)]/20 md:w-auto"
+                className="landing-primary-cta btn-premium motion-button w-full border-none bg-[var(--app-primary)] px-6 py-3 text-white shadow-lg shadow-[var(--app-primary)]/20 md:w-auto"
               >
                 Savol berish <ArrowRight size={18} className="ml-2" />
               </button>
@@ -518,8 +520,8 @@ export function LandingPage() {
                   Admin javob bergan savollar
                 </h2>
               </div>
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2 text-xs font-black uppercase text-[var(--app-muted)]">
-                <HelpCircle size={15} className="text-[var(--app-primary)]" />
+              <div className="landing-pill inline-flex w-fit items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2 text-xs font-black uppercase text-[var(--app-muted)]">
+                <HelpCircle size={15} className="landing-icon-pulse text-[var(--app-primary)]" />
                 {questionsLoading ? 'Yuklanmoqda' : `${visibleQuestions.length} ta javob`}
               </div>
             </div>
@@ -573,7 +575,7 @@ export function LandingPage() {
           className="landing-section content-auto mx-auto max-w-3xl px-5 py-16 text-center sm:px-6 sm:py-24"
         >
           <div className="motion-section mb-10">
-            <div className="mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-[var(--app-primary)]/10 text-[var(--app-primary)] shadow-inner">
+            <div className="landing-contact-icon mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-[var(--app-primary)]/10 text-[var(--app-primary)] shadow-inner">
               <MessageCircle size={30} />
             </div>
             <h2 className="text-4xl font-black uppercase md:text-6xl">
@@ -584,11 +586,13 @@ export function LandingPage() {
             </p>
           </div>
 
-          <LandingContactForm />
+          <div className="landing-contact-shell">
+            <LandingContactForm />
+          </div>
         </section>
       </main>
 
-      <footer className="border-t border-[var(--app-border)] bg-white/54 px-6 py-10 text-center">
+      <footer className="landing-footer border-t border-[var(--app-border)] bg-white/54 px-6 py-10 text-center">
         <p className="text-xs font-black uppercase text-[var(--app-muted)]">
           {`(c) 2026 ${centerBranding.name}. Barcha huquqlar himoyalangan.`}
         </p>
@@ -605,11 +609,11 @@ function SectionHeader({
   subtitle: string;
 }) {
   return (
-    <div className="motion-section mb-12 text-center">
-      <p className="text-xs font-black uppercase text-[var(--app-primary)]">
+    <div className="landing-section-heading motion-section mb-12 text-center">
+      <p className="landing-eyebrow-text text-xs font-black uppercase text-[var(--app-primary)]">
         {subtitle}
       </p>
-      <h2 className="mt-4 text-3xl font-black uppercase md:text-6xl">
+      <h2 className="landing-heading-text mt-4 text-3xl font-black uppercase md:text-6xl">
         {title}
       </h2>
     </div>
@@ -624,8 +628,8 @@ function SectionEyebrow({
   children: ReactNode;
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-xs font-black uppercase text-[var(--app-primary)]">
-      <Icon size={16} />
+    <p className="landing-eyebrow inline-flex items-center gap-2 text-xs font-black uppercase text-[var(--app-primary)]">
+      <Icon className="landing-icon-pulse" size={16} />
       {children}
     </p>
   );
@@ -642,10 +646,10 @@ const FeatureCard = memo(function FeatureCard({
 
   return (
     <article
-      className="app-card motion-card group cursor-default p-6"
+      className="landing-card app-card motion-card group cursor-default p-6"
       style={motionOrder(index)}
     >
-      <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-primary)] transition-colors duration-150 group-hover:bg-[var(--app-primary)] group-hover:text-white">
+      <div className="landing-icon-tile mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-primary)] transition-colors duration-150 group-hover:bg-[var(--app-primary)] group-hover:text-white">
         <Icon size={25} strokeWidth={2.5} />
       </div>
       <h3 className="mb-2 text-lg font-black">{feature.title}</h3>
@@ -664,9 +668,9 @@ const CourseCard = memo(function CourseCard({
   index: number;
 }) {
   return (
-    <article className="app-card motion-card p-6" style={motionOrder(index)}>
+    <article className="landing-card app-card motion-card p-6" style={motionOrder(index)}>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="rounded-2xl bg-[var(--app-primary)]/10 p-3 text-[var(--app-primary)]">
+        <div className="landing-icon-tile rounded-2xl bg-[var(--app-primary)]/10 p-3 text-[var(--app-primary)]">
           <BookOpen size={24} strokeWidth={2.5} />
         </div>
         <span className="rounded-full bg-[var(--app-surface-soft)] px-3 py-1 text-xs font-black uppercase text-[var(--app-muted)]">
@@ -694,11 +698,11 @@ const ProcessCard = memo(function ProcessCard({
 
   return (
     <article
-      className="app-card motion-card p-6"
+      className="landing-card app-card motion-card p-6"
       style={motionOrder(index)}
     >
       <div className="mb-6 flex items-center justify-between">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
+        <div className="landing-icon-tile inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
           <Icon size={24} strokeWidth={2.5} />
         </div>
         <span className="text-xs font-black text-[var(--app-muted)]">
@@ -725,14 +729,14 @@ const QuestionCard = memo(function QuestionCard({
   fallbackName: string;
 }) {
   return (
-    <article className="app-card motion-card p-6" style={motionOrder(index)}>
+    <article className="landing-card app-card motion-card p-6" style={motionOrder(index)}>
       <p className="text-xs font-black uppercase text-[var(--app-primary)]">
         {item.fullName || fallbackName}
       </p>
       <h3 className="mt-3 text-lg font-black leading-snug text-[var(--app-text)]">
         {item.message || 'Savol'}
       </h3>
-      <div className="mt-5 rounded-2xl bg-[var(--app-surface-soft)] p-5">
+      <div className="landing-answer-box mt-5 rounded-2xl bg-[var(--app-surface-soft)] p-5">
         <p className="text-xs font-black uppercase text-[var(--app-muted)]">
           Admin javobi
         </p>
@@ -752,7 +756,7 @@ function QuestionsEmptyCard({
   onContact: () => void;
 }) {
   return (
-    <article className="app-card motion-card p-6 md:col-span-2">
+    <article className="landing-card app-card motion-card p-6 md:col-span-2">
       <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="text-xs font-black uppercase text-[var(--app-primary)]">
@@ -771,7 +775,7 @@ function QuestionsEmptyCard({
         <button
           type="button"
           onClick={onContact}
-          className="btn-premium motion-button w-full border-none bg-[var(--app-primary)] px-6 py-3 text-white md:w-auto"
+          className="landing-primary-cta btn-premium motion-button w-full border-none bg-[var(--app-primary)] px-6 py-3 text-white md:w-auto"
         >
           Savol berish
         </button>
@@ -790,8 +794,8 @@ const AddressCard = memo(function AddressCard({
   const Icon = item.icon;
 
   return (
-    <article className="app-card motion-card p-6" style={motionOrder(index)}>
-      <Icon className="mb-5 text-[var(--app-primary)]" size={28} />
+    <article className="landing-card app-card motion-card p-6" style={motionOrder(index)}>
+      <Icon className="landing-icon-pulse mb-5 text-[var(--app-primary)]" size={28} />
       <p className="text-xs font-black uppercase text-[var(--app-muted)]">
         {item.label}
       </p>
@@ -804,7 +808,7 @@ const AddressCard = memo(function AddressCard({
 
 function ContactFormSkeleton() {
   return (
-    <div className="app-card bg-white/70 p-6 text-left shadow-xl shadow-slate-900/5 sm:p-10">
+    <div className="landing-card app-card bg-white/70 p-6 text-left shadow-xl shadow-slate-900/5 sm:p-10">
       <div className="space-y-5">
         {[0, 1, 2].map((item) => (
           <div key={item}>

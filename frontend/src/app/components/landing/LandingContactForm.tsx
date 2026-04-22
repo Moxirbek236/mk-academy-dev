@@ -53,7 +53,7 @@ export function LandingContactForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="app-card motion-section bg-white/72 p-6 text-left shadow-xl shadow-slate-900/5 backdrop-blur-md sm:p-10"
+      className="landing-form landing-card app-card motion-section bg-white/72 p-6 text-left shadow-xl shadow-slate-900/5 backdrop-blur-md sm:p-10"
     >
       <div className="space-y-5">
         <FieldLabel label="To'liq ism">
@@ -94,7 +94,7 @@ export function LandingContactForm() {
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="btn-premium motion-button mt-2 w-full border-none bg-[var(--app-primary)] py-5 text-white shadow-xl shadow-[var(--app-primary)]/25 disabled:cursor-not-allowed disabled:opacity-70"
+          className="landing-primary-cta btn-premium motion-button mt-2 w-full border-none bg-[var(--app-primary)] py-5 text-white shadow-xl shadow-[var(--app-primary)]/25 disabled:cursor-not-allowed disabled:opacity-70"
         >
           <Send size={18} className="mr-2" />
           {status === 'loading' ? 'Yuborilmoqda...' : 'Savol yuborish'}
@@ -102,12 +102,12 @@ export function LandingContactForm() {
       </div>
 
       {status === 'success' && (
-        <p className="mt-6 text-center text-xs font-black uppercase text-blue-500">
+        <p className="landing-form-status mt-6 text-center text-xs font-black uppercase text-blue-500">
           Savolingiz adminga yuborildi!
         </p>
       )}
       {status === 'error' && (
-        <p className="mt-6 text-center text-xs font-black uppercase text-red-500">
+        <p className="landing-form-status mt-6 text-center text-xs font-black uppercase text-red-500">
           Xatolik yuz berdi!
         </p>
       )}
@@ -123,7 +123,7 @@ function FieldLabel({
   children: ReactNode;
 }) {
   return (
-    <label className="block">
+    <label className="landing-field block">
       <span className="mb-2.5 block text-[10px] font-black uppercase text-[var(--app-muted)]">
         {label}
       </span>
