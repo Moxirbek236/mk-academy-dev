@@ -19,7 +19,7 @@ import { QueryUserTeacherDto } from './dto/query.teacher.dto';
 
 @ApiTags('users')
 @Controller('users')
-// @ApiBearerAuth()
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
