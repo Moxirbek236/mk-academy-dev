@@ -626,19 +626,67 @@ export default function TestsPage() {
                       placeholder="OPTIONS"
                       className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
                     />
-                    <textarea
-                      value={question.optionsText}
-                      onChange={(event) => updateQuestionDraft(index, { optionsText: event.target.value })}
-                      placeholder="Har bir variantni alohida qatorga yozing"
-                      className="min-h-28 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
-                    />
-                    <div className="space-y-3">
-                      <input
+                    <div className="space-y-3 rounded-[16px] border border-[var(--app-border)] p-3 md:col-span-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                          Variantlar
+                        </p>
+                        <button
+                          onClick={() => addOptionDraft(index)}
+                          className="rounded-[12px] bg-[var(--app-primary)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white"
+                        >
+                          Variant qo'shish
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {question.options.map((option, optionIndex) => (
+                          <div key={`${option.label}-${optionIndex}`} className="grid grid-cols-[64px_1fr_auto] gap-2">
+                            <input
+                              value={option.label}
+                              maxLength={1}
+                              onChange={(event) =>
+                                updateOptionDraft(index, optionIndex, { label: event.target.value })
+                              }
+                              placeholder="A"
+                              className="rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-3 text-center text-sm font-black uppercase"
+                            />
+                            <input
+                              value={option.value}
+                              onChange={(event) =>
+                                updateOptionDraft(index, optionIndex, { value: event.target.value })
+                              }
+                              placeholder={`${option.label || 'A'}) Variant qiymati`}
+                              className="min-w-0 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+                            />
+                            <button
+                              onClick={() => removeOptionDraft(index, optionIndex)}
+                              disabled={question.options.length <= 2}
+                              className="rounded-[12px] bg-red-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-600 disabled:opacity-40"
+                            >
+                              Olib tashlash
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <select
                         value={question.correctAnswer}
                         onChange={(event) => updateQuestionDraft(index, { correctAnswer: event.target.value })}
-                        placeholder="To'g'ri javob"
                         className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
-                      />
+                      >
+                        <option value="">To'g'ri javobni tanlang</option>
+                        {question.options
+                          .filter((option) => option.label.trim() && option.value.trim())
+                          .map((option) => (
+                            <option key={option.label} value={option.label}>
+                              {option.label}) {option.value}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-3">
                       <input
                         value={question.skill}
                         onChange={(event) => updateQuestionDraft(index, { skill: event.target.value })}
