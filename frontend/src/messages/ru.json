@@ -285,7 +285,10 @@
     },
     "ios": {
       "title": "iOS приложение",
-      "description": "IPA файл для iPhone и iPad."
-    }
+      "description": "IPA файл для iPhone и iPad.",
+      "installNote": "Open from Safari on iPhone. IPA must be signed with Apple certificate and provisioning profile."
+    },
+    "install": "Install",
+    "directDownload": "Download IPA"
   }
 }

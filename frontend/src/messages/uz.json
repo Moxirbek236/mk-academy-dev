@@ -276,6 +276,8 @@
     "subtitle": "Telefon va iOS uchun eng oxirgi ilova fayllari.",
     "back": "Orqaga",
     "download": "Yuklab olish",
+    "install": "O'rnatish",
+    "directDownload": "IPA faylni yuklab olish",
     "fileLabel": "Fayl",
     "release": "Release",
     "latestTitle": "Har pushdan keyin yangilanadi",
@@ -286,7 +288,8 @@
     },
     "ios": {
       "title": "iOS ilova",
-      "description": "iPhone va iPad uchun IPA fayl."
+      "description": "iPhone va iPad uchun IPA fayl.",
+      "installNote": "iPhone'da Safari orqali oching. O'rnatish ishlashi uchun IPA Apple certificate va provisioning profile bilan signed bo'lishi kerak."
     }
   }
 }

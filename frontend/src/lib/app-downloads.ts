@@ -7,6 +7,12 @@ function releaseAssetUrl(assetName: string) {
   return `https://github.com/${GITHUB_REPOSITORY}/releases/download/${MOBILE_RELEASE_TAG}/${assetName}`;
 }
 
+function iosInstallUrl(manifestUrl: string) {
+  return `itms-services://?action=download-manifest&url=${encodeURIComponent(manifestUrl)}`;
+}
+
+const iosManifestUrl = releaseAssetUrl('MK_Academy_iOS.plist');
+
 export const APP_DOWNLOADS = {
   releaseUrl: `https://github.com/${GITHUB_REPOSITORY}/releases/tag/${MOBILE_RELEASE_TAG}`,
   android: {
@@ -15,6 +21,9 @@ export const APP_DOWNLOADS = {
   },
   ios: {
     fileName: 'MK_Academy_iOS.ipa',
-    url: releaseAssetUrl('MK_Academy_iOS.ipa'),
+    manifestFileName: 'MK_Academy_iOS.plist',
+    url: iosInstallUrl(iosManifestUrl),
+    directUrl: releaseAssetUrl('MK_Academy_iOS.ipa'),
+    manifestUrl: iosManifestUrl,
   },
 };
