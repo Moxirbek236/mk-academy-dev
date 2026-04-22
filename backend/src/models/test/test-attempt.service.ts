@@ -100,6 +100,74 @@ function unwrapAnswer(value: unknown): unknown {
   return key ? record[key] : value;
 }
 
+function normalizeOptionLabel(value: unknown, index: number) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const fallback = index < alphabet.length ? alphabet[index] : String((index - alphabet.length + 1) % 10 || 0);
+  const label = String(value ?? '').trim();
+  return (label || fallback).slice(0, 1).toUpperCase();
+}
+
+function parseStringOption(value: string, index: number) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const parsed = trimmed.match(/^([A-Za-z0-9])\s*[\).:-]\s*(.+)$/);
+  if (parsed) {
+    return {
+      label: parsed[1].toUpperCase(),
+      value: parsed[2].trim(),
+    };
+  }
+
+  return {
+    label: normalizeOptionLabel(undefined, index),
+    value: trimmed,
+  };
+}
+
+function normalizeQuestionOptions(options: unknown) {
+  const decodedOptions = decodeJsonField(options);
+
+  if (Array.isArray(decodedOptions)) {
+    return decodedOptions
+      .map((item, index) => {
+        if (typeof item === 'string') return parseStringOption(item, index);
+        if (item && typeof item === 'object') {
+          const record = item as Record<string, unknown>;
+          return {
+            label: normalizeOptionLabel(
+              record.label ?? record.key ?? record.name ?? record.option ?? record.id,
+              index,
+            ),
+            value: String(
+              record.value ?? record.text ?? record.answer ?? record.title ?? record.content ?? '',
+            ).trim(),
+          };
+        }
+        return parseStringOption(String(item ?? ''), index);
+      })
+      .filter((item): item is { label: string; value: string } => Boolean(item?.value));
+  }
+
+  if (decodedOptions && typeof decodedOptions === 'object') {
+    return Object.entries(decodedOptions as Record<string, unknown>)
+      .map(([label, value], index) => ({
+        label: normalizeOptionLabel(label, index),
+        value: String(value ?? '').trim(),
+      }))
+      .filter((item) => item.value);
+  }
+
+  if (typeof decodedOptions === 'string') {
+    return decodedOptions
+      .split(/\r?\n|,/)
+      .map((item, index) => parseStringOption(item, index))
+      .filter((item): item is { label: string; value: string } => Boolean(item?.value));
+  }
+
+  return [];
+}
+
 function extractAnswer(answers: unknown, questionId: number): unknown {
   const decoded = decodeJsonField(answers);
 
@@ -151,6 +219,28 @@ function answersMatch(answer: unknown, correctAnswer: unknown): boolean {
   }
 
   return JSON.stringify(normalizedAnswer) === JSON.stringify(normalizedCorrectAnswer);
+}
+
+function answerMatchesQuestion(answer: unknown, correctAnswer: unknown, options: unknown): boolean {
+  if (answersMatch(answer, correctAnswer)) {
+    return true;
+  }
+
+  const optionItems = normalizeQuestionOptions(options);
+  const answerLabel = String(decodeJsonField(answer) ?? '').trim().toUpperCase();
+  const correctLabel = String(decodeJsonField(correctAnswer) ?? '').trim().toUpperCase();
+  const selectedOption = optionItems.find((option) => option.label === answerLabel);
+
+  if (selectedOption && answersMatch(selectedOption.value, correctAnswer)) {
+    return true;
+  }
+
+  const correctOption = optionItems.find((option) => option.label === correctLabel);
+  if (correctOption && answersMatch(answer, correctOption.value)) {
+    return true;
+  }
+
+  return false;
 }
 
 @Injectable()
@@ -536,7 +626,7 @@ export class TestAttemptService {
       const points = Number(question.points || 1);
       const answer = extractAnswer(answers, question.id);
       const correctAnswer = decodeJsonField(question.correctAnswer);
-      const isCorrect = answersMatch(answer, correctAnswer);
+      const isCorrect = answerMatchesQuestion(answer, correctAnswer, question.options);
 
       return {
         questionId: question.id,

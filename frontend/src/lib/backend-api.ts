@@ -123,6 +123,11 @@ export type TestQuestionPayload = {
   skill?: string;
 };
 
+export type QuestionOption = {
+  label: string;
+  value: string;
+};
+
 export type TestListQuery = ListQuery & {
   courseId?: number | null;
   cefrLevel?: CefrLevel | '';
@@ -706,12 +711,109 @@ function isEmptyValue(value: unknown) {
   return false;
 }
 
+function getDefaultOptionLabel(index: number) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (index < alphabet.length) return alphabet[index];
+  const digit = String((index - alphabet.length + 1) % 10);
+  return digit || '0';
+}
+
+function normalizeOptionLabel(value: unknown, index: number) {
+  const label = String(value ?? '').trim();
+  return (label || getDefaultOptionLabel(index)).slice(0, 1).toUpperCase();
+}
+
+function parseStringOption(value: string, index: number): QuestionOption | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const parsed = trimmed.match(/^([A-Za-z0-9])\s*[\).:-]\s*(.+)$/);
+  if (parsed) {
+    return {
+      label: parsed[1].toUpperCase(),
+      value: parsed[2].trim(),
+    };
+  }
+
+  return {
+    label: getDefaultOptionLabel(index),
+    value: trimmed,
+  };
+}
+
+function normalizeQuestionOptionRecord(option: Record<string, unknown>, index: number): QuestionOption | null {
+  const label = normalizeOptionLabel(
+    option.label ?? option.key ?? option.name ?? option.option ?? option.id,
+    index,
+  );
+  const rawValue = option.value ?? option.text ?? option.answer ?? option.title ?? option.content;
+  const value = String(rawValue ?? '').trim();
+
+  if (!label && !value) return null;
+
+  return {
+    label,
+    value,
+  };
+}
+
+export function formatQuestionOption(option: QuestionOption) {
+  return `${option.label}) ${option.value}`;
+}
+
+export function normalizeQuestionOptionItems(options: unknown): QuestionOption[] {
+  const decodedOptions =
+    typeof options === 'string'
+      ? (() => {
+          try {
+            return JSON.parse(options);
+          } catch {
+            return options;
+          }
+        })()
+      : options;
+
+  if (Array.isArray(decodedOptions)) {
+    return decodedOptions
+      .map((item, index) => {
+        if (typeof item === 'string') return parseStringOption(item, index);
+        if (item && typeof item === 'object') {
+          return normalizeQuestionOptionRecord(item as Record<string, unknown>, index);
+        }
+        return parseStringOption(String(item ?? ''), index);
+      })
+      .filter((item): item is QuestionOption => Boolean(item));
+  }
+
+  if (typeof decodedOptions === 'string') {
+    return decodedOptions
+      .split(/\r?\n|,/)
+      .map((item, index) => parseStringOption(item, index))
+      .filter((item): item is QuestionOption => Boolean(item));
+  }
+
+  if (decodedOptions && typeof decodedOptions === 'object') {
+    const record = decodedOptions as Record<string, unknown>;
+    if ('label' in record || 'value' in record) {
+      const option = normalizeQuestionOptionRecord(record, 0);
+      return option ? [option] : [];
+    }
+
+    return Object.entries(record)
+      .map(([label, value], index) => ({
+        label: normalizeOptionLabel(label, index),
+        value: String(value ?? '').trim(),
+      }))
+      .filter((item) => item.value.length > 0);
+  }
+
+  return [];
+}
+
 export function validateQuestionPayload(question: Partial<TestQuestionPayload>, index = 0) {
   const errors: string[] = [];
   const label = `${index + 1}-savol`;
-  const options = Array.isArray(question.options)
-    ? question.options.map((item) => String(item).trim()).filter(Boolean)
-    : [];
+  const options = normalizeQuestionOptionItems(question.options);
   const inputType = String(question.inputType || question.type || '').toUpperCase();
   const requiresOptions = inputType.includes('OPTION') || inputType.includes('MCQ');
 
@@ -723,12 +825,29 @@ export function validateQuestionPayload(question: Partial<TestQuestionPayload>, 
     errors.push(`${label}: kamida 2 ta javob varianti kerak`);
   }
 
+  if (requiresOptions) {
+    const optionLabels = new Set<string>();
+    options.forEach((option, optionIndex) => {
+      if (option.label.length !== 1) {
+        errors.push(`${label}: ${optionIndex + 1}-variant nomi faqat 1 ta belgidan iborat bo'lishi kerak`);
+      }
+      if (!option.value.trim()) {
+        errors.push(`${label}: ${option.label || optionIndex + 1}-variant qiymati kiritilishi kerak`);
+      }
+      const normalizedLabel = option.label.toUpperCase();
+      if (optionLabels.has(normalizedLabel)) {
+        errors.push(`${label}: variant nomlari takrorlanmasligi kerak`);
+      }
+      optionLabels.add(normalizedLabel);
+    });
+  }
+
   if (isEmptyValue(question.correctAnswer)) {
     errors.push(`${label}: to'g'ri javob kiritilishi kerak`);
   } else if (requiresOptions && options.length > 0) {
-    const correctAnswer = String(question.correctAnswer).trim();
-    if (!options.includes(correctAnswer)) {
-      errors.push(`${label}: to'g'ri javob variantlar ichida bo'lishi kerak`);
+    const correctAnswer = String(question.correctAnswer).trim().toUpperCase();
+    if (!options.some((option) => option.label.toUpperCase() === correctAnswer)) {
+      errors.push(`${label}: to'g'ri javob variant nomlaridan biri bo'lishi kerak`);
     }
   }
 
@@ -783,8 +902,8 @@ export function validateAttemptAnswers(test: TestItem, answers: Record<string, u
       return;
     }
 
-    const options = normalizeQuestionOptions(question.options);
-    if (options.length > 0 && !options.includes(String(value).trim())) {
+    const options = normalizeQuestionOptionItems(question.options);
+    if (options.length > 0 && !options.some((option) => option.label === String(value).trim().toUpperCase())) {
       errors.push(`${label}: javob mavjud variantlardan tanlanishi kerak`);
     }
   });
@@ -793,29 +912,7 @@ export function validateAttemptAnswers(test: TestItem, answers: Record<string, u
 }
 
 export function normalizeQuestionOptions(options: unknown): string[] {
-  if (Array.isArray(options)) {
-    return options.map((item) => String(item).trim()).filter(Boolean);
-  }
-
-  if (typeof options === 'string') {
-    try {
-      const parsed = JSON.parse(options);
-      if (Array.isArray(parsed)) {
-        return parsed.map((item) => String(item).trim()).filter(Boolean);
-      }
-    } catch {
-      return options
-        .split(/\r?\n|,/)
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-  }
-
-  if (options && typeof options === 'object') {
-    return Object.values(options).map((item) => String(item).trim()).filter(Boolean);
-  }
-
-  return [];
+  return normalizeQuestionOptionItems(options).map(formatQuestionOption);
 }
 
 export async function listTests(query: TestListQuery = {}) {

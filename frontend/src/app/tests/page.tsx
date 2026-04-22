@@ -22,8 +22,9 @@ import {
   createTest,
   deleteQuestion,
   deleteTest,
-  normalizeQuestionOptions,
+  normalizeQuestionOptionItems,
   type CefrLevel,
+  type QuestionOption,
   type TestItem,
   type TestPayload,
   type TestQuestionPayload,
@@ -44,7 +45,7 @@ type QuestionDraft = {
   type: string;
   inputType: string;
   questionText: string;
-  optionsText: string;
+  options: QuestionOption[];
   correctAnswer: string;
   explanation: string;
   points: string;
@@ -71,7 +72,12 @@ const EMPTY_QUESTION: QuestionDraft = {
   type: 'MCQ',
   inputType: 'OPTIONS',
   questionText: '',
-  optionsText: 'A\nB\nC\nD',
+  options: [
+    { label: 'A', value: '' },
+    { label: 'B', value: '' },
+    { label: 'C', value: '' },
+    { label: 'D', value: '' },
+  ],
   correctAnswer: '',
   explanation: '',
   points: '1',
@@ -91,18 +97,44 @@ const EMPTY_FORM: TestFormState = {
   maxAttempts: '3',
   isAdaptive: false,
   isPublished: false,
-  questions: [{ ...EMPTY_QUESTION }],
+  questions: [],
 };
 
-function parseOptions(value: string) {
-  return value
-    .split(/\r?\n/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+function cloneQuestionDraft(question: QuestionDraft = EMPTY_QUESTION): QuestionDraft {
+  return {
+    ...question,
+    options: question.options.map((option) => ({ ...option })),
+  };
+}
+
+function nextOptionLabel(options: QuestionOption[]) {
+  const used = new Set(options.map((option) => option.label.toUpperCase()));
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return alphabet.split('').find((letter) => !used.has(letter)) || String((options.length + 1) % 10);
+}
+
+function normalizeCorrectAnswerToLabel(rawAnswer: unknown, options: QuestionOption[]) {
+  const answer = String(rawAnswer ?? '').trim();
+  if (!answer) return '';
+
+  const byLabel = options.find((option) => option.label.toUpperCase() === answer.toUpperCase());
+  if (byLabel) return byLabel.label;
+
+  const normalizedAnswer = answer.toLowerCase();
+  const byValue = options.find((option) => option.value.trim().toLowerCase() === normalizedAnswer);
+  if (byValue) return byValue.label;
+
+  const parsed = answer.match(/^([A-Za-z0-9])\s*[\).:-]?/);
+  return parsed ? parsed[1].toUpperCase() : answer.slice(0, 1).toUpperCase();
 }
 
 function toQuestionPayload(question: QuestionDraft): TestQuestionPayload {
-  const options = parseOptions(question.optionsText);
+  const options = question.options
+    .map((option) => ({
+      label: option.label.trim().slice(0, 1).toUpperCase(),
+      value: option.value.trim(),
+    }))
+    .filter((option) => option.label && option.value);
 
   return {
     type: question.type.trim() || 'MCQ',
@@ -155,24 +187,24 @@ function toFormState(test: TestItem): TestFormState {
     isPublished: Boolean(test.isPublished),
     questions:
       test.questions && test.questions.length > 0
-        ? test.questions.map((question) => ({
-            id: question.id,
-            type: question.type || 'MCQ',
-            inputType: question.inputType || 'OPTIONS',
-            questionText: question.questionText || '',
-            optionsText: normalizeQuestionOptions(question.options).join('\n') || 'A\nB\nC\nD',
-            correctAnswer:
-              typeof question.correctAnswer === 'string'
-                ? question.correctAnswer
-                : question.correctAnswer === undefined || question.correctAnswer === null
-                  ? ''
-                  : String(question.correctAnswer),
-            explanation: question.explanation || '',
-            points: String(question.points || 1),
-            difficulty: String(question.difficulty || 1),
-            skill: question.skill || '',
-          }))
-        : [{ ...EMPTY_QUESTION }],
+        ? test.questions.map((question) => {
+            const parsedOptions = normalizeQuestionOptionItems(question.options);
+            const options = parsedOptions.length ? parsedOptions : cloneQuestionDraft().options;
+
+            return {
+              id: question.id,
+              type: question.type || 'MCQ',
+              inputType: question.inputType || 'OPTIONS',
+              questionText: question.questionText || '',
+              options,
+              correctAnswer: normalizeCorrectAnswerToLabel(question.correctAnswer, options),
+              explanation: question.explanation || '',
+              points: String(question.points || 1),
+              difficulty: String(question.difficulty || 1),
+              skill: question.skill || '',
+            };
+          })
+        : [cloneQuestionDraft()],
   };
 }
 
@@ -212,7 +244,7 @@ export default function TestsPage() {
 
   function openCreateModal() {
     setEditingTest(null);
-    setForm({ ...EMPTY_FORM, questions: [{ ...EMPTY_QUESTION }] });
+    setForm({ ...EMPTY_FORM, questions: [cloneQuestionDraft()] });
     setMutationError(null);
     setIsFormOpen(true);
   }
@@ -233,10 +265,72 @@ export default function TestsPage() {
     }));
   }
 
+  function updateOptionDraft(questionIndex: number, optionIndex: number, patch: Partial<QuestionOption>) {
+    setForm((current) => ({
+      ...current,
+      questions: current.questions.map((question, currentQuestionIndex) => {
+        if (currentQuestionIndex !== questionIndex) return question;
+
+        const options = question.options.map((option, currentOptionIndex) =>
+          currentOptionIndex === optionIndex
+            ? {
+                ...option,
+                ...patch,
+                label:
+                  patch.label !== undefined
+                    ? patch.label.trim().slice(0, 1).toUpperCase()
+                    : option.label,
+              }
+            : option,
+        );
+
+        return {
+          ...question,
+          options,
+          correctAnswer: options.some((option) => option.label === question.correctAnswer)
+            ? question.correctAnswer
+            : '',
+        };
+      }),
+    }));
+  }
+
+  function addOptionDraft(questionIndex: number) {
+    setForm((current) => ({
+      ...current,
+      questions: current.questions.map((question, currentQuestionIndex) =>
+        currentQuestionIndex === questionIndex
+          ? {
+              ...question,
+              options: [...question.options, { label: nextOptionLabel(question.options), value: '' }],
+            }
+          : question,
+      ),
+    }));
+  }
+
+  function removeOptionDraft(questionIndex: number, optionIndex: number) {
+    setForm((current) => ({
+      ...current,
+      questions: current.questions.map((question, currentQuestionIndex) => {
+        if (currentQuestionIndex !== questionIndex) return question;
+
+        const removedLabel = question.options[optionIndex]?.label;
+        const options = question.options.filter((_, currentOptionIndex) => currentOptionIndex !== optionIndex);
+
+        return {
+          ...question,
+          options,
+          correctAnswer: question.correctAnswer === removedLabel ? '' : question.correctAnswer,
+        };
+      }),
+    }));
+  }
+
   function addQuestionDraft() {
     setForm((current) => ({
       ...current,
-      questions: [...current.questions, { ...EMPTY_QUESTION }],
+      questions: [...current.questions, cloneQuestionDraft()],
     }));
   }
 
@@ -288,7 +382,7 @@ export default function TestsPage() {
 
       setIsFormOpen(false);
       setEditingTest(null);
-      setForm({ ...EMPTY_FORM, questions: [{ ...EMPTY_QUESTION }] });
+      setForm({ ...EMPTY_FORM, questions: [cloneQuestionDraft()] });
       await refetch();
     } catch (saveError) {
       setMutationError(getReadableError(saveError, "Testni saqlab bo'lmadi"));
