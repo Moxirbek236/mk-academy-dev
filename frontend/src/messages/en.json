@@ -37,7 +37,6 @@
     "dashboard": "Dashboard",
     "leads": "Leads",
     "users": "Users",
-    "finance": "Finance",
     "system": "System",
     "settings": "Settings",
     "home": "Home",
@@ -57,7 +56,6 @@
   "BottomNav": {
     "dashboard": "Dashboard",
     "users": "Users",
-    "finance": "Finance",
     "system": "System",
     "settings": "Settings",
     "home": "Home",
@@ -73,18 +71,6 @@
     "books": "Books",
     "rating": "Rating",
     "profile": "Profile"
-  },
-  "Finance": {
-    "title": "Finance",
-    "balanceLabel": "Total balance ({period})",
-    "monthly": "monthly",
-    "income": "Income",
-    "expense": "Expense",
-    "transactions": "Transactions",
-    "history": "History",
-    "transactionCount": "{count} transactions",
-    "systemTransaction": "System transaction",
-    "transfer": "Transfer"
   },
   "ExamCard": {
     "title": "Exam",
@@ -174,7 +160,7 @@
     "apiLatency": "API Latency",
     "optimal": "Optimal",
     "realtimeAnalytics": "Real-time Analytics",
-    "totalRevenue": "Total Revenue",
+    "totalUsers": "Total Users",
     "activeSubscribers": "Active Subscribers",
     "databaseLoad": "Database Load",
     "storage": "Storage",

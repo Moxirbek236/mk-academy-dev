@@ -1,6 +1,5 @@
 import axios from 'axios';
 import api from '@/lib/api';
-import { getStoredToken } from '@/lib/auth-storage';
 
 export interface CurrentUserProfile {
   id: number | null;
@@ -12,27 +11,6 @@ export interface CurrentUserProfile {
   language: string;
   timezone: string;
   dateOfBirth: string | null;
-}
-
-type JwtPayload = {
-  id?: number;
-  role?: string;
-};
-
-async function readJwtPayload(): Promise<JwtPayload | null> {
-  const token = await getStoredToken();
-  if (!token) return null;
-
-  try {
-    const payload = token.split('.')[1];
-    if (!payload) return null;
-
-    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
-    const decoded = atob(normalized);
-    return JSON.parse(decoded) as JwtPayload;
-  } catch {
-    return null;
-  }
 }
 
 function isRouteMissingError(error: unknown): boolean {
@@ -131,53 +109,5 @@ export async function fetchUsersCompat(role: string | null, searchTerm: string) 
     }
 
     throw error;
-  }
-}
-
-export async function fetchFinanceCompat(role: string | null) {
-  try {
-    const [summaryResponse, transactionsResponse] = await Promise.all([
-      api.get('/finance/summary'),
-      api.get('/finance/transactions'),
-    ]);
-
-    return {
-      summary: summaryResponse.data?.data ?? summaryResponse.data ?? null,
-      transactions: transactionsResponse.data?.data ?? transactionsResponse.data ?? [],
-    };
-  } catch (error) {
-    if (!isRouteMissingError(error)) {
-      throw error;
-    }
-
-    const payload = await readJwtPayload();
-    const userId = payload?.id;
-
-    if (!userId || role === 'admin' || role === 'superadmin') {
-      throw error;
-    }
-
-    const transactionsResponse = await api.get(`/finance/student/${userId}/transactions`);
-    const transactions = transactionsResponse.data?.data ?? transactionsResponse.data ?? [];
-
-    const summary = (transactions as Array<{ amount?: number; type?: string }>).reduce(
-      (acc, transaction) => {
-        const amount = Number(transaction.amount ?? 0);
-        if (transaction.type === 'INCOME') {
-          acc.income += amount;
-          acc.balance += amount;
-        } else {
-          acc.expense += amount;
-          acc.balance -= amount;
-        }
-        return acc;
-      },
-      { income: 0, expense: 0, balance: 0 },
-    );
-
-    return {
-      summary,
-      transactions,
-    };
   }
 }

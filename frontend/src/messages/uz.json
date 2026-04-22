@@ -37,7 +37,6 @@
     "dashboard": "Boshqaruv",
     "leads": "Murojaatlar",
     "users": "Foydalanuvchilar",
-    "finance": "Moliya",
     "system": "Tizim",
     "settings": "Sozlamalar",
     "home": "Bosh",
@@ -57,7 +56,6 @@
   "BottomNav": {
     "dashboard": "Boshqaruv",
     "users": "Foydalanuvchilar",
-    "finance": "Moliya",
     "system": "Tizim",
     "settings": "Sozlamalar",
     "home": "Bosh",
@@ -73,18 +71,6 @@
     "books": "Kitoblar",
     "rating": "Reyting",
     "profile": "Profil"
-  },
-  "Finance": {
-    "title": "Moliya",
-    "balanceLabel": "Jami balans ({period})",
-    "monthly": "oylik",
-    "income": "Kirim",
-    "expense": "Chiqim",
-    "transactions": "Tranzaksiyalar",
-    "history": "Tarix",
-    "transactionCount": "{count} ta tranzaksiya",
-    "systemTransaction": "Tizim tranzaksiyasi",
-    "transfer": "O'tkazma"
   },
   "ExamCard": {
     "title": "Imtihon",
@@ -174,7 +160,7 @@
     "apiLatency": "API kechikishi",
     "optimal": "Optimal",
     "realtimeAnalytics": "Real-time analitika",
-    "totalRevenue": "Jami daromad",
+    "totalUsers": "Jami foydalanuvchilar",
     "activeSubscribers": "Faol obunachilar",
     "databaseLoad": "Database yuklamasi",
     "storage": "Saqlash hajmi",

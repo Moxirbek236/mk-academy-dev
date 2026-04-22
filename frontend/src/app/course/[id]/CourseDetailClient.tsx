@@ -2,7 +2,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ChevronRight, Loader2, Sparkles } from 'lucide-react';
-import api from '@/lib/api';
+import { getCourseById } from '@/lib/backend-api';
 
 export default function CourseDetailClient() {
   const params = useParams();
@@ -13,8 +13,8 @@ export default function CourseDetailClient() {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const res = await api.get(`/courses/${params.id}`);
-        setCourse(res.data?.data || res.data);
+        const data = await getCourseById(Number(params.id));
+        setCourse(data);
       } catch (err) {
         console.error(err);
       } finally {

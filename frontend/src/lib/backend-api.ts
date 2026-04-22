@@ -3,7 +3,6 @@ import api from '@/lib/api';
 export type AppRole = 'superadmin' | 'admin' | 'teacher' | 'mentor' | 'student';
 export type UserDirectoryRole = 'STUDENT' | 'TEACHER' | 'ADMIN';
 export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
-export type TransactionType = 'INCOME' | 'EXPENSE';
 export type TaskType =
   | 'READING'
   | 'WRITING'
@@ -24,7 +23,6 @@ export const TASK_TYPES: TaskType[] = [
   'VOCABULARY',
   'TEST',
 ];
-export const TRANSACTION_TYPES: TransactionType[] = ['INCOME', 'EXPENSE'];
 
 type RequestStrategy = 'scoped' | 'role-specific';
 
@@ -82,9 +80,12 @@ export type BookPayload = {
   title: string;
   author?: string;
   description?: string;
-  imageUrl?: string;
-  downloadUrl?: string;
-  level?: CefrLevel | '';
+  cefrLevel?: CefrLevel | '';
+  coverImage?: File | null;
+  bookFile?: File | null;
+  coverImageUrl?: string;
+  fileUrl?: string;
+  isActive?: boolean;
 };
 
 export type TaskPayload = {
@@ -237,13 +238,6 @@ export type PublicLeadQuestion = {
 export type LeadAnswerPayload = {
   answer: string;
   isPublished?: boolean;
-};
-
-export type FinanceTransactionPayload = {
-  userId: number;
-  amount: number;
-  type: TransactionType;
-  reason: string;
 };
 
 export type AppNotification = {
@@ -615,9 +609,22 @@ export async function getCoursesByGroup(groupId: number) {
   return data;
 }
 
-export async function listBooks() {
+export type BookListQuery = ListQuery & {
+  cefrLevel?: CefrLevel | '';
+  author?: string;
+  isActive?: boolean;
+};
 
-  const response = await api.get('/books');
+function normalizeBookListQuery(query: BookListQuery = {}) {
+  const params: Record<string, unknown> = normalizeListQuery(query);
+  if (query.cefrLevel) params.cefrLevel = query.cefrLevel;
+  if (query.author?.trim()) params.author = query.author.trim();
+  if (typeof query.isActive === 'boolean') params.isActive = String(query.isActive);
+  return params;
+}
+
+export async function listBooks(query: BookListQuery = {}) {
+  const response = await api.get('/books', { params: normalizeBookListQuery(query) });
   return unwrapApiData<any[]>(response.data) ?? [];
 }
 
@@ -627,12 +634,16 @@ export async function getBookById(id: number) {
 }
 
 export async function createBook(payload: BookPayload) {
-  const response = await api.post('/books', payload);
+  const response = await api.post('/books', createFormData(payload), {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return unwrapApiData<any>(response.data);
 }
 
 export async function updateBook(id: number, payload: Partial<BookPayload>) {
-  const response = await api.patch(`/books/${id}`, payload);
+  const response = await api.patch(`/books/${id}`, createFormData(payload), {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return unwrapApiData<any>(response.data);
 }
 
@@ -663,6 +674,253 @@ export async function updateTask(id: number, payload: Partial<TaskPayload>) {
 
 export async function deleteTask(id: number) {
   const response = await api.delete(`/tasks/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function login(payload: { phone: string; password: string }) {
+  const response = await api.post('/auth/login', payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function logout() {
+  const response = await api.post('/auth/logout');
+  return unwrapApiData<any>(response.data);
+}
+
+export async function getGroupsByTeacherId(teacherId: number) {
+  const response = await api.get(`/groups/${teacherId}/groups`);
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getGroupMembersViaGroup(groupId: number) {
+  const response = await api.get(`/groups/get/${groupId}/members`);
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export type GroupAssignmentPayload = {
+  groupId: number;
+  taskId?: number | null;
+  testId?: number | null;
+  dueDate?: string | null;
+  isRequired?: boolean;
+};
+
+export async function createGroupAssignment(payload: GroupAssignmentPayload) {
+  const response = await api.post('/group-assignments/create', payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function listGroupAssignments(groupName?: string) {
+  const response = await api.get('/group-assignments/get-all', {
+    params: groupName?.trim() ? { groupName: groupName.trim() } : undefined,
+  });
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getGroupAssignmentById(id: number) {
+  const response = await api.get(`/group-assignments/get/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function updateGroupAssignment(id: number, payload: Partial<GroupAssignmentPayload>) {
+  const response = await api.patch(`/group-assignments/update/${id}`, payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function deleteGroupAssignment(id: number) {
+  const response = await api.delete(`/group-assignments/delete/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function createTaskAttachment(taskId: number, payload: Record<string, unknown>) {
+  const response = await api.post(`/task-attachments/task/${taskId}`, payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function getTaskAttachments(taskId: number) {
+  const response = await api.get(`/task-attachments/task/${taskId}`);
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function submitStudentTask(studentId: number, taskId: number, submissionUrl: string) {
+  const response = await api.post(`/student-tasks/submit/${studentId}/${taskId}`, { submissionUrl });
+  return unwrapApiData<any>(response.data);
+}
+
+export async function getStudentTasks(studentId: number) {
+  const response = await api.get(`/student-tasks/student/${studentId}`);
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export type VocabularyPayload = {
+  word: string;
+  translation: string;
+  exampleSentence?: string;
+  difficulty?: number;
+  courseId?: number | null;
+};
+
+export type VocabularyListQuery = ListQuery & {
+  word?: string;
+  courseId?: number | null;
+  difficulty?: number | null;
+};
+
+export async function createVocabulary(payload: VocabularyPayload) {
+  const response = await api.post('/vocabularies/create', payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function listVocabularies(query: VocabularyListQuery = {}) {
+  const params: Record<string, unknown> = normalizeListQuery(query);
+  if (query.word?.trim()) params.search = query.word.trim();
+  if (query.courseId) params.courseId = query.courseId;
+  if (query.difficulty) params.difficulty = query.difficulty;
+
+  const response = await api.get('/vocabularies/get-all', { params });
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getVocabularyById(id: number) {
+  const response = await api.get(`/vocabularies/get/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function updateVocabulary(id: number, payload: Partial<VocabularyPayload>) {
+  const response = await api.patch(`/vocabularies/update/${id}`, payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function deleteVocabulary(id: number) {
+  const response = await api.delete(`/vocabularies/delete/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export type WordListPayload = {
+  studentId?: number;
+  title?: string;
+  name?: string;
+  description?: string;
+  isPublic?: boolean;
+};
+
+export async function createWordList(payload: WordListPayload) {
+  const response = await api.post('/word-lists/create', payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function listWordLists() {
+  const response = await api.get('/word-lists/get-all');
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getWordListById(id: number) {
+  const response = await api.get(`/word-lists/get/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function updateWordList(id: number, payload: Partial<WordListPayload>) {
+  const response = await api.patch(`/word-lists/update/${id}`, payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function deleteWordList(id: number) {
+  const response = await api.delete(`/word-lists/delete/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function addWordListItem(wordListId: number, payload: { vocabularyId: number }) {
+  const response = await api.post(`/word-list-items/${wordListId}/add`, payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function listWordListItems(wordListId: number) {
+  const response = await api.get(`/word-list-items/${wordListId}/all`);
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function removeWordListItem(wordListId: number, vocabularyId: number) {
+  const response = await api.delete(`/word-list-items/${wordListId}/remove/${vocabularyId}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function submitVocabularyReview(payload: { vocabularyId: number; quality: number }) {
+  const response = await api.post('/vocabulary-progress/submit-review', payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function getDueVocabularyReviews() {
+  const response = await api.get('/vocabulary-progress/due-reviews');
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getVocabularyProgressByStudent(studentId: number) {
+  const response = await api.get(`/vocabulary-progress/student/${studentId}`);
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getVocabularyProgressById(id: number) {
+  const response = await api.get(`/vocabulary-progress/get/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function createRating(payload: { targetType: string; targetId: string | number; score: number; reviewText?: string }) {
+  const response = await api.post('/ratings', payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function listRatings() {
+  const response = await api.get('/ratings');
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getRatingsByTarget(targetType: string, targetId: string | number) {
+  const response = await api.get('/ratings/target', { params: { type: targetType, id: targetId } });
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function deleteRating(id: number) {
+  const response = await api.delete(`/ratings/${id}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function listAchievements() {
+  const response = await api.get('/achievements');
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getStudentAchievements(studentId: number) {
+  const response = await api.get(`/achievements/student/${studentId}`);
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function getLeaderboard(limit?: number) {
+  const response = await api.get('/leaderboard', { params: limit ? { limit } : undefined });
+  return unwrapApiData<any[]>(response.data) ?? [];
+}
+
+export async function addXp(userId: number, payload: { amount: number; reason?: string; referenceId?: string | number }) {
+  const response = await api.post(`/xp/add/${userId}`, payload);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function getXpRank(userId: number) {
+  const response = await api.get(`/xp/rank/${userId}`);
+  return unwrapApiData<any>(response.data);
+}
+
+export async function getPublicCenterSettings() {
+  const response = await api.get('/center-settings/public');
+  return unwrapApiData<any>(response.data);
+}
+
+export async function getCenterSettings() {
+  const response = await api.get('/center-settings');
+  return unwrapApiData<any>(response.data);
+}
+
+export async function updateCenterSettings(payload: Record<string, unknown>) {
+  const response = await api.patch('/center-settings', payload);
   return unwrapApiData<any>(response.data);
 }
 
@@ -964,6 +1222,11 @@ export async function createQuestion(testId: number, payload: TestQuestionPayloa
   return unwrapApiData<TestQuestion>(response.data);
 }
 
+export async function getQuestionsByTest(testId: number) {
+  const response = await api.get(`/questions/test/${testId}`);
+  return unwrapApiData<TestQuestion[]>(response.data) ?? [];
+}
+
 export async function updateQuestion(id: number, payload: Partial<TestQuestionPayload>) {
   const errors = validateQuestionPayload({
     questionText: payload.questionText || 'existing',
@@ -1005,6 +1268,11 @@ export async function submitTestAttempt(testId: number, payload: TestAttemptSubm
   return unwrapApiData<TestAttempt>(response.data);
 }
 
+export async function submitTestAttemptRecord(payload: TestAttemptSubmitPayload) {
+  const response = await api.post('/test-attempts/submit', payload);
+  return unwrapApiData<TestAttempt>(response.data);
+}
+
 export async function getMyTestAttempts() {
   const response = await api.get('/tests/my-attempts');
   return unwrapApiData<TestAttempt[]>(response.data) ?? [];
@@ -1042,21 +1310,6 @@ export async function listPublishedLeadQuestions() {
 
 export async function deleteLead(id: number) {
   const response = await api.delete(`/leads/${id}`);
-  return unwrapApiData<any>(response.data);
-}
-
-export async function getFinanceSummary() {
-  const response = await api.get('/finance/summary');
-  return unwrapApiData<any>(response.data);
-}
-
-export async function getFinanceTransactions() {
-  const response = await api.get('/finance/transactions');
-  return unwrapApiData<any[]>(response.data) ?? [];
-}
-
-export async function createFinanceTransaction(payload: FinanceTransactionPayload) {
-  const response = await api.post('/finance/transaction', payload);
   return unwrapApiData<any>(response.data);
 }
 

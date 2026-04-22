@@ -24,6 +24,7 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
+import { mkdirSync } from 'fs';
 import { Express } from 'express';
 
 import { BookService } from './book.service';
@@ -59,17 +60,15 @@ function editFileName(
 const storage = diskStorage({
   destination: (_req, file, callback) => {
     if (file.fieldname === 'coverImage') {
-      return callback(
-        null,
-        join(process.cwd(), 'uploads', 'books', 'covers'),
-      );
+      const uploadPath = join(process.cwd(), 'uploads', 'books', 'covers');
+      mkdirSync(uploadPath, { recursive: true });
+      return callback(null, uploadPath);
     }
 
     if (file.fieldname === 'bookFile') {
-      return callback(
-        null,
-        join(process.cwd(), 'uploads', 'books', 'files'),
-      );
+      const uploadPath = join(process.cwd(), 'uploads', 'books', 'files');
+      mkdirSync(uploadPath, { recursive: true });
+      return callback(null, uploadPath);
     }
 
     return callback(new BadRequestException('Unexpected field') as any, '');

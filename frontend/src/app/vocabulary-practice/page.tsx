@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Brain, ChevronLeft, Volume2, CheckCircle2, XCircle, RotateCcw, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import api from '@/lib/api';
+import { listVocabularies } from '@/lib/backend-api';
 
 export default function VocabularyPracticePage() {
   const [words, setWords] = useState<any[]>([]);
@@ -15,8 +15,8 @@ export default function VocabularyPracticePage() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const res = await api.get('/vocabularies'); // Or a specialized endpoint
-        setWords(res.data?.data || res.data || []);
+        const data = await listVocabularies({ limit: 100 });
+        setWords(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       } finally {

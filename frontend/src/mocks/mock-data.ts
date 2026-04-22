@@ -86,18 +86,6 @@ export interface MockLead {
   createdAt: string;
 }
 
-export interface MockTransaction {
-  id: number;
-  userId: number;
-  type: 'INCOME' | 'EXPENSE';
-  amount: number;
-  method: string;
-  createdAt: string;
-  user: {
-    fullName: string;
-  };
-}
-
 export interface MockAttempt {
   id: number;
   userId: number;
@@ -116,7 +104,6 @@ export interface MockStore {
   books: MockBook[];
   vocabularies: MockVocabulary[];
   leads: MockLead[];
-  transactions: MockTransaction[];
   attempts: MockAttempt[];
 }
 
@@ -638,54 +625,6 @@ const mockLeadsSeed: MockLead[] = [
   },
 ];
 
-const mockTransactionsSeed: MockTransaction[] = [
-  {
-    id: 601,
-    userId: 4,
-    type: 'EXPENSE',
-    amount: 1200000,
-    method: 'CLICK',
-    createdAt: '2026-04-01T08:00:00.000Z',
-    user: { fullName: 'Azizbek Nurmatov' },
-  },
-  {
-    id: 602,
-    userId: 5,
-    type: 'EXPENSE',
-    amount: 950000,
-    method: 'PAYME',
-    createdAt: '2026-04-02T09:30:00.000Z',
-    user: { fullName: 'Shahzoda Yusupova' },
-  },
-  {
-    id: 603,
-    userId: 6,
-    type: 'EXPENSE',
-    amount: 1100000,
-    method: 'CASH',
-    createdAt: '2026-04-03T12:10:00.000Z',
-    user: { fullName: 'Bekzod Rasulov' },
-  },
-  {
-    id: 604,
-    userId: 7,
-    type: 'EXPENSE',
-    amount: 870000,
-    method: 'UZUM',
-    createdAt: '2026-04-04T10:45:00.000Z',
-    user: { fullName: 'Madina Sattorova' },
-  },
-  {
-    id: 605,
-    userId: 2,
-    type: 'INCOME',
-    amount: 4120000,
-    method: 'SUMMARY',
-    createdAt: '2026-04-04T18:00:00.000Z',
-    user: { fullName: 'MK Academy' },
-  },
-];
-
 const mockAttemptsSeed: MockAttempt[] = [
   {
     id: 701,
@@ -739,7 +678,6 @@ export function createInitialMockStore(): MockStore {
     books: mockBooksSeed,
     vocabularies: mockVocabulariesSeed,
     leads: mockLeadsSeed,
-    transactions: mockTransactionsSeed,
     attempts: mockAttemptsSeed,
   });
 }

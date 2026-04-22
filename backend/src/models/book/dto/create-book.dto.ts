@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString, IsUrl } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class CreateBookDto {
   @ApiProperty({ example: 'Essential Grammar in Use' })
@@ -18,12 +19,13 @@ export class CreateBookDto {
 
   @ApiPropertyOptional({ example: 'https://example.com/book-cover.jpg' })
   @IsOptional()
-  @IsUrl()
+  @IsString()
   coverImageUrl?: string;
 
-  @ApiProperty({ example: 'https://example.com/books/grammar.pdf' })
-  @IsUrl()
-  fileUrl: string;
+  @ApiPropertyOptional({ example: '/uploads/books/files/grammar.pdf' })
+  @IsOptional()
+  @IsString()
+  fileUrl?: string;
 
   @ApiPropertyOptional({ example: 'A2' })
   @IsOptional()
@@ -32,6 +34,7 @@ export class CreateBookDto {
 
   @ApiPropertyOptional({ example: true, default: true })
   @IsOptional()
+  @Transform(({ value }) => value === true || value === 'true')
   @IsBoolean()
   isActive?: boolean;
 }

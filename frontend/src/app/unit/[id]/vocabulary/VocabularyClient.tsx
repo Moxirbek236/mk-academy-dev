@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowLeft, Volume2, Search, PlusCircle, Lock, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+import { listVocabularies } from '@/lib/backend-api';
 
 export default function VocabularyClient() {
   const router = useRouter();
@@ -22,10 +22,7 @@ export default function VocabularyClient() {
     const fetchWords = async () => {
       try {
         setLoadingWords(true);
-        const response = await api.get('/vocabularies', {
-          params: { unitId: Number(id) || undefined },
-        });
-        const payload = response.data?.data || response.data || [];
+        const payload = await listVocabularies({ limit: 100 });
 
         if (!active) return;
 

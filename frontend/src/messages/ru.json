@@ -37,7 +37,6 @@
     "dashboard": "Панель",
     "leads": "Заявки",
     "users": "Пользователи",
-    "finance": "Финансы",
     "system": "Система",
     "settings": "Настройки",
     "home": "Главная",
@@ -57,7 +56,6 @@
   "BottomNav": {
     "dashboard": "Панель",
     "users": "Пользователи",
-    "finance": "Финансы",
     "system": "Система",
     "settings": "Настройки",
     "home": "Главная",
@@ -73,18 +71,6 @@
     "books": "Книги",
     "rating": "Рейтинг",
     "profile": "Профиль"
-  },
-  "Finance": {
-    "title": "Финансы",
-    "balanceLabel": "Общий баланс ({period})",
-    "monthly": "ежемесячный",
-    "income": "Доход",
-    "expense": "Расход",
-    "transactions": "Транзакции",
-    "history": "История",
-    "transactionCount": "{count} транзакций",
-    "systemTransaction": "Системная транзакция",
-    "transfer": "Перевод"
   },
   "ExamCard": {
     "title": "Экзамен",
@@ -124,14 +110,13 @@
     "fallbackLesson2": "Повседневный разговор - 10 уроков",
     "fallbackLesson3": "Бизнес-английский - 12 уроков",
     "practiceTitle": "Тренировка словаря",
-    "practiceDescription": "Запоминайте быстрее и расширяйте словарный запас с помощью spaced repetition (SM-2).",
+    "practiceDescription": "Применяйте изученное",
     "trainNow": "Начать тренировку",
     "unitTitle": "Модуль {unit}",
     "selectFocus": "Выберите направление",
     "vocabulary": "Словарь",
     "vocabularyDescription": "Расширьте словарный запас",
     "practice": "Практика",
-    "practiceDescription": "Применяйте изученное",
     "footer": "MK Academy Learning Engine"
   },
   "DashboardMentor": {
@@ -174,7 +159,6 @@
     "apiLatency": "Задержка API",
     "optimal": "Оптимально",
     "realtimeAnalytics": "Real-time аналитика",
-    "totalRevenue": "Общий доход",
     "activeSubscribers": "Активные подписчики",
     "databaseLoad": "Нагрузка базы данных",
     "storage": "Хранилище",
@@ -194,7 +178,8 @@
     "typeAudit": "Аудит",
     "success": "Успешно",
     "warning": "Предупреждение",
-    "info": "Инфо"
+    "info": "Инфо",
+    "totalUsers": "Total Users"
   },
   "GroupsPage": {
     "title": "Группы",

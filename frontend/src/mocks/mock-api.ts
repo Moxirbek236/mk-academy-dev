@@ -253,35 +253,6 @@ function getAttemptsForUser(user: MockUser) {
   return store.attempts.filter((attempt) => attempt.userId === user.id);
 }
 
-function getFinanceTransactionsForUser(user: MockUser) {
-  const role = normalizeMockRole(user.role);
-
-  if (role === 'superadmin' || role === 'admin') {
-    return [...store.transactions].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-  }
-
-  return store.transactions
-    .filter((transaction) => transaction.userId === user.id)
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-}
-
-function getFinanceSummaryForUser(user: MockUser) {
-  return getFinanceTransactionsForUser(user).reduce(
-    (summary, transaction) => {
-      if (transaction.type === 'INCOME') {
-        summary.income += transaction.amount;
-        summary.balance += transaction.amount;
-      } else {
-        summary.expense += transaction.amount;
-        summary.balance -= transaction.amount;
-      }
-
-      return summary;
-    },
-    { income: 0, expense: 0, balance: 0 },
-  );
-}
-
 function buildSystemPayload() {
   const totalStudents = getStudentUsers().length;
   const totalTeachers = getTeacherUsers().length;
@@ -294,8 +265,8 @@ function buildSystemPayload() {
       status: 'Success',
     },
     {
-      type: 'PAYMENT',
-      title: `${store.transactions.filter((transaction) => transaction.type === 'EXPENSE').length} ta to‘lov qayd etildi`,
+      type: 'LEAD',
+      title: `${store.leads.filter((lead) => lead.status === 'CONTACTED').length} ta murojaatga javob berildi`,
       time: '20 min ago',
       status: 'Success',
     },
@@ -325,7 +296,6 @@ function buildSystemPayload() {
       totalGroups: store.groups.length,
       totalCourses: store.courses.length,
       totalLeads: store.leads.length,
-      totalTransactions: store.transactions.length,
     },
     auditLogs,
   };
@@ -340,9 +310,6 @@ function buildDashboardPayload(user: MockUser) {
 
   if (role === 'superadmin') {
     return {
-      revenue: getFinanceTransactionsForUser(user)
-        .filter((transaction) => transaction.type === 'INCOME')
-        .reduce((sum, transaction) => sum + transaction.amount, 0),
       subscribers: getStudentUsers().length,
       totalUsers: store.users.length,
       totalStudents: getStudentUsers().length,
@@ -547,8 +514,32 @@ async function handleRequest(config: RequestConfig) {
 
   if (method === 'get' && pathname === '/books') {
     const category = url.searchParams.get('category');
-    const books = category ? store.books.filter((book) => book.category === category) : store.books;
+    const cefrLevel = url.searchParams.get('cefrLevel');
+    const search = (url.searchParams.get('search') || '').toLowerCase();
+    const books = store.books.filter((book) => {
+      if (category && book.category !== category) return false;
+      if (cefrLevel && book.cefrLevel !== cefrLevel) return false;
+      if (search && !`${book.title} ${book.author}`.toLowerCase().includes(search)) return false;
+      return true;
+    });
     return makeResponse(config, books);
+  }
+
+  if (method === 'post' && pathname === '/books') {
+    const body = parseRequestData<any>(config);
+    const readValue = (key: string) =>
+      typeof FormData !== 'undefined' && body instanceof FormData ? String(body.get(key) || '') : String(body?.[key] || '');
+    const book = {
+      id: Math.max(...store.books.map((item) => item.id), 400) + 1,
+      title: readValue('title') || 'Yangi kitob',
+      author: readValue('author') || 'MK Academy',
+      category: 'ACADEMIC' as const,
+      coverImageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80',
+      cefrLevel: readValue('cefrLevel') || 'A1',
+      pages: 0,
+    };
+    store.books.unshift(book);
+    return makeResponse(config, book, 201, 'Created');
   }
 
   if (method === 'get' && segments[0] === 'books' && segments[1]) {
@@ -562,7 +553,7 @@ async function handleRequest(config: RequestConfig) {
     return makeResponse(config, book);
   }
 
-  if (method === 'get' && pathname === '/vocabularies') {
+  if (method === 'get' && (pathname === '/vocabularies' || pathname === '/vocabularies/get-all')) {
     const unitId = Number(url.searchParams.get('unitId') || 0);
     const courseId = Number(url.searchParams.get('courseId') || 0);
 
@@ -577,26 +568,6 @@ async function handleRequest(config: RequestConfig) {
 
   if (method === 'get' && pathname === '/tests/my-attempts') {
     return makeResponse(config, getAttemptsForUser(currentUser));
-  }
-
-  if (method === 'get' && pathname === '/finance/summary') {
-    return makeResponse(config, getFinanceSummaryForUser(currentUser));
-  }
-
-  if (method === 'get' && pathname === '/finance/transactions') {
-    return makeResponse(config, getFinanceTransactionsForUser(currentUser));
-  }
-
-  if (
-    method === 'get' &&
-    segments[0] === 'finance' &&
-    segments[1] === 'student' &&
-    segments[2] &&
-    segments[3] === 'transactions'
-  ) {
-    const userId = Number(segments[2]);
-    const transactions = store.transactions.filter((transaction) => transaction.userId === userId);
-    return makeResponse(config, transactions);
   }
 
   if (method === 'get' && pathname === '/system/stats') {

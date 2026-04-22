@@ -38,7 +38,6 @@ export const PRIVATE_ROBOTS_PATHS = [
   '/dashboard',
   '/login',
   '/notifications',
-  '/finance',
   '/users',
   '/system',
   '/settings',

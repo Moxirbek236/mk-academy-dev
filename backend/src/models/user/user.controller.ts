@@ -55,7 +55,7 @@ export class UserController {
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/student")
@@ -87,7 +87,7 @@ export class UserController {
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
   @Post("create/admin")
