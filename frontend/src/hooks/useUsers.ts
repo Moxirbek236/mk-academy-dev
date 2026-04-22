@@ -10,6 +10,16 @@ export function useUsers(
   enabled = true,
   strategy: 'scoped' | 'role-specific' = 'role-specific',
 ) {
+  const requestKey = [
+    role || '',
+    strategy,
+    query.page || 1,
+    query.limit || 20,
+    query.fullName || '',
+    query.GroupName || '',
+    query.user || '',
+    query.isActive === undefined ? '' : String(query.isActive),
+  ].join('|');
   const request = useCallback(
     () =>
       listUsers(
@@ -32,5 +42,6 @@ export function useUsers(
     debounceMs: 350,
     initialData: [] as any[],
     request,
+    requestKey,
   });
 }

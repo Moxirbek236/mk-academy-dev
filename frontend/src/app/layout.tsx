@@ -4,6 +4,7 @@ import ClientLayoutWrapper from './ClientLayoutWrapper';
 import { getLocale, getMessages } from 'next-intl/server';
 import { AppProviders } from './providers';
 import { getServerCenterBranding } from '@/lib/server-center-branding';
+import { defaultLocale } from '@/i18n/config';
 
 // Fix Node 25 experimental localStorage issue
 if (typeof window === 'undefined') {
@@ -13,6 +14,21 @@ if (typeof window === 'undefined') {
 
 import { generateSEO } from '@/lib/seo';
 export const runtime = 'edge';
+
+const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true';
+
+async function getLayoutLocale() {
+  if (isCapacitorExport) return defaultLocale;
+  return getLocale();
+}
+
+async function getLayoutMessages() {
+  if (isCapacitorExport) {
+    return (await import(`../messages/${defaultLocale}.json`)).default;
+  }
+
+  return getMessages();
+}
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -50,8 +66,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const locale = await getLayoutLocale();
+  const messages = await getLayoutMessages();
   const centerBranding = await getServerCenterBranding();
 
   return (
