@@ -17,9 +17,8 @@ import { diskStorage } from 'multer';
 import { QueryUserAdminDto } from './dto/query.admin.dto';
 import { QueryUserTeacherDto } from './dto/query.teacher.dto';
 
-@ApiTags('users')
 @Controller('users')
-// @ApiBearerAuth()
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
@@ -55,7 +54,7 @@ export class UserController {
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}, ${UserRole.ADMIN}` })
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @Post("create/student")
@@ -87,7 +86,7 @@ export class UserController {
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: `${UserRole.SUPERADMIN}` })
   @Roles(UserRole.SUPERADMIN)
   @Post("create/admin")
