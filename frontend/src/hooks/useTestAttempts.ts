@@ -14,6 +14,6 @@ export function useTestAttempts(studentId: number | null, enabled = true) {
     enabled,
     initialData: [] as Awaited<ReturnType<typeof getMyTestAttempts>>,
     request,
-    requestKey: [studentId],
+    requestKey: ['test-attempts', studentId],
   });
 }

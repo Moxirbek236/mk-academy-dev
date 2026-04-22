@@ -12,7 +12,7 @@
     "loadingDescription": "Sahifa uchun kerakli ma'lumotlar yuklanmoqda.",
     "errorTitle": "Ma'lumotni yuklab bo'lmadi",
     "errorDescription": "Server bilan bog'lanishda muammo bo'ldi. Qayta urinib ko'ring.",
-    "retry": "Qayta urinish"
+    "retry": "Qayta yuklash"
   },
   "Theme": {
     "light": "Yorug'",
@@ -241,7 +241,7 @@
     "loadingTitle": "Bildirishnomalar yuklanmoqda",
     "loadingDescription": "Akkauntingiz uchun so'nggi eslatmalar tekshirilmoqda.",
     "errorTitle": "Bildirishnomalarni yuklab bo'lmadi",
-    "retry": "Qayta urinish",
+    "retry": "Qayta yuklash",
     "permissionTitle": "Qurilma bildirishnomalari o'chirilgan",
     "permissionDescription": "Ilova va brauzerda eslatma olish uchun bildirishnomalarni yoqing.",
     "enable": "Yoqish",

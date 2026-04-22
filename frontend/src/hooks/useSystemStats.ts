@@ -20,6 +20,7 @@ export function useSystemStats(enabled = true) {
       health: null as any,
       stats: null as any,
     },
+    requestKey: ['system-stats-health'],
     request,
   });
 }
@@ -30,6 +31,7 @@ export function useSystemHealth(enabled = true) {
   return useApiRequest({
     enabled,
     initialData: null,
+    requestKey: ['system-health'],
     request,
   });
 }

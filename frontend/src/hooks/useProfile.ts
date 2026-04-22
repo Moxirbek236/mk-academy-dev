@@ -10,6 +10,7 @@ export function useProfile(enabled = true) {
   return useApiRequest({
     enabled,
     initialData: null,
+    requestKey: ['current-profile'],
     request,
   });
 }

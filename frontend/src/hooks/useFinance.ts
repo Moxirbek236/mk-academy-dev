@@ -23,6 +23,7 @@ export function useFinance(enabled = true) {
       summary: null as any,
       transactions: [] as any[],
     },
+    requestKey: ['finance-summary-transactions'],
     request,
   });
 }

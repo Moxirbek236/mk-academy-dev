@@ -10,6 +10,7 @@ export function useDashboard(enabled = true) {
   return useApiRequest({
     enabled,
     initialData: null,
+    requestKey: ['dashboard-stats'],
     request,
   });
 }

@@ -10,6 +10,7 @@ export function useBooks(enabled = true) {
   return useApiRequest({
     enabled,
     initialData: [] as any[],
+    requestKey: ['books'],
     request,
   });
 }

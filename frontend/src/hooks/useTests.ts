@@ -34,6 +34,7 @@ export function useTests(query: TestListQuery = {}, enabled = true) {
     initialData: { items: [], meta: null } as Awaited<ReturnType<typeof listTests>>,
     request,
     requestKey: [
+      'tests',
       query.page,
       query.limit,
       query.search,

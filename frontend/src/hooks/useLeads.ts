@@ -10,6 +10,7 @@ export function useLeads(enabled = true) {
   return useApiRequest({
     enabled,
     initialData: [] as LeadItem[],
+    requestKey: ['leads'],
     request,
   });
 }

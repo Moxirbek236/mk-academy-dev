@@ -33,6 +33,7 @@ export function useUsers(
     initialData: [] as any[],
     request,
     requestKey: [
+      'users',
       role,
       strategy,
       query.page,

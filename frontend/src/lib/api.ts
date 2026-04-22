@@ -25,6 +25,9 @@ export type OfflineAwareAxiosResponse<T = unknown> = AxiosResponse<T> & {
   offline?: OfflineResponseMeta;
 };
 
+const defaultAdapter = axios.getAdapter(axios.defaults.adapter);
+const inFlightGetResponses = new Map<string, Promise<AxiosResponse>>();
+
 function getCacheScope(token: string | null): string {
   if (!token) return 'public';
   return `token:${token.slice(-12)}`;
@@ -51,11 +54,32 @@ function isMutationRequest(config: ApiRequestConfig): boolean {
 
 const api = axios.create({
   baseURL: getApiBaseUrl(),
-  timeout: 15000,
+  timeout: 8000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+api.defaults.adapter = async (incomingConfig) => {
+  const config = incomingConfig as ApiRequestConfig;
+  const cacheKey = config.offlineMeta?.cacheKey;
+
+  if (isGetRequest(config) && cacheKey) {
+    const existing = inFlightGetResponses.get(cacheKey);
+    if (existing) {
+      return existing;
+    }
+
+    const request = defaultAdapter(config).finally(() => {
+      inFlightGetResponses.delete(cacheKey);
+    });
+
+    inFlightGetResponses.set(cacheKey, request);
+    return request;
+  }
+
+  return defaultAdapter(config);
+};
 
 api.interceptors.request.use(async (incomingConfig) => {
   const config = incomingConfig as ApiRequestConfig;

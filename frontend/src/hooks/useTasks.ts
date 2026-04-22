@@ -10,6 +10,7 @@ export function useTasks(enabled = true) {
   return useApiRequest({
     enabled,
     initialData: [] as any[],
+    requestKey: ['tasks'],
     request,
   });
 }

@@ -12,6 +12,6 @@ export function useGroups(searchTerm: string, enabled = true) {
     debounceMs: 350,
     initialData: [] as any[],
     request,
-    requestKey: [searchTerm],
+    requestKey: ['groups', searchTerm],
   });
 }
