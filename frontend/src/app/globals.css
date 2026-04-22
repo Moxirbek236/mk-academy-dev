@@ -23,9 +23,9 @@
     --radius-premium: 1.25rem;
     --shadow-premium: 0 10px 24px -18px rgb(15 23 42 / 0.28), 0 2px 8px -4px rgb(15 23 42 / 0.1);
     --motion-fast: 150ms;
-    --motion-base: 220ms;
-    --motion-slow: 360ms;
-    --motion-reveal: 520ms;
+    --motion-base: 180ms;
+    --motion-slow: 220ms;
+    --motion-reveal: 360ms;
     --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -122,6 +122,33 @@
     min-height: 100dvh;
     padding-left: var(--app-safe-left);
     padding-right: var(--app-safe-right);
+  }
+
+  .app-route-surface {
+    min-width: 0;
+    animation: route-surface-in 140ms var(--motion-ease-standard) both;
+  }
+
+  .route-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    height: 3px;
+    width: 100%;
+    overflow: hidden;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .route-progress::before {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 38%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, var(--app-primary), transparent);
+    animation: route-progress-slide 820ms var(--motion-ease) infinite;
   }
 
   .app-bottom-nav-safe {
@@ -267,7 +294,7 @@
 
   .motion-stagger > * {
     animation: motion-section-in var(--motion-reveal) var(--motion-ease) both;
-    animation-delay: calc(var(--motion-order, 0) * 55ms);
+    animation-delay: calc(var(--motion-order, 0) * 35ms);
   }
 
   .motion-card {
@@ -359,6 +386,24 @@
     }
   }
 
+  @keyframes route-surface-in {
+    from {
+      opacity: 0.86;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes route-progress-slide {
+    from {
+      transform: translate3d(-70%, 0, 0);
+    }
+    to {
+      transform: translate3d(260%, 0, 0);
+    }
+  }
+
   @keyframes motion-section-in {
     from {
       opacity: 0;
@@ -382,7 +427,9 @@
 
     .motion-section,
     .motion-stagger > *,
-    .motion-page {
+    .motion-page,
+    .app-route-surface,
+    .route-progress::before {
       animation: none !important;
     }
   }

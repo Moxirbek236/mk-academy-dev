@@ -5,7 +5,9 @@ import dynamic from 'next/dynamic';
 import {
   memo,
   useCallback,
+  useEffect,
   useMemo,
+  useState,
   type CSSProperties,
   type ReactNode,
 } from 'react';
@@ -28,7 +30,6 @@ import {
   PenTool,
   PhoneCall,
   Sparkles,
-  Star,
   Trophy,
   Users,
   type LucideIcon,
@@ -58,61 +59,60 @@ type CourseTrack = {
   desc: string;
 };
 
-type TeamMember = {
-  name: string;
-  role: string;
-  image: string;
-  focus: string;
-};
-
 type AddressItem = {
   icon: LucideIcon;
   label: string;
   value: string;
 };
 
+type ProcessStep = {
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+};
+
 const NAV_LINKS = [
   { href: '#about', label: 'Biz haqimizda' },
   { href: '#features', label: 'Imkoniyatlar' },
-  { href: '#team', label: 'Jamoa' },
+  { href: '#courses', label: 'Kurslar' },
+  { href: '#process', label: 'Jarayon' },
   { href: '#questions', label: 'Savollar' },
-  { href: '#address', label: 'Manzil' },
   { href: '#contact', label: "Bog'lanish" },
 ];
 
 const HERO_STATS = [
-  { value: 'A1-C2', label: 'CEFR yo‘nalish' },
-  { value: '3', label: 'asosiy kurs' },
-  { value: '24/7', label: 'platforma' },
+  { value: 'CEFR', label: "daraja bo'yicha reja" },
+  { value: 'Live', label: 'progress nazorati' },
+  { value: 'Hybrid', label: 'online/offline format' },
 ];
 
 const ABOUT_BULLETS = [
-  'CEFR darajalariga moslashgan darslar',
-  'IELTS va General English tayyorgarlik',
-  "So'z boyligini SM-2 algoritmi bilan mustahkamlash",
-  "Guruh ichida do'stlar bilan raqobatlashish",
+  "Daraja bo'yicha moslashgan o'quv reja",
+  'Online, offline va hybrid guruhlar',
+  'Vazifalar, testlar va natijalar nazorati',
+  "O'quvchi va mentor uchun tezkor feedback",
 ];
 
 const FEATURE_ITEMS: FeatureItem[] = [
   {
     icon: BookOpen,
     title: 'Grammar',
-    desc: "CEFR darajasiga mos grammatika darslari",
+    desc: "Darajaga mos darslar va tartibli mavzular",
   },
   {
     icon: Headphones,
     title: 'Listening',
-    desc: 'Audio materiallar va tushunish mashqlari',
+    desc: 'Audio, video va tushunish mashqlari',
   },
   {
     icon: PenTool,
     title: 'Writing',
-    desc: "Nutqni rivojlantirish vazifalari",
+    desc: "Yozma topshiriqlar va tekshiruv jarayoni",
   },
   {
     icon: MessageCircle,
     title: 'Vocabulary',
-    desc: "SM-2 algoritmi bilan mustahkamlash",
+    desc: "So'zlarni takrorlash va mustahkamlash",
   },
   {
     icon: Trophy,
@@ -126,8 +126,8 @@ const FEATURE_ITEMS: FeatureItem[] = [
   },
   {
     icon: Globe,
-    title: 'IELTS Exams',
-    desc: 'Mock exam imkoniyatlari',
+    title: 'Exams',
+    desc: 'Test, imtihon va natijalar oqimi',
   },
   {
     icon: GraduationCap,
@@ -138,40 +138,42 @@ const FEATURE_ITEMS: FeatureItem[] = [
 
 const COURSE_TRACKS: CourseTrack[] = [
   {
-    title: 'General English',
-    level: 'A1 - B2',
-    desc: "Noldan boshlab mustahkam grammatika, so'z boyligi va speaking asoslari.",
+    title: "Boshlang'ich yo'nalish",
+    level: 'Start',
+    desc: "Darajani aniqlash, asosiy mavzular va mustahkam o'quv ritmi.",
   },
   {
-    title: 'IELTS Preparation',
-    level: 'B1 - C1',
-    desc: "IELTS reading, listening, writing va speaking bo'yicha intensiv tayyorgarlik.",
+    title: 'Imtihon tayyorgarligi',
+    level: 'Exam',
+    desc: "Test formati, vazifalar, natija tahlili va individual tavsiyalar.",
   },
   {
-    title: 'Speaking Club Pro',
-    level: 'B1+',
-    desc: 'Real suhbat, debate, presentation va IELTS speaking formatlari.',
+    title: 'Amaliy mashgulotlar',
+    level: 'Practice',
+    desc: "Speaking, writing, vocabulary va real vaziyatlarda qo'llash.",
   },
 ];
 
-const TEAM_MEMBERS: TeamMember[] = [
+const PROCESS_STEPS: ProcessStep[] = [
   {
-    name: 'Maqsud Aliyev',
-    role: 'IELTS Mentor',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80',
-    focus: 'Reading va Writing strategiyalari',
+    icon: Info,
+    title: 'Daraja aniqlanadi',
+    desc: "Boshlanish nuqtasi aniqlanib, o'quvchi uchun mos yo'nalish tanlanadi.",
   },
   {
-    name: 'Nigina Tursunova',
-    role: 'Speaking Coach',
-    image: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=800&q=80',
-    focus: 'Fluency, pronunciation va confidence',
+    icon: BookOpen,
+    title: 'Reja tuziladi',
+    desc: "Darslar, vazifalar va testlar bitta aniq yo'l xaritasiga joylanadi.",
   },
   {
-    name: 'Dilshod Karimov',
-    role: 'Academic Coordinator',
-    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80',
-    focus: "Guruhlar, natijalar va o'quv reja",
+    icon: GraduationCap,
+    title: 'Progress kuzatiladi',
+    desc: "Natijalar real vaqtga yaqin ko'rinadi va keyingi qadamlar aniqlashadi.",
+  },
+  {
+    icon: Trophy,
+    title: 'Natija mustahkamlanadi',
+    desc: "Takrorlash, amaliyot va feedback orqali bilim uzoqroq saqlanadi.",
   },
 ];
 
@@ -179,7 +181,7 @@ const ADDRESS_ITEMS: AddressItem[] = [
   {
     icon: MapPin,
     label: 'Manzil',
-    value: "Toshkent shahri, O'zbekiston",
+    value: "Filial yoki online format admin bilan kelishiladi",
   },
   {
     icon: PhoneCall,
@@ -194,31 +196,7 @@ const ADDRESS_ITEMS: AddressItem[] = [
   {
     icon: Building2,
     label: 'Format',
-    value: 'Offline, online va hybrid guruhlar',
-  },
-];
-
-const DEFAULT_PUBLIC_QUESTIONS: PublicLeadQuestion[] = [
-  {
-    id: 1,
-    fullName: 'MK Academy',
-    message: "Qaysi darajadan boshlashimni qanday bilaman?",
-    answer:
-      'Avval qisqa placement test topshirasiz. Natijaga qarab sizga mos guruh va kurs tavsiya qilinadi.',
-  },
-  {
-    id: 2,
-    fullName: 'MK Academy',
-    message: 'IELTS kursi qancha davom etadi?',
-    answer:
-      "Odatda 3-6 oy davom etadi. Aniq muddat boshlang'ich darajangiz va maqsad ballingizga bog'liq.",
-  },
-  {
-    id: 3,
-    fullName: 'MK Academy',
-    message: 'Darslar online ham bormi?',
-    answer:
-      'Ha, ayrim guruhlar online va hybrid formatda ochiladi. Jadval admin bilan kelishiladi.',
+    value: 'Offline, online yoki hybrid guruhlar',
   },
 ];
 
@@ -230,7 +208,14 @@ export function LandingPage() {
   const router = useRouter();
   const locale = useLocale();
   const { centerBranding } = useCenterBranding();
-  const { data: publishedQuestions } = usePublishedLeadQuestions();
+  const [questionsEnabled, setQuestionsEnabled] = useState(false);
+  const { data: publishedQuestions, loading: questionsLoading } =
+    usePublishedLeadQuestions(questionsEnabled);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setQuestionsEnabled(true), 900);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const loginPath = useMemo(() => localizePath(locale, '/login'), [locale]);
   const goLogin = useCallback(() => router.push(loginPath), [loginPath, router]);
@@ -242,10 +227,7 @@ export function LandingPage() {
   }, []);
 
   const visibleQuestions = useMemo(
-    () =>
-      publishedQuestions.length > 0
-        ? publishedQuestions
-        : DEFAULT_PUBLIC_QUESTIONS,
+    () => publishedQuestions.slice(0, 4),
     [publishedQuestions],
   );
 
@@ -309,14 +291,14 @@ export function LandingPage() {
             <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-white/84 px-4 py-2 text-[var(--app-primary-dark)] shadow-sm">
               <Sparkles size={16} className="text-blue-500" />
               <span className="text-xs font-black uppercase">
-                Ingliz tilini biz bilan o'rganing
+                Zamonaviy ta'lim tajribasi
               </span>
             </div>
 
             <h1 className="text-5xl font-black leading-[0.96] sm:text-6xl md:text-7xl">
               {centerBranding.shortName}
               <span className="block bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-primary-dark)] bg-clip-text text-transparent">
-                English Platform
+                Ta'lim platformasi
               </span>
             </h1>
 
@@ -377,7 +359,7 @@ export function LandingPage() {
                   <div>
                     <p className="text-sm font-black">{centerBranding.name}</p>
                     <p className="mt-1 text-xs font-bold text-[var(--app-muted)]">
-                      Live learning dashboard
+                      Learning workspace
                     </p>
                   </div>
                 </div>
@@ -388,9 +370,9 @@ export function LandingPage() {
 
               <div className="grid gap-3">
                 {[
-                  ['Grammar progress', '82%'],
-                  ['Speaking practice', '64%'],
-                  ['IELTS practice score', '7.0'],
+                  ["O'quv reja", 'Ready'],
+                  ['Vazifalar', 'Active'],
+                  ['Natijalar', 'Live'],
                 ].map(([label, value], index) => (
                   <div
                     key={label}
@@ -403,7 +385,7 @@ export function LandingPage() {
                     <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                       <div
                         className="h-full rounded-full bg-[var(--app-primary)]"
-                        style={{ width: index === 0 ? '82%' : index === 1 ? '64%' : '74%' }}
+                        style={{ width: index === 0 ? '78%' : index === 1 ? '58%' : '70%' }}
                       />
                     </div>
                   </div>
@@ -412,15 +394,15 @@ export function LandingPage() {
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-[var(--app-surface-soft)] p-4">
-                  <p className="text-2xl font-black">128</p>
+                  <p className="text-2xl font-black">Plan</p>
                   <p className="text-xs font-bold text-[var(--app-muted)]">
-                    active tasks
+                    tartibli dars oqimi
                   </p>
                 </div>
                 <div className="rounded-2xl bg-[var(--app-primary)] p-4 text-white">
-                  <p className="text-2xl font-black">+18%</p>
+                  <p className="text-2xl font-black">Flow</p>
                   <p className="text-xs font-bold text-white/78">
-                    weekly growth
+                    tezkor feedback
                   </p>
                 </div>
               </div>
@@ -436,12 +418,12 @@ export function LandingPage() {
             <div className="motion-section">
               <SectionEyebrow icon={Info}>Biz haqimizda</SectionEyebrow>
               <h2 className="mt-4 text-3xl font-black uppercase md:text-5xl">
-                Ingliz tilini tizimli, o‘lchovli va aniq reja bilan
+                Tizimli, o'lchovli va aniq reja bilan o'qiting
               </h2>
               <p className="mt-6 text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
-                {centerBranding.name} ingliz tilini noldan C2 darajagacha
-                o'rgatishga ixtisoslashgan ta'lim platformasi. Darslar, testlar
-                va progress nazorati bitta oqimda ishlaydi.
+                {centerBranding.name} darslar, testlar, guruhlar va progress
+                nazoratini bitta oqimga jamlaydi. O'quvchi ham, mentor ham
+                keyingi qadamni tez ko'radi.
               </p>
             </div>
 
@@ -507,17 +489,17 @@ export function LandingPage() {
         </section>
 
         <section
-          id="team"
+          id="process"
           className="landing-section content-auto mx-auto max-w-7xl px-5 py-16 sm:px-6 sm:py-24"
         >
           <SectionHeader
-            title="Mentorlar va jamoa"
-            subtitle="O'quv markaz jamoasi"
+            title="Qanday ishlaydi"
+            subtitle="Universal o'quv jarayoni"
           />
 
-          <div className="motion-stagger grid gap-5 md:grid-cols-3">
-            {TEAM_MEMBERS.map((member, index) => (
-              <TeamCard key={member.name} member={member} index={index} />
+          <div className="motion-stagger grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {PROCESS_STEPS.map((step, index) => (
+              <ProcessCard key={step.title} step={step} index={index} />
             ))}
           </div>
         </section>
@@ -538,19 +520,26 @@ export function LandingPage() {
               </div>
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2 text-xs font-black uppercase text-[var(--app-muted)]">
                 <HelpCircle size={15} className="text-[var(--app-primary)]" />
-                {visibleQuestions.length} ta javob
+                {questionsLoading ? 'Yuklanmoqda' : `${visibleQuestions.length} ta javob`}
               </div>
             </div>
 
             <div className="motion-stagger grid gap-5 md:grid-cols-2">
-              {visibleQuestions.map((item, index) => (
-                <QuestionCard
-                  key={item.id}
-                  item={item}
-                  index={index}
-                  fallbackName={centerBranding.shortName}
+              {visibleQuestions.length > 0 ? (
+                visibleQuestions.map((item, index) => (
+                  <QuestionCard
+                    key={item.id}
+                    item={item}
+                    index={index}
+                    fallbackName={centerBranding.shortName}
+                  />
+                ))
+              ) : (
+                <QuestionsEmptyCard
+                  loading={questionsLoading}
+                  onContact={scrollToContact}
                 />
-              ))}
+              )}
             </div>
           </div>
         </section>
@@ -566,8 +555,8 @@ export function LandingPage() {
                 Biz bilan yaqinroq tanishing
               </h2>
               <p className="mt-5 max-w-xl text-base font-bold leading-relaxed text-[var(--app-muted)]">
-                Filialga kelib kurslar, guruhlar jadvali va daraja aniqlash
-                testi haqida administrator bilan gaplashishingiz mumkin.
+                Kurslar, guruhlar jadvali, format va boshlash shartlari haqida
+                administrator bilan tez bog'lanishingiz mumkin.
               </p>
             </div>
 
@@ -694,42 +683,34 @@ const CourseCard = memo(function CourseCard({
   );
 });
 
-const TeamCard = memo(function TeamCard({
-  member,
+const ProcessCard = memo(function ProcessCard({
+  step,
   index,
 }: {
-  member: TeamMember;
+  step: ProcessStep;
   index: number;
 }) {
+  const Icon = step.icon;
+
   return (
     <article
-      className="app-card motion-card overflow-hidden p-0"
+      className="app-card motion-card p-6"
       style={motionOrder(index)}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-[var(--app-surface-soft)]">
-        <Image
-          src={member.image}
-          alt={member.name}
-          fill
-          loading="lazy"
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-cover transition-transform duration-300 ease-out hover:scale-[1.03]"
-        />
-      </div>
-      <div className="p-6">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <span className="rounded-full bg-[var(--app-primary)]/10 px-3 py-1 text-xs font-black uppercase text-[var(--app-primary)]">
-            {member.role}
-          </span>
-          <Star size={18} className="text-amber-400" fill="currentColor" />
+      <div className="mb-6 flex items-center justify-between">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
+          <Icon size={24} strokeWidth={2.5} />
         </div>
-        <h3 className="text-xl font-black text-[var(--app-text)]">
-          {member.name}
-        </h3>
-        <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
-          {member.focus}
-        </p>
+        <span className="text-xs font-black text-[var(--app-muted)]">
+          {String(index + 1).padStart(2, '0')}
+        </span>
       </div>
+      <h3 className="text-lg font-black text-[var(--app-text)]">
+        {step.title}
+      </h3>
+      <p className="mt-3 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+        {step.desc}
+      </p>
     </article>
   );
 });
@@ -762,6 +743,42 @@ const QuestionCard = memo(function QuestionCard({
     </article>
   );
 });
+
+function QuestionsEmptyCard({
+  loading,
+  onContact,
+}: {
+  loading: boolean;
+  onContact: () => void;
+}) {
+  return (
+    <article className="app-card motion-card p-6 md:col-span-2">
+      <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase text-[var(--app-primary)]">
+            {loading ? 'Savollar yuklanmoqda' : 'Savollar'}
+          </p>
+          <h3 className="mt-3 text-xl font-black text-[var(--app-text)]">
+            {loading
+              ? "Admin javoblari tekshirilmoqda"
+              : "Hozircha ommaviy savollar yo'q"}
+          </h3>
+          <p className="mt-2 max-w-xl text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+            Kurs yoki guruh bo'yicha savolingiz bo'lsa, formani yuboring.
+            Admin javob bergan savollar shu yerda ko'rinadi.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onContact}
+          className="btn-premium motion-button w-full border-none bg-[var(--app-primary)] px-6 py-3 text-white md:w-auto"
+        >
+          Savol berish
+        </button>
+      </div>
+    </article>
+  );
+}
 
 const AddressCard = memo(function AddressCard({
   item,

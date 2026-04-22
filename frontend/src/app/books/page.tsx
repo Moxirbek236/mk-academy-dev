@@ -1,5 +1,5 @@
 'use client';
-import { SearchIcon, ExternalLink, Loader2 } from 'lucide-react';
+import { SearchIcon, ExternalLink, Loader2, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -81,11 +81,20 @@ export default function Books() {
               className="group flex flex-col overflow-hidden rounded-[22px] border border-gray-100 bg-white shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] transition-all active:scale-98 hover:border-[#2563eb]/20 hover:shadow-2xl sm:rounded-[42px]"
             >
               <div className="relative aspect-[3/4] w-full bg-gray-100 overflow-hidden">
-                <img 
-                  src={book.coverImageUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80'} 
-                  alt={book.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
+                {book.coverImageUrl || book.imageUrl ? (
+                  <img
+                    src={book.coverImageUrl || book.imageUrl}
+                    alt={book.title}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[var(--app-surface-soft)] p-5 text-center text-[var(--app-primary)]">
+                    <BookOpen size={34} strokeWidth={2.4} />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      Cover mavjud emas
+                    </span>
+                  </div>
+                )}
                 {book.cefrLevel && (
                   <div className="absolute left-3 top-3 rounded-xl border border-gray-100 bg-white/95 px-2.5 py-1 shadow-lg ring-4 ring-white/10 backdrop-blur-md sm:left-4 sm:top-4">
                     <span className="text-[9px] font-black text-[#2563eb] uppercase tracking-widest">{book.cefrLevel}</span>
