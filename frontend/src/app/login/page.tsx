@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Phone, Lock, ArrowRight, Loader2, Home, Eye, EyeOff, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import api from '@/lib/api';
+import { login as loginRequest } from '@/lib/backend-api';
 import { getUserFriendlyErrorMessage, normalizeApiError } from '@/lib/offline/errors';
 import { localizePath } from '@/i18n/localizedPath';
 import { clearStoredAuth, getStoredRole, getStoredToken, setStoredAuth, setStoredRole } from '@/lib/auth-storage';
@@ -124,8 +124,7 @@ export default function LoginPage() {
         phone: normalizePhone(formData.phone),
         password: formData.password,
       };
-      const res = await api.post('/auth/login', payload, { timeout: 30000 });
-      const body = res.data;
+      const body = await loginRequest(payload);
       const { token, role } = extractLoginData(body);
 
       if (token) {

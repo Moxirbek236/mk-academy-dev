@@ -317,7 +317,6 @@ export class DashboardService {
       activeGroups,
       totalCourses,
       pendingHomeworks,
-      revenue: 0,
       subscribers: totalStudents,
       averageResult: Math.round(Number(averageResultAggregate._avg.score || 0)),
       auditLogs,

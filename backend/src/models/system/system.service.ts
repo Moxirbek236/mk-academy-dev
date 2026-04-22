@@ -179,7 +179,6 @@ export class SystemService {
           totalGroups,
           totalCourses,
           totalLeads,
-          totalTransactions: 0,
         },
         auditLogs,
       },

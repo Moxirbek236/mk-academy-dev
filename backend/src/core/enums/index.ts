@@ -14,11 +14,6 @@ export enum CefrLevel {
   C2 = 'C2',
 }
 
-export enum TransactionType {
-  INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE',
-}
-
 export enum TaskType {
   READING = 'READING',
   WRITING = 'WRITING',

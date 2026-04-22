@@ -3,7 +3,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { getGroupById, getGroupMembers, addGroupMember, removeGroupMember, getCoursesByGroup, removeGroupCourse } from '@/lib/backend-api';
+import {
+  addGroupMember,
+  assignCourseToGroup,
+  getCoursesByGroup,
+  getGroupById,
+  getGroupMembers,
+  listCourses,
+  listUsers,
+  removeGroupCourse,
+  removeGroupMember,
+} from '@/lib/backend-api';
 import {
   ChevronLeft,
   PlusCircle,
@@ -37,10 +47,15 @@ export default function GroupDetailClient() {
   // Add student modal state
   const [showAddModal, setShowAddModal] = useState(false);
   const [studentIdInput, setStudentIdInput] = useState('');
+  const [studentOptions, setStudentOptions] = useState<any[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
 
   // Courses state
   const [courses, setCourses] = useState<any[]>([]);
+  const [courseOptions, setCourseOptions] = useState<any[]>([]);
+  const [assignCourseId, setAssignCourseId] = useState('');
+  const [assignCourseLoading, setAssignCourseLoading] = useState(false);
   const [courseError, setCourseError] = useState<string | null>(null);
 
   const isAdmin = role === 'admin' || role === 'superadmin';
@@ -69,6 +84,29 @@ export default function GroupDetailClient() {
     }
   }, [groupId]);
 
+  const fetchCourseOptions = useCallback(async () => {
+    if (!isAdmin) return;
+    try {
+      const data = await listCourses({ limit: 100 });
+      setCourseOptions(Array.isArray(data.items) ? data.items : []);
+    } catch {
+      setCourseOptions([]);
+    }
+  }, [isAdmin]);
+
+  const fetchStudentOptions = useCallback(async () => {
+    if (!isAdmin) return;
+    setStudentsLoading(true);
+    try {
+      const data = await listUsers(role, { user: 'STUDENT', page: 1, limit: 100 }, 'role-specific');
+      setStudentOptions(Array.isArray(data) ? data : []);
+    } catch {
+      setStudentOptions([]);
+    } finally {
+      setStudentsLoading(false);
+    }
+  }, [isAdmin, role]);
+
   useEffect(() => {
     const fetchGroup = async () => {
       try {
@@ -82,6 +120,7 @@ export default function GroupDetailClient() {
           await fetchMembers();
         }
         await fetchCourses();
+        await fetchCourseOptions();
       } catch (err: any) {
         setError(
           err?.response?.data?.message ||
@@ -93,7 +132,13 @@ export default function GroupDetailClient() {
       }
     };
     if (groupId) fetchGroup();
-  }, [groupId, fetchMembers]);
+  }, [groupId, fetchMembers, fetchCourses, fetchCourseOptions]);
+
+  useEffect(() => {
+    if (showAddModal) {
+      void fetchStudentOptions();
+    }
+  }, [fetchStudentOptions, showAddModal]);
 
   const handleAddMember = async () => {
     const sid = parseInt(studentIdInput.trim());
@@ -108,6 +153,7 @@ export default function GroupDetailClient() {
       setShowAddModal(false);
       setStudentIdInput('');
       await fetchMembers();
+      await fetchStudentOptions();
     } catch (err: any) {
       setActionError(err?.response?.data?.message || "O'quvchini qo'shib bo'lmadi");
     } finally {
@@ -125,6 +171,34 @@ export default function GroupDetailClient() {
       setActionError(err?.response?.data?.message || "O'quvchini chiqarib bo'lmadi");
     }
   };
+
+  const handleAssignCourse = async () => {
+    const courseId = Number(assignCourseId);
+
+    if (!courseId || Number.isNaN(courseId)) {
+      setCourseError("Kurs tanlang");
+      return;
+    }
+
+    setAssignCourseLoading(true);
+    setCourseError(null);
+
+    try {
+      await assignCourseToGroup(groupId, courseId);
+      setAssignCourseId('');
+      await fetchCourses();
+      await fetchCourseOptions();
+    } catch (err: any) {
+      setCourseError(err?.response?.data?.message || "Kursni guruhga biriktirib bo'lmadi");
+    } finally {
+      setAssignCourseLoading(false);
+    }
+  };
+
+  const assignedCourseIds = new Set(courses.map((item) => item.courseId ?? item.course?.id));
+  const courseSelectOptions = courseOptions.filter((course) => !assignedCourseIds.has(course.id));
+  const activeStudentIds = new Set(members.map((member) => member.studentId ?? member.student?.id ?? member.id));
+  const studentSelectOptions = studentOptions.filter((student) => !activeStudentIds.has(student.id));
 
   // ── Loading ──
   if (loading) {
@@ -265,6 +339,37 @@ export default function GroupDetailClient() {
             </span>
           </div>
 
+          {isAdmin && (
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+              <select
+                value={assignCourseId}
+                onChange={(event) => setAssignCourseId(event.target.value)}
+                className="flex-1 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)]"
+              >
+                <option value="">Kurs tanlang...</option>
+                {courseSelectOptions.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.title} #{course.id}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => void handleAssignCourse()}
+                disabled={assignCourseLoading || !assignCourseId}
+                className="inline-flex items-center justify-center gap-2 rounded-[18px] bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95 disabled:opacity-60"
+              >
+                {assignCourseLoading ? <Loader2 size={14} className="animate-spin" /> : <PlusCircle size={14} />}
+                Biriktirish
+              </button>
+            </div>
+          )}
+
+          {courseError ? (
+            <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-600">
+              {courseError}
+            </div>
+          ) : null}
+
           {courses.length === 0 ? (
             <div className="flex flex-col items-center rounded-[28px] border border-dashed border-[var(--app-border)] p-8 text-center">
               <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[20px] bg-[var(--app-surface-soft)] text-[var(--app-muted)]">
@@ -303,6 +408,7 @@ export default function GroupDetailClient() {
                             try {
                               await removeGroupCourse(gCourse.id);
                               setCourses((prev) => prev.filter((_, i) => i !== idx));
+                              await fetchCourseOptions();
                             } catch (err: any) {
                               setActionError(err?.response?.data?.message || "O'chirib bo'lmadi");
                             }
@@ -456,19 +562,24 @@ export default function GroupDetailClient() {
             )}
 
             <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-              Student ID
+              O'quvchi
             </label>
-            <input
-              type="number"
+            <select
               value={studentIdInput}
               onChange={(e) => setStudentIdInput(e.target.value)}
-              placeholder="Masalan: 42"
               className="mb-5 w-full rounded-[20px] border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm outline-none transition-all focus:border-[var(--app-primary)]"
-            />
+            >
+              <option value="">{studentsLoading ? 'Oquvchilar yuklanmoqda...' : "O'quvchi tanlang..."}</option>
+              {studentSelectOptions.map((student) => (
+                <option key={student.id} value={student.id}>
+                  {student.fullName} #{student.id}
+                </option>
+              ))}
+            </select>
 
             <button
               onClick={handleAddMember}
-              disabled={addLoading}
+              disabled={addLoading || !studentIdInput}
               className="flex w-full items-center justify-center gap-2 rounded-[20px] bg-[var(--app-primary)] py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg transition-all hover:opacity-90 active:scale-95 disabled:opacity-60"
             >
               {addLoading ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />}

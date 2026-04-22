@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateLeadDto, UpdateLeadAnswerDto, UpdateLeadStatusDto } from './dto';
 
@@ -14,6 +14,7 @@ export class LeadService {
 
   async findAll() {
     return this.prisma.lead.findMany({
+      where: { isActive: true },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -40,6 +41,8 @@ export class LeadService {
   }
 
   async updateStatus(id: number, dto: UpdateLeadStatusDto) {
+    await this.ensureExists(id);
+
     return this.prisma.lead.update({
       where: { id },
       data: { status: dto.status },
@@ -47,8 +50,13 @@ export class LeadService {
   }
 
   async updateAnswer(id: number, dto: UpdateLeadAnswerDto) {
-    const lead = await this.prisma.lead.findUnique({ where: { id } });
+    const lead = await this.ensureExists(id);
     const answer = dto.answer.trim();
+
+    if (!answer) {
+      throw new BadRequestException('Javob matni kiritilishi shart');
+    }
+
     const isPublished = Boolean(dto.isPublished ?? true);
 
     return this.prisma.lead.update({
@@ -63,8 +71,23 @@ export class LeadService {
   }
 
   async remove(id: number) {
-    return this.prisma.lead.delete({
+    await this.ensureExists(id);
+
+    return this.prisma.lead.update({
       where: { id },
+      data: { isActive: false },
     });
+  }
+
+  private async ensureExists(id: number) {
+    const lead = await this.prisma.lead.findFirst({
+      where: { id, isActive: true },
+    });
+
+    if (!lead) {
+      throw new NotFoundException('Murojaat topilmadi');
+    }
+
+    return lead;
   }
 }

@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { Book, ChevronLeft, Loader2, PlayCircle, Trophy, Zap, Users, Info, ChevronRight, ListTodo } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { getGroupsByCourse, assignCourseToGroup, removeGroupCourse } from '@/lib/backend-api';
+import { getCourseById, getGroupsByCourse, assignCourseToGroup, removeGroupCourse, listGroups } from '@/lib/backend-api';
 import { useAuth } from '@/hooks/useAuth';
-import api from '@/lib/api';
+import { hasRoleCapability } from '@/lib/role-access';
 
 export default function CourseDetailClient() {
   const { id } = useParams();
@@ -12,12 +12,13 @@ export default function CourseDetailClient() {
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [courseGroups, setCourseGroups] = useState<any[]>([]);
+  const [availableGroups, setAvailableGroups] = useState<any[]>([]);
   const [assignGroupId, setAssignGroupId] = useState('');
   const [assignLoading, setAssignLoading] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
   const router = useRouter();
 
-  const isAdmin = role === 'admin' || role === 'superadmin';
+  const canManageCourseGroups = hasRoleCapability(role, 'manage_courses');
   const courseId = Number(id);
 
   const fetchGroups = async (cId: number) => {
@@ -25,16 +26,27 @@ export default function CourseDetailClient() {
       const data = await getGroupsByCourse(cId);
       setCourseGroups(Array.isArray(data) ? data : []);
     } catch {
-      setCourseGroups([]);
+        setCourseGroups([]);
+    }
+  };
+
+  const fetchAvailableGroups = async () => {
+    if (!canManageCourseGroups) return;
+    try {
+      const data = await listGroups();
+      setAvailableGroups(Array.isArray(data) ? data : []);
+    } catch {
+      setAvailableGroups([]);
     }
   };
 
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const res = await api.get(`/courses/${courseId}`);
-        setCourse(res.data?.data || res.data);
+        const data = await getCourseById(courseId);
+        setCourse(data);
         await fetchGroups(courseId);
+        await fetchAvailableGroups();
       } catch (err) {
         console.error(err);
       } finally {
@@ -42,7 +54,10 @@ export default function CourseDetailClient() {
       }
     };
     if (courseId) fetchCourse();
-  }, [courseId]);
+  }, [courseId, canManageCourseGroups]);
+
+  const assignedGroupIds = new Set(courseGroups.map((item) => item.groupId ?? item.group?.id));
+  const groupOptions = availableGroups.filter((group) => !assignedGroupIds.has(group.id));
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#2563eb]" size={40} /></div>;
 
@@ -142,15 +157,20 @@ export default function CourseDetailClient() {
           </div>
 
           {/* Admin: assign new group to this course */}
-          {isAdmin && (
+          {canManageCourseGroups && (
             <div className="mb-4 flex gap-2">
-              <input
-                type="number"
+              <select
                 value={assignGroupId}
                 onChange={(e) => setAssignGroupId(e.target.value)}
-                placeholder="Guruh ID sini kiriting..."
                 className="flex-1 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[#2563eb]"
-              />
+              >
+                <option value="">Guruh tanlang...</option>
+                {groupOptions.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name} #{group.id}
+                  </option>
+                ))}
+              </select>
               <button
                 disabled={assignLoading || !assignGroupId}
                 onClick={async () => {
@@ -162,6 +182,7 @@ export default function CourseDetailClient() {
                     await assignCourseToGroup(gid, courseId);
                     setAssignGroupId('');
                     await fetchGroups(courseId);
+                    await fetchAvailableGroups();
                   } catch (err: any) {
                     setAssignError(err?.response?.data?.message || "Guruh biriktirib bo'lmadi");
                   } finally {
@@ -209,13 +230,14 @@ export default function CourseDetailClient() {
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           {/* Remove from course (admin only) */}
-                          {isAdmin && (
+                          {canManageCourseGroups && (
                             <button
                               onClick={async () => {
                                 if (!confirm('Bu guruhni kursdan olib tashlamoqchimisiz?')) return;
                                 try {
                                   await removeGroupCourse(gCourse.id);
                                   setCourseGroups((prev) => prev.filter((_, i) => i !== index));
+                                  await fetchAvailableGroups();
                                 } catch (err: any) {
                                   setAssignError(err?.response?.data?.message || "O'chirib bo'lmadi");
                                 }
