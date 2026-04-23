@@ -462,3 +462,27 @@ model Lead {
 
   @@map("leads")
 }
+
+model CenterSettings {
+  id           Int      @id @default(autoincrement())
+  name         String   @default("MK Academy")
+  shortName    String   @default("MK") @map("short_name")
+  logoUrl      String?  @map("logo_url")
+  description  String?
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Landing page content (stored as JSON strings for SQLite compatibility)
+  aboutText    String?  @map("about_text")
+  aboutPoints  String?  @map("about_points")   // JSON: string[]
+  teamMembers  String?  @map("team_members")   // JSON: [{name,role,image,focus}]
+  courseTracks String?  @map("course_tracks")  // JSON: [{title,level,desc}]
+  address      String?
+  phoneNumber  String?  @map("phone_number")
+  workingHours String?  @map("working_hours")
+  socialLinks  String?  @map("social_links")   // JSON: {telegram?,instagram?,youtube?}
+  mapEmbedUrl  String?  @map("map_embed_url")
+
+  @@map("center_settings")
+}

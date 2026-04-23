@@ -1,15 +1,33 @@
-'use client';
+"use client";
 
-import { Bell, ChevronRight, Crown, Download, Globe, Key, LogOut, Mail, Moon, Phone, Shield, User } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
-import { useAuth } from '@/hooks/useAuth';
-import { localizePath } from '@/i18n/localizedPath';
-import { clearStoredAuth } from '@/lib/auth-storage';
-import { useProfile } from '@/hooks/useProfile';
-import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
-import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
+import {
+  Bell,
+  ChevronRight,
+  Crown,
+  Download,
+  Globe,
+  Key,
+  Layout,
+  LogOut,
+  Mail,
+  Moon,
+  Phone,
+  Shield,
+  User,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
+import { useAuth } from "@/hooks/useAuth";
+import { localizePath } from "@/i18n/localizedPath";
+import { clearStoredAuth } from "@/lib/auth-storage";
+import { useProfile } from "@/hooks/useProfile";
+import {
+  PageErrorState,
+  PageLoadingState,
+  PageShell,
+} from "@/app/components/ui/PagePrimitives";
+import { useCenterBranding } from "@/app/components/branding/CenterBrandingProvider";
 
 type SettingsItem = {
   icon: typeof User;
@@ -20,8 +38,8 @@ type SettingsItem = {
 };
 
 export default function SettingsPage() {
-  const t = useTranslations('SettingsPage');
-  const uiT = useTranslations('UiStates');
+  const t = useTranslations("SettingsPage");
+  const uiT = useTranslations("UiStates");
   const router = useRouter();
   const locale = useLocale();
   const { role } = useAuth();
@@ -31,62 +49,123 @@ export default function SettingsPage() {
 
   const handleLogout = () => {
     void clearStoredAuth().finally(() => {
-      router.push(localizePath(locale, '/landing'));
+      router.push(localizePath(locale, "/landing"));
     });
   };
 
   const sections: Array<{ title: string; items: SettingsItem[] }> = [
     {
-      title: t('personal'),
+      title: t("personal"),
       items: [
-        { icon: User, label: t('profileSettings'), value: profile?.fullName || t('loading'), path: '/settings/profile' },
-        { icon: Mail, label: t('emailAddress'), value: profile?.email || t('loading'), path: '/settings/email' },
-        { icon: Phone, label: t('phoneNumber'), value: profile?.phone || '+998 -- --- -- --', path: '/settings/phone' },
+        {
+          icon: User,
+          label: t("profileSettings"),
+          value: profile?.fullName || t("loading"),
+          path: "/settings/profile",
+        },
+        {
+          icon: Mail,
+          label: t("emailAddress"),
+          value: profile?.email || t("loading"),
+          path: "/settings/email",
+        },
+        {
+          icon: Phone,
+          label: t("phoneNumber"),
+          value: profile?.phone || "+998 -- --- -- --",
+          path: "/settings/phone",
+        },
       ],
     },
     {
-      title: t('security'),
+      title: t("security"),
       items: [
-        { icon: Key, label: t('changePassword'), value: t('passwordUpdated'), path: '/settings/password' },
-        { icon: Shield, label: t('twoFactor'), value: t('disabled'), path: '/settings/2fa' },
+        {
+          icon: Key,
+          label: t("changePassword"),
+          value: t("passwordUpdated"),
+          path: "/settings/password",
+        },
+        {
+          icon: Shield,
+          label: t("twoFactor"),
+          value: t("disabled"),
+          path: "/settings/2fa",
+        },
       ],
     },
     {
-      title: t('downloads'),
+      title: t("downloads"),
       items: [
-        { icon: Download, label: t('mobileApps'), value: t('mobileAppsValue'), path: '/settings/downloads' },
+        {
+          icon: Download,
+          label: t("mobileApps"),
+          value: t("mobileAppsValue"),
+          path: "/settings/downloads",
+        },
       ],
     },
+    ...(role === "superadmin"
+      ? [
+          {
+            title: "Superadmin",
+            items: [
+              {
+                icon: Layout,
+                label: "Landing sahifani boshqarish",
+                value: "Sayt kontenti, jamoa, kurslar",
+                path: "/settings/landing",
+              },
+            ],
+          },
+        ]
+      : []),
     {
-      title: t('system'),
+      title: t("system"),
       items: [
-        { icon: Bell, label: t('notifications'), value: t('notificationsEnabled'), path: '/notifications' },
+        {
+          icon: Bell,
+          label: t("notifications"),
+          value: t("notificationsEnabled"),
+          path: "/notifications",
+        },
         {
           icon: Globe,
-          label: t('language'),
-          value: profile?.language === 'RU' ? t('languages.ru') : profile?.language === 'EN' ? t('languages.en') : t('languages.uz'),
-          path: '/settings/language',
+          label: t("language"),
+          value:
+            profile?.language === "RU"
+              ? t("languages.ru")
+              : profile?.language === "EN"
+              ? t("languages.en")
+              : t("languages.uz"),
+          path: "/settings/language",
         },
         {
           icon: Moon,
-          label: t('themeMode'),
-          value: resolvedTheme === 'dark' ? t('themeEnabled') : t('themeDisabled'),
-          action: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
+          label: t("themeMode"),
+          value:
+            resolvedTheme === "dark" ? t("themeEnabled") : t("themeDisabled"),
+          action: () => setTheme(resolvedTheme === "dark" ? "light" : "dark"),
         },
       ],
     },
   ];
 
   if (loading) {
-    return <PageLoadingState title={uiT('loadingTitle')} description={uiT('loadingDescription')} />;
+    return (
+      <PageLoadingState
+        title={uiT("loadingTitle")}
+        description={uiT("loadingDescription")}
+      />
+    );
   }
 
   if (error) {
     return (
       <PageErrorState
-        title={uiT('errorTitle')}
+        title={uiT("errorTitle")}
         description={error}
-        retryLabel={uiT('retry')}
+        retryLabel={uiT("retry")}
         onRetry={() => {
           void refetch();
         }}
@@ -95,22 +174,24 @@ export default function SettingsPage() {
   }
 
   return (
-    <PageShell title={t('title')}>
-      <div className="mb-8 flex items-center justify-between">
+    <PageShell title={t("title")}>
+      <div className="mb-8 flex items-center justify-between dark:text-[var(--app-text)]">
         <div>
           <div className="mt-1 flex items-center gap-2">
             <span
               className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.15em] ${
-                role === 'superadmin'
-                  ? 'bg-[#FFEBEC] text-[#E54D2E]'
-                  : role === 'teacher'
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'bg-blue-50 text-blue-600'
+                role === "superadmin"
+                  ? "bg-[#FFEBEC] text-[#E54D2E]"
+                  : role === "teacher"
+                  ? "bg-blue-50 text-blue-600"
+                  : "bg-blue-50 text-blue-600"
               }`}
             >
-              {t('roleLabel', { role: role || 'student' })}
+              {t("roleLabel", { role: role || "student" })}
             </span>
-            {role === 'superadmin' ? <Crown size={12} className="text-amber-500" /> : null}
+            {role === "superadmin" ? (
+              <Crown size={12} className="text-amber-500" />
+            ) : null}
           </div>
         </div>
         <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border-2 border-white bg-gradient-to-tr from-[#2563eb] to-[#60a5fa] text-white shadow-xl shadow-[#2563eb]/20 sm:h-14 sm:w-14 sm:rounded-[22px] sm:border-4">
@@ -121,24 +202,36 @@ export default function SettingsPage() {
       <div className="flex flex-col gap-8">
         {sections.map((section, sectionIndex) => (
           <div key={sectionIndex}>
-            <h2 className="mb-4 px-2 text-[11px] font-black uppercase tracking-[0.15em] text-gray-400">{section.title}</h2>
-            <div className="overflow-hidden rounded-[30px] border border-gray-100 bg-white p-2.5 shadow-sm sm:rounded-[36px] sm:p-3">
+            <h2 className="mb-4 px-2 text-[11px] font-black uppercase tracking-[0.15em] text-[var(--app-muted)]">
+              {section.title}
+            </h2>
+            <div className="overflow-hidden rounded-[30px] border border-[var(--app-border)] bg-[var(--app-surface)] p-2.5 shadow-sm sm:rounded-[36px] sm:p-3">
               {section.items.map((item, itemIndex) => (
                 <button
                   key={itemIndex}
-                  onClick={item.action ? item.action : () => router.push(localizePath(locale, item.path || '/'))}
-                  className="group flex w-full items-center gap-3 rounded-2xl p-3.5 transition-colors active:scale-[0.98] hover:bg-blue-50 sm:gap-4 sm:rounded-3xl sm:p-4"
+                  onClick={
+                    item.action
+                      ? item.action
+                      : () =>
+                          router.push(localizePath(locale, item.path || "/"))
+                  }
+                  className="group flex w-full items-center gap-3 rounded-2xl p-3.5 transition-all active:scale-[0.98] hover:bg-[var(--app-primary)] sm:gap-4 sm:rounded-3xl sm:p-4"
                 >
-                  <div className="shrink-0 rounded-[16px] bg-blue-50 p-3 text-[#2563eb] transition-transform group-hover:scale-105 sm:rounded-[18px] sm:p-3.5">
+                  <div className="shrink-0 rounded-[16px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)] transition-all group-hover:scale-105 group-hover:bg-white/20 group-hover:text-white sm:rounded-[18px] sm:p-3.5">
                     <item.icon size={20} strokeWidth={2.5} />
                   </div>
                   <div className="min-w-0 flex-1 text-left">
-                    <p className="truncate text-[14px] font-extrabold text-gray-900 transition-colors group-hover:text-[#2563eb] sm:text-[15px]">
+                    <p className="truncate text-[14px] font-extrabold text-[var(--app-text)] transition-colors group-hover:text-white sm:text-[15px]">
                       {item.label}
                     </p>
-                    <p className="mt-0.5 truncate text-[11px] font-bold text-gray-400 sm:text-[12px]">{item.value}</p>
+                    <p className="mt-0.5 truncate text-[11px] font-bold text-[var(--app-muted)] group-hover:text-white/70 sm:text-[12px]">
+                      {item.value}
+                    </p>
                   </div>
-                  <ChevronRight size={18} className="flex-shrink-0 text-gray-300 transition-all group-hover:translate-x-1 group-hover:text-[#2563eb]" />
+                  <ChevronRight
+                    size={18}
+                    className="flex-shrink-0 text-[var(--app-muted)] transition-all group-hover:translate-x-1 group-hover:text-white"
+                  />
                 </button>
               ))}
             </div>
@@ -147,23 +240,31 @@ export default function SettingsPage() {
 
         <button
           onClick={handleLogout}
-          className="group mb-10 mt-4 flex w-full items-center gap-3 rounded-[28px] border border-red-100/50 bg-red-50 p-4 text-red-600 shadow-sm shadow-red-100/50 transition-all hover:bg-red-100 active:scale-[0.98] sm:gap-4 sm:rounded-[36px] sm:p-6"
+          className="group mb-10 mt-4 flex w-full items-center gap-3 rounded-[28px] border border-red-200/60 bg-red-50 p-4 text-red-600 shadow-sm transition-all hover:bg-red-100 active:scale-[0.98] dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 sm:gap-4 sm:rounded-[36px] sm:p-6"
         >
-          <div className="rounded-2xl bg-white p-3.5 text-red-500 shadow-sm transition-transform group-hover:rotate-12">
+          <div className="rounded-2xl bg-white p-3.5 text-red-500 shadow-sm transition-transform group-hover:rotate-12 dark:bg-red-900/40 dark:text-red-400">
             <LogOut size={22} strokeWidth={2.5} />
           </div>
           <div className="flex-1 text-left">
-            <p className="text-[15px] font-black uppercase tracking-tight">{t('logout')}</p>
+            <p className="text-[15px] font-black uppercase tracking-tight">
+              {t("logout")}
+            </p>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-widest opacity-60">
-              {t('logoutDescription', { name: centerBranding.shortName })}
+              {t("logoutDescription", { name: centerBranding.shortName })}
             </p>
           </div>
-          <ChevronRight size={20} strokeWidth={3} className="opacity-30 transition-all group-hover:translate-x-1" />
+          <ChevronRight
+            size={20}
+            strokeWidth={3}
+            className="opacity-30 transition-all group-hover:translate-x-1"
+          />
         </button>
       </div>
 
       <div className="mt-6 pb-10 text-center opacity-30">
-        <p className="text-[9px] font-black uppercase tracking-[0.3em]">{t('version')}</p>
+        <p className="text-[9px] font-black uppercase tracking-[0.3em]">
+          {t("version")}
+        </p>
       </div>
     </PageShell>
   );
