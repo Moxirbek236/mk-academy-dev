@@ -71,10 +71,7 @@ export class GroupAssignmentService {
     return group;
   }
 
-  private checkTeacherGroupOwnership(
-    teacherId: number,
-    currentUserId: number,
-  ) {
+  private checkTeacherGroupOwnership(teacherId: number, currentUserId: number) {
     if (teacherId !== currentUserId) {
       throw new ForbiddenException(
         "Siz faqat o'z guruhingizga tegishli vazifalarni boshqara olasiz",
@@ -127,9 +124,7 @@ export class GroupAssignmentService {
     });
 
     if (!membership) {
-      throw new BadRequestException(
-        "Tanlangan o'quvchi bu guruhda faol emas",
-      );
+      throw new BadRequestException("Tanlangan o'quvchi bu guruhda faol emas");
     }
   }
 
@@ -236,9 +231,7 @@ export class GroupAssignmentService {
     assignment: AssignmentWithRelations,
   ) {
     const dueDateLabel = this.formatDueDate(assignment.dueDate);
-    const dueDateText = dueDateLabel
-      ? ` Muddat: ${dueDateLabel}.`
-      : '';
+    const dueDateText = dueDateLabel ? ` Muddat: ${dueDateLabel}.` : '';
 
     if (assignment.test) {
       const titleByEvent = {
@@ -347,7 +340,7 @@ export class GroupAssignmentService {
   async create(dto: CreateGroupAssignmentDto, currentUser: CurrentUser) {
     if (!dto.taskId && !dto.testId) {
       throw new BadRequestException(
-        "Kamida bitta vazifa (taskId) yoki test (testId) kiritilishi shart",
+        'Kamida bitta vazifa (taskId) yoki test (testId) kiritilishi shart',
       );
     }
 
@@ -371,7 +364,11 @@ export class GroupAssignmentService {
       await this.publishTestIfNeeded(dto.testId, currentUser);
     }
 
-    if (dto.studentId) {
+    if (
+      dto.studentId &&
+      currentUser.role !== UserRole.SUPERADMIN &&
+      currentUser.role !== UserRole.ADMIN
+    ) {
       await this.checkStudentCanReceiveAssignment(dto.groupId, dto.studentId);
     }
 
@@ -522,7 +519,10 @@ export class GroupAssignmentService {
     }
 
     if (currentUser.role === UserRole.STUDENT) {
-      await this.checkStudentGroupMembership(assignment.groupId, currentUser.id);
+      await this.checkStudentGroupMembership(
+        assignment.groupId,
+        currentUser.id,
+      );
 
       if (assignment.studentId && assignment.studentId !== currentUser.id) {
         throw new ForbiddenException('Bu vazifa sizga biriktirilmagan');
@@ -562,12 +562,14 @@ export class GroupAssignmentService {
       );
     }
 
-    const nextTaskId = dto.taskId === undefined ? assignment.taskId : dto.taskId;
-    const nextTestId = dto.testId === undefined ? assignment.testId : dto.testId;
+    const nextTaskId =
+      dto.taskId === undefined ? assignment.taskId : dto.taskId;
+    const nextTestId =
+      dto.testId === undefined ? assignment.testId : dto.testId;
 
     if (!nextTaskId && !nextTestId) {
       throw new BadRequestException(
-        "Kamida bitta vazifa (taskId) yoki test (testId) kiritilishi shart",
+        'Kamida bitta vazifa (taskId) yoki test (testId) kiritilishi shart',
       );
     }
 
@@ -602,7 +604,8 @@ export class GroupAssignmentService {
     const updateData: any = {};
 
     if (dto.groupId !== undefined) updateData.groupId = dto.groupId;
-    if (dto.studentId !== undefined) updateData.studentId = dto.studentId ?? null;
+    if (dto.studentId !== undefined)
+      updateData.studentId = dto.studentId ?? null;
     if (dto.taskId !== undefined) {
       updateData.taskId = dto.taskId;
       if (dto.taskId) updateData.testId = null;
@@ -642,9 +645,7 @@ export class GroupAssignmentService {
     }
 
     if (!assignment.isActive) {
-      throw new BadRequestException(
-        "Bu guruh vazifasi allaqachon o'chirilgan",
-      );
+      throw new BadRequestException("Bu guruh vazifasi allaqachon o'chirilgan");
     }
 
     if (currentUser.role === UserRole.TEACHER) {
