@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { CreateGroupCourseDto } from './dto/create-group-course.dto';
 import { UpdateGroupCourseDto } from './dto/update-group-course.dto';
 import { QueryGroupCourseDto } from './dto/query-group-course.dto';
@@ -14,6 +15,10 @@ export class GroupCourseService {
 
   async create(dto: CreateGroupCourseDto) {
     const { groupId, courseId } = dto;
+    const include = {
+      group: true,
+      course: true,
+    } as const;
 
     const group = await this.prisma.group.findFirst({
       where: { id: groupId, isActive: true },
@@ -27,10 +32,7 @@ export class GroupCourseService {
 
     const existingLink = await this.prisma.groupCourse.findUnique({
       where: { groupId_courseId: { groupId, courseId } },
-      include: {
-        group: true,
-        course: true,
-      },
+      include,
     });
 
     if (existingLink?.isActive) {
@@ -44,20 +46,39 @@ export class GroupCourseService {
           isActive: true,
           assignedAt: new Date(),
         },
-        include: {
-          group: true,
-          course: true,
-        },
+        include,
       });
     }
 
-    return this.prisma.groupCourse.create({
-      data: { groupId, courseId },
-      include: {
-        group: true,
-        course: true,
-      },
-    });
+    try {
+      return await this.prisma.groupCourse.create({
+        data: { groupId, courseId },
+        include,
+      });
+    } catch (error) {
+      if (this.isUniqueGroupCourseConstraintError(error)) {
+        const duplicateLink = await this.prisma.groupCourse.findUnique({
+          where: { groupId_courseId: { groupId, courseId } },
+          include,
+        });
+
+        if (duplicateLink?.isActive) {
+          throw new ConflictException(
+            'Bu course allaqachon groupga biriktirilgan',
+          );
+        }
+
+        if (duplicateLink) {
+          return this.prisma.groupCourse.update({
+            where: { id: duplicateLink.id },
+            data: { isActive: true, assignedAt: new Date() },
+            include,
+          });
+        }
+      }
+
+      throw error;
+    }
   }
 
   // ─── FIND ALL (pagination + filter) ─────────────────────────────────────────
@@ -158,14 +179,22 @@ export class GroupCourseService {
       }
     }
 
-    return this.prisma.groupCourse.update({
-      where: { id },
-      data: dto,
-      include: {
-        group: true,
-        course: true,
-      },
-    });
+    try {
+      return await this.prisma.groupCourse.update({
+        where: { id },
+        data: dto,
+        include: {
+          group: true,
+          course: true,
+        },
+      });
+    } catch (error) {
+      if (this.isUniqueGroupCourseConstraintError(error)) {
+        throw new ConflictException('Bunday bog\'lanish allaqachon mavjud');
+      }
+
+      throw error;
+    }
   }
 
   async remove(id: number) {
@@ -185,5 +214,12 @@ export class GroupCourseService {
         course: true,
       },
     });
+  }
+
+  private isUniqueGroupCourseConstraintError(error: unknown) {
+    return (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    );
   }
 }

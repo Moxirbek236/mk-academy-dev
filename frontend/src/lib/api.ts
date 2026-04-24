@@ -26,6 +26,22 @@ export type OfflineAwareAxiosResponse<T = unknown> = AxiosResponse<T> & {
   offline?: OfflineResponseMeta;
 };
 
+function setAuthorizationHeader(
+  config: ApiRequestConfig,
+  token: string,
+) {
+  if (!config.headers) {
+    config.headers = {};
+  }
+
+  if (typeof (config.headers as { set?: (name: string, value: string) => void }).set === 'function') {
+    (config.headers as { set: (name: string, value: string) => void }).set('Authorization', `Bearer ${token}`);
+    return;
+  }
+
+  (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+}
+
 function getCacheScope(token: string | null): string {
   if (!token) return 'public';
   return `token:${token.slice(-12)}`;
@@ -69,7 +85,7 @@ api.interceptors.request.use(async (incomingConfig) => {
   }
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    setAuthorizationHeader(config, token);
   }
 
   const isOnline = await isNetworkOnline();

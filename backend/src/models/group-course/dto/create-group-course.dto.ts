@@ -5,10 +5,10 @@ export class CreateGroupCourseDto {
   @ApiProperty({ example: 1, description: 'Guruh ID si' })
   @IsInt()
   @Min(1)
-  groupId: number;
+  groupId!: number;
 
   @ApiProperty({ example: 2, description: 'Kurs ID si' })
   @IsInt()
   @Min(1)
-  courseId: number;
+  courseId!: number;
 }

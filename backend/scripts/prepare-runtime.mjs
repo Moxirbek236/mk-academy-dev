@@ -55,6 +55,9 @@ console.log('  MK Academy Backend - runtime prepare');
 console.log('============================================');
 console.log(`-> DATABASE_URL: ${databaseUrl}`);
 console.log('');
+console.log('-> Generating Prisma client...');
+runCommand(prismaCommand, ['prisma', 'generate']);
+console.log('');
 
 if (isSqlite) {
   console.log('-> Syncing Prisma schema for SQLite...');
