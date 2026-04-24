@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppApiError, getUserFriendlyErrorMessage } from '@/lib/offline/errors';
 
 interface UseApiRequestOptions<T> {
@@ -8,6 +8,7 @@ interface UseApiRequestOptions<T> {
   debounceMs?: number;
   initialData: T;
   request: () => Promise<T>;
+  requestKey?: string | number | boolean | null;
 }
 
 function normalizeRequestError(error: unknown) {
@@ -23,24 +24,28 @@ export function useApiRequest<T>({
   debounceMs = 0,
   initialData,
   request,
+  requestKey = null,
 }: UseApiRequestOptions<T>) {
   const [data, setData] = useState<T>(initialData);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
+  const requestRef = useRef(request);
+
+  requestRef.current = request;
 
   const execute = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await request();
+      const response = await requestRef.current();
       setData(response);
     } catch (requestError) {
       setError(normalizeRequestError(requestError));
     } finally {
       setLoading(false);
     }
-  }, [request]);
+  }, []);
 
   useEffect(() => {
     if (!enabled) {
@@ -57,7 +62,7 @@ export function useApiRequest<T>({
     }
 
     void execute();
-  }, [debounceMs, enabled, execute]);
+  }, [debounceMs, enabled, execute, requestKey]);
 
   return {
     data,

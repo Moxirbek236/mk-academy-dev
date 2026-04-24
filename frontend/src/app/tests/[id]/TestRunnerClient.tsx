@@ -5,7 +5,7 @@ import { ArrowLeft, CheckCircle2, Clock, Loader2, Send, XCircle } from 'lucide-r
 import { useRouter } from 'next/navigation';
 import {
   getTestById,
-  normalizeQuestionOptions,
+  normalizeQuestionOptionItems,
   startTestAttempt,
   submitTestAttempt,
   type TestAttempt,
@@ -240,7 +240,7 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
       {attempt ? (
         <div className="space-y-4 pb-24">
           {activeQuestions.map((question, index) => {
-            const options = normalizeQuestionOptions(question.options);
+            const options = normalizeQuestionOptionItems(question.options);
             const value = answers[String(question.id)] ?? '';
             const graded = result?.answers?.results?.find?.((item: any) => Number(item.questionId) === question.id);
 
@@ -269,15 +269,15 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
                 {options.length > 0 ? (
                   <div className="grid gap-2 sm:grid-cols-2">
                     {options.map((option) => {
-                      const selected = value === option;
+                      const selected = value === option.label;
                       return (
                         <button
-                          key={option}
+                          key={option.label}
                           onClick={() =>
                             !result &&
                             setAnswers((current) => ({
                               ...current,
-                              [String(question.id)]: option,
+                              [String(question.id)]: option.label,
                             }))
                           }
                           className={`rounded-[16px] border px-4 py-3 text-left text-sm font-bold transition-transform active:scale-95 ${
@@ -286,7 +286,7 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
                               : 'border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]'
                           } ${result ? 'cursor-default' : ''}`}
                         >
-                          {option}
+                          {option.label}) {option.value}
                         </button>
                       );
                     })}

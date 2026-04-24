@@ -18,6 +18,7 @@ export default function TasksPage() {
   const { data, loading, error, refetch } = useApiRequest({
     initialData: [] as any[],
     request: () => listTasks(),
+    requestKey: 'tasks',
   });
 
   return (

@@ -19,6 +19,7 @@ const downloadItems = [
     icon: TabletSmartphone,
     fileName: APP_DOWNLOADS.ios.fileName,
     url: APP_DOWNLOADS.ios.url,
+    directUrl: APP_DOWNLOADS.ios.directUrl,
   },
 ] as const;
 
@@ -77,8 +78,25 @@ export default function DownloadsPage() {
                 className="flex items-center justify-center gap-3 rounded-[8px] bg-[var(--app-primary)] px-5 py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
               >
                 <Download size={18} />
-                {t('download')}
+                {item.key === 'ios' ? t('install') : t('download')}
               </a>
+
+              {item.key === 'ios' ? (
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold leading-relaxed text-[var(--app-muted)]">
+                    {t('ios.installNote')}
+                  </p>
+                  <a
+                    href={item.directUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)]"
+                  >
+                    {t('directDownload')}
+                    <ExternalLink size={13} />
+                  </a>
+                </div>
+              ) : null}
             </div>
           );
         })}

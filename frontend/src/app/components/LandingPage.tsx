@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import {
   Sparkles,
   ArrowRight,
@@ -23,628 +23,1063 @@ import {
   HelpCircle,
   Building2,
   Star,
-} from 'lucide-react';
-import { createLead } from '@/lib/backend-api';
-import { usePublishedLeadQuestions } from '@/hooks/usePublishedLeadQuestions';
-import { localizePath } from '@/i18n/localizedPath';
-import { useCenterBranding } from './branding/CenterBrandingProvider';
+  Zap,
+  Shield,
+  Target,
+  TrendingUp,
+  CheckCircle2,
+  ChevronDown,
+  Instagram,
+  Youtube,
+} from "lucide-react";
+import { createLead, getPublicCenterSettings } from "@/lib/backend-api";
+import { usePublishedLeadQuestions } from "@/hooks/usePublishedLeadQuestions";
+import { localizePath } from "@/i18n/localizedPath";
+import { useCenterBranding } from "./branding/CenterBrandingProvider";
+import {
+  normalizeCenterBranding,
+  type CenterBranding,
+  DEFAULT_TEAM_MEMBERS,
+  DEFAULT_COURSE_TRACKS,
+  DEFAULT_ABOUT_POINTS,
+} from "@/lib/branding";
 
-const TEAM_MEMBERS = [
-  {
-    name: 'Maqsud Aliyev',
-    role: 'IELTS Mentor',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80',
-    focus: 'Reading va Writing strategiyalari',
-  },
-  {
-    name: 'Nigina Tursunova',
-    role: 'Speaking Coach',
-    image: 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=800&q=80',
-    focus: 'Fluency, pronunciation va confidence',
-  },
-  {
-    name: 'Dilshod Karimov',
-    role: 'Academic Coordinator',
-    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80',
-    focus: 'Guruhlar, natijalar va o\'quv reja',
-  },
-];
+// ── IntersectionObserver hook ────────────────────────────────────────────────
+function useInView(opts?: { threshold?: number; rootMargin?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
 
-const COURSE_TRACKS = [
-  {
-    title: 'General English',
-    level: 'A1 - B2',
-    desc: "Noldan boshlab mustahkam grammatika, so'z boyligi va speaking asoslari.",
-  },
-  {
-    title: 'IELTS Preparation',
-    level: 'B1 - C1',
-    desc: "IELTS reading, listening, writing va speaking bo'yicha intensiv tayyorgarlik.",
-  },
-  {
-    title: 'Speaking Club Pro',
-    level: 'B1+',
-    desc: 'Real suhbat, debate, presentation va IELTS speaking formatlari.',
-  },
-];
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: opts?.threshold ?? 0.08,
+        rootMargin: opts?.rootMargin ?? "0px 0px -50px 0px",
+      }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [opts?.threshold, opts?.rootMargin]);
 
-const DEFAULT_PUBLIC_QUESTIONS = [
+  return [ref, visible] as const;
+}
+
+// ── Reveal wrapper ───────────────────────────────────────────────────────────
+function Reveal({
+  children,
+  delay = 0,
+  direction = "up",
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  direction?: "up" | "left" | "right" | "scale";
+  className?: string;
+}) {
+  const [ref, visible] = useInView();
+  const dirClass =
+    direction === "left"
+      ? "reveal reveal-left"
+      : direction === "right"
+      ? "reveal reveal-right"
+      : direction === "scale"
+      ? "reveal reveal-scale"
+      : "reveal";
+
+  return (
+    <div
+      ref={ref}
+      className={`${dirClass} ${visible ? "is-visible" : ""} ${className}`}
+      style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ── Stat counter ─────────────────────────────────────────────────────────────
+function StatCounter({
+  target,
+  suffix = "",
+}: {
+  target: number;
+  suffix?: string;
+}) {
+  const [count, setCount] = useState(0);
+  const [ref, visible] = useInView();
+
+  useEffect(() => {
+    if (!visible) return;
+    let start = 0;
+    const step = Math.ceil(target / 60);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(start);
+      }
+    }, 20);
+    return () => clearInterval(timer);
+  }, [visible, target]);
+
+  return (
+    <span ref={ref}>
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
+// ── Default FAQ ──────────────────────────────────────────────────────────────
+const DEFAULT_FAQ = [
   {
     id: 1,
-    fullName: 'MK Academy',
+    fullName: "MK Academy",
     message: "Qaysi darajadan boshlashimni qanday bilaman?",
     answer:
-      'Avval qisqa placement test topshirasiz. Natijaga qarab sizga mos guruh va kurs tavsiya qilinadi.',
+      "Avval qisqa placement test topshirasiz. Natijaga qarab sizga mos guruh va kurs tavsiya qilinadi.",
   },
   {
     id: 2,
-    fullName: 'MK Academy',
+    fullName: "MK Academy",
     message: "IELTS kursi qancha davom etadi?",
     answer:
       "Odatda 3-6 oy davom etadi. Aniq muddat boshlang'ich darajangiz va maqsad ballingizga bog'liq.",
   },
   {
     id: 3,
-    fullName: 'MK Academy',
+    fullName: "MK Academy",
     message: "Darslar online ham bormi?",
     answer:
-      'Ha, ayrim guruhlar online va hybrid formatda ochiladi. Jadval admin bilan kelishiladi.',
+      "Ha, ayrim guruhlar online va hybrid formatda ochiladi. Jadval admin bilan kelishiladi.",
   },
 ];
 
+// ── Feature list ─────────────────────────────────────────────────────────────
+const FEATURES = [
+  {
+    icon: BookOpen,
+    title: "Grammar",
+    desc: "CEFR darajasiga mos grammatika darslari",
+    color: "text-blue-500",
+    bg: "bg-blue-50 dark:bg-blue-900/30",
+  },
+  {
+    icon: Headphones,
+    title: "Listening",
+    desc: "Audio materiallar va tushunish mashqlari",
+    color: "text-violet-500",
+    bg: "bg-violet-50 dark:bg-violet-900/30",
+  },
+  {
+    icon: PenTool,
+    title: "Writing",
+    desc: "Nutqni rivojlantirish vazifalari",
+    color: "text-emerald-500",
+    bg: "bg-emerald-50 dark:bg-emerald-900/30",
+  },
+  {
+    icon: MessageCircle,
+    title: "Vocabulary",
+    desc: "SM-2 algoritmi bilan mustahkamlash",
+    color: "text-amber-500",
+    bg: "bg-amber-50 dark:bg-amber-900/30",
+  },
+  {
+    icon: Trophy,
+    title: "Gamification",
+    desc: "XP va leaderboard tizimi",
+    color: "text-rose-500",
+    bg: "bg-rose-50 dark:bg-rose-900/30",
+  },
+  {
+    icon: Users,
+    title: "Guruhlar",
+    desc: "O'qituvchi bilan birga o'rganish",
+    color: "text-indigo-500",
+    bg: "bg-indigo-50 dark:bg-indigo-900/30",
+  },
+  {
+    icon: Globe,
+    title: "IELTS Exams",
+    desc: "Mock exam imkoniyatlari",
+    color: "text-cyan-500",
+    bg: "bg-cyan-50 dark:bg-cyan-900/30",
+  },
+  {
+    icon: TrendingUp,
+    title: "Progress",
+    desc: "Real-time natijalar tahlili",
+    color: "text-teal-500",
+    bg: "bg-teal-50 dark:bg-teal-900/30",
+  },
+];
+
+// ── Main component ────────────────────────────────────────────────────────────
 export function LandingPage() {
   const router = useRouter();
   const locale = useLocale();
-  const { centerBranding } = useCenterBranding();
-  const { data: publishedQuestions } = usePublishedLeadQuestions();
-  const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '',
-    message: '',
-  });
-  const [status, setStatus] = useState<string | null>(null);
+  const { centerBranding: ctxBranding } = useCenterBranding();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setStatus('loading');
-      await createLead(formData);
-      setStatus('success');
-      setFormData({ fullName: '', phone: '', message: '' });
-    } catch (err) {
-      console.error(err);
-      setStatus('error');
-    }
+  // Live settings from API (enriched with landing data)
+  const [settings, setSettings] = useState<CenterBranding>(ctxBranding);
+
+  useEffect(() => {
+    getPublicCenterSettings()
+      .then((raw) => {
+        if (raw) setSettings(normalizeCenterBranding(raw));
+      })
+      .catch(() => {});
+  }, []);
+
+  const teamMembers = settings.teamMembers?.length
+    ? settings.teamMembers
+    : DEFAULT_TEAM_MEMBERS;
+  const courseTracks = settings.courseTracks?.length
+    ? settings.courseTracks
+    : DEFAULT_COURSE_TRACKS;
+  const aboutPoints = settings.aboutPoints?.length
+    ? settings.aboutPoints
+    : DEFAULT_ABOUT_POINTS;
+
+  const { data: publishedFaq } = usePublishedLeadQuestions();
+  const visibleFaq = publishedFaq.length > 0 ? publishedFaq : DEFAULT_FAQ;
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    message: "",
+  });
+  const [formStatus, setFormStatus] = useState<
+    null | "loading" | "success" | "error"
+  >(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setFormStatus("loading");
+      try {
+        await createLead(formData);
+        setFormStatus("success");
+        setFormData({ fullName: "", phone: "", message: "" });
+      } catch {
+        setFormStatus("error");
+      }
+    },
+    [formData]
+  );
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMobileMenuOpen(false);
   };
 
-  const visibleQuestions = publishedQuestions.length > 0 ? publishedQuestions : DEFAULT_PUBLIC_QUESTIONS;
+  const NAV_LINKS = [
+    { id: "about", label: "Biz haqimizda" },
+    { id: "features", label: "Imkoniyatlar" },
+    { id: "team", label: "Jamoa" },
+    { id: "questions", label: "Savollar" },
+    { id: "address", label: "Manzil" },
+    { id: "contact", label: "Bog'lanish" },
+  ];
 
   return (
-    <div className="min-h-screen-safe overflow-x-clip bg-mesh bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white">
-      <nav className="fixed top-0 z-50 w-full border-b border-[var(--app-border)] bg-white/70 backdrop-blur-xl dark:bg-slate-900/70">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 sm:h-20">
-          <div className="group flex cursor-pointer items-center gap-3">
-            <div className="h-11 w-11 overflow-hidden rounded-2xl border-2 border-white shadow-xl shadow-[var(--app-primary)]/20 transition-transform group-hover:scale-105">
+    <div className="min-h-screen overflow-x-clip bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white">
+      {/* ══════════════════════════ NAVBAR ══════════════════════════════════ */}
+      <nav
+        className={`fixed top-0 z-50 w-full transition-all duration-300 ${
+          scrolled
+            ? "border-b border-[var(--app-border)] bg-[var(--app-bg)]/90 shadow-sm shadow-black/5 backdrop-blur-xl"
+            : "bg-transparent"
+        }`}
+      >
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-8">
+          {/* Logo */}
+          <button
+            onClick={() => scrollTo("hero")}
+            className="group flex items-center gap-3"
+          >
+            <div className="relative h-10 w-10 overflow-hidden rounded-2xl border-2 border-white/50 shadow-lg shadow-[var(--app-primary)]/20 transition-transform group-hover:scale-105">
               <img
-                src={centerBranding.logoUrl}
-                alt={centerBranding.shortName}
+                src={settings.logoUrl}
+                alt={settings.shortName}
                 className="h-full w-full object-cover"
               />
+              <div className="absolute inset-0 rounded-2xl ring-2 ring-inset ring-white/20" />
             </div>
             <span className="text-xl font-black tracking-tighter sm:text-2xl">
-              {centerBranding.shortName}
+              {settings.shortName}
             </span>
-          </div>
+          </button>
 
-          <div className="hidden items-center gap-5 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)] md:flex">
-            <a
-              href="#about"
-              className="transition-colors hover:text-[var(--app-primary)]"
-            >
-              Biz haqimizda
-            </a>
-            <a
-              href="#features"
-              className="transition-colors hover:text-[var(--app-primary)]"
-            >
-              Imkoniyatlar
-            </a>
-            <a
-              href="#team"
-              className="transition-colors hover:text-[var(--app-primary)]"
-            >
-              Jamoa
-            </a>
-            <a
-              href="#questions"
-              className="transition-colors hover:text-[var(--app-primary)]"
-            >
-              Savollar
-            </a>
-            <a
-              href="#address"
-              className="transition-colors hover:text-[var(--app-primary)]"
-            >
-              Manzil
-            </a>
-            <a
-              href="#contact"
-              className="transition-colors hover:text-[var(--app-primary)]"
-            >
-              Bog&apos;lanish
-            </a>
+          {/* Desktop nav */}
+          <div className="hidden items-center gap-6 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)] md:flex">
+            {NAV_LINKS.map((link) => (
+              <button
+                key={link.id}
+                onClick={() => scrollTo(link.id)}
+                className="transition-colors hover:text-[var(--app-primary)]"
+              >
+                {link.label}
+              </button>
+            ))}
             <div className="h-4 w-px bg-[var(--app-border)]" />
             <button
-              onClick={() => router.push(localizePath(locale, '/login'))}
-              className="btn-premium border-none bg-[var(--app-primary)] px-6 py-2.5 text-white shadow-lg shadow-[var(--app-primary)]/20"
+              onClick={() => router.push(localizePath(locale, "/login"))}
+              className="btn-premium border-none bg-[var(--app-primary)] px-5 py-2.5 text-white shadow-lg shadow-[var(--app-primary)]/25"
             >
-              <LogIn size={16} className="mr-2" /> Tizimga kirish
+              <LogIn size={15} className="mr-2" />
+              Kirish
             </button>
           </div>
 
-          <button
-            onClick={() => router.push(localizePath(locale, '/login'))}
-            className="app-touch flex items-center justify-center rounded-2xl bg-[var(--app-primary)] px-5 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-[var(--app-primary)]/20 md:hidden"
-          >
-            <LogIn size={14} className="mr-2" />
-            Kirish
-          </button>
+          {/* Mobile login */}
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-xl"
+            >
+              <span
+                className={`block h-0.5 w-6 bg-[var(--app-text)] transition-all ${
+                  mobileMenuOpen ? "translate-y-2 rotate-45" : ""
+                }`}
+              />
+              <span
+                className={`block h-0.5 w-6 bg-[var(--app-text)] transition-all ${
+                  mobileMenuOpen ? "opacity-0" : ""
+                }`}
+              />
+              <span
+                className={`block h-0.5 w-6 bg-[var(--app-text)] transition-all ${
+                  mobileMenuOpen ? "-translate-y-2 -rotate-45" : ""
+                }`}
+              />
+            </button>
+            <button
+              onClick={() => router.push(localizePath(locale, "/login"))}
+              className="flex items-center gap-1.5 rounded-2xl bg-[var(--app-primary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white"
+            >
+              <LogIn size={13} />
+              Kirish
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        <div
+          className={`overflow-hidden border-b border-[var(--app-border)] bg-[var(--app-bg)]/95 backdrop-blur-xl transition-all duration-300 md:hidden ${
+            mobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
+          }`}
+        >
+          <div className="flex flex-col gap-1 px-5 pt-2">
+            {NAV_LINKS.map((link) => (
+              <button
+                key={link.id}
+                onClick={() => scrollTo(link.id)}
+                className="rounded-xl px-4 py-3 text-left text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-colors hover:bg-[var(--app-surface-soft)] hover:text-[var(--app-primary)]"
+              >
+                {link.label}
+              </button>
+            ))}
+          </div>
         </div>
       </nav>
 
-      <section className="relative mx-auto flex min-h-[85svh] max-w-7xl flex-col items-center justify-center px-6 pb-20 pt-32 text-center sm:pt-40">
-        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--app-primary)] opacity-10 blur-[120px] sm:h-[700px] sm:w-[700px]" />
-
-        <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-white px-4 py-2 shadow-sm transition-all hover:border-[var(--app-primary)]/20">
-          <Sparkles size={16} className="animate-pulse text-blue-500" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-[var(--app-primary-dark)]">
-            Ingliz tilini biz bilan o&apos;rganing
-          </span>
+      {/* ══════════════════════════ HERO ════════════════════════════════════ */}
+      <section
+        id="hero"
+        className="relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-5 pb-20 pt-28 text-center sm:pt-36"
+      >
+        {/* Animated background blobs */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="animate-float-slow absolute left-[10%] top-[15%] h-[380px] w-[380px] rounded-full bg-[var(--app-primary)] opacity-[0.07] blur-[90px]" />
+          <div
+            className="animate-float absolute right-[5%] top-[30%] h-[260px] w-[260px] rounded-full bg-violet-500 opacity-[0.06] blur-[70px]"
+            style={{ animationDelay: "1s" }}
+          />
+          <div
+            className="animate-float-slow absolute bottom-[10%] left-[30%] h-[300px] w-[300px] rounded-full bg-cyan-500 opacity-[0.05] blur-[80px]"
+            style={{ animationDelay: "2s" }}
+          />
         </div>
 
-        <h1 className="mb-8 text-5xl font-black leading-none tracking-tighter sm:text-7xl md:text-9xl">
-          English <br className="hidden md:block" />
-          <span className="bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-primary-dark)] bg-clip-text text-transparent">
-            Mastery
-          </span>
-        </h1>
+        {/* Grid overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--app-border) 1px, transparent 1px), linear-gradient(90deg, var(--app-border) 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
+          }}
+        />
 
-        <p className="mb-12 max-w-2xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg md:text-xl">
-          {centerBranding.description}
-        </p>
-
-        <div className="flex w-full flex-col gap-4 sm:flex-row sm:justify-center">
-          <button
-            onClick={() => router.push(localizePath(locale, '/login'))}
-            className="btn-premium group border-none bg-[var(--app-primary)] px-10 py-5 text-base text-white shadow-2xl shadow-[var(--app-primary)]/30"
-          >
-            Boshlash{' '}
-            <ArrowRight
-              size={20}
-              className="ml-2 transition-transform group-hover:translate-x-1"
+        {/* Badge */}
+        <Reveal delay={0}>
+          <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 shadow-sm backdrop-blur-sm">
+            <Sparkles
+              size={15}
+              className="animate-pulse text-[var(--app-primary)]"
             />
-          </button>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
+              Ingliz tilini biz bilan o'rganing
+            </span>
+          </div>
+        </Reveal>
+
+        {/* Headline */}
+        <Reveal delay={80}>
+          <h1 className="mb-6 max-w-5xl text-[clamp(3rem,10vw,7rem)] font-black leading-none tracking-[-0.03em]">
+            English{" "}
+            <span className="animate-gradient-x bg-gradient-to-r from-[var(--app-primary)] via-violet-500 to-[var(--app-primary-dark)] bg-clip-text text-transparent">
+              Mastery
+            </span>
+            <br />
+            <span className="text-[0.55em] font-black text-[var(--app-muted)]">
+              starts here
+            </span>
+          </h1>
+        </Reveal>
+
+        <Reveal delay={160}>
+          <p className="mb-10 max-w-xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
+            {settings.description}
+          </p>
+        </Reveal>
+
+        {/* CTA buttons */}
+        <Reveal delay={220}>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              onClick={() => router.push(localizePath(locale, "/login"))}
+              className="btn-premium group relative border-none bg-[var(--app-primary)] px-10 py-4 text-base text-white shadow-2xl shadow-[var(--app-primary)]/30"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Boshlash
+                <ArrowRight
+                  size={18}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </span>
+              {/* pulse ring */}
+              <span className="animate-pulse-ring absolute inset-0 rounded-[1rem] bg-[var(--app-primary)]" />
+            </button>
+            <button
+              onClick={() => scrollTo("about")}
+              className="flex items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
+            >
+              Batafsil <ChevronDown size={16} className="animate-bounce" />
+            </button>
+          </div>
+        </Reveal>
+
+        {/* Scroll indicator */}
+        <Reveal delay={400}>
           <button
-            onClick={() =>
-              document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
-            }
-            className="app-touch app-card flex items-center justify-center border-none bg-white px-10 py-5 text-base font-black uppercase tracking-widest text-[var(--app-text)] transition-all hover:bg-gray-50 active:scale-95"
+            onClick={() => scrollTo("about")}
+            className="mt-16 flex flex-col items-center gap-2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-primary)]"
           >
-            Batafsil
+            <span className="text-[9px] font-black uppercase tracking-[0.3em]">
+              Pastga scroll qiling
+            </span>
+            <div className="h-8 w-px bg-gradient-to-b from-[var(--app-muted)]/50 to-transparent" />
           </button>
-        </div>
+        </Reveal>
       </section>
 
+      {/* ══════════════════════════ STATS TICKER ════════════════════════════ */}
+      <div className="relative overflow-hidden border-y border-[var(--app-border)] bg-[var(--app-primary)] py-4">
+        <div className="animate-ticker flex w-max items-center gap-12 whitespace-nowrap">
+          {[
+            { label: "O'quvchilar", value: 500, suffix: "+" },
+            { label: "Kurslar", value: 12, suffix: "+" },
+            { label: "Muvaffaqiyat ko'rsatkichi", value: 94, suffix: "%" },
+            { label: "IELTS ball o\u2019rtacha", value: 7, suffix: ".5" },
+            { label: "Guruhlar", value: 48, suffix: "+" },
+            { label: "O'qituvchilar", value: 15, suffix: "+" },
+            { label: "O'quvchilar", value: 500, suffix: "+" },
+            { label: "Kurslar", value: 12, suffix: "+" },
+            { label: "Muvaffaqiyat ko'rsatkichi", value: 94, suffix: "%" },
+            { label: "IELTS ball o\u2019rtacha", value: 7, suffix: ".5" },
+            { label: "Guruhlar", value: 48, suffix: "+" },
+            { label: "O'qituvchilar", value: 15, suffix: "+" },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Zap size={14} className="text-white/60" />
+              <span className="text-[11px] font-black uppercase tracking-widest text-white/80">
+                {item.label}
+              </span>
+              <span className="text-lg font-black text-white">
+                {item.value}
+                {item.suffix}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ══════════════════════════ ABOUT ═══════════════════════════════════ */}
       <section
         id="about"
-        className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/50 px-6 py-20 sm:py-32"
+        className="border-b border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-32"
       >
-        <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-2 md:gap-24">
-          <div className="animate-in slide-in-from-left-8 duration-1000">
-            <h2 className="mb-8 flex items-center gap-4 text-3xl font-black uppercase tracking-tighter md:text-5xl">
-              <Info className="text-[var(--app-primary)]" size={36} /> Biz
-              Haqimizda
-            </h2>
-            <p className="mb-8 text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
-              {centerBranding.name} - ingliz tilini noldan C2 darajagacha
-              o&apos;rgatishga ixtisoslashgan ta&apos;lim platformasi. Biz CEFR
-              standartiga asoslangan darsliklar va interaktiv testlar orqali har
-              bir o&apos;quvchiga individual yondashamiz.
-            </p>
-            <ul className="space-y-5">
-              {[
-                'CEFR darajalariga moslashgan darslar (A1 - C2)',
-                'IELTS va General English tayyorgarlik',
-                "So'z boyligini SM-2 algoritmi bilan mustahkamlash",
-                "Guruh ichida do'stlar bilan raqobatlashish",
-              ].map((item, i) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-4 text-sm font-black uppercase tracking-tight text-[var(--app-text)]"
-                >
-                  <div className="h-2 w-2 rounded-full bg-[var(--app-primary)]" />{' '}
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="relative animate-in zoom-in-95 duration-1000">
-            <div className="absolute inset-0 scale-105 rotate-3 rounded-[3.5rem] bg-gradient-to-tr from-[var(--app-primary)] to-[var(--app-primary-dark)] opacity-20 blur-2xl" />
-            <div className="relative app-card border-white bg-white/80 p-8 backdrop-blur-xl sm:p-10">
-              <div className="mb-8 flex items-center gap-5 border-b border-gray-100 pb-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10 text-[var(--app-primary)] shadow-inner">
-                  <GraduationCap className="h-7 w-7" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black tracking-tight">
-                    CEFR English Platform
-                  </h3>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                    A1 dan C2 gacha - High Quality
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm font-bold italic leading-relaxed text-[var(--app-muted)]">
-                &quot;Har bir o&apos;quvchi o&apos;z darajasiga mos darslarni
-                oladi, testlar orqali bilimini tekshiradi va so&apos;z boyligini
-                kundalik mashqlar bilan mustahkamlaydi.&quot;
+        <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-2 md:gap-20">
+          {/* Left */}
+          <Reveal direction="left">
+            <div>
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
+                Biz haqimizda
               </p>
+              <h2 className="mb-6 flex items-center gap-3 text-3xl font-black uppercase tracking-tighter md:text-5xl">
+                <Info
+                  className="shrink-0 text-[var(--app-primary)]"
+                  size={32}
+                />
+                Bizning missiya
+              </h2>
+              <p className="mb-8 text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
+                {settings.aboutText}
+              </p>
+              <ul className="space-y-4">
+                {aboutPoints.map((point, i) => (
+                  <Reveal key={i} delay={i * 80}>
+                    <li className="flex items-start gap-3 text-sm font-bold text-[var(--app-text)]">
+                      <CheckCircle2
+                        size={18}
+                        className="mt-0.5 shrink-0 text-[var(--app-primary)]"
+                      />
+                      {point}
+                    </li>
+                  </Reveal>
+                ))}
+              </ul>
             </div>
-          </div>
+          </Reveal>
+
+          {/* Right — glass card */}
+          <Reveal direction="right" delay={100}>
+            <div className="relative">
+              <div className="absolute inset-0 scale-105 rotate-2 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)] to-violet-500 opacity-15 blur-3xl" />
+              <div className="glass-card relative p-8 sm:p-10">
+                <div className="mb-8 flex items-center gap-5 border-b border-[var(--app-border)] pb-8">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
+                    <GraduationCap size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black tracking-tight">
+                      CEFR English Platform
+                    </h3>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      A1 dan C2 gacha · High Quality
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mini stats */}
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  {[
+                    { icon: Users, val: "500+", label: "O'quvchi" },
+                    { icon: Trophy, val: "94%", label: "Muvaffaqiyat" },
+                    { icon: Star, val: "4.9", label: "Reyting" },
+                  ].map(({ icon: Icon, val, label }, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl bg-[var(--app-surface-soft)] py-4"
+                    >
+                      <Icon
+                        size={18}
+                        className="mx-auto mb-2 text-[var(--app-primary)]"
+                      />
+                      <p className="text-lg font-black text-[var(--app-text)]">
+                        {val}
+                      </p>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                        {label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="mt-6 text-sm font-bold italic leading-relaxed text-[var(--app-muted)]">
+                  &ldquo;Har bir o&apos;quvchi o&apos;z darajasiga mos darslarni
+                  oladi, testlar orqali bilimini tekshiradi va so&apos;z
+                  boyligini kundalik mashqlar bilan mustahkamlaydi.&rdquo;
+                </p>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      <section
-        id="features"
-        className="mx-auto max-w-7xl px-6 py-20 sm:py-32"
-      >
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-black uppercase tracking-tighter md:text-6xl">
-            Imkoniyatlar
-          </h2>
-          <p className="mx-auto max-w-2xl text-[10px] font-black uppercase tracking-[0.3em] text-[var(--app-muted)]">
-            Eng samarali o&apos;rganish tizimi
-          </p>
-        </div>
+      {/* ══════════════════════════ FEATURES ════════════════════════════════ */}
+      <section id="features" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
+        <Reveal>
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
+              Nima taklif qilamiz
+            </p>
+            <h2 className="text-3xl font-black uppercase tracking-tighter md:text-6xl">
+              Imkoniyatlar
+            </h2>
+            <p className="mt-4 text-[11px] font-black uppercase tracking-[0.25em] text-[var(--app-muted)]">
+              Eng samarali o&apos;rganish tizimi
+            </p>
+          </div>
+        </Reveal>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              icon: BookOpen,
-              title: 'Grammar',
-              desc: "CEFR darajasiga mos grammatika darslari",
-            },
-            {
-              icon: Headphones,
-              title: 'Listening',
-              desc: 'Audio materiallar va tushunish mashqlari',
-            },
-            {
-              icon: PenTool,
-              title: 'Writing',
-              desc: "Nutqni rivojlantirish vazifalari",
-            },
-            {
-              icon: MessageCircle,
-              title: 'Vocabulary',
-              desc: "SM-2 algoritmi bilan mustahkamlash",
-            },
-            {
-              icon: Trophy,
-              title: 'Gamification',
-              desc: 'XP va leaderboard tizimi',
-            },
-            {
-              icon: Users,
-              title: 'Guruhlar',
-              desc: "O'qituvchi bilan birga o'rganish",
-            },
-            {
-              icon: Globe,
-              title: 'IELTS Exams',
-              desc: 'Mock exam imkoniyatlari',
-            },
-            {
-              icon: GraduationCap,
-              title: 'Progress',
-              desc: 'Real-time natijalar tahlili',
-            },
-          ].map((feature, i) => (
-            <div
-              key={i}
-              className="app-card group cursor-default p-8 active:scale-[0.98]"
-            >
-              <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-primary)] transition-all group-hover:rotate-6 group-hover:scale-110 group-hover:bg-[var(--app-primary)] group-hover:text-white">
-                <feature.icon size={26} strokeWidth={2.5} />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {FEATURES.map((feat, i) => (
+            <Reveal key={feat.title} delay={i * 55} direction="up">
+              <div className="app-card group cursor-default p-7 transition-all hover:-translate-y-1">
+                <div
+                  className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${feat.bg} ${feat.color} transition-all group-hover:rotate-6 group-hover:scale-110`}
+                >
+                  <feat.icon size={24} strokeWidth={2.5} />
+                </div>
+                <h3 className="mb-2 text-base font-black tracking-tight">
+                  {feat.title}
+                </h3>
+                <p className="text-xs font-bold leading-relaxed text-[var(--app-muted)]">
+                  {feat.desc}
+                </p>
               </div>
-              <h3 className="mb-2 text-lg font-black tracking-tight">
-                {feature.title}
-              </h3>
-              <p className="text-xs font-bold leading-relaxed text-[var(--app-muted)]">
-                {feature.desc}
-              </p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
+      {/* ══════════════════════════ COURSES ═════════════════════════════════ */}
       <section
         id="courses"
-        className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/50 px-6 py-20 sm:py-28"
+        className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
       >
         <div className="mx-auto max-w-7xl">
           <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-                Kurslar
-              </p>
-              <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
-                Sizga mos yo&apos;nalish
-              </h2>
-            </div>
-            <button
-              onClick={() =>
-                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
-              }
-              className="btn-premium border-none bg-[var(--app-primary)] px-6 py-3 text-white shadow-lg shadow-[var(--app-primary)]/20"
-            >
-              Savol berish <ArrowRight size={18} className="ml-2" />
-            </button>
+            <Reveal direction="left">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
+                  Yo'nalishlar
+                </p>
+                <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
+                  Sizga mos kurs
+                </h2>
+              </div>
+            </Reveal>
+            <Reveal direction="right" delay={100}>
+              <button
+                onClick={() => scrollTo("contact")}
+                className="btn-premium border-none bg-[var(--app-primary)] px-6 py-3 text-white shadow-lg shadow-[var(--app-primary)]/20"
+              >
+                Savol berish <ArrowRight size={16} className="ml-2" />
+              </button>
+            </Reveal>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-3">
-            {COURSE_TRACKS.map((course) => (
-              <div key={course.title} className="app-card p-7">
-                <div className="mb-6 flex items-center justify-between gap-4">
-                  <div className="rounded-[18px] bg-[var(--app-primary)]/10 p-3 text-[var(--app-primary)]">
-                    <BookOpen size={24} strokeWidth={2.5} />
+          <div className="grid gap-6 md:grid-cols-3">
+            {courseTracks.map((course, i) => (
+              <Reveal key={course.title} delay={i * 100} direction="up">
+                <div className="app-card group relative overflow-hidden p-7 transition-all hover:-translate-y-1.5 hover:border-[var(--app-primary)]/30">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--app-primary)]/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="relative">
+                    <div className="mb-5 flex items-center justify-between">
+                      <div className="rounded-2xl bg-[var(--app-primary)]/10 p-3 text-[var(--app-primary)] transition-transform group-hover:rotate-6 group-hover:scale-105">
+                        <BookOpen size={22} strokeWidth={2.5} />
+                      </div>
+                      <span className="rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                        {course.level}
+                      </span>
+                    </div>
+                    <h3 className="mb-3 text-xl font-black tracking-tight">
+                      {course.title}
+                    </h3>
+                    <p className="text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+                      {course.desc}
+                    </p>
+                    <div className="mt-5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] opacity-0 transition-opacity group-hover:opacity-100">
+                      <Target size={12} />
+                      Kursga yozilish
+                      <ArrowRight size={12} />
+                    </div>
                   </div>
-                  <span className="rounded-full bg-[var(--app-surface-soft)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                    {course.level}
-                  </span>
                 </div>
-                <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">
-                  {course.title}
-                </h3>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
-                  {course.desc}
-                </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="team" className="mx-auto max-w-7xl px-6 py-20 sm:py-32">
-        <div className="mb-14 text-center">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-            O&apos;quv markaz jamoasi
-          </p>
-          <h2 className="text-3xl font-black uppercase tracking-tighter md:text-6xl">
-            Mentorlar va jamoa
-          </h2>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {TEAM_MEMBERS.map((member) => (
-            <article key={member.name} className="app-card overflow-hidden p-0">
-              <div className="aspect-[4/3] overflow-hidden">
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-              <div className="p-6">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <span className="rounded-full bg-[var(--app-primary)]/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)]">
-                    {member.role}
-                  </span>
-                  <Star size={18} className="text-amber-400" fill="currentColor" />
-                </div>
-                <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">
-                  {member.name}
-                </h3>
-                <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
-                  {member.focus}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section
-        id="questions"
-        className="border-y border-[var(--app-border)] bg-white/60 px-6 py-20 dark:bg-slate-900/40 sm:py-28"
-      >
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-                Kurs haqida savollar
-              </p>
-              <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
-                Admin javob bergan savollar
-              </h2>
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-              <HelpCircle size={15} className="text-[var(--app-primary)]" />
-              {visibleQuestions.length} ta javob
-            </div>
+      {/* ══════════════════════════ TEAM ════════════════════════════════════ */}
+      <section id="team" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
+        <Reveal>
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
+              Professional jamoa
+            </p>
+            <h2 className="text-3xl font-black uppercase tracking-tighter md:text-6xl">
+              Mentorlar va jamoa
+            </h2>
           </div>
+        </Reveal>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            {visibleQuestions.map((item) => (
-              <article key={item.id} className="app-card p-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
-                  Savol
-                </p>
-                <h3 className="mt-3 text-lg font-black leading-snug text-[var(--app-text)]">
-                  {item.message}
-                </h3>
-                <div className="mt-5 rounded-[20px] bg-[var(--app-surface-soft)] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
-                    Admin javobi
-                  </p>
-                  <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-text)]">
-                    {item.answer}
+        <div className="grid gap-7 md:grid-cols-3">
+          {teamMembers.map((member, i) => (
+            <Reveal key={member.name} delay={i * 120} direction="up">
+              <article className="app-card group overflow-hidden p-0 transition-all hover:-translate-y-1.5">
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute bottom-0 left-0 right-0 translate-y-4 px-5 pb-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                    <p className="text-xs font-bold text-white/80">
+                      {member.focus}
+                    </p>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <span className="rounded-full bg-[var(--app-primary)]/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-primary)]">
+                      {member.role}
+                    </span>
+                    <Star
+                      size={16}
+                      className="text-amber-400"
+                      fill="currentColor"
+                    />
+                  </div>
+                  <h3 className="text-lg font-black tracking-tight">
+                    {member.name}
+                  </h3>
+                  <p className="mt-1.5 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+                    {member.focus}
                   </p>
                 </div>
               </article>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ══════════════════════════ FAQ ══════════════════════════════════════ */}
+      <section
+        id="questions"
+        className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <Reveal direction="left">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
+                  Ko&apos;p so&apos;raladigan savollar
+                </p>
+                <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
+                  Admin javob bergan savollar
+                </h2>
+              </div>
+            </Reveal>
+            <Reveal direction="right" delay={100}>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                <HelpCircle size={14} className="text-[var(--app-primary)]" />
+                {visibleFaq.length} ta javob
+              </div>
+            </Reveal>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            {visibleFaq.map((item, i) => (
+              <Reveal key={item.id} delay={i * 70}>
+                <article className="app-card group p-6 transition-all hover:-translate-y-0.5 hover:border-[var(--app-primary)]/25">
+                  <p className="mb-2 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
+                    Savol
+                  </p>
+                  <h3 className="text-base font-black leading-snug">
+                    {item.message}
+                  </h3>
+                  <div className="mt-4 rounded-2xl bg-[var(--app-surface-soft)] p-4">
+                    <p className="mb-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
+                      Admin javobi
+                    </p>
+                    <p className="text-sm font-semibold leading-relaxed text-[var(--app-text)]">
+                      {item.answer}
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="address" className="mx-auto max-w-7xl px-6 py-20 sm:py-32">
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-          <div>
-            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-              O&apos;quv markaz manzili
-            </p>
-            <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
-              Biz bilan yaqinroq tanishing
-            </h2>
-            <p className="mt-5 max-w-xl text-base font-bold leading-relaxed text-[var(--app-muted)]">
-              Filialga kelib kurslar, guruhlar jadvali va daraja aniqlash testi
-              haqida administrator bilan gaplashishingiz mumkin.
-            </p>
-          </div>
+      {/* ══════════════════════════ ADDRESS ══════════════════════════════════ */}
+      <section id="address" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+          <Reveal direction="left">
+            <div>
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
+                Bizning joylashuv
+              </p>
+              <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
+                Biz bilan yaqinroq tanishing
+              </h2>
+              <p className="mt-5 max-w-md text-base font-bold leading-relaxed text-[var(--app-muted)]">
+                Filialga kelib kurslar, guruhlar jadvali va daraja aniqlash
+                testi haqida administrator bilan gaplashishingiz mumkin.
+              </p>
+
+              {/* Social links */}
+              {settings.socialLinks && (
+                <div className="mt-8 flex items-center gap-3">
+                  {settings.socialLinks.telegram && (
+                    <a
+                      href={settings.socialLinks.telegram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2AABEE]/10 text-[#2AABEE] transition-all hover:bg-[#2AABEE] hover:text-white active:scale-95"
+                      title="Telegram"
+                    >
+                      <Send size={18} />
+                    </a>
+                  )}
+                  {settings.socialLinks.instagram && (
+                    <a
+                      href={settings.socialLinks.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 text-pink-500 transition-all hover:bg-pink-500 hover:text-white active:scale-95 dark:bg-pink-900/20"
+                      title="Instagram"
+                    >
+                      <Instagram size={18} />
+                    </a>
+                  )}
+                  {settings.socialLinks.youtube && (
+                    <a
+                      href={settings.socialLinks.youtube}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500 transition-all hover:bg-red-500 hover:text-white active:scale-95 dark:bg-red-900/20"
+                      title="YouTube"
+                    >
+                      <Youtube size={18} />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          </Reveal>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="app-card p-6">
-              <MapPin className="mb-5 text-[var(--app-primary)]" size={28} />
-              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                Manzil
-              </p>
-              <p className="mt-2 text-base font-black leading-snug text-[var(--app-text)]">
-                Toshkent shahri, O&apos;zbekiston
-              </p>
-            </div>
-            <div className="app-card p-6">
-              <PhoneCall className="mb-5 text-[var(--app-primary)]" size={28} />
-              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                Aloqa
-              </p>
-              <p className="mt-2 text-base font-black leading-snug text-[var(--app-text)]">
-                Landing form orqali
-              </p>
-            </div>
-            <div className="app-card p-6">
-              <Clock3 className="mb-5 text-[var(--app-primary)]" size={28} />
-              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                Ish vaqti
-              </p>
-              <p className="mt-2 text-base font-black leading-snug text-[var(--app-text)]">
-                Dushanba - Shanba, 09:00 - 20:00
-              </p>
-            </div>
-            <div className="app-card p-6">
-              <Building2 className="mb-5 text-[var(--app-primary)]" size={28} />
-              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                Format
-              </p>
-              <p className="mt-2 text-base font-black leading-snug text-[var(--app-text)]">
-                Offline, online va hybrid guruhlar
-              </p>
-            </div>
+            {[
+              {
+                icon: MapPin,
+                label: "Manzil",
+                value: settings.address || "Toshkent shahri, O'zbekiston",
+                color: "text-blue-500",
+                bg: "bg-blue-50 dark:bg-blue-900/20",
+              },
+              {
+                icon: PhoneCall,
+                label: "Aloqa",
+                value: settings.phoneNumber || "+998 90 000 00 00",
+                color: "text-emerald-500",
+                bg: "bg-emerald-50 dark:bg-emerald-900/20",
+              },
+              {
+                icon: Clock3,
+                label: "Ish vaqti",
+                value:
+                  settings.workingHours || "Dushanba - Shanba, 09:00 - 20:00",
+                color: "text-amber-500",
+                bg: "bg-amber-50 dark:bg-amber-900/20",
+              },
+              {
+                icon: Building2,
+                label: "Format",
+                value: "Offline, online va hybrid guruhlar",
+                color: "text-violet-500",
+                bg: "bg-violet-50 dark:bg-violet-900/20",
+              },
+            ].map(({ icon: Icon, label, value, color, bg }, i) => (
+              <Reveal key={label} delay={i * 80} direction="up">
+                <div className="app-card group p-6 transition-all hover:-translate-y-1">
+                  <div
+                    className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${bg} ${color} transition-transform group-hover:rotate-6 group-hover:scale-105`}
+                  >
+                    <Icon size={24} />
+                  </div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                    {label}
+                  </p>
+                  <p className="mt-2 text-sm font-black leading-snug">
+                    {value}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* ══════════════════════════ CONTACT FORM ════════════════════════════ */}
       <section
         id="contact"
-        className="mx-auto max-w-3xl px-6 py-20 text-center sm:py-32"
+        className="border-t border-[var(--app-border)] bg-[var(--app-surface-soft)]/30 px-5 py-20 sm:py-32"
       >
-        <div className="mb-12">
-          <div className="mx-auto mb-8 inline-flex h-20 w-20 items-center justify-center rounded-[2.5rem] bg-[var(--app-primary)]/10 text-[var(--app-primary)] shadow-inner">
-            <Send size={36} />
-          </div>
-          <h2 className="mb-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
-            Savolingizni yuboring
-          </h2>
-          <p className="text-base font-bold uppercase tracking-tight text-[var(--app-muted)]">
-            Kurs, guruh yoki jadval haqida yozing, admin javob beradi
-          </p>
+        <div className="mx-auto max-w-2xl">
+          <Reveal>
+            <div className="mb-12 text-center">
+              <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
+                <Send size={32} />
+              </div>
+              <h2 className="mb-3 text-4xl font-black uppercase tracking-tighter md:text-6xl">
+                Savolingizni yuboring
+              </h2>
+              <p className="text-sm font-bold uppercase tracking-wide text-[var(--app-muted)]">
+                Kurs, guruh yoki jadval haqida yozing — admin javob beradi
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <form onSubmit={handleSubmit} className="glass-card p-7 sm:p-10">
+              <div className="space-y-5">
+                <div>
+                  <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                    To&apos;liq ism
+                  </label>
+                  <input
+                    required
+                    value={formData.fullName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fullName: e.target.value })
+                    }
+                    type="text"
+                    className="w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
+                    placeholder="Ali Valiyev"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                    Telefon raqam
+                  </label>
+                  <input
+                    required
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    type="tel"
+                    className="w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
+                    placeholder="+998 90 123 45 67"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                    Savol yoki xabar
+                  </label>
+                  <textarea
+                    required
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
+                    rows={4}
+                    className="w-full resize-none rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
+                    placeholder="IELTS kursi qachon boshlanadi?"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={formStatus === "loading"}
+                  className="btn-premium mt-2 w-full border-none bg-[var(--app-primary)] py-5 text-base text-white shadow-2xl shadow-[var(--app-primary)]/30 disabled:opacity-60"
+                >
+                  {formStatus === "loading" ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Yuborilmoqda...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Send size={18} />
+                      Savol yuborish
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {formStatus === "success" && (
+                <div className="mt-5 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-emerald-600 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400">
+                  <CheckCircle2 size={16} />
+                  Savolingiz adminga yuborildi!
+                </div>
+              )}
+              {formStatus === "error" && (
+                <p className="mt-5 text-center text-xs font-black uppercase tracking-widest text-red-500">
+                  Xatolik yuz berdi. Qayta urinib ko&apos;ring.
+                </p>
+              )}
+            </form>
+          </Reveal>
         </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="app-card bg-white/60 p-8 text-left backdrop-blur-xl sm:p-12"
-        >
-          <div className="space-y-6">
-            <div>
-              <label className="mb-2.5 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                To&apos;liq ism
-              </label>
-              <input
-                required
-                value={formData.fullName}
-                onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
-                }
-                type="text"
-                className="w-full rounded-[20px] border border-[var(--app-border)] bg-white px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
-                placeholder="Ali Valiyev"
-              />
-            </div>
-            <div>
-              <label className="mb-2.5 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                Telefon raqam
-              </label>
-              <input
-                required
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                type="tel"
-                className="w-full rounded-[20px] border border-[var(--app-border)] bg-white px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
-                placeholder="+998 90 123 45 67"
-              />
-            </div>
-            <div>
-              <label className="mb-2.5 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                Kurs haqida savol
-              </label>
-              <textarea
-                required
-                value={formData.message}
-                onChange={(e) =>
-                  setFormData({ ...formData, message: e.target.value })
-                }
-                rows={3}
-                className="w-full resize-none rounded-[20px] border border-[var(--app-border)] bg-white px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
-                placeholder="IELTS kursi qachon boshlanadi?"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={status === 'loading'}
-              className="btn-premium mt-4 w-full border-none bg-[var(--app-primary)] py-5 text-white shadow-2xl shadow-[var(--app-primary)]/30"
-            >
-              {status === 'loading' ? 'Yuborilmoqda...' : "Savol yuborish"}
-            </button>
-          </div>
-
-          {status === 'success' && (
-            <p className="mt-6 text-center text-xs font-black uppercase tracking-widest text-blue-500">
-              Savolingiz adminga yuborildi!
-            </p>
-          )}
-          {status === 'error' && (
-            <p className="mt-6 text-center text-xs font-black uppercase tracking-widest text-red-500">
-              Xatolik yuz berdi!
-            </p>
-          )}
-        </form>
       </section>
 
-      <footer className="border-t border-[var(--app-border)] bg-white/50 px-6 py-12 text-center">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
-          {`(c) 2026 ${centerBranding.name}. Barcha huquqlar himoyalangan.`}
-        </p>
+      {/* ══════════════════════════ FOOTER ══════════════════════════════════ */}
+      <footer className="border-t border-[var(--app-border)] bg-[var(--app-surface)]/60 px-5 py-10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 overflow-hidden rounded-xl border border-[var(--app-border)]">
+              <img
+                src={settings.logoUrl}
+                alt={settings.shortName}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <span className="text-sm font-black tracking-tight">
+              {settings.name}
+            </span>
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
+            © 2026 {settings.name} · Barcha huquqlar himoyalangan
+          </p>
+          <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+            <button
+              onClick={() => scrollTo("about")}
+              className="transition-colors hover:text-[var(--app-primary)]"
+            >
+              Biz haqimizda
+            </button>
+            <button
+              onClick={() => scrollTo("contact")}
+              className="transition-colors hover:text-[var(--app-primary)]"
+            >
+              Bog'lanish
+            </button>
+            <button
+              onClick={() => scrollTo("questions")}
+              className="transition-colors hover:text-[var(--app-primary)]"
+            >
+              FAQ
+            </button>
+          </div>
+        </div>
       </footer>
     </div>
   );

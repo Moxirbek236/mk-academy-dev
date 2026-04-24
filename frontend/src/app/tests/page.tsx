@@ -22,8 +22,9 @@ import {
   createTest,
   deleteQuestion,
   deleteTest,
-  normalizeQuestionOptions,
+  normalizeQuestionOptionItems,
   type CefrLevel,
+  type QuestionOption,
   type TestItem,
   type TestPayload,
   type TestQuestionPayload,
@@ -44,7 +45,7 @@ type QuestionDraft = {
   type: string;
   inputType: string;
   questionText: string;
-  optionsText: string;
+  options: QuestionOption[];
   correctAnswer: string;
   explanation: string;
   points: string;
@@ -71,7 +72,12 @@ const EMPTY_QUESTION: QuestionDraft = {
   type: 'MCQ',
   inputType: 'OPTIONS',
   questionText: '',
-  optionsText: 'A\nB\nC\nD',
+  options: [
+    { label: 'A', value: '' },
+    { label: 'B', value: '' },
+    { label: 'C', value: '' },
+    { label: 'D', value: '' },
+  ],
   correctAnswer: '',
   explanation: '',
   points: '1',
@@ -90,19 +96,45 @@ const EMPTY_FORM: TestFormState = {
   shuffleQuestions: false,
   maxAttempts: '3',
   isAdaptive: false,
-  isPublished: false,
-  questions: [{ ...EMPTY_QUESTION }],
+  isPublished: true,
+  questions: [],
 };
 
-function parseOptions(value: string) {
-  return value
-    .split(/\r?\n/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+function cloneQuestionDraft(question: QuestionDraft = EMPTY_QUESTION): QuestionDraft {
+  return {
+    ...question,
+    options: question.options.map((option) => ({ ...option })),
+  };
+}
+
+function nextOptionLabel(options: QuestionOption[]) {
+  const used = new Set(options.map((option) => option.label.toUpperCase()));
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return alphabet.split('').find((letter) => !used.has(letter)) || String((options.length + 1) % 10);
+}
+
+function normalizeCorrectAnswerToLabel(rawAnswer: unknown, options: QuestionOption[]) {
+  const answer = String(rawAnswer ?? '').trim();
+  if (!answer) return '';
+
+  const byLabel = options.find((option) => option.label.toUpperCase() === answer.toUpperCase());
+  if (byLabel) return byLabel.label;
+
+  const normalizedAnswer = answer.toLowerCase();
+  const byValue = options.find((option) => option.value.trim().toLowerCase() === normalizedAnswer);
+  if (byValue) return byValue.label;
+
+  const parsed = answer.match(/^([A-Za-z0-9])\s*[\).:-]?/);
+  return parsed ? parsed[1].toUpperCase() : answer.slice(0, 1).toUpperCase();
 }
 
 function toQuestionPayload(question: QuestionDraft): TestQuestionPayload {
-  const options = parseOptions(question.optionsText);
+  const options = question.options
+    .map((option) => ({
+      label: option.label.trim().slice(0, 1).toUpperCase(),
+      value: option.value.trim(),
+    }))
+    .filter((option) => option.label && option.value);
 
   return {
     type: question.type.trim() || 'MCQ',
@@ -155,24 +187,24 @@ function toFormState(test: TestItem): TestFormState {
     isPublished: Boolean(test.isPublished),
     questions:
       test.questions && test.questions.length > 0
-        ? test.questions.map((question) => ({
-            id: question.id,
-            type: question.type || 'MCQ',
-            inputType: question.inputType || 'OPTIONS',
-            questionText: question.questionText || '',
-            optionsText: normalizeQuestionOptions(question.options).join('\n') || 'A\nB\nC\nD',
-            correctAnswer:
-              typeof question.correctAnswer === 'string'
-                ? question.correctAnswer
-                : question.correctAnswer === undefined || question.correctAnswer === null
-                  ? ''
-                  : String(question.correctAnswer),
-            explanation: question.explanation || '',
-            points: String(question.points || 1),
-            difficulty: String(question.difficulty || 1),
-            skill: question.skill || '',
-          }))
-        : [{ ...EMPTY_QUESTION }],
+        ? test.questions.map((question) => {
+            const parsedOptions = normalizeQuestionOptionItems(question.options);
+            const options = parsedOptions.length ? parsedOptions : cloneQuestionDraft().options;
+
+            return {
+              id: question.id,
+              type: question.type || 'MCQ',
+              inputType: question.inputType || 'OPTIONS',
+              questionText: question.questionText || '',
+              options,
+              correctAnswer: normalizeCorrectAnswerToLabel(question.correctAnswer, options),
+              explanation: question.explanation || '',
+              points: String(question.points || 1),
+              difficulty: String(question.difficulty || 1),
+              skill: question.skill || '',
+            };
+          })
+        : [cloneQuestionDraft()],
   };
 }
 
@@ -212,7 +244,7 @@ export default function TestsPage() {
 
   function openCreateModal() {
     setEditingTest(null);
-    setForm({ ...EMPTY_FORM, questions: [{ ...EMPTY_QUESTION }] });
+    setForm({ ...EMPTY_FORM, questions: [cloneQuestionDraft()] });
     setMutationError(null);
     setIsFormOpen(true);
   }
@@ -233,10 +265,72 @@ export default function TestsPage() {
     }));
   }
 
+  function updateOptionDraft(questionIndex: number, optionIndex: number, patch: Partial<QuestionOption>) {
+    setForm((current) => ({
+      ...current,
+      questions: current.questions.map((question, currentQuestionIndex) => {
+        if (currentQuestionIndex !== questionIndex) return question;
+
+        const options = question.options.map((option, currentOptionIndex) =>
+          currentOptionIndex === optionIndex
+            ? {
+                ...option,
+                ...patch,
+                label:
+                  patch.label !== undefined
+                    ? patch.label.trim().slice(0, 1).toUpperCase()
+                    : option.label,
+              }
+            : option,
+        );
+
+        return {
+          ...question,
+          options,
+          correctAnswer: options.some((option) => option.label === question.correctAnswer)
+            ? question.correctAnswer
+            : '',
+        };
+      }),
+    }));
+  }
+
+  function addOptionDraft(questionIndex: number) {
+    setForm((current) => ({
+      ...current,
+      questions: current.questions.map((question, currentQuestionIndex) =>
+        currentQuestionIndex === questionIndex
+          ? {
+              ...question,
+              options: [...question.options, { label: nextOptionLabel(question.options), value: '' }],
+            }
+          : question,
+      ),
+    }));
+  }
+
+  function removeOptionDraft(questionIndex: number, optionIndex: number) {
+    setForm((current) => ({
+      ...current,
+      questions: current.questions.map((question, currentQuestionIndex) => {
+        if (currentQuestionIndex !== questionIndex) return question;
+
+        const removedLabel = question.options[optionIndex]?.label;
+        const options = question.options.filter((_, currentOptionIndex) => currentOptionIndex !== optionIndex);
+
+        return {
+          ...question,
+          options,
+          correctAnswer: question.correctAnswer === removedLabel ? '' : question.correctAnswer,
+        };
+      }),
+    }));
+  }
+
   function addQuestionDraft() {
     setForm((current) => ({
       ...current,
-      questions: [...current.questions, { ...EMPTY_QUESTION }],
+      questions: [...current.questions, cloneQuestionDraft()],
     }));
   }
 
@@ -288,7 +382,7 @@ export default function TestsPage() {
 
       setIsFormOpen(false);
       setEditingTest(null);
-      setForm({ ...EMPTY_FORM, questions: [{ ...EMPTY_QUESTION }] });
+      setForm({ ...EMPTY_FORM, questions: [cloneQuestionDraft()] });
       await refetch();
     } catch (saveError) {
       setMutationError(getReadableError(saveError, "Testni saqlab bo'lmadi"));
@@ -626,19 +720,67 @@ export default function TestsPage() {
                       placeholder="OPTIONS"
                       className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
                     />
-                    <textarea
-                      value={question.optionsText}
-                      onChange={(event) => updateQuestionDraft(index, { optionsText: event.target.value })}
-                      placeholder="Har bir variantni alohida qatorga yozing"
-                      className="min-h-28 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
-                    />
-                    <div className="space-y-3">
-                      <input
+                    <div className="space-y-3 rounded-[16px] border border-[var(--app-border)] p-3 md:col-span-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                          Variantlar
+                        </p>
+                        <button
+                          onClick={() => addOptionDraft(index)}
+                          className="rounded-[12px] bg-[var(--app-primary)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white"
+                        >
+                          Variant qo'shish
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {question.options.map((option, optionIndex) => (
+                          <div key={`${option.label}-${optionIndex}`} className="grid grid-cols-[64px_1fr_auto] gap-2">
+                            <input
+                              value={option.label}
+                              maxLength={1}
+                              onChange={(event) =>
+                                updateOptionDraft(index, optionIndex, { label: event.target.value })
+                              }
+                              placeholder="A"
+                              className="rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-3 text-center text-sm font-black uppercase"
+                            />
+                            <input
+                              value={option.value}
+                              onChange={(event) =>
+                                updateOptionDraft(index, optionIndex, { value: event.target.value })
+                              }
+                              placeholder={`${option.label || 'A'}) Variant qiymati`}
+                              className="min-w-0 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
+                            />
+                            <button
+                              onClick={() => removeOptionDraft(index, optionIndex)}
+                              disabled={question.options.length <= 2}
+                              className="rounded-[12px] bg-red-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-600 disabled:opacity-40"
+                            >
+                              Olib tashlash
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <select
                         value={question.correctAnswer}
                         onChange={(event) => updateQuestionDraft(index, { correctAnswer: event.target.value })}
-                        placeholder="To'g'ri javob"
                         className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
-                      />
+                      >
+                        <option value="">To'g'ri javobni tanlang</option>
+                        {question.options
+                          .filter((option) => option.label.trim() && option.value.trim())
+                          .map((option) => (
+                            <option key={option.label} value={option.label}>
+                              {option.label}) {option.value}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-3">
                       <input
                         value={question.skill}
                         onChange={(event) => updateQuestionDraft(index, { skill: event.target.value })}

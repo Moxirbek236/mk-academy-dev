@@ -168,6 +168,18 @@ export class DashboardService {
       this.prisma.testAttempt.aggregate({
         where: {
           isActive: true,
+          student: {
+            groupMemberships: {
+              some: {
+                isActive: true,
+                status: 'ACTIVE',
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
+                },
+              },
+            },
+          },
           test: {
             assignments: {
               some: {
@@ -317,7 +329,6 @@ export class DashboardService {
       activeGroups,
       totalCourses,
       pendingHomeworks,
-      revenue: 0,
       subscribers: totalStudents,
       averageResult: Math.round(Number(averageResultAggregate._avg.score || 0)),
       auditLogs,

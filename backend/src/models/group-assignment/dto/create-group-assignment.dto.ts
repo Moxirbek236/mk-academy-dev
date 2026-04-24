@@ -6,6 +6,11 @@ export class CreateGroupAssignmentDto {
   @IsInt()
   groupId: number;
 
+  @ApiPropertyOptional({ description: 'ID of the target student inside the group' })
+  @IsInt()
+  @IsOptional()
+  studentId?: number;
+
   @ApiPropertyOptional({ description: 'ID of the test (if assignment is a test)' })
   @IsInt()
   @IsOptional()

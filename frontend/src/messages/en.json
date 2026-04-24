@@ -37,7 +37,6 @@
     "dashboard": "Dashboard",
     "leads": "Leads",
     "users": "Users",
-    "finance": "Finance",
     "system": "System",
     "settings": "Settings",
     "home": "Home",
@@ -57,7 +56,6 @@
   "BottomNav": {
     "dashboard": "Dashboard",
     "users": "Users",
-    "finance": "Finance",
     "system": "System",
     "settings": "Settings",
     "home": "Home",
@@ -73,18 +71,6 @@
     "books": "Books",
     "rating": "Rating",
     "profile": "Profile"
-  },
-  "Finance": {
-    "title": "Finance",
-    "balanceLabel": "Total balance ({period})",
-    "monthly": "monthly",
-    "income": "Income",
-    "expense": "Expense",
-    "transactions": "Transactions",
-    "history": "History",
-    "transactionCount": "{count} transactions",
-    "systemTransaction": "System transaction",
-    "transfer": "Transfer"
   },
   "ExamCard": {
     "title": "Exam",
@@ -174,7 +160,7 @@
     "apiLatency": "API Latency",
     "optimal": "Optimal",
     "realtimeAnalytics": "Real-time Analytics",
-    "totalRevenue": "Total Revenue",
+    "totalUsers": "Total Users",
     "activeSubscribers": "Active Subscribers",
     "databaseLoad": "Database Load",
     "storage": "Storage",
@@ -290,6 +276,8 @@
     "subtitle": "Latest app files for Android phones and iOS.",
     "back": "Back",
     "download": "Download",
+    "install": "Install",
+    "directDownload": "Download IPA file",
     "fileLabel": "File",
     "release": "Release",
     "latestTitle": "Updated after every push",
@@ -300,7 +288,8 @@
     },
     "ios": {
       "title": "iOS app",
-      "description": "IPA file for iPhone and iPad."
+      "description": "IPA file for iPhone and iPad.",
+      "installNote": "Open this from Safari on iPhone. Installation works only when the IPA is signed with an Apple certificate and provisioning profile."
     }
   }
 }

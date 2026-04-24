@@ -5,8 +5,6 @@ export type RoleCapability =
   | 'create_admin'
   | 'create_teacher'
   | 'create_student'
-  | 'view_finance'
-  | 'manage_finance'
   | 'view_system'
   | 'view_leads'
   | 'manage_leads'
@@ -25,7 +23,6 @@ const ROLE_HOME_PATHS: Record<string, string> = {
 };
 
 const RESTRICTED_PREFIXES: Array<{ prefix: string; roles: string[] }> = [
-  { prefix: '/finance', roles: ['superadmin', 'admin'] },
   { prefix: '/system', roles: ['superadmin'] },
   { prefix: '/users', roles: ['superadmin', 'admin', 'teacher', 'mentor'] },
   { prefix: '/leads', roles: ['superadmin', 'admin'] },
@@ -39,8 +36,6 @@ const ROLE_CAPABILITIES: Record<AppRole, RoleCapability[]> = {
     'create_admin',
     'create_teacher',
     'create_student',
-    'view_finance',
-    'manage_finance',
     'view_system',
     'view_leads',
     'manage_leads',
@@ -55,8 +50,6 @@ const ROLE_CAPABILITIES: Record<AppRole, RoleCapability[]> = {
     'manage_users',
     'create_teacher',
     'create_student',
-    'view_finance',
-    'manage_finance',
     'view_leads',
     'manage_leads',
     'manage_courses',
@@ -65,8 +58,8 @@ const ROLE_CAPABILITIES: Record<AppRole, RoleCapability[]> = {
     'manage_tasks',
     'manage_tests',
   ],
-  teacher: ['view_users', 'manage_groups', 'manage_tasks', 'manage_tests'],
-  mentor: ['view_users', 'manage_groups', 'manage_tasks', 'manage_tests'],
+  teacher: ['view_users', 'manage_books', 'manage_tasks', 'manage_tests'],
+  mentor: ['view_users', 'manage_tasks', 'manage_tests'],
   student: [],
 };
 

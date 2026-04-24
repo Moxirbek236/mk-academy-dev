@@ -10,16 +10,8 @@ import { PrismaModule } from 'src/core/config/prisma.module';
 
 @Module({
   imports: [PrismaModule, JwtModule],
-  controllers: [
-    GroupController,
-    GroupMemberController,
-    GroupCourseController,
-  ],
-  providers: [
-    GroupService,
-    GroupMemberService,
-    GroupCourseService,
-  ],
+  controllers: [GroupController, GroupMemberController, GroupCourseController],
+  providers: [GroupService, GroupMemberService, GroupCourseService],
   exports: [GroupService, GroupMemberService, GroupCourseService],
 })
 export class GroupModule {}

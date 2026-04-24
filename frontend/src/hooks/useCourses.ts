@@ -13,6 +13,12 @@ export function useCourses(
   },
   enabled = true,
 ) {
+  const requestKey = [
+    filters.search || '',
+    filters.level || '',
+    filters.page || 1,
+    filters.limit || 20,
+  ].join('|');
   const request = useCallback(
     () =>
       listCourses({
@@ -29,5 +35,6 @@ export function useCourses(
     debounceMs: 250,
     initialData: { items: [] as any[], meta: null as any },
     request,
+    requestKey,
   });
 }

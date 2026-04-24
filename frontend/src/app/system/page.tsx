@@ -106,8 +106,8 @@ export default function SystemPage() {
                   <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{summary.totalCourses || 0}</p>
                 </div>
                 <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Transactions</p>
-                  <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{summary.totalTransactions || 0}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Leads</p>
+                  <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{summary.totalLeads || 0}</p>
                 </div>
               </div>
             </div>

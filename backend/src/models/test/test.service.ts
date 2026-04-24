@@ -298,9 +298,13 @@ export class TestService {
     if (isTeacher(currentUser)) {
       if (requestedPublished !== undefined) {
         where.isPublished = requestedPublished;
+        if (!requestedPublished) {
+          where.createdById = currentUser.id;
+        }
+        return where;
       }
 
-      where.OR = this.teacherTestScope(currentUser.id);
+      where.OR = [{ isPublished: true }, { createdById: currentUser.id }];
       return where;
     }
 
@@ -308,36 +312,6 @@ export class TestService {
     where.OR = this.studentTestScope(currentUser.id);
 
     return where;
-  }
-
-  private teacherTestScope(teacherId: number) {
-    return [
-      { createdById: teacherId },
-      {
-        assignments: {
-          some: {
-            isActive: true,
-            group: {
-              teacherId,
-              isActive: true,
-            },
-          },
-        },
-      },
-      {
-        course: {
-          groups: {
-            some: {
-              isActive: true,
-              group: {
-                teacherId,
-                isActive: true,
-              },
-            },
-          },
-        },
-      },
-    ];
   }
 
   private studentTestScope(studentId: number) {
@@ -352,35 +326,13 @@ export class TestService {
         assignments: {
           some: {
             isActive: true,
+            OR: [{ studentId: null }, { studentId }],
             group: {
               isActive: true,
               members: {
                 some: activeMembership,
               },
             },
-          },
-        },
-      },
-      {
-        course: {
-          groups: {
-            some: {
-              isActive: true,
-              group: {
-                isActive: true,
-                members: {
-                  some: activeMembership,
-                },
-              },
-            },
-          },
-        },
-      },
-      {
-        courseId: null,
-        assignments: {
-          none: {
-            isActive: true,
           },
         },
       },
@@ -394,7 +346,21 @@ export class TestService {
     const test = await (this.prisma.test as any).findFirst({
       where: {
         id: +testId,
-        OR: this.teacherTestScope(teacherId),
+        createdById: teacherId,
+        isActive: true,
+      },
+      select: { id: true },
+    });
+
+    return Boolean(test);
+  }
+
+  private async teacherCanReadTest(testId: number, teacherId: number): Promise<boolean> {
+    const test = await (this.prisma.test as any).findFirst({
+      where: {
+        id: +testId,
+        isActive: true,
+        OR: [{ isPublished: true }, { createdById: teacherId }],
       },
       select: { id: true },
     });

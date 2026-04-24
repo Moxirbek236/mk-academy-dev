@@ -7,6 +7,9 @@ const config: CapacitorConfig = {
   appId: `com.mk.academy.${role}`,
   appName: `MK Academy ${roleName}`,
   webDir: 'out',
+  android: {
+    allowMixedContent: true,
+  },
   server: {
     androidScheme: 'https',
     cleartext: true,

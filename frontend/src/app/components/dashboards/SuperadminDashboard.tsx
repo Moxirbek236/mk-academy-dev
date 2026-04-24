@@ -5,7 +5,6 @@ import {
   Command,
   Crown,
   Database,
-  DollarSign,
   Globe,
   HardDrive,
   HelpCircle,
@@ -47,7 +46,7 @@ export function SuperadminDashboard() {
   ];
 
   const metrics = [
-    { label: t('totalRevenue'), value: `$${(data?.revenue || 0).toLocaleString()}`, icon: DollarSign, tone: 'primary' as const },
+    { label: t('totalUsers'), value: (data?.totalUsers || 0).toString(), icon: Crown, tone: 'primary' as const },
     { label: t('activeSubscribers'), value: (data?.subscribers || 0).toString(), icon: ListChecks, tone: 'info' as const },
     { label: t('databaseLoad'), value: `${data?.system?.cpuUsage?.toFixed(1) || 0}%`, icon: Database, tone: 'accent' as const },
     { label: t('storage'), value: `${data?.system?.diskSpace || 0} GB`, icon: HardDrive, tone: 'muted' as const },
