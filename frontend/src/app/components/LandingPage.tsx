@@ -621,7 +621,7 @@ export function LandingPage() {
           }}
         />
 
-        <div className="mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-6xl flex-col items-center justify-center text-center sm:min-h-[92svh]">
+        <div className="mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-7xl flex-col items-center justify-center text-center sm:min-h-[92svh]">
           <Reveal delay={0}>
             <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 backdrop-blur-sm">
               <Sparkles
@@ -733,10 +733,10 @@ export function LandingPage() {
         id="about"
         className="border-b border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-32"
       >
-        <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-14">
+        <div className="mx-auto grid w-full max-w-7xl items-start gap-10 lg:grid-cols-2 lg:gap-16">
           {/* Left */}
           <Reveal direction="left">
-            <div className="w-full max-w-[35rem] justify-self-start">
+            <div className="mx-auto w-full max-w-[36rem]">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.aboutEyebrow}
               </p>
@@ -768,7 +768,7 @@ export function LandingPage() {
 
           {/* Right glass card */}
           <Reveal direction="right" delay={100}>
-            <div className="relative w-full max-w-[32rem] justify-self-end">
+            <div className="mx-auto w-full max-w-[34rem]">
               <div className="absolute inset-0 scale-105 rotate-1 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)]/18 to-[var(--app-accent)]/10 blur-3xl" />
               <div className="glass-card relative p-7 sm:p-8">
                 <div className="mb-8 flex items-center gap-5 border-b border-[var(--app-border)] pb-8">
@@ -823,7 +823,7 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FEATURES в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="features" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto w-full max-w-6xl">
+        <div className="mx-auto w-full max-w-7xl">
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
@@ -865,7 +865,7 @@ export function LandingPage() {
         id="courses"
         className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
       >
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto w-full max-w-7xl">
           <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <Reveal direction="left">
               <div>
@@ -922,7 +922,7 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ TEAM в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="team" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto w-full max-w-6xl">
+        <div className="mx-auto w-full max-w-7xl">
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
@@ -981,7 +981,7 @@ export function LandingPage() {
         id="questions"
         className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
       >
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto w-full max-w-7xl">
           <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <Reveal direction="left">
               <div>
@@ -1028,9 +1028,9 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ ADDRESS в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="address" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto grid w-full max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-14">
+        <div className="mx-auto grid w-full max-w-7xl items-start gap-10 lg:grid-cols-2 lg:gap-16">
           <Reveal direction="left">
-            <div className="w-full max-w-[35rem] justify-self-start">
+            <div className="mx-auto w-full max-w-[36rem]">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.addressEyebrow}
               </p>
@@ -1082,7 +1082,7 @@ export function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="grid w-full max-w-[32rem] justify-self-end gap-4 sm:grid-cols-2">
+          <div className="mx-auto grid w-full max-w-[34rem] gap-4 sm:grid-cols-2">
             {[
               {
                 icon: MapPin,
@@ -1138,7 +1138,7 @@ export function LandingPage() {
         id="contact"
         className="border-t border-[var(--app-border)] bg-[var(--app-surface-soft)]/30 px-5 py-20 sm:py-32"
       >
-        <div className="mx-auto w-full max-w-2xl">
+        <div className="mx-auto w-full max-w-3xl">
           <Reveal>
             <div className="mb-12 text-center">
               <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
@@ -1167,7 +1167,7 @@ export function LandingPage() {
                       setFormData({ ...formData, fullName: e.target.value })
                     }
                     type="text"
-                    className="w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
+                    className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
                     placeholder="Ali Valiyev"
                   />
                 </div>
@@ -1182,7 +1182,7 @@ export function LandingPage() {
                       setFormData({ ...formData, phone: e.target.value })
                     }
                     type="tel"
-                    className="w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
+                    className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
                     placeholder="+998 90 123 45 67"
                   />
                 </div>
@@ -1197,7 +1197,7 @@ export function LandingPage() {
                       setFormData({ ...formData, message: e.target.value })
                     }
                     rows={4}
-                    className="w-full resize-none rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] shadow-sm transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
+                    className="w-full resize-none border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
                     placeholder="IELTS kursi qachon boshlanadi?"
                   />
                 </div>
@@ -1222,7 +1222,7 @@ export function LandingPage() {
               </div>
 
               {formStatus === "success" && (
-                <div className="mt-5 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-emerald-600 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400">
+                <div className="mt-5 flex items-center gap-2 border border-[#9cd7be] bg-[#eefaf4] px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-[#1e6c4d]">
                   <CheckCircle2 size={16} />
                   {copy.sent}
                 </div>
@@ -1239,8 +1239,8 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FOOTER в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <footer className="border-t border-[var(--app-border)] bg-[var(--app-surface)]/60 px-5 py-10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto grid w-full max-w-7xl gap-5 text-center lg:grid-cols-[auto_1fr_auto] lg:items-center lg:text-left">
+          <div className="flex items-center justify-center gap-3 lg:justify-start">
             <div className="h-8 w-8 overflow-hidden rounded-xl border border-[var(--app-border)]">
               <img
                 src={settings.logoUrl}
@@ -1255,7 +1255,7 @@ export function LandingPage() {
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
             © 2026 {settings.name} · {copy.rights}
           </p>
-          <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+          <div className="flex items-center justify-center gap-4 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] lg:justify-end">
             <button
               onClick={() => scrollTo("about")}
               className="transition-colors hover:text-[var(--app-primary)]"
