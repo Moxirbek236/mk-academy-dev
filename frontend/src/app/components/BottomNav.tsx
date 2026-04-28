@@ -21,8 +21,9 @@ export function BottomNav({ role }: BottomNavProps) {
   const navItems = getNavigationConfig(role, 'bottom');
 
   return (
-    <div className="app-bottom-nav-safe fixed inset-x-0 bottom-0 z-50 pb-0 sm:bottom-4 sm:px-4 sm:pb-0">
-      <div className="mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-surface)_98%,transparent)] px-3 pt-2 pb-[calc(0.75rem+var(--app-safe-bottom))] sm:border sm:px-4 sm:pb-3">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] lg:hidden">
+      <div className="app-bottom-nav-safe pointer-events-auto mx-auto w-full max-w-[560px] px-0 sm:px-4">
+        <div className="flex w-full items-stretch gap-1 border-t border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-surface)_98%,transparent)] px-3 pt-2 pb-[calc(0.75rem+var(--app-safe-bottom))] sm:mb-4 sm:border sm:pb-3">
         {navItems.map((item) => {
           const isActive =
             normalizedPathname === item.path ||
@@ -55,6 +56,7 @@ export function BottomNav({ role }: BottomNavProps) {
             </Link>
           );
         })}
+        </div>
       </div>
     </div>
   );

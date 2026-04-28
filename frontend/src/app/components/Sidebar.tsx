@@ -35,8 +35,9 @@ export function Sidebar({ role }: SidebarProps) {
   }
 
   return (
-    <div className="fixed left-0 top-0 z-[60] hidden h-screen w-72 flex-col overflow-y-auto border-r border-[var(--app-border)] bg-[var(--sidebar)] lg:flex">
-      <div className="border-b border-[var(--app-border)] p-6 xl:p-8">
+    <aside className="fixed inset-y-0 left-0 z-[70] hidden h-dvh w-72 border-r border-[var(--app-border)] bg-[var(--sidebar)] lg:block">
+      <div className="flex h-full flex-col overflow-hidden">
+      <div className="shrink-0 border-b border-[var(--app-border)] p-6 xl:p-8">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 shrink-0 overflow-hidden border border-[var(--app-border)] bg-white">
             <img 
@@ -63,7 +64,7 @@ export function Sidebar({ role }: SidebarProps) {
         </div>
       </div>
 
-      <nav className="mt-6 flex-1 px-4">
+      <nav className="mt-6 flex-1 overflow-y-auto px-4 pb-6">
         <div className="space-y-1.5">
           {navItems.map((item) => {
             const isActive =
@@ -93,7 +94,7 @@ export function Sidebar({ role }: SidebarProps) {
         </div>
       </nav>
 
-      <div className="p-6 mt-auto">
+      <div className="mt-auto shrink-0 p-6">
         <div className="mb-6 border border-[var(--app-border)] bg-white p-5">
           <p className="mb-1.5 text-center text-[10px] font-black uppercase tracking-widest leading-none text-[var(--app-primary)]">
             {systemHealthy ? t('statusHealthy') : commonT('systemStatus')}
@@ -111,6 +112,7 @@ export function Sidebar({ role }: SidebarProps) {
           {commonT('logout')}
         </button>
       </div>
-    </div>
+      </div>
+    </aside>
   );
 }
