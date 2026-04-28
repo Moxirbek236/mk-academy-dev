@@ -21,6 +21,7 @@ export function useSystemStats(enabled = true) {
       stats: null as any,
     },
     request,
+    requestKey: 'system:stats',
   });
 }
 
@@ -31,5 +32,6 @@ export function useSystemHealth(enabled = true) {
     enabled,
     initialData: null,
     request,
+    requestKey: 'system:health',
   });
 }

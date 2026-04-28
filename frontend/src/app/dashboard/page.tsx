@@ -5,11 +5,23 @@ import { MentorDashboard } from '../components/dashboards/MentorDashboard';
 import { AdminDashboard } from '../components/dashboards/AdminDashboard';
 import { SuperadminDashboard } from '../components/dashboards/SuperadminDashboard';
 import { useAuth } from '@/hooks/useAuth';
+import { PageLoadingState } from '../components/ui/PagePrimitives';
+import { useTranslations } from 'next-intl';
 
 export default function DashboardPage() {
+  const uiT = useTranslations('UiStates');
   const { role, token, loading } = useAuth();
 
-  if (loading || !token) return null;
+  if (!token) {
+    return loading ? (
+      <div className="app-page pb-6 sm:pb-8">
+        <PageLoadingState
+          title={uiT('loadingTitle')}
+          description={uiT('loadingDescription')}
+        />
+      </div>
+    ) : null;
+  }
 
   const currentRole = role?.toLowerCase();
   let content;

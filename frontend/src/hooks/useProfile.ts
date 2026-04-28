@@ -11,5 +11,6 @@ export function useProfile(enabled = true) {
     enabled,
     initialData: null,
     request,
+    requestKey: 'profile:me',
   });
 }

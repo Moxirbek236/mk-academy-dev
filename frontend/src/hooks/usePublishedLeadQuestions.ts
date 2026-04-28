@@ -11,5 +11,6 @@ export function usePublishedLeadQuestions(enabled = true) {
     enabled,
     initialData: [] as PublicLeadQuestion[],
     request,
+    requestKey: 'leads:published-questions',
   });
 }

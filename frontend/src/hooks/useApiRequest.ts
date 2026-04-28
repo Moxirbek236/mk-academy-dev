@@ -11,6 +11,21 @@ interface UseApiRequestOptions<T> {
   requestKey?: string | number | boolean | null;
 }
 
+type CacheEntry<T> = {
+  data: T;
+  updatedAt: number;
+};
+
+const requestCache = new Map<string, CacheEntry<unknown>>();
+
+function normalizeCacheKey(requestKey: UseApiRequestOptions<unknown>['requestKey']) {
+  if (requestKey === null || requestKey === undefined || requestKey === false) {
+    return null;
+  }
+
+  return String(requestKey);
+}
+
 function normalizeRequestError(error: unknown) {
   if (error instanceof AppApiError) {
     return error.message;
@@ -26,26 +41,44 @@ export function useApiRequest<T>({
   request,
   requestKey = null,
 }: UseApiRequestOptions<T>) {
-  const [data, setData] = useState<T>(initialData);
-  const [loading, setLoading] = useState(enabled);
+  const cacheKey = normalizeCacheKey(requestKey);
+  const cachedEntry = cacheKey ? (requestCache.get(cacheKey) as CacheEntry<T> | undefined) : undefined;
+  const [data, setData] = useState<T>(cachedEntry?.data ?? initialData);
+  const [loading, setLoading] = useState(enabled && !cachedEntry);
   const [error, setError] = useState<string | null>(null);
   const requestRef = useRef(request);
 
   requestRef.current = request;
 
-  const execute = useCallback(async () => {
-    setLoading(true);
+  const execute = useCallback(async (options?: { background?: boolean }) => {
+    const shouldKeepCurrentData = options?.background || Boolean(cacheKey && requestCache.has(cacheKey));
+
+    if (!shouldKeepCurrentData) {
+      setLoading(true);
+    }
     setError(null);
 
     try {
       const response = await requestRef.current();
       setData(response);
+      if (cacheKey) {
+        requestCache.set(cacheKey, {
+          data: response,
+          updatedAt: Date.now(),
+        });
+      }
     } catch (requestError) {
       setError(normalizeRequestError(requestError));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [cacheKey]);
+
+  useEffect(() => {
+    setData(cachedEntry?.data ?? initialData);
+    setLoading(enabled && !cachedEntry);
+    setError(null);
+  }, [cacheKey, cachedEntry, enabled, initialData]);
 
   useEffect(() => {
     if (!enabled) {
@@ -55,14 +88,14 @@ export function useApiRequest<T>({
 
     if (debounceMs > 0) {
       const timer = window.setTimeout(() => {
-        void execute();
+        void execute({ background: Boolean(cachedEntry) });
       }, debounceMs);
 
       return () => window.clearTimeout(timer);
     }
 
-    void execute();
-  }, [debounceMs, enabled, execute, requestKey]);
+    void execute({ background: Boolean(cachedEntry) });
+  }, [cachedEntry, debounceMs, enabled, execute, requestKey]);
 
   return {
     data,

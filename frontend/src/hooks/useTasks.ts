@@ -11,5 +11,6 @@ export function useTasks(enabled = true) {
     enabled,
     initialData: [] as any[],
     request,
+    requestKey: 'tasks:list',
   });
 }

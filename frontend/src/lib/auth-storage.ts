@@ -8,6 +8,22 @@ function hasLocalStorage() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 }
 
+export function getStoredAuthSnapshot() {
+  if (!hasLocalStorage()) {
+    return {
+      token: null,
+      role: null,
+      canResolveSynchronously: false,
+    };
+  }
+
+  return {
+    token: getLocalValue(TOKEN_KEY),
+    role: getLocalValue(ROLE_KEY),
+    canResolveSynchronously: true,
+  };
+}
+
 function getLocalValue(key: string): string | null {
   if (!hasLocalStorage()) return null;
   return localStorage.getItem(key);
