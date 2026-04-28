@@ -521,7 +521,7 @@ export function LandingPage() {
           </button>
 
           {/* Desktop nav */}
-          <div className="hidden items-center gap-6 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)] md:flex">
+          <div className="hidden items-center gap-6 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)] lg:flex">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.id}
@@ -542,7 +542,7 @@ export function LandingPage() {
           </div>
 
           {/* Mobile login */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
             <button
               onClick={() => setMobileMenuOpen((v) => !v)}
               className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-xl"
@@ -575,7 +575,7 @@ export function LandingPage() {
 
         {/* Mobile menu */}
         <div
-          className={`overflow-hidden border-b border-[var(--app-border)] bg-[var(--app-bg)]/95 backdrop-blur-xl transition-all duration-300 md:hidden ${
+          className={`overflow-hidden border-b border-[var(--app-border)] bg-[var(--app-bg)]/95 backdrop-blur-xl transition-all duration-300 lg:hidden ${
             mobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
           }`}
         >
@@ -621,7 +621,7 @@ export function LandingPage() {
           }}
         />
 
-        <div className="mx-auto flex min-h-[92svh] w-full max-w-7xl flex-col items-center justify-center text-center">
+        <div className="mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-6xl flex-col items-center justify-center text-center sm:min-h-[92svh]">
           <Reveal delay={0}>
             <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 backdrop-blur-sm">
               <Sparkles
@@ -654,10 +654,10 @@ export function LandingPage() {
           </Reveal>
 
           <Reveal delay={220}>
-            <div className="mx-auto flex w-full max-w-4xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               <button
                 onClick={() => router.push(localizePath(locale, "/login"))}
-                className="btn-premium group relative min-w-[220px] border-none bg-[var(--app-secondary)] px-10 py-4 text-base text-white"
+                className="btn-premium group relative w-full border-none bg-[var(--app-secondary)] px-10 py-4 text-base text-white"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {copy.start}
@@ -670,13 +670,13 @@ export function LandingPage() {
               </button>
               <button
                 onClick={() => scrollTo("about")}
-                className="flex min-w-[220px] items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
+                className="flex w-full items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
               >
                 {copy.details} <ChevronDown size={16} className="animate-bounce" />
               </button>
               <button
                 onClick={() => router.push(localizePath(locale, "/public-exam"))}
-                className="app-touch app-card flex min-w-[220px] items-center justify-center border-none bg-[var(--app-surface)] px-10 py-5 text-base font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] active:scale-95"
+                className="app-touch app-card flex w-full items-center justify-center border-none bg-[var(--app-surface)] px-10 py-5 text-base font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] active:scale-95"
               >
                 {copy.openExam}
               </button>
@@ -733,10 +733,10 @@ export function LandingPage() {
         id="about"
         className="border-b border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-32"
       >
-        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-14">
+        <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-14">
           {/* Left */}
           <Reveal direction="left">
-            <div className="mx-auto w-full max-w-2xl">
+            <div className="w-full max-w-[35rem] justify-self-start">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.aboutEyebrow}
               </p>
@@ -768,7 +768,7 @@ export function LandingPage() {
 
           {/* Right glass card */}
           <Reveal direction="right" delay={100}>
-            <div className="relative mx-auto w-full max-w-xl">
+            <div className="relative w-full max-w-[32rem] justify-self-end">
               <div className="absolute inset-0 scale-105 rotate-1 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)]/18 to-[var(--app-accent)]/10 blur-3xl" />
               <div className="glass-card relative p-7 sm:p-8">
                 <div className="mb-8 flex items-center gap-5 border-b border-[var(--app-border)] pb-8">
@@ -823,7 +823,7 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FEATURES в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="features" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto w-full max-w-7xl">
+        <div className="mx-auto w-full max-w-6xl">
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
@@ -1028,9 +1028,9 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ ADDRESS в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="address" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-center lg:gap-14">
+        <div className="mx-auto grid w-full max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-14">
           <Reveal direction="left">
-            <div className="mx-auto w-full max-w-2xl">
+            <div className="w-full max-w-[35rem] justify-self-start">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.addressEyebrow}
               </p>
@@ -1082,7 +1082,7 @@ export function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="mx-auto grid w-full max-w-xl gap-4 sm:grid-cols-2">
+          <div className="grid w-full max-w-[32rem] justify-self-end gap-4 sm:grid-cols-2">
             {[
               {
                 icon: MapPin,
@@ -1138,7 +1138,7 @@ export function LandingPage() {
         id="contact"
         className="border-t border-[var(--app-border)] bg-[var(--app-surface-soft)]/30 px-5 py-20 sm:py-32"
       >
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto w-full max-w-2xl">
           <Reveal>
             <div className="mb-12 text-center">
               <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
