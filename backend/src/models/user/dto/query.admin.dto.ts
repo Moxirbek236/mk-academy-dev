@@ -5,11 +5,11 @@ import { UserRole } from 'src/core/enums';
 
 export class QueryUserAdminDto {
 
-    @ApiPropertyOptional({ enum: [UserRole.STUDENT, UserRole.TEACHER] })
+    @ApiPropertyOptional({ enum: [UserRole.STUDENT, UserRole.TEACHER, UserRole.GLOBAL_USER] })
     @IsOptional()
     @IsString()
-    @IsEnum([UserRole.STUDENT, UserRole.TEACHER])
-    user?: UserRole.STUDENT | UserRole.TEACHER;
+    @IsEnum([UserRole.STUDENT, UserRole.TEACHER, UserRole.GLOBAL_USER])
+    user?: UserRole.STUDENT | UserRole.TEACHER | UserRole.GLOBAL_USER;
 
     @ApiPropertyOptional()
     @IsOptional()

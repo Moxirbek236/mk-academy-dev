@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { CefrLevel } from 'src/core/enums';
+import { PUBLIC_EXAM_DIRECTIONS, PUBLIC_EXAM_MODES } from './public-exam.dto';
 
 export class QueryTestDto {
   @ApiPropertyOptional({ default: 1 })
@@ -49,4 +50,19 @@ export class QueryTestDto {
   @IsOptional()
   @IsString()
   isActive?: string;
+
+  @ApiPropertyOptional({ enum: ['true', 'false'] })
+  @IsOptional()
+  @IsString()
+  isPublicExam?: string;
+
+  @ApiPropertyOptional({ enum: PUBLIC_EXAM_MODES })
+  @IsOptional()
+  @IsString()
+  publicExamType?: (typeof PUBLIC_EXAM_MODES)[number];
+
+  @ApiPropertyOptional({ enum: PUBLIC_EXAM_DIRECTIONS })
+  @IsOptional()
+  @IsString()
+  publicExamDirection?: (typeof PUBLIC_EXAM_DIRECTIONS)[number];
 }

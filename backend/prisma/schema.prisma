@@ -295,6 +295,9 @@ model Test {
   description      String?
   type             String            @default("PRACTICE")
   cefrLevel        String?           @map("cefr_level")
+  isPublicExam     Boolean           @default(false) @map("is_public_exam")
+  publicExamType   String?           @map("public_exam_type")
+  publicExamDirection String?        @map("public_exam_direction")
   timeLimitMinutes Int?              @map("time_limit_minutes")
   passingScore     Int               @default(0) @map("passing_score")
   shuffleQuestions Boolean           @default(false) @map("shuffle_questions")
@@ -308,6 +311,7 @@ model Test {
   assignments      GroupAssignment[]
   questions        Question[]
   attempts         TestAttempt[]
+  publicAttempts   PublicExamAttempt[]
   course           Course?           @relation(fields: [courseId], references: [id])
   createdBy        User?             @relation("CreatedTests", fields: [createdById], references: [id])
 
@@ -350,6 +354,28 @@ model TestAttempt {
   student          User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@map("test_attempts")
+}
+
+model PublicExamAttempt {
+  id                Int       @id @default(autoincrement())
+  testId            Int       @map("test_id")
+  participantName   String    @map("participant_name")
+  selectedMode      String    @map("selected_mode")
+  selectedLevel     String?   @map("selected_level")
+  selectedDirection String?   @map("selected_direction")
+  estimatedLevel    String?   @map("estimated_level")
+  score             Int       @default(0)
+  maxScore          Int       @default(0) @map("max_score")
+  percentage        Float     @default(0)
+  passed            Boolean   @default(false)
+  timeSpentSeconds  Int?      @map("time_spent_seconds")
+  answers           String?
+  startedAt         DateTime  @default(now()) @map("started_at")
+  submittedAt       DateTime  @default(now()) @map("submitted_at")
+  isActive          Boolean   @default(true) @map("is_active")
+  test              Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@map("public_exam_attempts")
 }
 
 model QuestionAnalytics {
