@@ -5,7 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
-import { CreateQuestionDto, CreateTestDto, QueryTestDto, UpdateTestDto } from './dto';
+import {
+  CreateQuestionDto,
+  CreateTestDto,
+  PUBLIC_EXAM_DIRECTIONS,
+  PUBLIC_EXAM_MODES,
+  QueryTestDto,
+  UpdateTestDto,
+} from './dto';
 import { UserRole } from 'src/core/enums';
 
 export type CurrentUser = {
@@ -39,6 +46,13 @@ function parseBoolean(value?: string): boolean | undefined {
   if (normalized === 'false') return false;
 
   throw new BadRequestException('Boolean query values must be true or false');
+}
+
+function normalizeUpper(value: unknown): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  const normalized = String(value).trim().toUpperCase();
+  return normalized || null;
 }
 
 function encodeJsonField(value: unknown): string | null | undefined {
@@ -252,6 +266,7 @@ export class TestService {
     const where: any = {};
     const requestedActive = parseBoolean(query.isActive);
     const requestedPublished = parseBoolean(query.isPublished);
+    const requestedPublicExam = parseBoolean(query.isPublicExam);
 
     if (query.search?.trim()) {
       where.title = { contains: query.search.trim() };
@@ -267,6 +282,18 @@ export class TestService {
 
     if (query.type) {
       where.type = query.type;
+    }
+
+    if (requestedPublicExam !== undefined) {
+      where.isPublicExam = requestedPublicExam;
+    }
+
+    if (query.publicExamType) {
+      where.publicExamType = String(query.publicExamType).trim().toUpperCase();
+    }
+
+    if (query.publicExamDirection) {
+      where.publicExamDirection = String(query.publicExamDirection).trim().toUpperCase();
     }
 
     if (isAdminRole(currentUser)) {
@@ -454,6 +481,11 @@ export class TestService {
     if (dto.maxAttempts !== undefined) data.maxAttempts = dto.maxAttempts;
     if (dto.isAdaptive !== undefined) data.isAdaptive = dto.isAdaptive;
     if (dto.isPublished !== undefined) data.isPublished = dto.isPublished;
+    if (dto.isPublicExam !== undefined) data.isPublicExam = dto.isPublicExam;
+    if (dto.publicExamType !== undefined) data.publicExamType = normalizeUpper(dto.publicExamType);
+    if (dto.publicExamDirection !== undefined) {
+      data.publicExamDirection = normalizeUpper(dto.publicExamDirection);
+    }
 
     const timeLimitMinutes = dto.timeLimitMinutes ?? dto.duration;
     if (timeLimitMinutes !== undefined) {
@@ -467,6 +499,39 @@ export class TestService {
 
     if (!isUpdate) {
       data.createdById = currentUser.id;
+    }
+
+    if (dto.isPublicExam === false || data.isPublicExam === false) {
+      data.publicExamType = null;
+      data.publicExamDirection = null;
+      return data;
+    }
+
+    if (dto.isPublicExam === true) {
+      const publicExamType = normalizeUpper(dto.publicExamType);
+
+      if (!publicExamType || !PUBLIC_EXAM_MODES.includes(publicExamType as any)) {
+        throw new BadRequestException('publicExamType must be LEVEL or TRACK');
+      }
+
+      data.publicExamType = publicExamType;
+
+      if (publicExamType === 'LEVEL') {
+        if (!dto.cefrLevel) {
+          throw new BadRequestException('cefrLevel is required when publicExamType is LEVEL');
+        }
+        data.publicExamDirection = null;
+      }
+
+      if (publicExamType === 'TRACK') {
+        const direction = normalizeUpper(dto.publicExamDirection);
+        if (!direction || !PUBLIC_EXAM_DIRECTIONS.includes(direction as any)) {
+          throw new BadRequestException(
+            `publicExamDirection must be one of: ${PUBLIC_EXAM_DIRECTIONS.join(', ')}`,
+          );
+        }
+        data.publicExamDirection = direction;
+      }
     }
 
     return data;

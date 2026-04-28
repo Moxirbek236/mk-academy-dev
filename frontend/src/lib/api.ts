@@ -177,7 +177,12 @@ api.interceptors.response.use(
 
     if (axios.isAxiosError(error) && error.response?.status === 401 && typeof window !== 'undefined') {
       const currentPath = stripLocaleFromPathname(window.location.pathname);
-      if (currentPath !== '/login' && currentPath !== '/landing') {
+      if (
+        currentPath !== '/login' &&
+        currentPath !== '/landing' &&
+        currentPath !== '/public-exam' &&
+        currentPath !== '/public-rating'
+      ) {
         await clearStoredAuth();
         window.location.href = '/landing';
       }

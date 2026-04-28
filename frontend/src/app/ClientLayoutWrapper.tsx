@@ -53,7 +53,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const normalizedPath = stripLocaleFromPathname(pathname || '/');
 
   // Public routes that don't need auth
-  const isPublicRoute = ['/', '/login', '/landing'].includes(normalizedPath);
+  const isPublicRoute = ['/', '/login', '/landing', '/public-exam', '/public-rating'].includes(normalizedPath);
   const isAuthorizedRoute = isPublicRoute || isRoleAllowedForPath(normalizedPath, role);
 
   useEffect(() => {

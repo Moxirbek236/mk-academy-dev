@@ -232,6 +232,12 @@ export function LandingPage() {
           >
             Batafsil
           </button>
+          <button
+            onClick={() => router.push(localizePath(locale, '/public-exam'))}
+            className="app-touch app-card flex items-center justify-center border-none bg-[var(--app-surface)] px-10 py-5 text-base font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] active:scale-95"
+          >
+            Open Exam
+          </button>
         </div>
       </section>
 

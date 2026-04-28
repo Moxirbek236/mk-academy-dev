@@ -8,6 +8,8 @@ import { TestAttemptService } from './test-attempt.service';
 import { TestAttemptController } from './test-attempt.controller';
 import { GamificationModule } from '../gamification/gamification.module';
 import { PrismaModule } from 'src/core/config/prisma.module';
+import { PublicTestController } from './public-test.controller';
+import { PublicTestService } from './public-test.service';
 
 @Module({
   imports: [GamificationModule, PrismaModule, JwtModule],
@@ -15,12 +17,14 @@ import { PrismaModule } from 'src/core/config/prisma.module';
     TestController,
     QuestionController,
     TestAttemptController,
+    PublicTestController,
   ],
   providers: [
     TestService,
     QuestionService,
     TestAttemptService,
+    PublicTestService,
   ],
-  exports: [TestService, QuestionService, TestAttemptService],
+  exports: [TestService, QuestionService, TestAttemptService, PublicTestService],
 })
 export class TestModule {}

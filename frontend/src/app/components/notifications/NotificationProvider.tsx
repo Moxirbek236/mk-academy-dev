@@ -48,7 +48,7 @@ type NotificationContextValue = {
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
-const PUBLIC_PATHS = new Set(['/login', '/landing']);
+const PUBLIC_PATHS = new Set(['/login', '/landing', '/public-exam', '/public-rating']);
 const DELIVERED_NOTIFICATIONS_STORAGE_KEY_PREFIX =
   'mk-academy:device-notifications:delivered:v1:';
 const PERMISSION_PROMPT_STORAGE_KEY_PREFIX =

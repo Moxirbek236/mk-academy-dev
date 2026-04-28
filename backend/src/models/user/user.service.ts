@@ -107,7 +107,9 @@ export class UserService {
           GroupName: query.GroupName,
           isActive: query.isActive,
           user:
-            query.user === UserRole.STUDENT || query.user === UserRole.TEACHER
+            query.user === UserRole.STUDENT ||
+            query.user === UserRole.TEACHER ||
+            query.user === UserRole.GLOBAL_USER
               ? query.user
               : undefined,
         });
@@ -298,7 +300,7 @@ export class UserService {
 
 
       users = users.map(user => {
-        if (['STUDENT', 'TEACHER', 'ADMIN'].includes(user.role)) {
+        if (['STUDENT', 'TEACHER', 'ADMIN', 'GLOBAL_USER'].includes(user.role)) {
           return {
             ...user,
             groupsCreated: [],
@@ -380,7 +382,11 @@ export class UserService {
       }
 
       users = users.map(user => {
-        if (user.role === UserRole.STUDENT || user.role === UserRole.TEACHER) {
+        if (
+          user.role === UserRole.STUDENT ||
+          user.role === UserRole.TEACHER ||
+          user.role === UserRole.GLOBAL_USER
+        ) {
           return {
             ...user,
             groupsCreated: [],
