@@ -49,28 +49,28 @@ export function AdminDashboard() {
   ];
 
   const actions = [
-    { label: t('newCourse'), desc: t('newCourseDescription'), icon: PlusCircle, color: 'text-[var(--app-primary)]', bg: 'bg-[var(--app-primary)]/10', hover: 'hover:border-[var(--app-primary)]/30' },
-    { label: t('leads'), desc: t('leadsDescription'), icon: MessageSquare, color: 'text-blue-500', bg: 'bg-blue-50', hover: 'hover:border-blue-200' },
-    { label: t('mentors'), desc: t('mentorsDescription'), icon: UserPlus, color: 'text-amber-500', bg: 'bg-amber-50', hover: 'hover:border-amber-200' },
-    { label: t('exams'), desc: t('examsDescription'), icon: FileText, color: 'text-purple-500', bg: 'bg-purple-50', hover: 'hover:border-purple-200' },
+    { label: t('newCourse'), desc: t('newCourseDescription'), icon: PlusCircle },
+    { label: t('leads'), desc: t('leadsDescription'), icon: MessageSquare },
+    { label: t('mentors'), desc: t('mentorsDescription'), icon: UserPlus },
+    { label: t('exams'), desc: t('examsDescription'), icon: FileText },
   ];
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
       <div className="mb-10 flex items-center justify-between px-2">
         <div className="flex items-center gap-4">
-          <div className="app-card rounded-[16px] bg-[var(--app-surface)] p-4 shadow-sm transition-all">
+          <div className="app-card bg-[var(--app-surface)] p-4 transition-all">
             <Shield size={28} className="text-[var(--app-primary)]" />
           </div>
           <div>
             <h2 className="text-2xl font-black tracking-tight text-[var(--app-text)]">{t('title')}</h2>
             <p className="mt-1 flex items-center gap-1.5 text-[10px] font-black uppercase leading-none tracking-[0.15em] text-[var(--app-muted)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--app-primary)]" />
+              <span className="h-1.5 w-1.5 bg-[var(--app-primary)]" />
               {t('status')}
             </p>
           </div>
         </div>
-        <button className="app-touch flex items-center justify-center rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-3.5 text-[var(--app-muted)] shadow-sm transition-all hover:text-[var(--app-text)] active:scale-95">
+        <button className="app-touch flex items-center justify-center border border-[var(--app-border)] bg-[var(--app-surface)] p-3.5 text-[var(--app-muted)] transition-all hover:text-[var(--app-text)] active:scale-95">
           <Settings size={22} strokeWidth={2.5} />
         </button>
       </div>
@@ -89,16 +89,16 @@ export function AdminDashboard() {
         {actions.map((action, index) => (
           <button
             key={index}
-            className={`app-card group flex items-center gap-5 p-6 text-left transition-all active:scale-[0.98] ${action.hover}`}
+            className="app-card group flex items-center gap-5 p-6 text-left transition-all active:scale-[0.98] hover:border-[color:color-mix(in_srgb,var(--app-primary)_28%,var(--app-border))]"
           >
-            <div className={`rounded-[16px] p-5 transition-transform group-hover:scale-105 ${action.bg} ${action.color}`}>
+            <div className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-5 text-[var(--app-primary)] transition-transform group-hover:scale-105">
               <action.icon size={28} strokeWidth={2.5} />
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-lg font-extrabold leading-tight text-[var(--app-text)]">{action.label}</h3>
               <p className="mt-1 truncate text-[11px] font-bold tracking-tight text-[var(--app-muted)]">{action.desc}</p>
             </div>
-            <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
+            <div className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
               <ChevronRight size={20} strokeWidth={3} />
             </div>
           </button>
@@ -106,7 +106,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="mt-4 flex justify-center pb-8">
-        <button className="flex items-center gap-2 rounded-full border border-[var(--app-border)] px-6 py-3 text-[11px] font-black uppercase leading-none tracking-widest text-[var(--app-muted)] transition-all hover:bg-[var(--app-surface)] hover:text-[var(--app-primary)]">
+        <button className="flex items-center gap-2 border border-[var(--app-border)] bg-white px-6 py-3 text-[11px] font-black uppercase leading-none tracking-widest text-[var(--app-muted)] transition-all hover:text-[var(--app-primary)]">
           <TrendingUp size={16} /> {t('viewDetailedStats')}
         </button>
       </div>

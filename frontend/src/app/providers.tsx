@@ -30,7 +30,7 @@ export function AppProviders({
         enableSystem={false}
         enableColorScheme
         storageKey="mk-academy-theme"
-        themes={['light', 'dark']}
+        themes={['light']}
         disableTransitionOnChange
       >
         <CenterBrandingProvider initialBranding={centerBranding}>

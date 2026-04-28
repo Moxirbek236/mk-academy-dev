@@ -22,7 +22,7 @@ export function BottomNav({ role }: BottomNavProps) {
 
   return (
     <div className="app-bottom-nav-safe fixed inset-x-0 bottom-0 z-50 pb-0 sm:bottom-4 sm:px-4 sm:pb-0">
-      <div className="mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-surface)_94%,transparent)] px-3 pt-2 pb-[calc(0.75rem+var(--app-safe-bottom))] shadow-[0_-12px_28px_rgba(15,23,42,0.08)] backdrop-blur-md sm:rounded-[20px] sm:border sm:px-4 sm:pb-3">
+      <div className="mx-auto flex w-full max-w-[560px] items-stretch gap-1 border-t border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-surface)_98%,transparent)] px-3 pt-2 pb-[calc(0.75rem+var(--app-safe-bottom))] sm:border sm:px-4 sm:pb-3">
         {navItems.map((item) => {
           const isActive =
             normalizedPathname === item.path ||
@@ -35,16 +35,16 @@ export function BottomNav({ role }: BottomNavProps) {
               key={item.path} 
               href={localizedHref}
               prefetch={false}
-              className={`app-touch flex min-h-[48px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[14px] px-1 transition-all duration-300 active:scale-95 ${isActive ? 'text-[var(--app-primary)]' : 'text-[var(--app-muted)] hover:text-[var(--app-text)]'}`}
+              className={`app-touch flex min-h-[48px] min-w-0 flex-1 flex-col items-center justify-center gap-1 border border-transparent px-1 transition-all duration-300 active:scale-95 ${isActive ? 'border-[var(--app-border)] bg-white text-[var(--app-primary)]' : 'text-[var(--app-muted)] hover:border-[var(--app-border)] hover:bg-white hover:text-[var(--app-text)]'}`}
             >
-              <div className={`relative flex items-center justify-center rounded-[12px] p-2 transition-all duration-300 ${isActive ? 'scale-105' : 'group-hover:scale-105'}`}>
+              <div className={`relative flex items-center justify-center p-2 transition-all duration-300 ${isActive ? 'scale-105' : 'group-hover:scale-105'}`}>
                 {isActive && (
                   nativeApp ? (
-                    <div className="absolute inset-0 rounded-[12px] bg-[color:color-mix(in_srgb,var(--app-primary)_12%,transparent)]" />
+                    <div className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)]" />
                   ) : (
                     <motion.div 
                       layoutId="activeTab"
-                      className="absolute inset-0 rounded-[12px] bg-[color:color-mix(in_srgb,var(--app-primary)_12%,transparent)]"
+                      className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)]"
                       transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
                     />
                   )

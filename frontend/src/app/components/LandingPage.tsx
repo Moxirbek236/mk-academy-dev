@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -35,6 +35,7 @@ import {
 import { createLead, getPublicCenterSettings } from "@/lib/backend-api";
 import { usePublishedLeadQuestions } from "@/hooks/usePublishedLeadQuestions";
 import { localizePath } from "@/i18n/localizedPath";
+import type { AppLocale } from "@/i18n/config";
 import { useCenterBranding } from "./branding/CenterBrandingProvider";
 import {
   normalizeCenterBranding,
@@ -44,7 +45,196 @@ import {
   DEFAULT_ABOUT_POINTS,
 } from "@/lib/branding";
 
-// ── IntersectionObserver hook ────────────────────────────────────────────────
+const LANDING_COPY: Record<
+  AppLocale,
+  {
+    nav: string[];
+    login: string;
+    badge: string;
+    heroLead: string;
+    start: string;
+    details: string;
+    openExam: string;
+    scroll: string;
+    stats: string[];
+    aboutEyebrow: string;
+    aboutTitle: string;
+    platformMeta: string;
+    miniStats: string[];
+    featuresEyebrow: string;
+    featuresTitle: string;
+    enroll: string;
+    teamEyebrow: string;
+    teamTitle: string;
+    faqEyebrow: string;
+    faqTitle: string;
+    faqCount: string;
+    question: string;
+    answer: string;
+    addressEyebrow: string;
+    addressTitle: string;
+    addressText: string;
+    addressLabels: string[];
+    defaultAddress: string;
+    defaultHours: string;
+    formatValue: string;
+    contactTitle: string;
+    contactText: string;
+    fullName: string;
+    phone: string;
+    message: string;
+    sending: string;
+    sendQuestion: string;
+    sent: string;
+    sendError: string;
+    rights: string;
+    faq: Array<{ id: number; fullName: string; message: string; answer: string }>;
+  }
+> = {
+  uz: {
+    nav: ["Biz haqimizda", "Imkoniyatlar", "Jamoa", "Savollar", "Manzil", "Bog'lanish"],
+    login: "Kirish",
+    badge: "Ingliz tilini biz bilan o'rganing",
+    heroLead: "starts here",
+    start: "Boshlash",
+    details: "Batafsil",
+    openExam: "Ochiq imtihon",
+    scroll: "Pastga scroll qiling",
+    stats: ["O'quvchilar", "Kurslar", "Muvaffaqiyat", "IELTS o'rtacha", "Guruhlar", "O'qituvchilar"],
+    aboutEyebrow: "Biz haqimizda",
+    aboutTitle: "Bizning missiya",
+    platformMeta: "A1 dan C2 gacha В· Production quality",
+    miniStats: ["O'quvchi", "Natija", "Reyting"],
+    featuresEyebrow: "Imkoniyatlar",
+    featuresTitle: "Platforma nimalarni beradi",
+    enroll: "Kursga yozilish",
+    teamEyebrow: "Professional jamoa",
+    teamTitle: "Mentorlar va jamoa",
+    faqEyebrow: "Ko'p so'raladigan savollar",
+    faqTitle: "Admin javob bergan savollar",
+    faqCount: "ta javob",
+    question: "Savol",
+    answer: "Admin javobi",
+    addressEyebrow: "Bizning joylashuv",
+    addressTitle: "Biz bilan yaqinroq tanishing",
+    addressText: "Filialga kelib kurslar, guruhlar jadvali va daraja aniqlash testi haqida administrator bilan gaplashishingiz mumkin.",
+    addressLabels: ["Manzil", "Aloqa", "Ish vaqti", "Format"],
+    defaultAddress: "Toshkent shahri, O'zbekiston",
+    defaultHours: "Dushanba - Shanba, 09:00 - 20:00",
+    formatValue: "Offline, online va hybrid guruhlar",
+    contactTitle: "Savolingizni yuboring",
+    contactText: "Kurs, guruh yoki jadval haqida yozing, admin javob beradi",
+    fullName: "To'liq ism",
+    phone: "Telefon raqam",
+    message: "Savol yoki xabar",
+    sending: "Yuborilmoqda...",
+    sendQuestion: "Savol yuborish",
+    sent: "Savolingiz adminga yuborildi!",
+    sendError: "Xatolik yuz berdi. Qayta urinib ko'ring.",
+    rights: "Barcha huquqlar himoyalangan",
+    faq: [
+      { id: 1, fullName: "MK Academy", message: "Qaysi darajadan boshlashimni qanday bilaman?", answer: "Avval qisqa placement test topshirasiz. Natijaga qarab sizga mos guruh va kurs tavsiya qilinadi." },
+      { id: 2, fullName: "MK Academy", message: "IELTS kursi qancha davom etadi?", answer: "Odatda 3-6 oy davom etadi. Aniq muddat boshlang'ich darajangiz va maqsad ballingizga bog'liq." },
+      { id: 3, fullName: "MK Academy", message: "Darslar online ham bormi?", answer: "Ha, ayrim guruhlar online va hybrid formatda ochiladi. Jadval admin bilan kelishiladi." },
+    ],
+  },
+  en: {
+    nav: ["About", "Features", "Team", "Questions", "Location", "Contact"],
+    login: "Log in",
+    badge: "Learn English with us",
+    heroLead: "starts here",
+    start: "Get started",
+    details: "Learn more",
+    openExam: "Open exam",
+    scroll: "Scroll down",
+    stats: ["Students", "Courses", "Success rate", "Average IELTS", "Groups", "Teachers"],
+    aboutEyebrow: "About us",
+    aboutTitle: "Our mission",
+    platformMeta: "From A1 to C2 В· Production quality",
+    miniStats: ["Students", "Results", "Rating"],
+    featuresEyebrow: "Features",
+    featuresTitle: "What the platform delivers",
+    enroll: "Join this course",
+    teamEyebrow: "Professional team",
+    teamTitle: "Mentors and team",
+    faqEyebrow: "Frequently asked questions",
+    faqTitle: "Questions answered by admin",
+    faqCount: "answers",
+    question: "Question",
+    answer: "Admin answer",
+    addressEyebrow: "Our location",
+    addressTitle: "Get closer to the center",
+    addressText: "Visit the center to discuss courses, group schedules, and placement testing with an administrator.",
+    addressLabels: ["Address", "Contact", "Working hours", "Format"],
+    defaultAddress: "Tashkent, Uzbekistan",
+    defaultHours: "Monday - Saturday, 09:00 - 20:00",
+    formatValue: "Offline, online and hybrid groups",
+    contactTitle: "Send your question",
+    contactText: "Ask about a course, group, or schedule and our admin will reply.",
+    fullName: "Full name",
+    phone: "Phone number",
+    message: "Question or message",
+    sending: "Sending...",
+    sendQuestion: "Send question",
+    sent: "Your question was sent to the admin!",
+    sendError: "Something went wrong. Please try again.",
+    rights: "All rights reserved",
+    faq: [
+      { id: 1, fullName: "MK Academy", message: "How do I know which level to start from?", answer: "You first take a short placement test. Based on the result, we recommend the right course and group." },
+      { id: 2, fullName: "MK Academy", message: "How long does the IELTS course last?", answer: "Usually 3-6 months. The exact duration depends on your starting level and target score." },
+      { id: 3, fullName: "MK Academy", message: "Are online classes available?", answer: "Yes, some groups are available online and in hybrid format depending on the schedule." },
+    ],
+  },
+  ru: {
+    nav: ["O nas", "Vozmozhnosti", "Komanda", "Voprosy", "Adres", "Kontakt"],
+    login: "Voyti",
+    badge: "Izuchayte angliyskiy s nami",
+    heroLead: "starts here",
+    start: "Nachat",
+    details: "Podrobnee",
+    openExam: "Otkrytyy ekzamen",
+    scroll: "Prokrutite vniz",
+    stats: ["Studenty", "Kursy", "Rezultat", "Sredniy IELTS", "Gruppy", "Prepodavateli"],
+    aboutEyebrow: "O nas",
+    aboutTitle: "Nasha missiya",
+    platformMeta: "Ot A1 do C2 В· Production quality",
+    miniStats: ["Studenty", "Rezultat", "Reyting"],
+    featuresEyebrow: "Vozmozhnosti",
+    featuresTitle: "Chto daet platforma",
+    enroll: "Zapisatsya na kurs",
+    teamEyebrow: "Professionalnaya komanda",
+    teamTitle: "Mentory i komanda",
+    faqEyebrow: "Chasto zadavaemye voprosy",
+    faqTitle: "Otvety administratora",
+    faqCount: "otvetov",
+    question: "Vopros",
+    answer: "Otvet administratora",
+    addressEyebrow: "Nashe raspolozhenie",
+    addressTitle: "Poznakomtes s nami blizhe",
+    addressText: "Prikhodite v filial, chtoby obsudit kursy, raspisanie grupp i placement test s administratorom.",
+    addressLabels: ["Adres", "Kontakt", "Grafik", "Format"],
+    defaultAddress: "Tashkent, Uzbekistan",
+    defaultHours: "Ponedelnik - Subbota, 09:00 - 20:00",
+    formatValue: "Offline, online i gibridnye gruppy",
+    contactTitle: "Otpravte svoy vopros",
+    contactText: "Zadayte vopros o kurse, gruppe ili raspisanii, i administrator otvetit vam.",
+    fullName: "Polnoe imya",
+    phone: "Telefon",
+    message: "Vopros ili soobshchenie",
+    sending: "Otpravlyaetsya...",
+    sendQuestion: "Otpravit vopros",
+    sent: "Vash vopros otpravlen administratoru!",
+    sendError: "Proizoshla oshibka. Poprobuyte eshche raz.",
+    rights: "Vse prava zashchishcheny",
+    faq: [
+      { id: 1, fullName: "MK Academy", message: "Kak ponyat, s kakogo urovnya nachat?", answer: "Snachala vy prokhodite korotkiy placement test. Po rezultatu my rekomenduem podkhodyashchuyu gruppu i kurs." },
+      { id: 2, fullName: "MK Academy", message: "Skolko dlitsya kurs IELTS?", answer: "Obychno 3-6 mesyatsev. Tochnyy srok zavisit ot vashego startovogo urovnya i tselevogo balla." },
+      { id: 3, fullName: "MK Academy", message: "Est li onlayn zanyatiya?", answer: "Da, chast grupp dostupna onlayn i v gibridnom formate v zavisimosti ot raspisaniya." },
+    ],
+  },
+};
+
+// в”Ђв”Ђ IntersectionObserver hook в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 function useInView(opts?: { threshold?: number; rootMargin?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -71,7 +261,7 @@ function useInView(opts?: { threshold?: number; rootMargin?: string }) {
   return [ref, visible] as const;
 }
 
-// ── Reveal wrapper ───────────────────────────────────────────────────────────
+// в”Ђв”Ђ Reveal wrapper в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 function Reveal({
   children,
   delay = 0,
@@ -104,7 +294,7 @@ function Reveal({
   );
 }
 
-// ── Stat counter ─────────────────────────────────────────────────────────────
+// в”Ђв”Ђ Stat counter в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 function StatCounter({
   target,
   suffix = "",
@@ -139,7 +329,7 @@ function StatCounter({
   );
 }
 
-// ── Default FAQ ──────────────────────────────────────────────────────────────
+// в”Ђв”Ђ Default FAQ в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 const DEFAULT_FAQ = [
   {
     id: 1,
@@ -164,7 +354,7 @@ const DEFAULT_FAQ = [
   },
 ];
 
-// ── Feature list ─────────────────────────────────────────────────────────────
+// в”Ђв”Ђ Feature list в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 const FEATURES = [
   {
     icon: BookOpen,
@@ -224,10 +414,11 @@ const FEATURES = [
   },
 ];
 
-// ── Main component ────────────────────────────────────────────────────────────
+// в”Ђв”Ђ Main component в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 export function LandingPage() {
   const router = useRouter();
-  const locale = useLocale();
+  const locale = useLocale() as AppLocale;
+  const copy = LANDING_COPY[locale] ?? LANDING_COPY.uz;
   const { centerBranding: ctxBranding } = useCenterBranding();
 
   // Live settings from API (enriched with landing data)
@@ -252,7 +443,7 @@ export function LandingPage() {
     : DEFAULT_ABOUT_POINTS;
 
   const { data: publishedFaq } = usePublishedLeadQuestions();
-  const visibleFaq = publishedFaq.length > 0 ? publishedFaq : DEFAULT_FAQ;
+  const visibleFaq = publishedFaq.length > 0 ? publishedFaq : copy.faq;
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -292,17 +483,17 @@ export function LandingPage() {
   };
 
   const NAV_LINKS = [
-    { id: "about", label: "Biz haqimizda" },
-    { id: "features", label: "Imkoniyatlar" },
-    { id: "team", label: "Jamoa" },
-    { id: "questions", label: "Savollar" },
-    { id: "address", label: "Manzil" },
-    { id: "contact", label: "Bog'lanish" },
+    { id: "about", label: copy.nav[0] },
+    { id: "features", label: copy.nav[1] },
+    { id: "team", label: copy.nav[2] },
+    { id: "questions", label: copy.nav[3] },
+    { id: "address", label: copy.nav[4] },
+    { id: "contact", label: copy.nav[5] },
   ];
 
   return (
     <div className="min-h-screen overflow-x-clip bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white">
-      {/* ══════════════════════════ NAVBAR ══════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ NAVBAR в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <nav
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
           scrolled
@@ -346,7 +537,7 @@ export function LandingPage() {
               className="btn-premium border-none bg-[var(--app-primary)] px-5 py-2.5 text-white shadow-lg shadow-[var(--app-primary)]/25"
             >
               <LogIn size={15} className="mr-2" />
-              Kirish
+              {copy.login}
             </button>
           </div>
 
@@ -377,7 +568,7 @@ export function LandingPage() {
               className="flex items-center gap-1.5 rounded-2xl bg-[var(--app-primary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white"
             >
               <LogIn size={13} />
-              Kirish
+              {copy.login}
             </button>
           </div>
         </div>
@@ -402,7 +593,7 @@ export function LandingPage() {
         </div>
       </nav>
 
-      {/* ══════════════════════════ HERO ════════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ HERO в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section
         id="hero"
         className="relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-5 pb-20 pt-28 text-center sm:pt-36"
@@ -438,7 +629,7 @@ export function LandingPage() {
               className="animate-pulse text-[var(--app-primary)]"
             />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
-              Ingliz tilini biz bilan o'rganing
+              {copy.badge}
             </span>
           </div>
         </Reveal>
@@ -452,7 +643,7 @@ export function LandingPage() {
             </span>
             <br />
             <span className="text-[0.55em] font-black text-[var(--app-muted)]">
-              starts here
+              {copy.heroLead}
             </span>
           </h1>
         </Reveal>
@@ -471,7 +662,7 @@ export function LandingPage() {
               className="btn-premium group relative border-none bg-[var(--app-primary)] px-10 py-4 text-base text-white shadow-2xl shadow-[var(--app-primary)]/30"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Boshlash
+                {copy.start}
                 <ArrowRight
                   size={18}
                   className="transition-transform group-hover:translate-x-1"
@@ -484,13 +675,13 @@ export function LandingPage() {
               onClick={() => scrollTo("about")}
               className="flex items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
             >
-              Batafsil <ChevronDown size={16} className="animate-bounce" />
+              {copy.details} <ChevronDown size={16} className="animate-bounce" />
             </button>
             <button
               onClick={() => router.push(localizePath(locale, "/public-exam"))}
               className="app-touch app-card flex items-center justify-center border-none bg-[var(--app-surface)] px-10 py-5 text-base font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] active:scale-95"
             >
-              Open Exam
+              {copy.openExam}
             </button>
           </div>
         </Reveal>
@@ -502,29 +693,29 @@ export function LandingPage() {
             className="mt-16 flex flex-col items-center gap-2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-primary)]"
           >
             <span className="text-[9px] font-black uppercase tracking-[0.3em]">
-              Pastga scroll qiling
+              {copy.scroll}
             </span>
             <div className="h-8 w-px bg-gradient-to-b from-[var(--app-muted)]/50 to-transparent" />
           </button>
         </Reveal>
       </section>
 
-      {/* ══════════════════════════ STATS TICKER ════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ STATS TICKER в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <div className="relative overflow-hidden border-y border-[var(--app-border)] bg-[var(--app-primary)] py-4">
         <div className="animate-ticker flex w-max items-center gap-12 whitespace-nowrap">
           {[
-            { label: "O'quvchilar", value: 500, suffix: "+" },
-            { label: "Kurslar", value: 12, suffix: "+" },
-            { label: "Muvaffaqiyat ko'rsatkichi", value: 94, suffix: "%" },
-            { label: "IELTS ball o\u2019rtacha", value: 7, suffix: ".5" },
-            { label: "Guruhlar", value: 48, suffix: "+" },
-            { label: "O'qituvchilar", value: 15, suffix: "+" },
-            { label: "O'quvchilar", value: 500, suffix: "+" },
-            { label: "Kurslar", value: 12, suffix: "+" },
-            { label: "Muvaffaqiyat ko'rsatkichi", value: 94, suffix: "%" },
-            { label: "IELTS ball o\u2019rtacha", value: 7, suffix: ".5" },
-            { label: "Guruhlar", value: 48, suffix: "+" },
-            { label: "O'qituvchilar", value: 15, suffix: "+" },
+            { label: copy.stats[0], value: 500, suffix: "+" },
+            { label: copy.stats[1], value: 12, suffix: "+" },
+            { label: copy.stats[2], value: 94, suffix: "%" },
+            { label: copy.stats[3], value: 7, suffix: ".5" },
+            { label: copy.stats[4], value: 48, suffix: "+" },
+            { label: copy.stats[5], value: 15, suffix: "+" },
+            { label: copy.stats[0], value: 500, suffix: "+" },
+            { label: copy.stats[1], value: 12, suffix: "+" },
+            { label: copy.stats[2], value: 94, suffix: "%" },
+            { label: copy.stats[3], value: 7, suffix: ".5" },
+            { label: copy.stats[4], value: 48, suffix: "+" },
+            { label: copy.stats[5], value: 15, suffix: "+" },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-3">
               <Zap size={14} className="text-white/60" />
@@ -540,7 +731,7 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* ══════════════════════════ ABOUT ═══════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ ABOUT в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section
         id="about"
         className="border-b border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-32"
@@ -550,14 +741,14 @@ export function LandingPage() {
           <Reveal direction="left">
             <div>
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-                Biz haqimizda
+                {copy.aboutEyebrow}
               </p>
               <h2 className="mb-6 flex items-center gap-3 text-3xl font-black uppercase tracking-tighter md:text-5xl">
                 <Info
                   className="shrink-0 text-[var(--app-primary)]"
                   size={32}
                 />
-                Bizning missiya
+                {copy.aboutTitle}
               </h2>
               <p className="mb-8 text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
                 {settings.aboutText}
@@ -578,7 +769,7 @@ export function LandingPage() {
             </div>
           </Reveal>
 
-          {/* Right — glass card */}
+          {/* Right glass card */}
           <Reveal direction="right" delay={100}>
             <div className="relative">
               <div className="absolute inset-0 scale-105 rotate-2 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)] to-violet-500 opacity-15 blur-3xl" />
@@ -592,7 +783,7 @@ export function LandingPage() {
                       CEFR English Platform
                     </h3>
                     <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                      A1 dan C2 gacha · High Quality
+                      {copy.platformMeta}
                     </p>
                   </div>
                 </div>
@@ -633,7 +824,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════ FEATURES ════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FEATURES в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="features" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
         <Reveal>
           <div className="mb-14 text-center">
@@ -670,7 +861,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════ COURSES ═════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ COURSES в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section
         id="courses"
         className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
@@ -719,7 +910,7 @@ export function LandingPage() {
                     </p>
                     <div className="mt-5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] opacity-0 transition-opacity group-hover:opacity-100">
                       <Target size={12} />
-                      Kursga yozilish
+                      {copy.enroll}
                       <ArrowRight size={12} />
                     </div>
                   </div>
@@ -730,15 +921,15 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════ TEAM ════════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ TEAM в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="team" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-              Professional jamoa
+                {copy.teamEyebrow}
             </p>
             <h2 className="text-3xl font-black uppercase tracking-tighter md:text-6xl">
-              Mentorlar va jamoa
+              {copy.teamTitle}
             </h2>
           </div>
         </Reveal>
@@ -784,7 +975,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════ FAQ ══════════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FAQ в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section
         id="questions"
         className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
@@ -794,17 +985,17 @@ export function LandingPage() {
             <Reveal direction="left">
               <div>
                 <p className="mb-2 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-                  Ko&apos;p so&apos;raladigan savollar
+                  {copy.faqEyebrow}
                 </p>
                 <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
-                  Admin javob bergan savollar
+                  {copy.faqTitle}
                 </h2>
               </div>
             </Reveal>
             <Reveal direction="right" delay={100}>
               <div className="inline-flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                 <HelpCircle size={14} className="text-[var(--app-primary)]" />
-                {visibleFaq.length} ta javob
+                {visibleFaq.length} {copy.faqCount}
               </div>
             </Reveal>
           </div>
@@ -814,14 +1005,14 @@ export function LandingPage() {
               <Reveal key={item.id} delay={i * 70}>
                 <article className="app-card group p-6 transition-all hover:-translate-y-0.5 hover:border-[var(--app-primary)]/25">
                   <p className="mb-2 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
-                    Savol
+                    {copy.question}
                   </p>
                   <h3 className="text-base font-black leading-snug">
                     {item.message}
                   </h3>
                   <div className="mt-4 rounded-2xl bg-[var(--app-surface-soft)] p-4">
                     <p className="mb-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
-                      Admin javobi
+                      {copy.answer}
                     </p>
                     <p className="text-sm font-semibold leading-relaxed text-[var(--app-text)]">
                       {item.answer}
@@ -834,20 +1025,19 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════ ADDRESS ══════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ ADDRESS в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="address" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-center">
           <Reveal direction="left">
             <div>
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-                Bizning joylashuv
+                {copy.addressEyebrow}
               </p>
               <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
-                Biz bilan yaqinroq tanishing
+                {copy.addressTitle}
               </h2>
               <p className="mt-5 max-w-md text-base font-bold leading-relaxed text-[var(--app-muted)]">
-                Filialga kelib kurslar, guruhlar jadvali va daraja aniqlash
-                testi haqida administrator bilan gaplashishingiz mumkin.
+                {copy.addressText}
               </p>
 
               {/* Social links */}
@@ -895,30 +1085,29 @@ export function LandingPage() {
             {[
               {
                 icon: MapPin,
-                label: "Manzil",
-                value: settings.address || "Toshkent shahri, O'zbekiston",
+                label: copy.addressLabels[0],
+                value: settings.address || copy.defaultAddress,
                 color: "text-blue-500",
                 bg: "bg-blue-50 dark:bg-blue-900/20",
               },
               {
                 icon: PhoneCall,
-                label: "Aloqa",
+                label: copy.addressLabels[1],
                 value: settings.phoneNumber || "+998 90 000 00 00",
                 color: "text-emerald-500",
                 bg: "bg-emerald-50 dark:bg-emerald-900/20",
               },
               {
                 icon: Clock3,
-                label: "Ish vaqti",
-                value:
-                  settings.workingHours || "Dushanba - Shanba, 09:00 - 20:00",
+                label: copy.addressLabels[2],
+                value: settings.workingHours || copy.defaultHours,
                 color: "text-amber-500",
                 bg: "bg-amber-50 dark:bg-amber-900/20",
               },
               {
                 icon: Building2,
-                label: "Format",
-                value: "Offline, online va hybrid guruhlar",
+                label: copy.addressLabels[3],
+                value: copy.formatValue,
                 color: "text-violet-500",
                 bg: "bg-violet-50 dark:bg-violet-900/20",
               },
@@ -943,7 +1132,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════ CONTACT FORM ════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ CONTACT FORM в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section
         id="contact"
         className="border-t border-[var(--app-border)] bg-[var(--app-surface-soft)]/30 px-5 py-20 sm:py-32"
@@ -955,10 +1144,10 @@ export function LandingPage() {
                 <Send size={32} />
               </div>
               <h2 className="mb-3 text-4xl font-black uppercase tracking-tighter md:text-6xl">
-                Savolingizni yuboring
+                {copy.contactTitle}
               </h2>
               <p className="text-sm font-bold uppercase tracking-wide text-[var(--app-muted)]">
-                Kurs, guruh yoki jadval haqida yozing — admin javob beradi
+                {copy.contactText}
               </p>
             </div>
           </Reveal>
@@ -968,7 +1157,7 @@ export function LandingPage() {
               <div className="space-y-5">
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                    To&apos;liq ism
+                    {copy.fullName}
                   </label>
                   <input
                     required
@@ -983,7 +1172,7 @@ export function LandingPage() {
                 </div>
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                    Telefon raqam
+                    {copy.phone}
                   </label>
                   <input
                     required
@@ -998,7 +1187,7 @@ export function LandingPage() {
                 </div>
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                    Savol yoki xabar
+                    {copy.message}
                   </label>
                   <textarea
                     required
@@ -1020,12 +1209,12 @@ export function LandingPage() {
                   {formStatus === "loading" ? (
                     <span className="flex items-center justify-center gap-2">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      Yuborilmoqda...
+                      {copy.sending}
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">
                       <Send size={18} />
-                      Savol yuborish
+                      {copy.sendQuestion}
                     </span>
                   )}
                 </button>
@@ -1034,12 +1223,12 @@ export function LandingPage() {
               {formStatus === "success" && (
                 <div className="mt-5 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-xs font-black uppercase tracking-widest text-emerald-600 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400">
                   <CheckCircle2 size={16} />
-                  Savolingiz adminga yuborildi!
+                  {copy.sent}
                 </div>
               )}
               {formStatus === "error" && (
                 <p className="mt-5 text-center text-xs font-black uppercase tracking-widest text-red-500">
-                  Xatolik yuz berdi. Qayta urinib ko&apos;ring.
+                  {copy.sendError}
                 </p>
               )}
             </form>
@@ -1047,7 +1236,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════ FOOTER ══════════════════════════════════ */}
+      {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FOOTER в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <footer className="border-t border-[var(--app-border)] bg-[var(--app-surface)]/60 px-5 py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
           <div className="flex items-center gap-3">
@@ -1063,20 +1252,20 @@ export function LandingPage() {
             </span>
           </div>
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
-            © 2026 {settings.name} · Barcha huquqlar himoyalangan
+            © 2026 {settings.name} · {copy.rights}
           </p>
           <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
             <button
               onClick={() => scrollTo("about")}
               className="transition-colors hover:text-[var(--app-primary)]"
             >
-              Biz haqimizda
+              {copy.nav[0]}
             </button>
             <button
               onClick={() => scrollTo("contact")}
               className="transition-colors hover:text-[var(--app-primary)]"
             >
-              Bog'lanish
+              {copy.nav[5]}
             </button>
             <button
               onClick={() => scrollTo("questions")}
@@ -1090,3 +1279,4 @@ export function LandingPage() {
     </div>
   );
 }
+

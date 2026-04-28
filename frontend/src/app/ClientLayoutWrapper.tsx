@@ -72,7 +72,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--app-bg)]">
          <div className="flex flex-col items-center gap-5 px-6 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-[var(--app-primary)] shadow-lg shadow-black/5">
+            <div className="flex h-16 w-16 items-center justify-center border border-[var(--app-border)] bg-[var(--app-primary)]">
                <Loader2 size={32} className="text-white animate-spin" />
             </div>
             <p className="ml-1 text-[10px] font-black uppercase tracking-[0.32em] text-gray-500">

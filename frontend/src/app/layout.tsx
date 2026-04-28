@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import '../styles/index.css';
 import './globals.css';
 import ClientLayoutWrapper from './ClientLayoutWrapper';
 import { getLocale, getMessages } from 'next-intl/server';
