@@ -17,6 +17,7 @@ type CacheEntry<T> = {
 };
 
 const requestCache = new Map<string, CacheEntry<unknown>>();
+const inFlightRequests = new Map<string, Promise<unknown>>();
 
 function normalizeCacheKey(requestKey: UseApiRequestOptions<unknown>['requestKey']) {
   if (requestKey === null || requestKey === undefined || requestKey === false) {
@@ -42,6 +43,7 @@ export function useApiRequest<T>({
   requestKey = null,
 }: UseApiRequestOptions<T>) {
   const cacheKey = normalizeCacheKey(requestKey);
+  const initialDataRef = useRef(initialData);
   const cachedEntry = cacheKey ? (requestCache.get(cacheKey) as CacheEntry<T> | undefined) : undefined;
   const [data, setData] = useState<T>(cachedEntry?.data ?? initialData);
   const [loading, setLoading] = useState(enabled && !cachedEntry);
@@ -51,7 +53,8 @@ export function useApiRequest<T>({
   requestRef.current = request;
 
   const execute = useCallback(async (options?: { background?: boolean }) => {
-    const shouldKeepCurrentData = options?.background || Boolean(cacheKey && requestCache.has(cacheKey));
+    const cacheExists = Boolean(cacheKey && requestCache.has(cacheKey));
+    const shouldKeepCurrentData = options?.background || cacheExists;
 
     if (!shouldKeepCurrentData) {
       setLoading(true);
@@ -59,7 +62,25 @@ export function useApiRequest<T>({
     setError(null);
 
     try {
-      const response = await requestRef.current();
+      let response: T;
+
+      if (cacheKey) {
+        const existingRequest = inFlightRequests.get(cacheKey) as Promise<T> | undefined;
+        const requestPromise =
+          existingRequest ??
+          requestRef.current().finally(() => {
+            inFlightRequests.delete(cacheKey);
+          });
+
+        if (!existingRequest) {
+          inFlightRequests.set(cacheKey, requestPromise);
+        }
+
+        response = await requestPromise;
+      } else {
+        response = await requestRef.current();
+      }
+
       setData(response);
       if (cacheKey) {
         requestCache.set(cacheKey, {
@@ -75,10 +96,14 @@ export function useApiRequest<T>({
   }, [cacheKey]);
 
   useEffect(() => {
-    setData(cachedEntry?.data ?? initialData);
-    setLoading(enabled && !cachedEntry);
+    const nextCachedEntry = cacheKey
+      ? (requestCache.get(cacheKey) as CacheEntry<T> | undefined)
+      : undefined;
+
+    setData(nextCachedEntry?.data ?? initialDataRef.current);
+    setLoading(enabled && !nextCachedEntry);
     setError(null);
-  }, [cacheKey, cachedEntry, enabled, initialData]);
+  }, [cacheKey, enabled]);
 
   useEffect(() => {
     if (!enabled) {
@@ -86,16 +111,18 @@ export function useApiRequest<T>({
       return;
     }
 
+    const hasCachedData = Boolean(cacheKey && requestCache.has(cacheKey));
+
     if (debounceMs > 0) {
       const timer = window.setTimeout(() => {
-        void execute({ background: Boolean(cachedEntry) });
+        void execute({ background: hasCachedData });
       }, debounceMs);
 
       return () => window.clearTimeout(timer);
     }
 
-    void execute({ background: Boolean(cachedEntry) });
-  }, [cachedEntry, debounceMs, enabled, execute, requestKey]);
+    void execute({ background: hasCachedData });
+  }, [cacheKey, debounceMs, enabled, execute]);
 
   return {
     data,
