@@ -698,7 +698,7 @@ export function LandingPage() {
       </section>
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ STATS TICKER в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
-      <div className="relative overflow-hidden border-y border-[var(--app-border)] bg-[var(--app-primary)] py-4">
+      <div className="relative overflow-hidden border-y border-[var(--app-border)] bg-[linear-gradient(90deg,var(--app-primary-dark),var(--app-secondary),var(--app-primary))] py-4">
         <div className="animate-ticker flex w-max items-center gap-12 whitespace-nowrap">
           {[
             { label: copy.stats[0], value: 500, suffix: "+" },
@@ -733,27 +733,27 @@ export function LandingPage() {
         id="about"
         className="border-b border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-32"
       >
-        <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-2 md:gap-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-14">
           {/* Left */}
           <Reveal direction="left">
-            <div>
+            <div className="mx-auto w-full max-w-2xl">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.aboutEyebrow}
               </p>
-              <h2 className="mb-6 flex items-center gap-3 text-3xl font-black uppercase tracking-tighter md:text-5xl">
+              <h2 className="mb-6 flex items-center gap-3 text-3xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-5xl">
                 <Info
                   className="shrink-0 text-[var(--app-primary)]"
                   size={32}
                 />
                 {copy.aboutTitle}
               </h2>
-              <p className="mb-8 text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
+              <p className="mb-8 text-base font-semibold leading-relaxed text-[var(--app-muted)] sm:text-lg">
                 {settings.aboutText}
               </p>
               <ul className="space-y-4">
                 {aboutPoints.map((point, i) => (
                   <Reveal key={i} delay={i * 80}>
-                    <li className="flex items-start gap-3 text-sm font-bold text-[var(--app-text)]">
+                    <li className="flex items-start gap-3 text-sm font-semibold text-[var(--app-primary-dark)]">
                       <CheckCircle2
                         size={18}
                         className="mt-0.5 shrink-0 text-[var(--app-primary)]"
@@ -768,15 +768,15 @@ export function LandingPage() {
 
           {/* Right glass card */}
           <Reveal direction="right" delay={100}>
-            <div className="relative">
-              <div className="absolute inset-0 scale-105 rotate-2 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)] to-[var(--app-accent)] opacity-15 blur-3xl" />
-              <div className="glass-card relative p-8 sm:p-10">
+            <div className="relative mx-auto w-full max-w-xl">
+              <div className="absolute inset-0 scale-105 rotate-1 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)]/18 to-[var(--app-accent)]/10 blur-3xl" />
+              <div className="glass-card relative p-7 sm:p-8">
                 <div className="mb-8 flex items-center gap-5 border-b border-[var(--app-border)] pb-8">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
                     <GraduationCap size={28} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-black tracking-tight">
+                    <h3 className="text-xl font-extrabold tracking-tight text-[var(--app-primary-dark)]">
                       CEFR English Platform
                     </h3>
                     <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
@@ -786,7 +786,7 @@ export function LandingPage() {
                 </div>
 
                 {/* Mini stats */}
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-3 gap-3 text-center">
                   {[
                     { icon: Users, val: "500+", label: "O'quvchi" },
                     { icon: Trophy, val: "94%", label: "Muvaffaqiyat" },
@@ -794,13 +794,13 @@ export function LandingPage() {
                   ].map(({ icon: Icon, val, label }, i) => (
                     <div
                       key={i}
-                      className="rounded-2xl bg-[var(--app-surface-soft)] py-4"
+                      className="rounded-2xl border border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-primary)_6%,white)] py-4"
                     >
                       <Icon
                         size={18}
                         className="mx-auto mb-2 text-[var(--app-primary)]"
                       />
-                      <p className="text-lg font-black text-[var(--app-text)]">
+                      <p className="text-lg font-extrabold text-[var(--app-primary-dark)]">
                         {val}
                       </p>
                       <p className="text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
@@ -810,7 +810,7 @@ export function LandingPage() {
                   ))}
                 </div>
 
-                <p className="mt-6 text-sm font-bold italic leading-relaxed text-[var(--app-muted)]">
+                <p className="mt-6 text-sm font-semibold italic leading-relaxed text-[var(--app-muted)]">
                   &ldquo;Har bir o&apos;quvchi o&apos;z darajasiga mos darslarni
                   oladi, testlar orqali bilimini tekshiradi va so&apos;z
                   boyligini kundalik mashqlar bilan mustahkamlaydi.&rdquo;
@@ -829,7 +829,7 @@ export function LandingPage() {
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
               Nima taklif qilamiz
             </p>
-            <h2 className="text-3xl font-black uppercase tracking-tighter md:text-6xl">
+            <h2 className="text-3xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-6xl">
               Imkoniyatlar
             </h2>
             <p className="mt-4 text-[11px] font-black uppercase tracking-[0.25em] text-[var(--app-muted)]">
@@ -847,7 +847,7 @@ export function LandingPage() {
                 >
                   <feat.icon size={24} strokeWidth={2.5} />
                 </div>
-                <h3 className="mb-2 text-base font-black tracking-tight">
+                <h3 className="mb-2 text-base font-extrabold tracking-tight text-[var(--app-primary-dark)]">
                   {feat.title}
                 </h3>
                 <p className="text-xs font-bold leading-relaxed text-[var(--app-muted)]">
@@ -865,14 +865,14 @@ export function LandingPage() {
         id="courses"
         className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
       >
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-6xl">
           <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <Reveal direction="left">
               <div>
                 <p className="mb-2 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                   Yo'nalishlar
                 </p>
-                <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
+                <h2 className="text-3xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-5xl">
                   Sizga mos kurs
                 </h2>
               </div>
@@ -880,7 +880,7 @@ export function LandingPage() {
             <Reveal direction="right" delay={100}>
               <button
                 onClick={() => scrollTo("contact")}
-                className="btn-premium border-none bg-[var(--app-primary)] px-6 py-3 text-white shadow-lg shadow-[var(--app-primary)]/20"
+                className="btn-premium border-none bg-[var(--app-secondary)] px-6 py-3 text-white"
               >
                 Savol berish <ArrowRight size={16} className="ml-2" />
               </button>
@@ -901,7 +901,7 @@ export function LandingPage() {
                         {course.level}
                       </span>
                     </div>
-                    <h3 className="mb-3 text-xl font-black tracking-tight">
+                    <h3 className="mb-3 text-xl font-extrabold tracking-tight text-[var(--app-primary-dark)]">
                       {course.title}
                     </h3>
                     <p className="text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
@@ -922,13 +922,13 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ TEAM в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="team" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto w-full max-w-7xl">
+        <div className="mx-auto w-full max-w-6xl">
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.teamEyebrow}
             </p>
-            <h2 className="text-3xl font-black uppercase tracking-tighter md:text-6xl">
+            <h2 className="text-3xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-6xl">
               {copy.teamTitle}
             </h2>
           </div>
@@ -962,7 +962,7 @@ export function LandingPage() {
                       fill="currentColor"
                     />
                   </div>
-                  <h3 className="text-lg font-black tracking-tight">
+                  <h3 className="text-lg font-extrabold tracking-tight text-[var(--app-primary-dark)]">
                     {member.name}
                   </h3>
                   <p className="mt-1.5 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
@@ -981,14 +981,14 @@ export function LandingPage() {
         id="questions"
         className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
       >
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-6xl">
           <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <Reveal direction="left">
               <div>
                 <p className="mb-2 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                   {copy.faqEyebrow}
                 </p>
-                <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
+                <h2 className="text-3xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-5xl">
                   {copy.faqTitle}
                 </h2>
               </div>
@@ -1008,7 +1008,7 @@ export function LandingPage() {
                   <p className="mb-2 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
                     {copy.question}
                   </p>
-                  <h3 className="text-base font-black leading-snug">
+                  <h3 className="text-base font-extrabold leading-snug text-[var(--app-primary-dark)]">
                     {item.message}
                   </h3>
                   <div className="mt-4 rounded-2xl bg-[var(--app-surface-soft)] p-4">
@@ -1028,13 +1028,13 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ ADDRESS в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="address" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-center lg:gap-14">
           <Reveal direction="left">
-            <div>
+            <div className="mx-auto w-full max-w-2xl">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.addressEyebrow}
               </p>
-              <h2 className="text-3xl font-black uppercase tracking-tighter md:text-5xl">
+              <h2 className="text-3xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-5xl">
                 {copy.addressTitle}
               </h2>
               <p className="mt-5 max-w-md text-base font-bold leading-relaxed text-[var(--app-muted)]">
@@ -1082,7 +1082,7 @@ export function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mx-auto grid w-full max-w-xl gap-4 sm:grid-cols-2">
             {[
               {
                 icon: MapPin,
@@ -1123,7 +1123,7 @@ export function LandingPage() {
                   <p className="text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                     {label}
                   </p>
-                  <p className="mt-2 text-sm font-black leading-snug">
+                  <p className="mt-2 text-sm font-extrabold leading-snug text-[var(--app-primary-dark)]">
                     {value}
                   </p>
                 </div>
@@ -1144,7 +1144,7 @@ export function LandingPage() {
               <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
                 <Send size={32} />
               </div>
-              <h2 className="mb-3 text-4xl font-black uppercase tracking-tighter md:text-6xl">
+              <h2 className="mb-3 text-4xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-6xl">
                 {copy.contactTitle}
               </h2>
               <p className="text-sm font-bold uppercase tracking-wide text-[var(--app-muted)]">
@@ -1205,7 +1205,7 @@ export function LandingPage() {
                 <button
                   type="submit"
                   disabled={formStatus === "loading"}
-                  className="btn-premium mt-2 w-full border-none bg-[var(--app-primary)] py-5 text-base text-white shadow-2xl shadow-[var(--app-primary)]/30 disabled:opacity-60"
+                  className="btn-premium mt-2 w-full border-none bg-[var(--app-secondary)] py-5 text-base text-white disabled:opacity-60"
                 >
                   {formStatus === "loading" ? (
                     <span className="flex items-center justify-center gap-2">
