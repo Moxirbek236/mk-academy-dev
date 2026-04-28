@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../core/config/prisma.service';
 import { Status, UserRole } from 'src/core/enums';
 
@@ -62,24 +63,35 @@ export class GroupMemberService {
       throw new ConflictException('Bu student allaqachon guruhga biriktirilgan');
     }
 
-    const createdMember = existingMembership
-      ? await this.prisma.groupMember.update({
-        where: { id: existingMembership.id },
-        data: {
-          status: Status.ACTIVE,
-          isActive: true,
-          joinedAt: new Date(),
-        },
-        select: this.memberSelect,
-      })
-      : await this.prisma.groupMember.create({
-        data: {
-          groupId: normalizedGroupId,
-          studentId: normalizedStudentId,
-          status: Status.ACTIVE,
-        },
-        select: this.memberSelect,
-      });
+    let createdMember;
+    try {
+      createdMember = existingMembership
+        ? await this.prisma.groupMember.update({
+          where: { id: existingMembership.id },
+          data: {
+            status: Status.ACTIVE,
+            isActive: true,
+            joinedAt: new Date(),
+          },
+          select: this.memberSelect,
+        })
+        : await this.prisma.groupMember.create({
+          data: {
+            groupId: normalizedGroupId,
+            studentId: normalizedStudentId,
+            status: Status.ACTIVE,
+          },
+          select: this.memberSelect,
+        });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Bu student allaqachon guruhga biriktirilgan');
+      }
+      throw error;
+    }
 
     return {
       message: existingMembership
@@ -98,13 +110,6 @@ export class GroupMemberService {
     });
     if (!checkgroupId) {
       throw new NotFoundException('Bunday group topilmadi');
-    }
-
-    const checkStudentId = await this.prisma.user.findFirst({
-      where: { id: normalizedStudentId, isActive: true, role: UserRole.STUDENT }
-    });
-    if (!checkStudentId) {
-      throw new NotFoundException('Bunday student topilmadi');
     }
 
     const membership = await this.prisma.groupMember.findUnique({

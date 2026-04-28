@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExamType {
+  CEFR
+  IELTS
+}
+
+model Admin {
+  id             Int      @id @default(autoincrement())
+  telegramUserId String?  @unique
+  telegramUsername String? @unique
+  fullName       String
+  createdAt      DateTime @default(now())
+}
+
+model StudentResult {
+  id               Int      @id @default(autoincrement())
+  studentFullName  String
+  examType         ExamType
+  scoreOrLevel     String
+  certificateImage String
+  examDate         DateTime
+  channelPostLink  String
+  note             String?
+  createdAt        DateTime @default(now())
+}
+
+model LeadRequest {
+  id         Int      @id @default(autoincrement())
+  fullName   String
+  phone      String
+  courseType String?
+  createdAt  DateTime @default(now())
+}
+
+model CenterInfo {
+  id               Int      @id @default(autoincrement())
+  aboutText        String
+  address          String
+  phone1           String
+  phone2           String?
+  telegramUsername String?
+  updatedAt        DateTime @updatedAt
+}
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
