@@ -367,8 +367,8 @@ const FEATURES = [
     icon: Headphones,
     title: "Listening",
     desc: "Audio materiallar va tushunish mashqlari",
-    color: "text-violet-500",
-    bg: "bg-violet-50 dark:bg-violet-900/30",
+    color: "text-[var(--app-secondary)]",
+    bg: "bg-[var(--app-secondary)]/10",
   },
   {
     icon: PenTool,
@@ -402,8 +402,8 @@ const FEATURES = [
     icon: Globe,
     title: "IELTS Exams",
     desc: "Mock exam imkoniyatlari",
-    color: "text-cyan-500",
-    bg: "bg-cyan-50 dark:bg-cyan-900/30",
+    color: "text-[var(--app-accent)]",
+    bg: "bg-[var(--app-accent)]/10",
   },
   {
     icon: TrendingUp,
@@ -497,7 +497,7 @@ export function LandingPage() {
       <nav
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
           scrolled
-            ? "border-b border-[var(--app-border)] bg-[var(--app-bg)]/90 shadow-sm shadow-black/5 backdrop-blur-xl"
+            ? "border-b border-[var(--app-border)] bg-[var(--app-bg)]/95 backdrop-blur-xl"
             : "bg-transparent"
         }`}
       >
@@ -507,7 +507,7 @@ export function LandingPage() {
             onClick={() => scrollTo("hero")}
             className="group flex items-center gap-3"
           >
-            <div className="relative h-10 w-10 overflow-hidden rounded-2xl border-2 border-white/50 shadow-lg shadow-[var(--app-primary)]/20 transition-transform group-hover:scale-105">
+            <div className="relative h-10 w-10 overflow-hidden rounded-2xl border-2 border-white/50 transition-transform group-hover:scale-105">
               <img
                 src={settings.logoUrl}
                 alt={settings.shortName}
@@ -596,17 +596,17 @@ export function LandingPage() {
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ HERO в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section
         id="hero"
-        className="relative flex min-h-[92svh] flex-col items-center justify-center overflow-hidden px-5 pb-20 pt-28 text-center sm:pt-36"
+        className="relative overflow-hidden px-5 pb-20 pt-28 sm:pt-36"
       >
         {/* Animated background blobs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="animate-float-slow absolute left-[10%] top-[15%] h-[380px] w-[380px] rounded-full bg-[var(--app-primary)] opacity-[0.07] blur-[90px]" />
           <div
-            className="animate-float absolute right-[5%] top-[30%] h-[260px] w-[260px] rounded-full bg-violet-500 opacity-[0.06] blur-[70px]"
+            className="animate-float absolute right-[5%] top-[30%] h-[260px] w-[260px] rounded-full bg-[var(--app-accent)] opacity-[0.08] blur-[70px]"
             style={{ animationDelay: "1s" }}
           />
           <div
-            className="animate-float-slow absolute bottom-[10%] left-[30%] h-[300px] w-[300px] rounded-full bg-cyan-500 opacity-[0.05] blur-[80px]"
+            className="animate-float-slow absolute bottom-[10%] left-[30%] h-[300px] w-[300px] rounded-full bg-[var(--app-secondary)] opacity-[0.07] blur-[80px]"
             style={{ animationDelay: "2s" }}
           />
         </div>
@@ -621,83 +621,80 @@ export function LandingPage() {
           }}
         />
 
-        {/* Badge */}
-        <Reveal delay={0}>
-          <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 shadow-sm backdrop-blur-sm">
-            <Sparkles
-              size={15}
-              className="animate-pulse text-[var(--app-primary)]"
-            />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
-              {copy.badge}
-            </span>
-          </div>
-        </Reveal>
-
-        {/* Headline */}
-        <Reveal delay={80}>
-          <h1 className="mb-6 max-w-5xl text-[clamp(3rem,10vw,7rem)] font-black leading-none tracking-[-0.03em]">
-            English{" "}
-            <span className="animate-gradient-x bg-gradient-to-r from-[var(--app-primary)] via-violet-500 to-[var(--app-primary-dark)] bg-clip-text text-transparent">
-              Mastery
-            </span>
-            <br />
-            <span className="text-[0.55em] font-black text-[var(--app-muted)]">
-              {copy.heroLead}
-            </span>
-          </h1>
-        </Reveal>
-
-        <Reveal delay={160}>
-          <p className="mb-10 max-w-xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
-            {settings.description}
-          </p>
-        </Reveal>
-
-        {/* CTA buttons */}
-        <Reveal delay={220}>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={() => router.push(localizePath(locale, "/login"))}
-              className="btn-premium group relative border-none bg-[var(--app-primary)] px-10 py-4 text-base text-white shadow-2xl shadow-[var(--app-primary)]/30"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                {copy.start}
-                <ArrowRight
-                  size={18}
-                  className="transition-transform group-hover:translate-x-1"
-                />
+        <div className="mx-auto flex min-h-[92svh] w-full max-w-7xl flex-col items-center justify-center text-center">
+          <Reveal delay={0}>
+            <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 backdrop-blur-sm">
+              <Sparkles
+                size={15}
+                className="animate-pulse text-[var(--app-primary)]"
+              />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
+                {copy.badge}
               </span>
-              {/* pulse ring */}
+            </div>
+          </Reveal>
+
+          <Reveal delay={80}>
+            <h1 className="mb-6 max-w-5xl text-[clamp(2.75rem,9vw,7rem)] font-black leading-none tracking-[-0.03em]">
+              English{" "}
+              <span className="animate-gradient-x bg-gradient-to-r from-[var(--app-primary)] via-[var(--app-accent)] to-[var(--app-primary-dark)] bg-clip-text text-transparent">
+                Mastery
+              </span>
+              <br />
+              <span className="text-[0.55em] font-black text-[var(--app-muted)]">
+                {copy.heroLead}
+              </span>
+            </h1>
+          </Reveal>
+
+          <Reveal delay={160}>
+            <p className="mb-10 max-w-2xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
+              {settings.description}
+            </p>
+          </Reveal>
+
+          <Reveal delay={220}>
+            <div className="flex w-full max-w-4xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap">
+              <button
+                onClick={() => router.push(localizePath(locale, "/login"))}
+                className="btn-premium group relative min-w-[220px] border-none bg-[var(--app-primary)] px-10 py-4 text-base text-white"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {copy.start}
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </span>
               <span className="animate-pulse-ring absolute inset-0 rounded-[1rem] bg-[var(--app-primary)]" />
-            </button>
+              </button>
+              <button
+                onClick={() => scrollTo("about")}
+                className="flex min-w-[220px] items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
+              >
+                {copy.details} <ChevronDown size={16} className="animate-bounce" />
+              </button>
+              <button
+                onClick={() => router.push(localizePath(locale, "/public-exam"))}
+                className="app-touch app-card flex min-w-[220px] items-center justify-center border-none bg-[var(--app-surface)] px-10 py-5 text-base font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] active:scale-95"
+              >
+                {copy.openExam}
+              </button>
+            </div>
+          </Reveal>
+
+          <Reveal delay={400}>
             <button
               onClick={() => scrollTo("about")}
-              className="flex items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
+              className="mt-16 flex flex-col items-center gap-2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-primary)]"
             >
-              {copy.details} <ChevronDown size={16} className="animate-bounce" />
+              <span className="text-[9px] font-black uppercase tracking-[0.3em]">
+                {copy.scroll}
+              </span>
+              <div className="h-8 w-px bg-gradient-to-b from-[var(--app-primary)]/40 to-transparent" />
             </button>
-            <button
-              onClick={() => router.push(localizePath(locale, "/public-exam"))}
-              className="app-touch app-card flex items-center justify-center border-none bg-[var(--app-surface)] px-10 py-5 text-base font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] active:scale-95"
-            >
-              {copy.openExam}
-            </button>
-          </div>
-        </Reveal>
-
-        {/* Scroll indicator */}
-        <Reveal delay={400}>
-          <button
-            onClick={() => scrollTo("about")}
-            className="mt-16 flex flex-col items-center gap-2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-primary)]"
-          >
-            <span className="text-[9px] font-black uppercase tracking-[0.3em]">
-              {copy.scroll}
-            </span>
-            <div className="h-8 w-px bg-gradient-to-b from-[var(--app-muted)]/50 to-transparent" />
-          </button>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ STATS TICKER в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
@@ -772,7 +769,7 @@ export function LandingPage() {
           {/* Right glass card */}
           <Reveal direction="right" delay={100}>
             <div className="relative">
-              <div className="absolute inset-0 scale-105 rotate-2 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)] to-violet-500 opacity-15 blur-3xl" />
+              <div className="absolute inset-0 scale-105 rotate-2 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)] to-[var(--app-accent)] opacity-15 blur-3xl" />
               <div className="glass-card relative p-8 sm:p-10">
                 <div className="mb-8 flex items-center gap-5 border-b border-[var(--app-border)] pb-8">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
@@ -825,7 +822,8 @@ export function LandingPage() {
       </section>
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FEATURES в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
-      <section id="features" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
+      <section id="features" className="px-5 py-20 sm:py-32">
+        <div className="mx-auto w-full max-w-7xl">
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
@@ -858,6 +856,7 @@ export function LandingPage() {
               </div>
             </Reveal>
           ))}
+        </div>
         </div>
       </section>
 
@@ -922,7 +921,8 @@ export function LandingPage() {
       </section>
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ TEAM в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
-      <section id="team" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
+      <section id="team" className="px-5 py-20 sm:py-32">
+        <div className="mx-auto w-full max-w-7xl">
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
@@ -944,7 +944,7 @@ export function LandingPage() {
                     alt={member.name}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--app-primary)]/70 via-[var(--app-primary)]/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="absolute bottom-0 left-0 right-0 translate-y-4 px-5 pb-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                     <p className="text-xs font-bold text-white/80">
                       {member.focus}
@@ -972,6 +972,7 @@ export function LandingPage() {
               </article>
             </Reveal>
           ))}
+        </div>
         </div>
       </section>
 
@@ -1026,8 +1027,8 @@ export function LandingPage() {
       </section>
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ ADDRESS в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
-      <section id="address" className="mx-auto max-w-7xl px-5 py-20 sm:py-32">
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+      <section id="address" className="px-5 py-20 sm:py-32">
+        <div className="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-center">
           <Reveal direction="left">
             <div>
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
@@ -1048,7 +1049,7 @@ export function LandingPage() {
                       href={settings.socialLinks.telegram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2AABEE]/10 text-[#2AABEE] transition-all hover:bg-[#2AABEE] hover:text-white active:scale-95"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-primary)]/10 text-[var(--app-primary)] transition-all hover:bg-[var(--app-primary)] hover:text-white active:scale-95"
                       title="Telegram"
                     >
                       <Send size={18} />
@@ -1059,7 +1060,7 @@ export function LandingPage() {
                       href={settings.socialLinks.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 text-pink-500 transition-all hover:bg-pink-500 hover:text-white active:scale-95 dark:bg-pink-900/20"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-accent)]/10 text-[var(--app-accent)] transition-all hover:bg-[var(--app-accent)] hover:text-white active:scale-95"
                       title="Instagram"
                     >
                       <Instagram size={18} />
@@ -1070,7 +1071,7 @@ export function LandingPage() {
                       href={settings.socialLinks.youtube}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500 transition-all hover:bg-red-500 hover:text-white active:scale-95 dark:bg-red-900/20"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-primary-dark)]/10 text-[var(--app-primary-dark)] transition-all hover:bg-[var(--app-primary-dark)] hover:text-white active:scale-95"
                       title="YouTube"
                     >
                       <Youtube size={18} />
@@ -1087,29 +1088,29 @@ export function LandingPage() {
                 icon: MapPin,
                 label: copy.addressLabels[0],
                 value: settings.address || copy.defaultAddress,
-                color: "text-blue-500",
-                bg: "bg-blue-50 dark:bg-blue-900/20",
+                color: "text-[var(--app-primary)]",
+                bg: "bg-[var(--app-primary)]/10",
               },
               {
                 icon: PhoneCall,
                 label: copy.addressLabels[1],
                 value: settings.phoneNumber || "+998 90 000 00 00",
-                color: "text-emerald-500",
-                bg: "bg-emerald-50 dark:bg-emerald-900/20",
+                color: "text-[var(--app-accent)]",
+                bg: "bg-[var(--app-accent)]/10",
               },
               {
                 icon: Clock3,
                 label: copy.addressLabels[2],
                 value: settings.workingHours || copy.defaultHours,
-                color: "text-amber-500",
-                bg: "bg-amber-50 dark:bg-amber-900/20",
+                color: "text-[var(--app-primary-dark)]",
+                bg: "bg-[var(--app-primary-dark)]/10",
               },
               {
                 icon: Building2,
                 label: copy.addressLabels[3],
                 value: copy.formatValue,
-                color: "text-violet-500",
-                bg: "bg-violet-50 dark:bg-violet-900/20",
+                color: "text-[var(--app-secondary)]",
+                bg: "bg-[var(--app-secondary)]/10",
               },
             ].map(({ icon: Icon, label, value, color, bg }, i) => (
               <Reveal key={label} delay={i * 80} direction="up">
