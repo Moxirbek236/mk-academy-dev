@@ -534,7 +534,7 @@ export function LandingPage() {
             <div className="h-4 w-px bg-[var(--app-border)]" />
             <button
               onClick={() => router.push(localizePath(locale, "/login"))}
-              className="btn-premium border-none bg-[var(--app-primary)] px-5 py-2.5 text-white shadow-lg shadow-[var(--app-primary)]/25"
+              className="btn-premium border-none bg-[var(--app-secondary)] px-5 py-2.5 text-white"
             >
               <LogIn size={15} className="mr-2" />
               {copy.login}
@@ -565,7 +565,7 @@ export function LandingPage() {
             </button>
             <button
               onClick={() => router.push(localizePath(locale, "/login"))}
-              className="flex items-center gap-1.5 rounded-2xl bg-[var(--app-primary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white"
+              className="flex items-center gap-1.5 rounded-2xl bg-[var(--app-secondary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white"
             >
               <LogIn size={13} />
               {copy.login}
@@ -635,7 +635,7 @@ export function LandingPage() {
           </Reveal>
 
           <Reveal delay={80}>
-            <h1 className="mb-6 max-w-5xl text-[clamp(2.75rem,9vw,7rem)] font-black leading-none tracking-[-0.03em]">
+            <h1 className="mx-auto mb-6 max-w-5xl text-[clamp(2.75rem,9vw,7rem)] font-black leading-none tracking-[-0.03em] text-[var(--app-primary-dark)]">
               English{" "}
               <span className="animate-gradient-x bg-gradient-to-r from-[var(--app-primary)] via-[var(--app-accent)] to-[var(--app-primary-dark)] bg-clip-text text-transparent">
                 Mastery
@@ -648,16 +648,16 @@ export function LandingPage() {
           </Reveal>
 
           <Reveal delay={160}>
-            <p className="mb-10 max-w-2xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
+            <p className="mx-auto mb-10 max-w-2xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
               {settings.description}
             </p>
           </Reveal>
 
           <Reveal delay={220}>
-            <div className="flex w-full max-w-4xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mx-auto flex w-full max-w-4xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap">
               <button
                 onClick={() => router.push(localizePath(locale, "/login"))}
-                className="btn-premium group relative min-w-[220px] border-none bg-[var(--app-primary)] px-10 py-4 text-base text-white"
+                className="btn-premium group relative min-w-[220px] border-none bg-[var(--app-secondary)] px-10 py-4 text-base text-white"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {copy.start}
@@ -666,7 +666,7 @@ export function LandingPage() {
                     className="transition-transform group-hover:translate-x-1"
                   />
                 </span>
-              <span className="animate-pulse-ring absolute inset-0 rounded-[1rem] bg-[var(--app-primary)]" />
+              <span className="animate-pulse-ring absolute inset-0 rounded-[1rem] bg-[var(--app-secondary)]" />
               </button>
               <button
                 onClick={() => scrollTo("about")}
