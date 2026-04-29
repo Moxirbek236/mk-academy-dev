@@ -10,7 +10,7 @@
     "prisma:generate": "prisma generate",
     "prepare:runtime": "node scripts/prepare-runtime.mjs",
     "postinstall": "npm run prisma:generate",
-    "build": "npm run prisma:generate && npx nest build",
+    "build": "npm run sync:main && npm install && npm run prisma:generate && npx nest build",
     "build:prod": "npm run sync:main && npm install && npm run build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "prestart": "npm run prepare:runtime",
