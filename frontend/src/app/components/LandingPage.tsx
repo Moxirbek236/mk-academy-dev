@@ -225,6 +225,17 @@ const FEATURES = [
 ];
 
 // ── Main component ────────────────────────────────────────────────────────────
+const landingPaletteStyle = {
+  "--app-bg": "#041327",
+  "--app-surface": "#0f2237",
+  "--app-surface-soft": "#132a42",
+  "--app-border": "#25415f",
+  "--app-text": "#edf3f8",
+  "--app-muted": "#9db0bf",
+  "--app-primary": "#60a5fa",
+  "--app-primary-dark": "#3b82f6",
+} as React.CSSProperties;
+
 export function LandingPage() {
   const router = useRouter();
   const locale = useLocale();
@@ -301,7 +312,10 @@ export function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen overflow-x-clip bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white">
+    <div
+      className="min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white"
+      style={landingPaletteStyle}
+    >
       {/* ══════════════════════════ NAVBAR ══════════════════════════════════ */}
       <nav
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
@@ -430,77 +444,79 @@ export function LandingPage() {
           }}
         />
 
-        {/* Badge */}
-        <Reveal delay={0}>
-          <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 shadow-sm backdrop-blur-sm">
-            <Sparkles
-              size={15}
-              className="animate-pulse text-[var(--app-primary)]"
-            />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
-              Ingliz tilini biz bilan o'rganing
-            </span>
-          </div>
-        </Reveal>
-
-        {/* Headline */}
-        <Reveal delay={80}>
-          <h1 className="mb-6 max-w-5xl text-[clamp(3rem,10vw,7rem)] font-black leading-none tracking-[-0.03em]">
-            English{" "}
-            <span className="animate-gradient-x bg-gradient-to-r from-[var(--app-primary)] via-violet-500 to-[var(--app-primary-dark)] bg-clip-text text-transparent">
-              Mastery
-            </span>
-            <br />
-            <span className="text-[0.55em] font-black text-[var(--app-muted)]">
-              starts here
-            </span>
-          </h1>
-        </Reveal>
-
-        <Reveal delay={160}>
-          <p className="mb-10 max-w-xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
-            {settings.description}
-          </p>
-        </Reveal>
-
-        {/* CTA buttons */}
-        <Reveal delay={220}>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={() => router.push(localizePath(locale, "/login"))}
-              className="btn-premium group relative border-none bg-[var(--app-primary)] px-10 py-4 text-base text-white shadow-2xl shadow-[var(--app-primary)]/30"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Boshlash
-                <ArrowRight
-                  size={18}
-                  className="transition-transform group-hover:translate-x-1"
-                />
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center">
+          {/* Badge */}
+          <Reveal delay={0}>
+            <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 shadow-sm backdrop-blur-sm">
+              <Sparkles
+                size={15}
+                className="animate-pulse text-[var(--app-primary)]"
+              />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
+                Ingliz tilini biz bilan o'rganing
               </span>
-              {/* pulse ring */}
-              <span className="animate-pulse-ring absolute inset-0 rounded-[1rem] bg-[var(--app-primary)]" />
-            </button>
+            </div>
+          </Reveal>
+
+          {/* Headline */}
+          <Reveal delay={80}>
+            <h1 className="mb-6 max-w-5xl text-[clamp(3rem,10vw,7rem)] font-black leading-none tracking-[-0.03em]">
+              English{" "}
+              <span className="animate-gradient-x bg-gradient-to-r from-[var(--app-primary)] via-violet-500 to-[var(--app-primary-dark)] bg-clip-text text-transparent">
+                Mastery
+              </span>
+              <br />
+              <span className="text-[0.55em] font-black text-[var(--app-muted)]">
+                starts here
+              </span>
+            </h1>
+          </Reveal>
+
+          <Reveal delay={160}>
+            <p className="mb-10 max-w-xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
+              {settings.description}
+            </p>
+          </Reveal>
+
+          {/* CTA buttons */}
+          <Reveal delay={220}>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={() => router.push(localizePath(locale, "/login"))}
+                className="btn-premium group relative border-none bg-[var(--app-primary)] px-10 py-4 text-base text-white shadow-2xl shadow-[var(--app-primary)]/30"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Boshlash
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </span>
+                {/* pulse ring */}
+                <span className="animate-pulse-ring absolute inset-0 rounded-[1rem] bg-[var(--app-primary)]" />
+              </button>
+              <button
+                onClick={() => scrollTo("about")}
+                className="flex items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
+              >
+                Batafsil <ChevronDown size={16} className="animate-bounce" />
+              </button>
+            </div>
+          </Reveal>
+
+          {/* Scroll indicator */}
+          <Reveal delay={400}>
             <button
               onClick={() => scrollTo("about")}
-              className="flex items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
+              className="mt-16 flex flex-col items-center gap-2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-primary)]"
             >
-              Batafsil <ChevronDown size={16} className="animate-bounce" />
+              <span className="text-[9px] font-black uppercase tracking-[0.3em]">
+                Pastga scroll qiling
+              </span>
+              <div className="h-8 w-px bg-gradient-to-b from-[var(--app-muted)]/50 to-transparent" />
             </button>
-          </div>
-        </Reveal>
-
-        {/* Scroll indicator */}
-        <Reveal delay={400}>
-          <button
-            onClick={() => scrollTo("about")}
-            className="mt-16 flex flex-col items-center gap-2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-primary)]"
-          >
-            <span className="text-[9px] font-black uppercase tracking-[0.3em]">
-              Pastga scroll qiling
-            </span>
-            <div className="h-8 w-px bg-gradient-to-b from-[var(--app-muted)]/50 to-transparent" />
-          </button>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
       {/* ══════════════════════════ STATS TICKER ════════════════════════════ */}

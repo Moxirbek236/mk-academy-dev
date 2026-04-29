@@ -31,7 +31,7 @@ function setAuthorizationHeader(
   token: string,
 ) {
   if (!config.headers) {
-    config.headers = {};
+    config.headers = new axios.AxiosHeaders();
   }
 
   if (typeof (config.headers as { set?: (name: string, value: string) => void }).set === 'function') {
