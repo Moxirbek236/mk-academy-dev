@@ -122,7 +122,6 @@
     min-height: 100svh;
     min-height: 100dvh;
     color: var(--app-text);
-    filter: saturate(var(--app-saturation));
     transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1);
     overscroll-behavior-y: contain;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
