@@ -99,7 +99,7 @@ export default function CoursesPage() {
         canManageCourses ? (
           <button
             onClick={openCreateModal}
-            className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+            className="bg-[var(--app-primary)] p-3 text-white transition-transform active:scale-95"
           >
             <PlusCircle size={20} strokeWidth={2.5} />
           </button>
@@ -114,14 +114,14 @@ export default function CoursesPage() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Kurslarni qidirish..."
-            className="w-full rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
+            className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] transition-all focus:border-[var(--app-primary)] focus:outline-none"
           />
         </div>
 
         <select
           value={level}
           onChange={(event) => setLevel(event.target.value as CefrLevel | '')}
-          className="rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3.5 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
+          className="border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3.5 text-sm font-semibold text-[var(--app-text)] transition-all focus:border-[var(--app-primary)] focus:outline-none"
         >
           <option value="">Barcha level</option>
           {CEFR_LEVELS.map((item) => (
@@ -133,7 +133,7 @@ export default function CoursesPage() {
       </div>
 
       {mutationError ? (
-        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <div className="mb-4 border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
           {mutationError}
         </div>
       ) : null}

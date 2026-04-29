@@ -250,7 +250,7 @@ export default function LoginPage() {
       {!nativeApp && (
         <>
           <div className="absolute left-[-10%] top-[-10%] h-[50%] w-[50%] rounded-full bg-[var(--app-primary)]/12 blur-[120px]" />
-          <div className="absolute bottom-[-10%] right-[-10%] h-[40%] w-[40%] rounded-full bg-slate-300/20 blur-[100px] dark:bg-slate-500/10" />
+          <div className="absolute bottom-[-10%] right-[-10%] h-[40%] w-[40%] rounded-full bg-[var(--app-accent)]/12 blur-[100px]" />
         </>
       )}
 

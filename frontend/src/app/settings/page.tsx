@@ -165,7 +165,7 @@ export default function SettingsPage() {
 
   return (
     <PageShell title={t("title")}>
-      <div className="mb-8 flex items-center justify-between dark:text-[var(--app-text)]">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <div className="mt-1 flex items-center gap-2">
             <span
@@ -205,7 +205,7 @@ export default function SettingsPage() {
                       : () =>
                           router.push(localizePath(locale, item.path || "/"))
                   }
-                  className="group flex w-full items-center gap-3 border border-transparent p-3.5 transition-all active:scale-[0.98] hover:border-[color:color-mix(in_srgb,var(--app-primary)_22%,var(--app-border))] hover:bg-[var(--app-primary)] sm:gap-4 sm:p-4"
+                  className="group flex w-full items-center gap-3 border border-transparent p-3.5 transition-all active:scale-[0.98] hover:border-[color:color-mix(in_srgb,var(--app-secondary)_22%,var(--app-border))] hover:bg-[var(--app-secondary)] sm:gap-4 sm:p-4"
                 >
                   <div className="shrink-0 border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)] transition-all group-hover:scale-105 group-hover:border-white/20 group-hover:bg-white/20 group-hover:text-white sm:p-3.5">
                     <item.icon size={20} strokeWidth={2.5} />

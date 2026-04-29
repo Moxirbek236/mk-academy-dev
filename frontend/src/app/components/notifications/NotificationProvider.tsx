@@ -360,8 +360,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
 
     const timer = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') {
+        return;
+      }
+
       void refresh();
-    }, 30_000);
+    }, 90_000);
 
     return () => window.clearInterval(timer);
   }, [enabled, refresh]);

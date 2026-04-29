@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import {
@@ -87,6 +88,20 @@ const LANDING_COPY: Record<
     sendQuestion: string;
     sent: string;
     sendError: string;
+    settingsNotice: string;
+    validationErrors: {
+      fullName: string;
+      phone: string;
+      message: string;
+    };
+    featureIntro: string;
+    featureOutro: string;
+    features: Array<{ title: string; desc: string }>;
+    coursesEyebrow: string;
+    coursesTitle: string;
+    askQuestion: string;
+    platformTitle: string;
+    socialLabels: string[];
     rights: string;
     faq: Array<{ id: number; fullName: string; message: string; answer: string }>;
   }
@@ -95,7 +110,7 @@ const LANDING_COPY: Record<
     nav: ["Biz haqimizda", "Imkoniyatlar", "Jamoa", "Savollar", "Manzil", "Bog'lanish"],
     login: "Kirish",
     badge: "Ingliz tilini biz bilan o'rganing",
-    heroLead: "starts here",
+    heroLead: "shu yerdan boshlanadi",
     start: "Boshlash",
     details: "Batafsil",
     openExam: "Ochiq imtihon",
@@ -103,7 +118,7 @@ const LANDING_COPY: Record<
     stats: ["O'quvchilar", "Kurslar", "Muvaffaqiyat", "IELTS o'rtacha", "Guruhlar", "O'qituvchilar"],
     aboutEyebrow: "Biz haqimizda",
     aboutTitle: "Bizning missiya",
-    platformMeta: "A1 dan C2 gacha В· Production quality",
+    platformMeta: "A1 dan C2 gacha · Production quality",
     miniStats: ["O'quvchi", "Natija", "Reyting"],
     featuresEyebrow: "Imkoniyatlar",
     featuresTitle: "Platforma nimalarni beradi",
@@ -131,6 +146,29 @@ const LANDING_COPY: Record<
     sendQuestion: "Savol yuborish",
     sent: "Savolingiz adminga yuborildi!",
     sendError: "Xatolik yuz berdi. Qayta urinib ko'ring.",
+    settingsNotice: "Ayrim ma'lumotlar vaqtincha standart ko'rinishda ko'rsatilmoqda.",
+    validationErrors: {
+      fullName: "Ism kamida 3 ta belgidan iborat bo'lishi kerak.",
+      phone: "Telefon raqamni to'liq kiriting.",
+      message: "Xabar kamida 10 ta belgidan iborat bo'lishi kerak.",
+    },
+    featureIntro: "Nima taklif qilamiz",
+    featureOutro: "Eng samarali o'rganish tizimi",
+    features: [
+      { title: "Grammar", desc: "CEFR darajasiga mos grammatika darslari" },
+      { title: "Listening", desc: "Audio materiallar va tushunish mashqlari" },
+      { title: "Writing", desc: "Yozma ko'nikmani rivojlantirish vazifalari" },
+      { title: "Vocabulary", desc: "SM-2 algoritmi bilan mustahkamlash" },
+      { title: "Gamification", desc: "XP va leaderboard tizimi" },
+      { title: "Guruhlar", desc: "O'qituvchi bilan birga o'rganish" },
+      { title: "IELTS Exams", desc: "Mock exam imkoniyatlari" },
+      { title: "Progress", desc: "Real-time natijalar tahlili" },
+    ],
+    coursesEyebrow: "Yo'nalishlar",
+    coursesTitle: "Sizga mos kurs",
+    askQuestion: "Savol berish",
+    platformTitle: "CEFR English Platform",
+    socialLabels: ["Telegram", "Instagram", "YouTube"],
     rights: "Barcha huquqlar himoyalangan",
     faq: [
       { id: 1, fullName: "MK Academy", message: "Qaysi darajadan boshlashimni qanday bilaman?", answer: "Avval qisqa placement test topshirasiz. Natijaga qarab sizga mos guruh va kurs tavsiya qilinadi." },
@@ -142,7 +180,7 @@ const LANDING_COPY: Record<
     nav: ["About", "Features", "Team", "Questions", "Location", "Contact"],
     login: "Log in",
     badge: "Learn English with us",
-    heroLead: "starts here",
+    heroLead: "nachinaetsya zdes",
     start: "Get started",
     details: "Learn more",
     openExam: "Open exam",
@@ -150,7 +188,7 @@ const LANDING_COPY: Record<
     stats: ["Students", "Courses", "Success rate", "Average IELTS", "Groups", "Teachers"],
     aboutEyebrow: "About us",
     aboutTitle: "Our mission",
-    platformMeta: "From A1 to C2 В· Production quality",
+    platformMeta: "From A1 to C2 · Production quality",
     miniStats: ["Students", "Results", "Rating"],
     featuresEyebrow: "Features",
     featuresTitle: "What the platform delivers",
@@ -178,6 +216,29 @@ const LANDING_COPY: Record<
     sendQuestion: "Send question",
     sent: "Your question was sent to the admin!",
     sendError: "Something went wrong. Please try again.",
+    settingsNotice: "Some details are temporarily shown from the default public profile.",
+    validationErrors: {
+      fullName: "Full name should contain at least 3 characters.",
+      phone: "Enter a complete phone number.",
+      message: "Your message should contain at least 10 characters.",
+    },
+    featureIntro: "What we offer",
+    featureOutro: "A focused English learning system",
+    features: [
+      { title: "Grammar", desc: "CEFR-aligned grammar lessons for each level" },
+      { title: "Listening", desc: "Audio materials and comprehension practice" },
+      { title: "Writing", desc: "Tasks that strengthen written expression" },
+      { title: "Vocabulary", desc: "Retention powered by the SM-2 algorithm" },
+      { title: "Gamification", desc: "XP and leaderboard motivation system" },
+      { title: "Groups", desc: "Learn alongside a guided teacher group" },
+      { title: "IELTS Exams", desc: "Mock exam opportunities and readiness checks" },
+      { title: "Progress", desc: "Real-time learning performance insights" },
+    ],
+    coursesEyebrow: "Tracks",
+    coursesTitle: "Courses matched to your goal",
+    askQuestion: "Ask a question",
+    platformTitle: "CEFR English Platform",
+    socialLabels: ["Telegram", "Instagram", "YouTube"],
     rights: "All rights reserved",
     faq: [
       { id: 1, fullName: "MK Academy", message: "How do I know which level to start from?", answer: "You first take a short placement test. Based on the result, we recommend the right course and group." },
@@ -197,7 +258,7 @@ const LANDING_COPY: Record<
     stats: ["Studenty", "Kursy", "Rezultat", "Sredniy IELTS", "Gruppy", "Prepodavateli"],
     aboutEyebrow: "O nas",
     aboutTitle: "Nasha missiya",
-    platformMeta: "Ot A1 do C2 В· Production quality",
+    platformMeta: "Ot A1 do C2 · Production quality",
     miniStats: ["Studenty", "Rezultat", "Reyting"],
     featuresEyebrow: "Vozmozhnosti",
     featuresTitle: "Chto daet platforma",
@@ -225,6 +286,29 @@ const LANDING_COPY: Record<
     sendQuestion: "Otpravit vopros",
     sent: "Vash vopros otpravlen administratoru!",
     sendError: "Proizoshla oshibka. Poprobuyte eshche raz.",
+    settingsNotice: "Chast dannykh vremmenno pokazana iz publichnogo profilya po umolchaniyu.",
+    validationErrors: {
+      fullName: "Imya dolzhno soderzhat minimum 3 simvola.",
+      phone: "Ukazhite polnyy nomer telefona.",
+      message: "Soobshchenie dolzhno soderzhat minimum 10 simvolov.",
+    },
+    featureIntro: "Chto my predlagaem",
+    featureOutro: "Sistemnyy podkhod k izucheniyu angliyskogo",
+    features: [
+      { title: "Grammar", desc: "Uroki grammatiki po standartam CEFR" },
+      { title: "Listening", desc: "Audiomaterialy i zadaniya na ponimanie" },
+      { title: "Writing", desc: "Zadaniya dlya razvitiya pis'mennoy rechi" },
+      { title: "Vocabulary", desc: "Zakreplenie slov po algoritmu SM-2" },
+      { title: "Gamification", desc: "Sistema XP i leaderboard" },
+      { title: "Gruppy", desc: "Obuchenie vmeste s prepodavatelem" },
+      { title: "IELTS Exams", desc: "Probnyye ekzameny i proverka gotovnosti" },
+      { title: "Progress", desc: "Analitika rezul'tatov v real'nom vremeni" },
+    ],
+    coursesEyebrow: "Napravleniya",
+    coursesTitle: "Kurs pod vashu tsel'",
+    askQuestion: "Zadat vopros",
+    platformTitle: "CEFR English Platform",
+    socialLabels: ["Telegram", "Instagram", "YouTube"],
     rights: "Vse prava zashchishcheny",
     faq: [
       { id: 1, fullName: "MK Academy", message: "Kak ponyat, s kakogo urovnya nachat?", answer: "Snachala vy prokhodite korotkiy placement test. Po rezultatu my rekomenduem podkhodyashchuyu gruppu i kurs." },
@@ -307,18 +391,25 @@ function StatCounter({
 
   useEffect(() => {
     if (!visible) return;
-    let start = 0;
-    const step = Math.ceil(target / 60);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(start);
+    let frameId = 0;
+    let startTs: number | null = null;
+    const duration = 900;
+
+    const tick = (ts: number) => {
+      if (startTs === null) {
+        startTs = ts;
       }
-    }, 20);
-    return () => clearInterval(timer);
+
+      const progress = Math.min((ts - startTs) / duration, 1);
+      setCount(Math.round(target * progress));
+
+      if (progress < 1) {
+        frameId = window.requestAnimationFrame(tick);
+      }
+    };
+
+    frameId = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frameId);
   }, [visible, target]);
 
   return (
@@ -355,62 +446,46 @@ const DEFAULT_FAQ = [
 ];
 
 // в”Ђв”Ђ Feature list в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
-const FEATURES = [
+const FEATURE_META = [
   {
     icon: BookOpen,
-    title: "Grammar",
-    desc: "CEFR darajasiga mos grammatika darslari",
     color: "text-blue-500",
-    bg: "bg-blue-50 dark:bg-blue-900/30",
+    bg: "bg-blue-50",
   },
   {
     icon: Headphones,
-    title: "Listening",
-    desc: "Audio materiallar va tushunish mashqlari",
     color: "text-[var(--app-secondary)]",
     bg: "bg-[var(--app-secondary)]/10",
   },
   {
     icon: PenTool,
-    title: "Writing",
-    desc: "Nutqni rivojlantirish vazifalari",
     color: "text-emerald-500",
-    bg: "bg-emerald-50 dark:bg-emerald-900/30",
+    bg: "bg-emerald-50",
   },
   {
     icon: MessageCircle,
-    title: "Vocabulary",
-    desc: "SM-2 algoritmi bilan mustahkamlash",
     color: "text-amber-500",
-    bg: "bg-amber-50 dark:bg-amber-900/30",
+    bg: "bg-amber-50",
   },
   {
     icon: Trophy,
-    title: "Gamification",
-    desc: "XP va leaderboard tizimi",
     color: "text-rose-500",
-    bg: "bg-rose-50 dark:bg-rose-900/30",
+    bg: "bg-rose-50",
   },
   {
     icon: Users,
-    title: "Guruhlar",
-    desc: "O'qituvchi bilan birga o'rganish",
     color: "text-indigo-500",
-    bg: "bg-indigo-50 dark:bg-indigo-900/30",
+    bg: "bg-indigo-50",
   },
   {
     icon: Globe,
-    title: "IELTS Exams",
-    desc: "Mock exam imkoniyatlari",
     color: "text-[var(--app-accent)]",
     bg: "bg-[var(--app-accent)]/10",
   },
   {
     icon: TrendingUp,
-    title: "Progress",
-    desc: "Real-time natijalar tahlili",
     color: "text-teal-500",
-    bg: "bg-teal-50 dark:bg-teal-900/30",
+    bg: "bg-teal-50",
   },
 ];
 
@@ -423,13 +498,23 @@ export function LandingPage() {
 
   // Live settings from API (enriched with landing data)
   const [settings, setSettings] = useState<CenterBranding>(ctxBranding);
+  const [settingsFallbackNotice, setSettingsFallbackNotice] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     getPublicCenterSettings()
       .then((raw) => {
-        if (raw) setSettings(normalizeCenterBranding(raw));
+        if (raw) {
+          setSettings(normalizeCenterBranding(raw));
+          setSettingsFallbackNotice(false);
+        } else {
+          setSettingsFallbackNotice(true);
+        }
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error("Failed to load public center settings", error);
+        setSettingsFallbackNotice(true);
+      });
   }, []);
 
   const teamMembers = settings.teamMembers?.length
@@ -444,6 +529,23 @@ export function LandingPage() {
 
   const { data: publishedFaq } = usePublishedLeadQuestions();
   const visibleFaq = publishedFaq.length > 0 ? publishedFaq : copy.faq;
+  const renderedFaq = useMemo(() => visibleFaq.slice(0, 6), [visibleFaq]);
+  const renderedTeamMembers = useMemo(
+    () => teamMembers.slice(0, 6),
+    [teamMembers]
+  );
+  const renderedCourseTracks = useMemo(
+    () => courseTracks.slice(0, 6),
+    [courseTracks]
+  );
+  const localizedFeatures = useMemo(
+    () =>
+      FEATURE_META.map((feature, index) => ({
+        ...feature,
+        ...copy.features[index],
+      })),
+    [copy.features]
+  );
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -462,19 +564,44 @@ export function LandingPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const validateForm = useCallback(() => {
+    const nextErrors: Record<string, string> = {};
+    if (formData.fullName.trim().length < 3) {
+      nextErrors.fullName = copy.validationErrors.fullName;
+    }
+    if (!/^\+?[0-9\s()-]{9,}$/.test(formData.phone.trim())) {
+      nextErrors.phone = copy.validationErrors.phone;
+    }
+    if (formData.message.trim().length < 10) {
+      nextErrors.message = copy.validationErrors.message;
+    }
+    return nextErrors;
+  }, [copy.validationErrors, formData]);
+
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+      const nextErrors = validateForm();
+      setFieldErrors(nextErrors);
+      if (Object.keys(nextErrors).length > 0) {
+        setFormStatus("error");
+        return;
+      }
       setFormStatus("loading");
       try {
-        await createLead(formData);
+        await createLead({
+          fullName: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          message: formData.message.trim(),
+        });
         setFormStatus("success");
         setFormData({ fullName: "", phone: "", message: "" });
+        setFieldErrors({});
       } catch {
         setFormStatus("error");
       }
     },
-    [formData]
+    [formData, validateForm]
   );
 
   const scrollTo = (id: string) => {
@@ -492,13 +619,17 @@ export function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen overflow-x-clip bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white">
+    <div className="min-h-screen overflow-x-clip bg-[var(--app-bg)] pt-16 text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white sm:pt-20">
+      <a
+        href="#hero"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:border focus:border-[var(--app-primary)] focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-[var(--app-primary)]"
+      >
+        Skip to content
+      </a>
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ NAVBAR в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <nav
-        className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-          scrolled
-            ? "border-b border-[var(--app-border)] bg-[var(--app-bg)]/95 backdrop-blur-xl"
-            : "bg-transparent"
+        className={`fixed inset-x-0 top-0 z-[90] border-b border-[var(--app-border)] bg-[var(--app-bg)]/96 backdrop-blur-xl transition-all duration-300 ${
+          scrolled ? "shadow-none" : ""
         }`}
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-8">
@@ -507,13 +638,17 @@ export function LandingPage() {
             onClick={() => scrollTo("hero")}
             className="group flex items-center gap-3"
           >
-            <div className="relative h-10 w-10 overflow-hidden rounded-2xl border-2 border-white/50 transition-transform group-hover:scale-105">
-              <img
+            <div className="relative h-10 w-10 overflow-hidden border-2 border-white/50 transition-transform group-hover:scale-105">
+              <Image
                 src={settings.logoUrl}
                 alt={settings.shortName}
-                className="h-full w-full object-cover"
+                fill
+                unoptimized
+                sizes="40px"
+                className="object-cover"
+                priority
               />
-              <div className="absolute inset-0 rounded-2xl ring-2 ring-inset ring-white/20" />
+              <div className="absolute inset-0 ring-2 ring-inset ring-white/20" />
             </div>
             <span className="text-xl font-black tracking-tighter sm:text-2xl">
               {settings.shortName}
@@ -545,7 +680,10 @@ export function LandingPage() {
           <div className="flex items-center gap-2 lg:hidden">
             <button
               onClick={() => setMobileMenuOpen((v) => !v)}
-              className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-xl"
+              className="flex h-10 w-10 flex-col items-center justify-center gap-1.5"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="landing-mobile-menu"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
               <span
                 className={`block h-0.5 w-6 bg-[var(--app-text)] transition-all ${
@@ -565,7 +703,7 @@ export function LandingPage() {
             </button>
             <button
               onClick={() => router.push(localizePath(locale, "/login"))}
-              className="flex items-center gap-1.5 rounded-2xl bg-[var(--app-secondary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white"
+              className="flex items-center gap-1.5 bg-[var(--app-secondary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white"
             >
               <LogIn size={13} />
               {copy.login}
@@ -575,16 +713,20 @@ export function LandingPage() {
 
         {/* Mobile menu */}
         <div
+          id="landing-mobile-menu"
           className={`overflow-hidden border-b border-[var(--app-border)] bg-[var(--app-bg)]/95 backdrop-blur-xl transition-all duration-300 lg:hidden ${
             mobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
           }`}
+          role="dialog"
+          aria-modal="true"
+          aria-hidden={!mobileMenuOpen}
         >
           <div className="flex flex-col gap-1 px-5 pt-2">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollTo(link.id)}
-                className="rounded-xl px-4 py-3 text-left text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-colors hover:bg-[var(--app-surface-soft)] hover:text-[var(--app-primary)]"
+                className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-colors hover:bg-[var(--app-surface-soft)] hover:text-[var(--app-primary)]"
               >
                 {link.label}
               </button>
@@ -623,7 +765,7 @@ export function LandingPage() {
 
         <div className="mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-7xl flex-col items-center justify-center text-center sm:min-h-[92svh]">
           <Reveal delay={0}>
-            <div className="mb-8 inline-flex cursor-default items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 backdrop-blur-sm">
+            <div className="mb-8 inline-flex cursor-default items-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 backdrop-blur-sm">
               <Sparkles
                 size={15}
                 className="animate-pulse text-[var(--app-primary)]"
@@ -666,11 +808,11 @@ export function LandingPage() {
                     className="transition-transform group-hover:translate-x-1"
                   />
                 </span>
-              <span className="animate-pulse-ring absolute inset-0 rounded-[1rem] bg-[var(--app-secondary)]" />
+              <span className="animate-pulse-ring absolute inset-0 bg-[var(--app-secondary)]" />
               </button>
               <button
                 onClick={() => scrollTo("about")}
-                className="flex w-full items-center justify-center gap-2 rounded-[1rem] border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
+                className="flex w-full items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
               >
                 {copy.details} <ChevronDown size={16} className="animate-bounce" />
               </button>
@@ -769,15 +911,15 @@ export function LandingPage() {
           {/* Right glass card */}
           <Reveal direction="right" delay={100}>
             <div className="mx-auto w-full max-w-[34rem]">
-              <div className="absolute inset-0 scale-105 rotate-1 rounded-[3rem] bg-gradient-to-tr from-[var(--app-primary)]/18 to-[var(--app-accent)]/10 blur-3xl" />
+              <div className="absolute inset-0 scale-105 rotate-1 bg-gradient-to-tr from-[var(--app-primary)]/18 to-[var(--app-accent)]/10 blur-3xl" />
               <div className="glass-card relative p-7 sm:p-8">
                 <div className="mb-8 flex items-center gap-5 border-b border-[var(--app-border)] pb-8">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
+                  <div className="flex h-14 w-14 items-center justify-center bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
                     <GraduationCap size={28} />
                   </div>
                   <div>
                     <h3 className="text-xl font-extrabold tracking-tight text-[var(--app-primary-dark)]">
-                      CEFR English Platform
+                      {copy.platformTitle}
                     </h3>
                     <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                       {copy.platformMeta}
@@ -788,13 +930,13 @@ export function LandingPage() {
                 {/* Mini stats */}
                 <div className="grid grid-cols-3 gap-3 text-center">
                   {[
-                    { icon: Users, val: "500+", label: "O'quvchi" },
-                    { icon: Trophy, val: "94%", label: "Muvaffaqiyat" },
-                    { icon: Star, val: "4.9", label: "Reyting" },
+                    { icon: Users, val: "500+", label: copy.miniStats[0] },
+                    { icon: Trophy, val: "94%", label: copy.miniStats[1] },
+                    { icon: Star, val: "4.9", label: copy.miniStats[2] },
                   ].map(({ icon: Icon, val, label }, i) => (
                     <div
                       key={i}
-                      className="rounded-2xl border border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-primary)_6%,white)] py-4"
+                      className="border border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-primary)_6%,white)] py-4"
                     >
                       <Icon
                         size={18}
@@ -810,6 +952,11 @@ export function LandingPage() {
                   ))}
                 </div>
 
+                {settingsFallbackNotice && (
+                  <p className="mt-6 border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-xs font-bold text-[var(--app-muted)]">
+                    {copy.settingsNotice}
+                  </p>
+                )}
                 <p className="mt-6 text-sm font-semibold italic leading-relaxed text-[var(--app-muted)]">
                   &ldquo;Har bir o&apos;quvchi o&apos;z darajasiga mos darslarni
                   oladi, testlar orqali bilimini tekshiradi va so&apos;z
@@ -827,23 +974,23 @@ export function LandingPage() {
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-              Nima taklif qilamiz
+              {copy.featureIntro}
             </p>
             <h2 className="text-3xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-6xl">
-              Imkoniyatlar
+              {copy.featuresTitle}
             </h2>
             <p className="mt-4 text-[11px] font-black uppercase tracking-[0.25em] text-[var(--app-muted)]">
-              Eng samarali o&apos;rganish tizimi
+              {copy.featureOutro}
             </p>
           </div>
         </Reveal>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map((feat, i) => (
+          {localizedFeatures.map((feat, i) => (
             <Reveal key={feat.title} delay={i * 55} direction="up">
               <div className="app-card group cursor-default p-7 transition-all hover:-translate-y-1">
                 <div
-                  className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${feat.bg} ${feat.color} transition-all group-hover:rotate-6 group-hover:scale-110`}
+                  className={`mb-5 inline-flex h-12 w-12 items-center justify-center ${feat.bg} ${feat.color} transition-all group-hover:rotate-6 group-hover:scale-110`}
                 >
                   <feat.icon size={24} strokeWidth={2.5} />
                 </div>
@@ -870,10 +1017,10 @@ export function LandingPage() {
             <Reveal direction="left">
               <div>
                 <p className="mb-2 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
-                  Yo'nalishlar
+                  {copy.coursesEyebrow}
                 </p>
                 <h2 className="text-3xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-5xl">
-                  Sizga mos kurs
+                  {copy.coursesTitle}
                 </h2>
               </div>
             </Reveal>
@@ -882,22 +1029,22 @@ export function LandingPage() {
                 onClick={() => scrollTo("contact")}
                 className="btn-premium border-none bg-[var(--app-secondary)] px-6 py-3 text-white"
               >
-                Savol berish <ArrowRight size={16} className="ml-2" />
+                {copy.askQuestion} <ArrowRight size={16} className="ml-2" />
               </button>
             </Reveal>
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {courseTracks.map((course, i) => (
+            {renderedCourseTracks.map((course, i) => (
               <Reveal key={course.title} delay={i * 100} direction="up">
                 <div className="app-card group relative overflow-hidden p-7 transition-all hover:-translate-y-1.5 hover:border-[var(--app-primary)]/30">
                   <div className="absolute inset-0 bg-gradient-to-br from-[var(--app-primary)]/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   <div className="relative">
                     <div className="mb-5 flex items-center justify-between">
-                      <div className="rounded-2xl bg-[var(--app-primary)]/10 p-3 text-[var(--app-primary)] transition-transform group-hover:rotate-6 group-hover:scale-105">
+                      <div className="bg-[var(--app-primary)]/10 p-3 text-[var(--app-primary)] transition-transform group-hover:rotate-6 group-hover:scale-105">
                         <BookOpen size={22} strokeWidth={2.5} />
                       </div>
-                      <span className="rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      <span className="border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                         {course.level}
                       </span>
                     </div>
@@ -935,14 +1082,17 @@ export function LandingPage() {
         </Reveal>
 
         <div className="grid gap-7 md:grid-cols-3">
-          {teamMembers.map((member, i) => (
+          {renderedTeamMembers.map((member, i) => (
             <Reveal key={member.name} delay={i * 120} direction="up">
               <article className="app-card group overflow-hidden p-0 transition-all hover:-translate-y-1.5">
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <img
+                  <Image
                     src={member.image}
                     alt={member.name}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    fill
+                    unoptimized
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--app-primary)]/70 via-[var(--app-primary)]/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="absolute bottom-0 left-0 right-0 translate-y-4 px-5 pb-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
@@ -953,7 +1103,7 @@ export function LandingPage() {
                 </div>
                 <div className="p-6">
                   <div className="mb-3 flex items-center justify-between gap-3">
-                    <span className="rounded-full bg-[var(--app-primary)]/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-primary)]">
+                    <span className="bg-[var(--app-primary)]/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-primary)]">
                       {member.role}
                     </span>
                     <Star
@@ -994,15 +1144,15 @@ export function LandingPage() {
               </div>
             </Reveal>
             <Reveal direction="right" delay={100}>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+              <div className="inline-flex items-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                 <HelpCircle size={14} className="text-[var(--app-primary)]" />
-                {visibleFaq.length} {copy.faqCount}
+                {renderedFaq.length} {copy.faqCount}
               </div>
             </Reveal>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
-            {visibleFaq.map((item, i) => (
+            {renderedFaq.map((item, i) => (
               <Reveal key={item.id} delay={i * 70}>
                 <article className="app-card group p-6 transition-all hover:-translate-y-0.5 hover:border-[var(--app-primary)]/25">
                   <p className="mb-2 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
@@ -1011,7 +1161,7 @@ export function LandingPage() {
                   <h3 className="text-base font-extrabold leading-snug text-[var(--app-primary-dark)]">
                     {item.message}
                   </h3>
-                  <div className="mt-4 rounded-2xl bg-[var(--app-surface-soft)] p-4">
+                  <div className="mt-4 bg-[var(--app-surface-soft)] p-4">
                     <p className="mb-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
                       {copy.answer}
                     </p>
@@ -1049,8 +1199,9 @@ export function LandingPage() {
                       href={settings.socialLinks.telegram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-primary)]/10 text-[var(--app-primary)] transition-all hover:bg-[var(--app-primary)] hover:text-white active:scale-95"
+                      className="flex h-10 w-10 items-center justify-center bg-[var(--app-primary)]/10 text-[var(--app-primary)] transition-all hover:bg-[var(--app-primary)] hover:text-white active:scale-95"
                       title="Telegram"
+                      aria-label={copy.socialLabels[0]}
                     >
                       <Send size={18} />
                     </a>
@@ -1060,8 +1211,9 @@ export function LandingPage() {
                       href={settings.socialLinks.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-accent)]/10 text-[var(--app-accent)] transition-all hover:bg-[var(--app-accent)] hover:text-white active:scale-95"
+                      className="flex h-10 w-10 items-center justify-center bg-[var(--app-accent)]/10 text-[var(--app-accent)] transition-all hover:bg-[var(--app-accent)] hover:text-white active:scale-95"
                       title="Instagram"
+                      aria-label={copy.socialLabels[1]}
                     >
                       <Instagram size={18} />
                     </a>
@@ -1071,8 +1223,9 @@ export function LandingPage() {
                       href={settings.socialLinks.youtube}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--app-primary-dark)]/10 text-[var(--app-primary-dark)] transition-all hover:bg-[var(--app-primary-dark)] hover:text-white active:scale-95"
+                      className="flex h-10 w-10 items-center justify-center bg-[var(--app-primary-dark)]/10 text-[var(--app-primary-dark)] transition-all hover:bg-[var(--app-primary-dark)] hover:text-white active:scale-95"
                       title="YouTube"
+                      aria-label={copy.socialLabels[2]}
                     >
                       <Youtube size={18} />
                     </a>
@@ -1116,7 +1269,7 @@ export function LandingPage() {
               <Reveal key={label} delay={i * 80} direction="up">
                 <div className="app-card group p-6 transition-all hover:-translate-y-1">
                   <div
-                    className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${bg} ${color} transition-transform group-hover:rotate-6 group-hover:scale-105`}
+                    className={`mb-4 inline-flex h-12 w-12 items-center justify-center ${bg} ${color} transition-transform group-hover:rotate-6 group-hover:scale-105`}
                   >
                     <Icon size={24} />
                   </div>
@@ -1141,7 +1294,7 @@ export function LandingPage() {
         <div className="mx-auto w-full max-w-3xl">
           <Reveal>
             <div className="mb-12 text-center">
-              <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
+              <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
                 <Send size={32} />
               </div>
               <h2 className="mb-3 text-4xl font-extrabold uppercase tracking-tighter text-[var(--app-primary-dark)] md:text-6xl">
@@ -1154,7 +1307,14 @@ export function LandingPage() {
           </Reveal>
 
           <Reveal delay={100}>
-            <form onSubmit={handleSubmit} className="glass-card p-7 sm:p-10">
+            <form onSubmit={handleSubmit} className="glass-card p-7 sm:p-10" noValidate>
+              <div aria-live="polite" aria-atomic="true" className="sr-only">
+                {formStatus === "success"
+                  ? copy.sent
+                  : formStatus === "error"
+                  ? copy.sendError
+                  : ""}
+              </div>
               <div className="space-y-5">
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
@@ -1163,13 +1323,23 @@ export function LandingPage() {
                   <input
                     required
                     value={formData.fullName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, fullName: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, fullName: e.target.value });
+                      if (fieldErrors.fullName) {
+                        setFieldErrors((prev) => ({ ...prev, fullName: "" }));
+                      }
+                    }}
                     type="text"
+                    aria-invalid={Boolean(fieldErrors.fullName)}
+                    aria-describedby={fieldErrors.fullName ? "landing-fullName-error" : undefined}
                     className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
                     placeholder="Ali Valiyev"
                   />
+                  {fieldErrors.fullName && (
+                    <p id="landing-fullName-error" className="mt-2 text-xs font-bold text-red-500">
+                      {fieldErrors.fullName}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
@@ -1178,13 +1348,23 @@ export function LandingPage() {
                   <input
                     required
                     value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, phone: e.target.value });
+                      if (fieldErrors.phone) {
+                        setFieldErrors((prev) => ({ ...prev, phone: "" }));
+                      }
+                    }}
                     type="tel"
+                    aria-invalid={Boolean(fieldErrors.phone)}
+                    aria-describedby={fieldErrors.phone ? "landing-phone-error" : undefined}
                     className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
                     placeholder="+998 90 123 45 67"
                   />
+                  {fieldErrors.phone && (
+                    <p id="landing-phone-error" className="mt-2 text-xs font-bold text-red-500">
+                      {fieldErrors.phone}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
@@ -1193,13 +1373,23 @@ export function LandingPage() {
                   <textarea
                     required
                     value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, message: e.target.value });
+                      if (fieldErrors.message) {
+                        setFieldErrors((prev) => ({ ...prev, message: "" }));
+                      }
+                    }}
                     rows={4}
+                    aria-invalid={Boolean(fieldErrors.message)}
+                    aria-describedby={fieldErrors.message ? "landing-message-error" : undefined}
                     className="w-full resize-none border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4 text-sm font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/20"
                     placeholder="IELTS kursi qachon boshlanadi?"
                   />
+                  {fieldErrors.message && (
+                    <p id="landing-message-error" className="mt-2 text-xs font-bold text-red-500">
+                      {fieldErrors.message}
+                    </p>
+                  )}
                 </div>
 
                 <button
@@ -1241,11 +1431,14 @@ export function LandingPage() {
       <footer className="border-t border-[var(--app-border)] bg-[var(--app-surface)]/60 px-5 py-10">
         <div className="mx-auto grid w-full max-w-7xl gap-5 text-center lg:grid-cols-[auto_1fr_auto] lg:items-center lg:text-left">
           <div className="flex items-center justify-center gap-3 lg:justify-start">
-            <div className="h-8 w-8 overflow-hidden rounded-xl border border-[var(--app-border)]">
-              <img
+            <div className="relative h-8 w-8 overflow-hidden border border-[var(--app-border)]">
+              <Image
                 src={settings.logoUrl}
                 alt={settings.shortName}
-                className="h-full w-full object-cover"
+                fill
+                unoptimized
+                sizes="32px"
+                className="object-cover"
               />
             </div>
             <span className="text-sm font-black tracking-tight">

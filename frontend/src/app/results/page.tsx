@@ -11,23 +11,24 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setError(null);
-        const [statsRes, attemptsRes] = await Promise.all([
-          getDashboardStats(),
-          getMyTestAttempts(),
-        ]);
-        setStats(statsRes);
-        setAttempts(attemptsRes);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Natijalarni yuklab bo'lmadi");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      const [statsRes, attemptsRes] = await Promise.all([
+        getDashboardStats(),
+        getMyTestAttempts(),
+      ]);
+      setStats(statsRes);
+      setAttempts(attemptsRes);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Natijalarni yuklab bo'lmadi");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     void fetchData();
   }, []);
 
@@ -48,7 +49,9 @@ export default function Results() {
           title="Natijalarni yuklashda xatolik"
           description={error}
           retryLabel="Qayta urinish"
-          onRetry={() => window.location.reload()}
+          onRetry={() => {
+            void fetchData();
+          }}
         />
       </div>
     );
@@ -129,10 +132,10 @@ export default function Results() {
           {attempts.map((test, idx) => (
             <div
               key={test.id || idx}
-              className="group flex items-center justify-between gap-3 border border-[var(--app-border)] bg-[var(--app-surface)] p-4 transition-all hover:border-[color:color-mix(in_srgb,var(--app-primary)_24%,var(--app-border))] hover:bg-[var(--app-surface-soft)] active:scale-95 sm:gap-5 sm:p-6"
+              className="group flex items-center justify-between gap-3 border border-[var(--app-border)] bg-[var(--app-surface)] p-4 transition-all hover:border-[color:color-mix(in_srgb,var(--app-secondary)_24%,var(--app-border))] hover:bg-[color:color-mix(in_srgb,var(--app-secondary)_8%,white)] active:scale-95 sm:gap-5 sm:p-6"
             >
               <div className="flex min-w-0 items-center gap-3 sm:gap-5">
-                <div className="shrink-0 border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)] transition-colors group-hover:border-[var(--app-primary)] group-hover:bg-white sm:p-4">
+                <div className="shrink-0 border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)] transition-colors group-hover:border-[var(--app-secondary)] group-hover:bg-[var(--app-secondary)] group-hover:text-white sm:p-4">
                   <CheckCircle size={24} strokeWidth={2.5} className="sm:h-7 sm:w-7" />
                 </div>
                 <div className="min-w-0">

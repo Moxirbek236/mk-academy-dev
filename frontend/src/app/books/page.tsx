@@ -91,8 +91,8 @@ export default function Books() {
     <div className="app-page pb-nav-safe pt-4 animate-in fade-in slide-in-from-bottom-4 duration-500 sm:pt-6">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-extrabold tracking-tight text-gray-900 sm:text-2xl">Kutubxona</h2>
-          <p className="text-sm font-medium text-gray-500">O'zingizga yoqqan kitobni tanlang va o'qing</p>
+          <h2 className="text-xl font-extrabold tracking-tight text-[var(--app-primary-dark)] sm:text-2xl">Kutubxona</h2>
+          <p className="text-sm font-medium text-[var(--app-muted)]">O'zingizga yoqqan kitobni tanlang va o'qing</p>
         </div>
 
         {canManageBooks ? (
@@ -101,7 +101,7 @@ export default function Books() {
               setMutationError(null);
               setCreateOpen(true);
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-[16px] bg-[#2563eb] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-[#2563eb]/20 transition-transform active:scale-95"
+            className="inline-flex items-center justify-center gap-2 bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
           >
             <PlusCircle size={16} strokeWidth={2.5} />
             Kitob qo'shish
@@ -110,13 +110,13 @@ export default function Books() {
       </div>
 
       <div className="relative mb-6">
-        <SearchIcon size={18} strokeWidth={2.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <SearchIcon size={18} strokeWidth={2.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--app-muted)]" />
         <input
           type="text"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Kitob qidirish..."
-          className="w-full rounded-[18px] border border-gray-100 bg-white py-3.5 pl-12 pr-4 text-sm font-semibold shadow-sm transition-all focus:border-[#2563eb] focus:outline-none focus:ring-4 focus:ring-[#2563eb]/5 sm:rounded-[22px] sm:py-4"
+          className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-12 pr-4 text-sm font-semibold text-[var(--app-text)] transition-all focus:border-[var(--app-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)]/10 sm:py-4"
         />
       </div>
 
@@ -125,10 +125,10 @@ export default function Books() {
           <button
             key={level.id}
             onClick={() => setActiveLevel(level.id)}
-            className={`whitespace-nowrap px-5 py-2.5 rounded-2xl text-xs font-bold transition-all border ${
+            className={`whitespace-nowrap border px-5 py-2.5 text-xs font-bold transition-all ${
               activeLevel === level.id
-                ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-md shadow-[#2563eb]/20 scale-105'
-                : 'bg-white text-gray-500 border-gray-100 hover:border-gray-200'
+                ? 'border-[var(--app-primary)] bg-[var(--app-primary)] text-white scale-105'
+                : 'border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)] hover:border-[var(--app-primary)]/20'
             }`}
           >
             {level.name}
@@ -137,7 +137,7 @@ export default function Books() {
       </div>
 
       {mutationError ? (
-        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <div className="mb-4 border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
           {mutationError}
         </div>
       ) : null}

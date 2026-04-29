@@ -73,6 +73,13 @@ export default function TasksClient() {
     }
   };
 
+  const handleRestart = () => {
+    setCurrentStep(0);
+    setSelected(null);
+    setShowResult(false);
+    setIsWrong(false);
+  };
+
   if (authLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#2563eb]" size={40} /></div>;
 
   if (role !== 'student') {
@@ -124,7 +131,7 @@ export default function TasksClient() {
             Darslarga qaytish <ChevronRight size={18} strokeWidth={3} />
           </button>
           <button 
-            onClick={() => window.location.reload()}
+            onClick={handleRestart}
             className="w-full bg-gray-100 text-gray-500 font-black py-4 rounded-[32px] active:scale-95 transition-all uppercase tracking-widest text-[10px]"
           >
             Takrorlash <RefreshCcw size={14} className="inline ml-1" />
