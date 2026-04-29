@@ -1,13 +1,27 @@
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 function toSqliteFileUrl(filePath) {
   return `file:${filePath.replace(/\\/g, '/')}`;
 }
 
+function normalizeDatabaseUrl(url) {
+  if (!url.startsWith('file:')) {
+    return url;
+  }
+
+  const sqlitePath = url.slice('file:'.length);
+  if (!sqlitePath.startsWith('./') && !sqlitePath.startsWith('.\\')) {
+    return url;
+  }
+
+  return toSqliteFileUrl(resolve(process.cwd(), sqlitePath));
+}
+
 function resolveDatabaseUrl() {
   if (process.env.DATABASE_URL?.trim()) {
-    return process.env.DATABASE_URL.trim();
+    return normalizeDatabaseUrl(process.env.DATABASE_URL.trim());
   }
 
   const isProductionRuntime =
@@ -57,14 +71,27 @@ const databaseUrl = resolveDatabaseUrl();
 process.env.DATABASE_URL = databaseUrl;
 const prismaCommand = 'npx';
 const isSqlite = databaseUrl.startsWith('file:');
+const generatedClientPath = resolve(
+  process.cwd(),
+  'node_modules',
+  '.prisma',
+  'client',
+  'query_engine-windows.dll.node',
+);
+const shouldGenerateClient =
+  process.env.FORCE_PRISMA_GENERATE === '1' || !existsSync(generatedClientPath);
 
 console.log('============================================');
 console.log('  MK Academy Backend - runtime prepare');
 console.log('============================================');
 console.log(`-> DATABASE_URL: ${databaseUrl}`);
 console.log('');
-console.log('-> Generating Prisma client...');
-runCommand(prismaCommand, ['prisma', 'generate']);
+if (shouldGenerateClient) {
+  console.log('-> Generating Prisma client...');
+  runCommand(prismaCommand, ['prisma', 'generate']);
+} else {
+  console.log('-> Prisma client already exists, skipping generate...');
+}
 console.log('');
 
 if (isSqlite) {
