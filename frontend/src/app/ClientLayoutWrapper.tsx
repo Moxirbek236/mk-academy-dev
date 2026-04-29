@@ -70,9 +70,10 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
 
   return (
     <div
-      className="app-shell flex bg-[var(--app-bg)]"
+      className="app-shell relative flex min-h-screen bg-[var(--app-bg)] overflow-x-clip"
     >
       {!hideNav && <Sidebar role={role} />}
+      {!hideNav && <BottomNav role={role} />}
       
       <div className={`flex-1 flex min-h-screen-safe flex-col ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <Header role={role} />}
@@ -94,7 +95,6 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
             </AnimatePresence>
           )}
         </main>
-        {!hideNav && <BottomNav role={role} />}
       </div>
       <GlobalApiNotice />
     </div>

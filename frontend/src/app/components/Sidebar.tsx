@@ -35,8 +35,8 @@ export function Sidebar({ role }: SidebarProps) {
   }
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-[70] hidden h-dvh w-72 border-r border-[var(--app-border)] bg-[var(--sidebar)] lg:block">
-      <div className="flex h-full flex-col overflow-hidden">
+    <aside className="fixed left-0 top-0 z-[90] hidden h-screen w-72 overflow-hidden border-r border-[var(--app-border)] bg-[var(--sidebar)] lg:block">
+      <div className="flex h-full flex-col overflow-hidden overscroll-none">
       <div className="shrink-0 border-b border-[var(--app-border)] p-6 xl:p-8">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 shrink-0 overflow-hidden border border-[var(--app-border)] bg-white">
@@ -64,7 +64,7 @@ export function Sidebar({ role }: SidebarProps) {
         </div>
       </div>
 
-      <nav className="mt-6 flex-1 overflow-y-auto px-4 pb-6">
+      <nav className="mt-6 flex-1 overflow-y-auto overscroll-contain px-4 pb-6">
         <div className="space-y-1.5">
           {navItems.map((item) => {
             const isActive =
