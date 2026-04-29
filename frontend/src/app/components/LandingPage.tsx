@@ -739,17 +739,17 @@ export function LandingPage() {
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ HERO в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section
         id="hero"
-        className="relative overflow-hidden pb-20 pt-28 sm:pt-36"
+        className="relative overflow-hidden pb-12 pt-8 sm:pb-16 sm:pt-12 lg:pb-20 lg:pt-16"
       >
         {/* Animated background blobs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="animate-float-slow absolute left-[10%] top-[15%] h-[380px] w-[380px] rounded-full bg-[var(--app-primary)] opacity-[0.07] blur-[90px]" />
+          <div className="animate-float-slow absolute left-1/2 top-[14%] h-[260px] w-[260px] -translate-x-1/2 rounded-full bg-[var(--app-primary)] opacity-[0.06] blur-[80px] sm:h-[360px] sm:w-[360px]" />
           <div
-            className="animate-float absolute right-[5%] top-[30%] h-[260px] w-[260px] rounded-full bg-[var(--app-accent)] opacity-[0.08] blur-[70px]"
+            className="animate-float absolute right-[8%] top-[36%] hidden h-[220px] w-[220px] rounded-full bg-[var(--app-accent)] opacity-[0.07] blur-[70px] md:block"
             style={{ animationDelay: "1s" }}
           />
           <div
-            className="animate-float-slow absolute bottom-[10%] left-[30%] h-[300px] w-[300px] rounded-full bg-[var(--app-secondary)] opacity-[0.07] blur-[80px]"
+            className="animate-float-slow absolute bottom-[8%] left-1/2 h-[220px] w-[220px] -translate-x-1/2 rounded-full bg-[var(--app-secondary)] opacity-[0.05] blur-[70px] sm:h-[280px] sm:w-[280px]"
             style={{ animationDelay: "2s" }}
           />
         </div>
@@ -764,79 +764,68 @@ export function LandingPage() {
           }}
         />
 
-        <div className={`${sectionFrame} flex min-h-[calc(100svh-4.5rem)] flex-col items-center justify-center text-center sm:min-h-[92svh]`}>
-          <Reveal delay={0}>
-            <div className="mb-8 inline-flex cursor-default items-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 backdrop-blur-sm">
-              <Sparkles
-                size={15}
-                className="animate-pulse text-[var(--app-primary)]"
-              />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-primary)]">
-                {copy.badge}
-              </span>
-            </div>
-          </Reveal>
+        <div className="relative left-1/2 flex min-h-[calc(100svh-4rem)] w-[min(100vw,980px)] -translate-x-1/2 flex-col items-center justify-start px-5 text-center sm:min-h-[calc(100svh-5rem)] sm:justify-center sm:px-8">
+          <div className="mb-5 inline-flex max-w-full cursor-default items-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)]/88 px-3 py-2 backdrop-blur-sm sm:mb-7 sm:px-4">
+            <Sparkles
+              size={15}
+              className="shrink-0 animate-pulse text-[var(--app-primary)]"
+            />
+            <span className="truncate text-[9px] font-black uppercase tracking-[0.16em] text-[var(--app-primary)] sm:text-[10px] sm:tracking-[0.2em]">
+              {copy.badge}
+            </span>
+          </div>
 
-          <Reveal delay={80}>
-            <h1 className="mx-auto mb-6 max-w-5xl text-[clamp(2.75rem,9vw,7rem)] font-black leading-none tracking-[-0.03em] text-[var(--app-primary-dark)]">
-              English{" "}
-              <span className="animate-gradient-x bg-gradient-to-r from-[var(--app-primary)] via-[var(--app-accent)] to-[var(--app-primary-dark)] bg-clip-text text-transparent">
-                Mastery
-              </span>
-              <br />
-              <span className="text-[0.55em] font-black text-[var(--app-muted)]">
-                {copy.heroLead}
-              </span>
-            </h1>
-          </Reveal>
+          <h1 className="mb-5 w-full max-w-[920px] text-5xl font-black leading-[0.95] tracking-normal text-[var(--app-primary-dark)] sm:text-6xl lg:text-7xl xl:text-8xl">
+            <span className="block sm:inline">English</span>{" "}
+            <span className="block animate-gradient-x bg-gradient-to-r from-[var(--app-primary)] via-[var(--app-accent)] to-[var(--app-primary-dark)] bg-clip-text text-transparent sm:inline">
+              Mastery
+            </span>
+            <span className="mt-3 block text-3xl font-black leading-tight text-[var(--app-muted)] sm:mt-4 sm:text-4xl lg:text-5xl">
+              {copy.heroLead}
+            </span>
+          </h1>
 
-          <Reveal delay={160}>
-            <p className="mx-auto mb-10 max-w-2xl text-base font-bold leading-relaxed text-[var(--app-muted)] sm:text-lg">
-              {settings.description}
-            </p>
-          </Reveal>
+          <p className="mb-7 max-w-2xl text-sm font-bold leading-relaxed text-[var(--app-muted)] sm:mb-9 sm:text-base lg:text-lg">
+            {settings.description}
+          </p>
 
-          <Reveal delay={220}>
-            <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              <button
-                onClick={() => router.push(localizePath(locale, "/login"))}
-                className="btn-premium group relative w-full border-none bg-[var(--app-secondary)] px-10 py-4 text-base text-white"
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  {copy.start}
-                  <ArrowRight
-                    size={18}
-                    className="transition-transform group-hover:translate-x-1"
-                  />
-                </span>
+          <div className="grid w-full max-w-sm grid-cols-1 gap-3 sm:max-w-2xl sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-3">
+            <button
+              onClick={() => router.push(localizePath(locale, "/login"))}
+              className="btn-premium group relative w-full border-none bg-[var(--app-secondary)] px-6 py-3.5 text-sm text-white sm:px-8 sm:py-4 sm:text-base"
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {copy.start}
+                <ArrowRight
+                  size={18}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </span>
               <span className="animate-pulse-ring absolute inset-0 bg-[var(--app-secondary)]" />
-              </button>
-              <button
-                onClick={() => scrollTo("about")}
-                className="flex w-full items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-10 py-4 text-base font-black uppercase tracking-wider text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95"
-              >
-                {copy.details} <ChevronDown size={16} className="animate-bounce" />
-              </button>
-              <button
-                onClick={() => router.push(localizePath(locale, "/public-exam"))}
-                className="app-touch app-card flex w-full items-center justify-center border-none bg-[var(--app-surface)] px-10 py-5 text-base font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] active:scale-95"
-              >
-                {copy.openExam}
-              </button>
-            </div>
-          </Reveal>
-
-          <Reveal delay={400}>
+            </button>
             <button
               onClick={() => scrollTo("about")}
-              className="mt-16 flex flex-col items-center gap-2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-primary)]"
+              className="flex w-full items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)]/88 px-6 py-3.5 text-sm font-black uppercase tracking-wide text-[var(--app-text)] backdrop-blur-sm transition-all hover:border-[var(--app-primary)]/40 hover:bg-[var(--app-surface)] active:scale-95 sm:px-8 sm:py-4 sm:text-base"
             >
-              <span className="text-[9px] font-black uppercase tracking-[0.3em]">
-                {copy.scroll}
-              </span>
-              <div className="h-8 w-px bg-gradient-to-b from-[var(--app-primary)]/40 to-transparent" />
+              {copy.details} <ChevronDown size={16} className="animate-bounce" />
             </button>
-          </Reveal>
+            <button
+              onClick={() => router.push(localizePath(locale, "/public-exam"))}
+              className="app-touch app-card flex w-full items-center justify-center border-none bg-[var(--app-surface)] px-6 py-4 text-sm font-black uppercase tracking-wide text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)] active:scale-95 sm:col-span-2 sm:px-8 sm:py-4 sm:text-base lg:col-span-1"
+            >
+              {copy.openExam}
+            </button>
+          </div>
+
+          <button
+            onClick={() => scrollTo("about")}
+            className="mt-9 hidden flex-col items-center gap-2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-primary)] sm:flex lg:mt-12"
+          >
+            <span className="text-[9px] font-black uppercase tracking-[0.3em]">
+              {copy.scroll}
+            </span>
+            <div className="h-8 w-px bg-gradient-to-b from-[var(--app-primary)]/40 to-transparent" />
+          </button>
         </div>
       </section>
 
