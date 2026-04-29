@@ -35,7 +35,7 @@ export function Sidebar({ role }: SidebarProps) {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-[90] hidden h-screen w-72 overflow-hidden border-r border-[var(--app-border)] bg-[var(--sidebar)] lg:block">
+    <aside className="fixed inset-y-0 left-0 z-[120] hidden h-dvh w-72 overflow-hidden border-r border-[var(--app-border)] bg-[var(--sidebar)] lg:block">
       <div className="flex h-full flex-col overflow-hidden overscroll-none">
       <div className="shrink-0 border-b border-[var(--app-border)] p-6 xl:p-8">
         <div className="flex items-start gap-3">

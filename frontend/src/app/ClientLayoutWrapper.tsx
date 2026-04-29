@@ -1,6 +1,7 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { Sidebar } from './components/Sidebar';
@@ -20,9 +21,11 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const locale = useLocale();
   const { role, loading, token } = useAuth();
   const [nativeApp, setNativeApp] = useState(false);
+  const [navPortalReady, setNavPortalReady] = useState(false);
 
   useEffect(() => {
     setNativeApp(isNativeApp());
+    setNavPortalReady(true);
   }, []);
 
   useEffect(() => {
@@ -67,13 +70,22 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   }
 
   const hideNav = isPublicRoute;
+  const fixedNavigation =
+    navPortalReady && !hideNav
+      ? createPortal(
+          <>
+            <Sidebar role={role} />
+            <BottomNav role={role} />
+          </>,
+          document.body,
+        )
+      : null;
 
   return (
     <div
       className="app-shell relative flex min-h-screen bg-[var(--app-bg)] overflow-x-clip"
     >
-      {!hideNav && <Sidebar role={role} />}
-      {!hideNav && <BottomNav role={role} />}
+      {fixedNavigation}
       
       <div className={`flex-1 flex min-h-screen-safe flex-col ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <Header role={role} />}
