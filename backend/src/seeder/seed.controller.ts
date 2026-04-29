@@ -13,7 +13,7 @@ export class SeedController {
       status: 200,
       success: true,
       message:
-        "Questions seed tekshirildi. Faqat yo'q bo'lganlari yaratildi (idempotent).",
+        "Seeder tekshirildi: superadmin va questions idempotent ravishda yaratildi/yangilandi.",
       data: result,
     };
   }

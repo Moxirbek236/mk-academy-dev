@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './core/config/prisma.module';
 import * as Models from './models';
 import { SeedModule } from './seeder/seed.module';
+import { BotRunnerService } from './integrations/bot-runner.service';
 
 @Module({
   imports: [
@@ -18,5 +19,6 @@ import { SeedModule } from './seeder/seed.module';
     SeedModule,
     ...Object.values(Models),
   ],
+  providers: [BotRunnerService],
 })
 export class AppModule {}
