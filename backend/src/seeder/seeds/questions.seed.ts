@@ -2,7 +2,7 @@
 // testId = 1  →  Bu savollar birinchi testga tegishli
 const TEST_ID = 1;
 
-const questions = [
+export const questions = [
   // ════════════════════════════════════════
   // GRAMMAR  (1 – 50)
   // ════════════════════════════════════════
