@@ -1,4 +1,9 @@
 import { spawnSync } from 'node:child_process';
+import { resolve } from 'node:path';
+
+function toSqliteFileUrl(filePath) {
+  return `file:${filePath.replace(/\\/g, '/')}`;
+}
 
 function resolveDatabaseUrl() {
   if (process.env.DATABASE_URL?.trim()) {
@@ -8,7 +13,9 @@ function resolveDatabaseUrl() {
   const isProductionRuntime =
     Boolean(process.env.RENDER) || process.env.NODE_ENV === 'production';
 
-  return isProductionRuntime ? 'file:/tmp/mk-academy.db' : 'file:./prisma/dev.db';
+  return isProductionRuntime
+    ? 'file:/tmp/mk-academy.db'
+    : toSqliteFileUrl(resolve(process.cwd(), 'prisma', 'dev.db'));
 }
 
 function runCommand(command, args) {
@@ -47,6 +54,7 @@ function quoteForCmd(value) {
 }
 
 const databaseUrl = resolveDatabaseUrl();
+process.env.DATABASE_URL = databaseUrl;
 const prismaCommand = 'npx';
 const isSqlite = databaseUrl.startsWith('file:');
 

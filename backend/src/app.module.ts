@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './core/config/prisma.module';
 import * as Models from './models';
-import { SeedModule } from './seeder/seed.module';
+import { SeedModule } from './common/seeder/seed.module';
 
 @Module({
   imports: [

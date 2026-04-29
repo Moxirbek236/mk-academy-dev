@@ -2,10 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import '../styles/index.css';
 import './globals.css';
 import ClientLayoutWrapper from './ClientLayoutWrapper';
-import { getLocale, getMessages } from 'next-intl/server';
 import { AppProviders } from './providers';
 import { getServerCenterBranding } from '@/lib/server-center-branding';
-import { defaultLocale } from '@/i18n/config';
+import { defaultLocale, defaultTimeZone } from '@/i18n/config';
 
 // Fix Node 25 experimental localStorage issue
 if (typeof window === 'undefined') {
@@ -20,6 +19,7 @@ const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true';
 
 async function getLayoutLocale() {
   if (isCapacitorExport) return defaultLocale;
+  const { getLocale } = await import('next-intl/server');
   return getLocale();
 }
 
@@ -28,6 +28,7 @@ async function getLayoutMessages() {
     return (await import(`../messages/${defaultLocale}.json`)).default;
   }
 
+  const { getMessages } = await import('next-intl/server');
   return getMessages();
 }
 
@@ -79,6 +80,7 @@ export default async function RootLayout({
       >
         <AppProviders
           locale={locale}
+          timeZone={defaultTimeZone}
           messages={messages}
           centerBranding={centerBranding}
         >

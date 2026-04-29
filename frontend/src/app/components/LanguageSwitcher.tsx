@@ -2,7 +2,7 @@
 
 import { Languages } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { localeCookieName, locales, type AppLocale } from '@/i18n/config';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { cn } from '@/app/components/ui/utils';
@@ -15,14 +15,13 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   const t = useTranslations('SettingsPage');
   const router = useRouter();
   const pathname = usePathname() || '/';
-  const searchParams = useSearchParams();
   const locale = useLocale() as AppLocale;
 
   const onChange = (nextLocale: string) => {
     const newLocale = nextLocale as AppLocale;
     const strippedPath = stripLocaleFromPathname(pathname);
-    const query = searchParams.toString();
-    const nextPath = `${strippedPath}${query ? `?${query}` : ''}`;
+    const query = typeof window !== 'undefined' ? window.location.search : '';
+    const nextPath = `${strippedPath}${query}`;
 
     document.cookie = `${localeCookieName}=${newLocale}; path=/; max-age=31536000; samesite=lax`;
     router.replace(nextPath);

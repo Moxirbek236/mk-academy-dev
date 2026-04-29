@@ -90,7 +90,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
       <div className={`flex-1 flex min-h-screen-safe flex-col ${!hideNav ? 'lg:pl-72' : ''}`}>
         {!hideNav && <Header role={role} />}
         <OfflineStatusBanner />
-        <main className={`w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-5 sm:pt-7 lg:pt-10' : ''}`}>
+        <main className={`min-w-0 w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-5 sm:pt-7 lg:pt-10' : ''}`}>
           {nativeApp ? (
             <div>{children}</div>
           ) : (

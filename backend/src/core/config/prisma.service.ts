@@ -1,11 +1,18 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { resolve } from 'path';
+
+function toSqliteFileUrl(filePath: string): string {
+  return `file:${filePath.replace(/\\/g, '/')}`;
+}
 
 function resolveDatabaseUrl(): string {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
 
   const isRenderRuntime = Boolean(process.env.RENDER) || process.env.NODE_ENV === 'production';
-  return isRenderRuntime ? 'file:/tmp/mk-academy.db' : 'file:./prisma/dev.db';
+  return isRenderRuntime
+    ? 'file:/tmp/mk-academy.db'
+    : toSqliteFileUrl(resolve(process.cwd(), 'prisma', 'dev.db'));
 }
 
 @Injectable()

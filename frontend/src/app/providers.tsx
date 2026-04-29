@@ -12,6 +12,7 @@ import type { CenterBranding } from '@/lib/branding';
 interface AppProvidersProps {
   children: ReactNode;
   locale: string;
+  timeZone: string;
   messages: AbstractIntlMessages;
   centerBranding: CenterBranding;
 }
@@ -19,11 +20,12 @@ interface AppProvidersProps {
 export function AppProviders({
   children,
   locale,
+  timeZone,
   messages,
   centerBranding,
 }: AppProvidersProps) {
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider locale={locale} messages={messages} timeZone={timeZone}>
       <ThemeProvider
         attribute="class"
         defaultTheme="light"
