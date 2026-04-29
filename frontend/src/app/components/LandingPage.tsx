@@ -617,6 +617,7 @@ export function LandingPage() {
     { id: "address", label: copy.nav[4] },
     { id: "contact", label: copy.nav[5] },
   ];
+  const sectionFrame = "mx-auto w-full max-w-6xl";
 
   return (
     <div className="min-h-screen overflow-x-clip bg-[var(--app-bg)] pt-16 text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white sm:pt-20">
@@ -632,7 +633,7 @@ export function LandingPage() {
           scrolled ? "shadow-none" : ""
         }`}
       >
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-8">
+        <div className={`${sectionFrame} flex h-16 items-center justify-between px-5 sm:h-20 sm:px-8`}>
           {/* Logo */}
           <button
             onClick={() => scrollTo("hero")}
@@ -763,7 +764,7 @@ export function LandingPage() {
           }}
         />
 
-        <div className="mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-7xl flex-col items-center justify-center text-center sm:min-h-[92svh]">
+        <div className={`${sectionFrame} flex min-h-[calc(100svh-4.5rem)] flex-col items-center justify-center px-5 text-center sm:min-h-[92svh]`}>
           <Reveal delay={0}>
             <div className="mb-8 inline-flex cursor-default items-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)]/80 px-4 py-2 backdrop-blur-sm">
               <Sparkles
@@ -875,10 +876,10 @@ export function LandingPage() {
         id="about"
         className="border-b border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-32"
       >
-        <div className="mx-auto grid w-full max-w-7xl items-start gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className={`${sectionFrame} grid items-start gap-10 lg:grid-cols-2 lg:gap-14`}>
           {/* Left */}
-          <Reveal direction="left">
-            <div className="mx-auto w-full max-w-[36rem]">
+          <Reveal direction="left" className="w-full">
+            <div className="w-full max-w-[34rem]">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.aboutEyebrow}
               </p>
@@ -909,8 +910,8 @@ export function LandingPage() {
           </Reveal>
 
           {/* Right glass card */}
-          <Reveal direction="right" delay={100}>
-            <div className="mx-auto w-full max-w-[34rem]">
+          <Reveal direction="right" delay={100} className="w-full">
+            <div className="relative w-full max-w-[34rem] lg:ml-auto">
               <div className="absolute inset-0 scale-105 rotate-1 bg-gradient-to-tr from-[var(--app-primary)]/18 to-[var(--app-accent)]/10 blur-3xl" />
               <div className="glass-card relative p-7 sm:p-8">
                 <div className="mb-8 flex items-center gap-5 border-b border-[var(--app-border)] pb-8">
@@ -970,7 +971,7 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FEATURES в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="features" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto w-full max-w-7xl">
+        <div className={sectionFrame}>
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
@@ -1012,7 +1013,7 @@ export function LandingPage() {
         id="courses"
         className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
       >
-        <div className="mx-auto w-full max-w-7xl">
+        <div className={sectionFrame}>
           <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <Reveal direction="left">
               <div>
@@ -1069,7 +1070,7 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ TEAM в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="team" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto w-full max-w-7xl">
+        <div className={sectionFrame}>
         <Reveal>
           <div className="mb-14 text-center">
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
@@ -1131,7 +1132,7 @@ export function LandingPage() {
         id="questions"
         className="border-y border-[var(--app-border)] bg-[var(--app-surface-soft)]/40 px-5 py-20 sm:py-28"
       >
-        <div className="mx-auto w-full max-w-7xl">
+        <div className={sectionFrame}>
           <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <Reveal direction="left">
               <div>
@@ -1178,9 +1179,9 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ ADDRESS в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <section id="address" className="px-5 py-20 sm:py-32">
-        <div className="mx-auto grid w-full max-w-7xl items-start gap-10 lg:grid-cols-2 lg:gap-16">
-          <Reveal direction="left">
-            <div className="mx-auto w-full max-w-[36rem]">
+        <div className={`${sectionFrame} grid items-start gap-10 lg:grid-cols-2 lg:gap-14`}>
+          <Reveal direction="left" className="w-full">
+            <div className="w-full max-w-[34rem]">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.28em] text-[var(--app-primary)]">
                 {copy.addressEyebrow}
               </p>
@@ -1235,7 +1236,8 @@ export function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="mx-auto grid w-full max-w-[34rem] gap-4 sm:grid-cols-2">
+          <div className="w-full max-w-[34rem] lg:ml-auto">
+            <div className="grid w-full gap-4 sm:grid-cols-2">
             {[
               {
                 icon: MapPin,
@@ -1282,6 +1284,7 @@ export function LandingPage() {
                 </div>
               </Reveal>
             ))}
+            </div>
           </div>
         </div>
       </section>
@@ -1291,7 +1294,7 @@ export function LandingPage() {
         id="contact"
         className="border-t border-[var(--app-border)] bg-[var(--app-surface-soft)]/30 px-5 py-20 sm:py-32"
       >
-        <div className="mx-auto w-full max-w-3xl">
+        <div className="mx-auto w-full max-w-4xl px-5">
           <Reveal>
             <div className="mb-12 text-center">
               <div className="mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
@@ -1429,7 +1432,7 @@ export function LandingPage() {
 
       {/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ FOOTER в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */}
       <footer className="border-t border-[var(--app-border)] bg-[var(--app-surface)]/60 px-5 py-10">
-        <div className="mx-auto grid w-full max-w-7xl gap-5 text-center lg:grid-cols-[auto_1fr_auto] lg:items-center lg:text-left">
+        <div className={`${sectionFrame} grid gap-5 px-5 text-center lg:grid-cols-3 lg:items-center`}>
           <div className="flex items-center justify-center gap-3 lg:justify-start">
             <div className="relative h-8 w-8 overflow-hidden border border-[var(--app-border)]">
               <Image
@@ -1445,7 +1448,7 @@ export function LandingPage() {
               {settings.name}
             </span>
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)] lg:text-center">
             © 2026 {settings.name} · {copy.rights}
           </p>
           <div className="flex items-center justify-center gap-4 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] lg:justify-end">
