@@ -27,9 +27,11 @@ function resolveDatabaseUrl() {
   const isProductionRuntime =
     Boolean(process.env.RENDER) || process.env.NODE_ENV === 'production';
 
-  return isProductionRuntime
-    ? 'file:/tmp/mk-academy.db'
-    : toSqliteFileUrl(resolve(process.cwd(), 'prisma', 'dev.db'));
+  if (isProductionRuntime) {
+    throw new Error('DATABASE_URL is required in production/runtime environment');
+  }
+
+  return 'file:./prisma/dev.db';
 }
 
 function runCommand(command, args) {

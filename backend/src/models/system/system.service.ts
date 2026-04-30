@@ -39,7 +39,7 @@ export class SystemService {
 
   private async getDatabasePingMs() {
     const startedAt = Date.now();
-    await this.prisma.$queryRawUnsafe('SELECT 1');
+    await this.prisma.$queryRaw`SELECT 1`;
     return Date.now() - startedAt;
   }
 
@@ -141,7 +141,7 @@ export class SystemService {
     let database = 'connected';
 
     try {
-      await this.prisma.$queryRawUnsafe('SELECT 1');
+      await this.prisma.$queryRaw`SELECT 1`;
     } catch {
       database = 'disconnected';
     }

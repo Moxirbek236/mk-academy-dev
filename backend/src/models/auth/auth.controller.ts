@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Request} from '@nestjs/common';
+import { Controller, Post, Body, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto';
 
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -16,8 +17,13 @@ export class AuthController {
   }
 
   @Post('logout')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Logout current user' })
-  async logout(@Request() req: any) {
-    return { message: 'Logged out' };
+  async logout(@Request() req: { user?: { id?: number } }) {
+    return {
+      success: true,
+      message: 'Logged out',
+      userId: req.user?.id,
+    };
   }
 }

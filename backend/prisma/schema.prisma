@@ -512,3 +512,59 @@ model CenterSettings {
 
   @@map("center_settings")
 }
+
+model BotAdmin {
+  id               Int      @id @default(autoincrement())
+  telegramUserId   String?  @unique
+  telegramUsername String?  @unique
+  fullName         String
+  createdAt        DateTime @default(now())
+
+  @@map("bot_admins")
+}
+
+model BotStudentResult {
+  id               Int      @id @default(autoincrement())
+  studentFullName  String
+  examType         String
+  scoreOrLevel     String
+  certificateImage String
+  examDate         DateTime
+  channelPostLink  String
+  note             String?
+  createdAt        DateTime @default(now())
+
+  @@map("bot_student_results")
+}
+
+model BotLeadRequest {
+  id         Int      @id @default(autoincrement())
+  fullName   String
+  phone      String
+  courseType String?
+  createdAt  DateTime @default(now())
+
+  @@map("bot_lead_requests")
+}
+
+model BotCenterInfo {
+  id               Int      @id @default(autoincrement())
+  aboutText        String
+  address          String
+  phone1           String
+  phone2           String?
+  telegramUsername String?
+  updatedAt        DateTime @updatedAt
+
+  @@map("bot_center_info")
+}
+
+model BotCourse {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("bot_courses")
+}

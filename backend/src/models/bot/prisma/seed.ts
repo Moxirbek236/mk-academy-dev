@@ -1,14 +1,23 @@
 import 'dotenv/config';
-import { ExamType, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { ExamType } from '../service/exam-type';
 
 const prisma = new PrismaClient();
 
 function getSeedAdminId(): string {
-  const rawIds = process.env.ADMIN_TELEGRAM_IDS ?? '123456789';
-  return rawIds
+  const rawIds = process.env.ADMIN_TELEGRAM_IDS ?? '';
+  const adminId = rawIds
     .split(',')
     .map((value) => value.trim())
-    .find(Boolean) ?? '123456789';
+    .find(Boolean);
+
+  if (!adminId) {
+    throw new Error(
+      'ADMIN_TELEGRAM_IDS is required for bot seed in production-safe mode',
+    );
+  }
+
+  return adminId;
 }
 
 function getSeedAdminUsername(): string | undefined {
@@ -29,7 +38,7 @@ async function main(): Promise<void> {
   const adminId = getSeedAdminId();
   const adminUsername = getSeedAdminUsername();
 
-  await prisma.admin.upsert({
+  await prisma.botAdmin.upsert({
     where: { telegramUserId: adminId },
     update: {
       fullName: 'System Admin',
@@ -42,9 +51,9 @@ async function main(): Promise<void> {
     },
   });
 
-  const centerInfo = await prisma.centerInfo.findFirst();
+  const centerInfo = await prisma.botCenterInfo.findFirst();
   if (!centerInfo) {
-    await prisma.centerInfo.create({
+    await prisma.botCenterInfo.create({
       data: {
         aboutText:
           "CEFR va IELTS o'quv markazimizda xalqaro imtihonlarga tayyorlov kurslari, tajribali ustozlar va natijaga yo'naltirilgan dars jarayoni mavjud.",
@@ -75,20 +84,20 @@ async function main(): Promise<void> {
   ];
 
   for (const course of courses) {
-    const existingCourse = await prisma.course.findFirst({
+    const existingCourse = await prisma.botCourse.findFirst({
       where: { title: course.title },
     });
 
     if (!existingCourse) {
-      await prisma.course.create({
+      await prisma.botCourse.create({
         data: course,
       });
     }
   }
 
-  const existingResultsCount = await prisma.studentResult.count();
+  const existingResultsCount = await prisma.botStudentResult.count();
   if (existingResultsCount === 0) {
-    await prisma.studentResult.createMany({
+    await prisma.botStudentResult.createMany({
       data: [
         {
           studentFullName: 'Aliyev Bekzod Anvar o\'g\'li',

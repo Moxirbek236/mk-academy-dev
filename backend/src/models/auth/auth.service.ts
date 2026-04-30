@@ -39,8 +39,6 @@ export class AuthService {
       id: user.id,
       phone: user.phone,
       role: user.role
-    }, {
-      secret: process.env.JWT_SECRET
     });
 
     return {
