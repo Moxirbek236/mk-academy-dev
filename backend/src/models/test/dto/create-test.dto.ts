@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -12,6 +13,7 @@ import {
 } from 'class-validator';
 import { CefrLevel } from 'src/core/enums';
 import { CreateQuestionDto } from '../../questions/dto/create-question.dto';
+import { PUBLIC_EXAM_DIRECTIONS, PUBLIC_EXAM_MODES } from './public-exam.dto';
 
 export class CreateTestDto {
   @ApiProperty({ example: 'Final Exam: B2 Level' })
@@ -85,6 +87,23 @@ export class CreateTestDto {
   @IsOptional()
   @IsBoolean()
   isPublished?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  isPublicExam?: boolean;
+
+  @ApiPropertyOptional({ enum: PUBLIC_EXAM_MODES })
+  @IsOptional()
+  @IsString()
+  @IsIn(PUBLIC_EXAM_MODES)
+  publicExamType?: (typeof PUBLIC_EXAM_MODES)[number] | null;
+
+  @ApiPropertyOptional({ enum: PUBLIC_EXAM_DIRECTIONS })
+  @IsOptional()
+  @IsString()
+  @IsIn(PUBLIC_EXAM_DIRECTIONS)
+  publicExamDirection?: (typeof PUBLIC_EXAM_DIRECTIONS)[number] | null;
 
   @ApiPropertyOptional({ type: [CreateQuestionDto] })
   @IsOptional()

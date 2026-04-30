@@ -3,6 +3,7 @@ export enum UserRole {
   ADMIN = 'ADMIN',
   TEACHER = 'TEACHER',
   STUDENT = 'STUDENT',
+  GLOBAL_USER = 'GLOBAL_USER',
 }
 
 export enum CefrLevel {

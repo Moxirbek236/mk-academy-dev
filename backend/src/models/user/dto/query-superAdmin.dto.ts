@@ -5,11 +5,11 @@ import { Transform, Type } from 'class-transformer';
 
 export class QueryUserSuperAdminDto {
 
-    @ApiPropertyOptional({ enum: [UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN] })
+    @ApiPropertyOptional({ enum: [UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN, UserRole.GLOBAL_USER] })
     @IsOptional()
     @IsString()
-    @IsEnum([UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN])
-    user?: UserRole.STUDENT | UserRole.TEACHER | UserRole.ADMIN;
+    @IsEnum([UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN, UserRole.GLOBAL_USER])
+    user?: UserRole.STUDENT | UserRole.TEACHER | UserRole.ADMIN | UserRole.GLOBAL_USER;
 
     @ApiPropertyOptional()
     @IsOptional()

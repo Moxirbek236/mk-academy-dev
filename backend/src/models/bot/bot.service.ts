@@ -138,12 +138,12 @@ export class BotService implements OnModuleInit {
 
   formatResultMessage(result: BotStudentResult): string {
     return [
-      result.studentFullName,
-      `Imtihon turi: ${this.formatExamType(result.examType)}`,
-      `Natija: ${result.scoreOrLevel}`,
-      `Sana: ${this.formatDate(result.examDate)}`,
-      result.note ? `Izoh: ${result.note}` : null,
-      `Post link: ${result.channelPostLink}`,
+      `👤 O'quvchi: ${result.studentFullName}`,
+      `📚 Imtihon turi: ${this.formatExamType(result.examType)}`,
+      `🏅 Natija: ${result.scoreOrLevel}`,
+      `📅 Sana: ${this.formatDate(result.examDate)}`,
+      result.note ? `💬 Izoh: ${result.note}` : null,
+      `🔗 Post link: ${result.channelPostLink}`,
     ]
       .filter(Boolean)
       .join('\n');
@@ -398,11 +398,15 @@ export class BotService implements OnModuleInit {
 
   formatPublishedResultCaption(payload: PublishResultInput): string {
     return [
-      payload.studentFullName,
-      `Imtihon turi: ${this.formatExamType(payload.examType)}`,
-      `Natija: ${payload.scoreOrLevel}`,
-      `Sana: ${this.formatDate(new Date(payload.examDate))}`,
-      payload.note ? `Izoh: ${payload.note}` : null,
+      '🎉 YANGI NATIJA',
+      '',
+      `👤 O'quvchi: ${payload.studentFullName}`,
+      `📚 Imtihon turi: ${this.formatExamType(payload.examType)}`,
+      `🏅 Natija: ${payload.scoreOrLevel}`,
+      `📅 Sana: ${this.formatDate(new Date(payload.examDate))}`,
+      payload.note ? `💬 Izoh: ${payload.note}` : null,
+      '',
+      "👏 O'quvchimizni samimiy tabriklaymiz!",
     ]
       .filter(Boolean)
       .join('\n');
@@ -410,7 +414,8 @@ export class BotService implements OnModuleInit {
 
   formatResultCreatedMessage(result: BotStudentResult): string {
     return [
-      'Natija muvaffaqiyatli joylandi.',
+      '✅ Natija muvaffaqiyatli joylandi!',
+      "🎉 Ajoyib! O'quvchimizni tabriklaymiz!",
       '',
       this.formatResultMessage(result),
     ].join('\n');

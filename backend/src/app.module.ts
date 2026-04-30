@@ -6,7 +6,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { StringValue } from 'ms';
 import { PrismaModule } from './core/config/prisma.module';
 import * as Models from './models';
-import { SeedModule } from './seeder/seed.module';
+import { SeedModule } from './common/seeder/seed.module';
 
 function resolveJwtExpiresIn(value: string): StringValue | number {
   const normalized = value.trim();
@@ -25,6 +25,9 @@ function resolveJwtExpiresIn(value: string): StringValue | number {
       {
         ttl: Number(process.env.THROTTLE_TTL ?? 60_000),
         limit: Number(process.env.THROTTLE_LIMIT ?? 120),
+        // Telegraf update context has no Express response object (res.header),
+        // so we rate-limit only HTTP requests here.
+        skipIf: (context) => context.getType() !== 'http',
       },
     ]),
     JwtModule.registerAsync({

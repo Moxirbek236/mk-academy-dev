@@ -1,15 +1,15 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '../core/config/prisma.service';
-import { UserRole } from '../core/enums';
+import { UserRole } from '../../../core/enums';
 import {
   questions as beginnerQuestionsA,
   questionsB as beginnerQuestionsB,
-} from './seeds/questions.beginner.seed';
+} from './questions.beginner.seed';
 import {
   questionsA as elementaryQuestionsA,
   questionsB as elementaryQuestionsB,
-} from './seeds/questions.elementry.seed';
+} from './questions.elementry.seed';
+import { PrismaService } from 'src/core/config/prisma.service';
 
 type RawSeedQuestion = {
   testId: number;
@@ -41,10 +41,11 @@ type SeedResult = {
 };
 
 @Injectable()
-export class SeedService implements OnApplicationBootstrap {
-  private readonly logger = new Logger(SeedService.name);
-
+export class SeedService {
   constructor(private readonly prisma: PrismaService) {}
+
+  logger = new Logger(SeedService.name);
+
 
   async onApplicationBootstrap(): Promise<void> {
     try {
@@ -268,7 +269,7 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   private async ensureQuestionAnalytics(questionId: number): Promise<void> {
-    await (this.prisma.questionAnalytics as any).upsert({
+    await this.prisma.questionAnalytics.upsert({
       where: { questionId },
       update: { isActive: true },
       create: {

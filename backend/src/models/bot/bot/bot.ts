@@ -1061,10 +1061,12 @@ export class BotUpdate {
         this.botService.buildResultLinkKeyboard(result),
       );
       if (mainChannelPostLink) {
-        await ctx.reply(`Main kanalga ham yuborildi.\nLink: ${mainChannelPostLink}`);
+        await ctx.reply(
+          `📣 Natija main kanalga ham yuborildi.\n🔗 Link: ${mainChannelPostLink}`,
+        );
       }
       await ctx.reply(
-        "Admin menyu qayta ochildi.",
+        "✨ Admin menyu qayta ochildi.",
         this.botService.getAdminMenuKeyboard(),
       );
     } catch (error) {
