@@ -27,11 +27,42 @@ import {
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { CefrLevel, UserRole } from 'src/core/enums';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { RolesGuard } from 'src/common/guards/role.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { mkdirSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { validateImage } from 'src/common/functions/check.file';
+import type { Request } from 'express';
+
+const courseUploadDir = join(process.cwd(), 'uploads', 'courses');
+mkdirSync(courseUploadDir, { recursive: true });
+
+const courseImageUploadOptions = {
+  storage: diskStorage({
+    destination: courseUploadDir,
+    filename: (_req, file, cb) => {
+      const extension = extname(file.originalname).toLowerCase() || '.jpg';
+      cb(null, `${Date.now()}-${randomUUID()}${extension}`);
+    },
+  }),
+  fileFilter: (
+    _req: Request,
+    file: Express.Multer.File,
+    callback: (error: Error | null, acceptFile: boolean) => void,
+  ) => {
+    if (!file.mimetype.startsWith('image/')) {
+      callback(new Error('Only image uploads are allowed'), false);
+      return;
+    }
+    callback(null, true);
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+};
 
 @ApiTags('courses')
 @ApiBearerAuth()
@@ -58,21 +89,16 @@ export class CourseController {
     },
   })
   @UseInterceptors(
-    FileInterceptor('imageUrl', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, uniqueName + extname(file.originalname));
-        },
-      }),
-    }),
+    FileInterceptor('imageUrl', courseImageUploadOptions),
   )
   async createCourse(
     @Body() payload: CreateCourseDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    if (file) payload.imageUrl = file.filename;
+    if (file) {
+      validateImage(file);
+      payload.imageUrl = file.filename;
+    }
     return this.courseService.createCourse(payload);
   }
 
@@ -93,22 +119,17 @@ export class CourseController {
     },
   })
   @UseInterceptors(
-    FileInterceptor('imageUrl', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, uniqueName + extname(file.originalname));
-        },
-      }),
-    }),
+    FileInterceptor('imageUrl', courseImageUploadOptions),
   )
   async updateCourse(
     @Param('id',ParseIntPipe) id: number,
     @Body() payload: UpdateCourseDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    if (file) payload.imageUrl = file.filename;
+    if (file) {
+      validateImage(file);
+      payload.imageUrl = file.filename;
+    }
     return this.courseService.updateCourse(id, payload);
   }
 

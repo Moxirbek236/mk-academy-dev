@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "seed": "ts-node prisma/seed.ts",
+    "seed:bot": "ts-node src/models/bot/prisma/seed.ts",
     "prisma:generate": "prisma generate",
     "prepare:runtime": "node scripts/prepare-runtime.mjs",
     "postinstall": "npm run prisma:generate",
@@ -35,11 +36,15 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.18",
     "@nestjs/swagger": "^11.2.6",
+    "@nestjs/throttler": "^6.4.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "helmet": "^8.1.0",
     "multer": "^2.1.1",
+    "nestjs-telegraf": "^2.9.1",
     "swagger-ui-express": "^5.0.1",
+    "telegraf": "^4.16.3",
     "@prisma/client": "^6.19.3"
   },
   "devDependencies": {

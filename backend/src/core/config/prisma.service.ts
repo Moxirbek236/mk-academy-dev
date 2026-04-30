@@ -5,7 +5,11 @@ function resolveDatabaseUrl(): string {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
 
   const isRenderRuntime = Boolean(process.env.RENDER) || process.env.NODE_ENV === 'production';
-  return isRenderRuntime ? 'file:/tmp/mk-academy.db' : 'file:./prisma/dev.db';
+  if (isRenderRuntime) {
+    throw new Error('DATABASE_URL is required in production/runtime environment');
+  }
+
+  return 'file:./prisma/dev.db';
 }
 
 @Injectable()
@@ -27,7 +31,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   async onModuleInit() {
-    if (!process.env.DATABASE_URL) {
+    if (!process.env.DATABASE_URL && process.env.NODE_ENV !== 'production') {
       this.logger.warn(`DATABASE_URL not set. Using fallback: ${resolveDatabaseUrl()}`);
     }
 
