@@ -101,11 +101,12 @@ jobs:
       - name: Copy docker-compose.yml to Droplet
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USERNAME }}
-          key: ${{ secrets.DO_SSH_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "backend/docker-compose.yml"
-          target: "~/mk_academy_deploy"
+          target: "/root/mk_academy_deploy"
           strip_components: 1
 
       - name: Execute remote ssh commands to deploy
@@ -113,13 +114,14 @@ jobs:
         env:
           CR_PAT: ${{ secrets.GITHUB_TOKEN }}
         with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USERNAME }}
-          key: ${{ secrets.DO_SSH_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: CR_PAT
           script: |
             echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            cd ~/mk_academy_deploy
+            cd /root/mk_academy_deploy
             docker pull ghcr.io/moxirbek236/mk-academy-backend:latest
             # Check if docker compose or docker-compose is available
             if command -v docker compose &> /dev/null; then
