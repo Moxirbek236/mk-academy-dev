@@ -87,8 +87,8 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: ghcr.io/moxirbek236/mk-academy-backend:latest
-          cache-from: type=registry,ref=ghcr.io/moxirbek236/mk-academy-backend:buildcache
-          cache-to: type=registry,ref=ghcr.io/moxirbek236/mk-academy-backend:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   deploy-digitalocean:
     name: Deploy Backend to DigitalOcean
