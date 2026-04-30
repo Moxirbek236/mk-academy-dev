@@ -2,6 +2,7 @@ name: Backend CI/CD
 
 permissions:
   contents: read
+  packages: write
 
 on:
   push:
@@ -57,23 +58,70 @@ jobs:
           DATABASE_URL: file:./prisma/ci.db
 
       - name: Docker build smoke test
+        if: github.event_name == 'pull_request'
         run: docker build -t mk-academy-backend-ci .
 
-  deploy-render:
-    name: Deploy Backend to Render
+  build-and-push:
+    name: Build and Push Docker Image
     needs: ci
     if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
-
     steps:
-      - name: Trigger Render deploy hook
-        env:
-          RENDER_BACKEND_DEPLOY_HOOK_URL: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK_URL }}
-        run: |
-          if [ -z "$RENDER_BACKEND_DEPLOY_HOOK_URL" ]; then
-            echo "::warning::RENDER_BACKEND_DEPLOY_HOOK_URL secret is not set. Skipping Render deploy."
-            exit 0
-          fi
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-          curl --fail --silent --show-error --request POST "$RENDER_BACKEND_DEPLOY_HOOK_URL"
-          echo "Render deploy triggered successfully."
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ghcr.io/moxirbek236/mk-academy-backend:latest
+          cache-from: type=registry,ref=ghcr.io/moxirbek236/mk-academy-backend:buildcache
+          cache-to: type=registry,ref=ghcr.io/moxirbek236/mk-academy-backend:buildcache,mode=max
+
+  deploy-digitalocean:
+    name: Deploy Backend to DigitalOcean
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.yml to Droplet
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          source: "backend/docker-compose.yml"
+          target: "~/mk_academy_deploy"
+          strip_components: 1
+
+      - name: Execute remote ssh commands to deploy
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          CR_PAT: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          envs: CR_PAT
+          script: |
+            echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            cd ~/mk_academy_deploy
+            docker pull ghcr.io/moxirbek236/mk-academy-backend:latest
+            # Check if docker compose or docker-compose is available
+            if command -v docker compose &> /dev/null; then
+              docker compose up -d
+            else
+              docker-compose up -d
+            fi
+            docker image prune -af --filter "until=24h"
