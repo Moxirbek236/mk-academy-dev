@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { StringValue } from 'ms';
 import { PrismaModule } from './core/config/prisma.module';
 import * as Models from './models';
 import { SeedModule } from './common/seeder/seed.module';
+import { HttpThrottlerGuard } from './common/guards/http-throttler.guard';
 
 function resolveJwtExpiresIn(value: string): StringValue | number {
   const normalized = value.trim();
@@ -46,7 +47,7 @@ function resolveJwtExpiresIn(value: string): StringValue | number {
   providers: [
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: HttpThrottlerGuard,
     },
   ],
 })

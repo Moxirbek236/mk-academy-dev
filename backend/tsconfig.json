@@ -23,5 +23,5 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
   },
-  "exclude": ["node_modules", "dist", "prisma", "src/models/bot/**/*"]
+  "exclude": ["node_modules", "dist", "prisma"]
 }
