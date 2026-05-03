@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BotCenterInfo } from '@prisma/client';
 import { PrismaService } from '../../../core/config/prisma.service';
 import { UpdateCenterInfoDto } from './dto/center-info-dto/update-center-info.dto';
+import { DEFAULT_BOT_CENTER_INFO } from './bot-defaults';
 
 @Injectable()
 export class BotCenterInfoService {
@@ -12,11 +13,12 @@ export class BotCenterInfoService {
       orderBy: { id: 'asc' },
     });
 
-    if (!centerInfo) {
-      throw new NotFoundException('O\'quv markaz ma\'lumotlari topilmadi');
-    }
-
-    return centerInfo;
+    return (
+      centerInfo ??
+      this.prisma.botCenterInfo.create({
+        data: DEFAULT_BOT_CENTER_INFO,
+      })
+    );
   }
 
   async upsert(dto: UpdateCenterInfoDto): Promise<BotCenterInfo> {

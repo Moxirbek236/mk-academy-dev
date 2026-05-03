@@ -59,6 +59,7 @@ COPY --from=builder /app/dist ./dist
 RUN mkdir -p /app/data && chown -R nestjs:nodejs /app/data
 
 # Entrypoint scriptini nusxalash
+COPY scripts ./scripts
 COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 

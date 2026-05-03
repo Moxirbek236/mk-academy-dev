@@ -10,6 +10,7 @@ import { BotLeadsService } from './service/bot-leads.service';
 import { BotCenterInfoService } from './service/bot-center-info.service';
 import { BotCoursesService } from './service/bot-courses.service';
 import { BotStateService } from './service/bot-state.service';
+import { BotDataBootstrapService } from './service/bot-data-bootstrap.service';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { BotStateService } from './service/bot-state.service';
     BotLeadsService,
     BotCenterInfoService,
     BotCoursesService,
+    BotDataBootstrapService,
   ],
   exports: [
     BotService,
