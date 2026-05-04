@@ -61,30 +61,37 @@ async function bootstrap() {
   app.useLogger(logger);
   app.use(helmet());
 
-  const allowedOrigins = resolveAllowedOrigins();
   app.enableCors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-
-      const normalizedOrigin = normalizeOrigin(origin);
-      if (allowedOrigins.includes(normalizedOrigin)) {
-        return callback(null, true);
-      }
-
-      const allowLocalhost =
-        (process.env.CORS_ALLOW_LOCALHOST ??
-          (process.env.NODE_ENV === 'production' ? 'false' : 'true'))
-          .toLowerCase() === 'true';
-      if (allowLocalhost && isLocalhostOrigin(normalizedOrigin)) {
-        return callback(null, true);
-      }
-
-      return callback(null, false);
-    },
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
     maxAge: 60 * 60,
   });
+
+  // const allowedOrigins = resolveAllowedOrigins();
+  // app.enableCors({
+  //   origin: (origin, callback) => {
+  //     if (!origin) return callback(null, true);
+  //
+  //     const normalizedOrigin = normalizeOrigin(origin);
+  //     if (allowedOrigins.includes(normalizedOrigin)) {
+  //       return callback(null, true);
+  //     }
+  //
+  //     const allowLocalhost =
+  //       (process.env.CORS_ALLOW_LOCALHOST ??
+  //         (process.env.NODE_ENV === 'production' ? 'false' : 'true'))
+  //         .toLowerCase() === 'true';
+  //     if (allowLocalhost && isLocalhostOrigin(normalizedOrigin)) {
+  //       return callback(null, true);
+  //     }
+  //
+  //     return callback(null, false);
+  //   },
+  //   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  //   credentials: true,
+  //   maxAge: 60 * 60,
+  // });
 
   app.setGlobalPrefix('api');
 
