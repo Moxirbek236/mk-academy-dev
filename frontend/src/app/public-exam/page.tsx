@@ -157,11 +157,11 @@ export default function PublicExamPage() {
     <div className="app-page pb-16 pt-6 sm:pt-10">
       <div className="mb-6 flex items-center justify-between gap-3">
         <Link
-          href="/landing"
+          href="/"
           className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--app-muted)]"
         >
           <ArrowLeft size={16} />
-          Back to landing
+          Back to home
         </Link>
         <Link
           href="/public-rating"

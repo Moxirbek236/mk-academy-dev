@@ -188,12 +188,11 @@ api.interceptors.response.use(
       const currentPath = stripLocaleFromPathname(window.location.pathname);
       if (
         currentPath !== '/login' &&
-        currentPath !== '/landing' &&
         currentPath !== '/public-exam' &&
         currentPath !== '/public-rating'
       ) {
         await clearStoredAuth();
-        window.location.href = '/landing';
+        window.location.href = '/';
       }
     }
 

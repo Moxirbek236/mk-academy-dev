@@ -47,9 +47,10 @@
     --app-safe-left: env(safe-area-inset-left, 0px);
     --app-bottom-nav-height: 5.5rem;
 
-    --radius-premium: 0px;
-    --app-radius-compact: 0px;
-    --shadow-premium: none;
+    --radius-premium: 8px;
+    --app-radius-compact: 6px;
+    --shadow-premium: 0 2px 16px rgba(37, 99, 235, 0.08),
+      0 1px 3px rgba(37, 99, 235, 0.04);
     --app-saturation: 1;
   }
 
@@ -101,12 +102,6 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  [class*="rounded"],
-  [class*="shadow"] {
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-
   html,
   body {
     width: 100%;
@@ -154,6 +149,12 @@
   h6 {
     letter-spacing: 0;
   }
+
+  :focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 @layer utilities {
@@ -176,7 +177,9 @@
   }
 
   .pb-nav-safe {
-    padding-bottom: calc(var(--app-bottom-nav-height) + 1rem + var(--app-safe-bottom));
+    padding-bottom: calc(
+      var(--app-bottom-nav-height) + 1rem + var(--app-safe-bottom)
+    );
   }
 
   .app-page {
@@ -207,12 +210,16 @@
     border: 1px solid var(--app-border);
     border-radius: var(--radius-premium);
     box-shadow: var(--shadow-premium);
-    transition: background-color 220ms ease, border-color 220ms ease, transform 220ms ease;
+    transition: background-color 220ms ease, border-color 220ms ease,
+      transform 220ms ease, box-shadow 220ms ease;
   }
 
   .app-card:hover {
     border-color: color-mix(in srgb, var(--app-primary) 28%, var(--app-border));
-    background: color-mix(in srgb, var(--app-secondary) 5%, var(--app-surface));
+    background: color-mix(in srgb, var(--app-secondary) 4%, var(--app-surface));
+    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.12),
+      0 1px 4px rgba(37, 99, 235, 0.06);
+    transform: translateY(-1px);
   }
 
   .glass {
@@ -244,6 +251,7 @@
   html[data-app-lite="true"] .app-card {
     border-radius: var(--app-radius-compact);
     box-shadow: none;
+    transform: none !important;
   }
 
   .btn-premium {
@@ -256,7 +264,7 @@
     font-size: 0.8125rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-radius: var(--app-radius-compact);
+    border-radius: 8px;
     transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: none;
     overflow: hidden;
@@ -266,7 +274,11 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom right, rgba(15, 74, 163, 0.06), transparent);
+    background: linear-gradient(
+      to bottom right,
+      rgba(15, 74, 163, 0.06),
+      transparent
+    );
     opacity: 0;
     transition: opacity 200ms;
   }
@@ -287,18 +299,31 @@
     display: none;
   }
 
+  /* Blue-tinted modal backdrop instead of solid black */
+  .app-overlay {
+    background: color-mix(in srgb, var(--app-primary) 18%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
   .bg-mesh {
     background-color: var(--app-bg);
-    background-image:
-      linear-gradient(180deg, rgba(15, 74, 163, 0.04), transparent 22%),
+    background-image: linear-gradient(
+        180deg,
+        rgba(15, 74, 163, 0.04),
+        transparent 22%
+      ),
       linear-gradient(90deg, rgba(15, 74, 163, 0.03) 1px, transparent 1px),
       linear-gradient(rgba(15, 74, 163, 0.03) 1px, transparent 1px);
     background-size: 100% 100%, 24px 24px, 24px 24px;
   }
 
   .dark .bg-mesh {
-    background-image:
-      linear-gradient(180deg, rgba(15, 74, 163, 0.04), transparent 22%),
+    background-image: linear-gradient(
+        180deg,
+        rgba(15, 74, 163, 0.04),
+        transparent 22%
+      ),
       linear-gradient(90deg, rgba(15, 74, 163, 0.03) 1px, transparent 1px),
       linear-gradient(rgba(15, 74, 163, 0.03) 1px, transparent 1px);
     background-size: 100% 100%, 24px 24px, 24px 24px;
@@ -322,7 +347,8 @@
   .reveal {
     opacity: 0;
     transform: translateY(36px) scale(0.97);
-    transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
   }
 
@@ -344,50 +370,174 @@
     transform: translateY(0) translateX(0) scale(1);
   }
 
-  .reveal-delay-100 { transition-delay: 100ms; }
-  .reveal-delay-150 { transition-delay: 150ms; }
-  .reveal-delay-200 { transition-delay: 200ms; }
-  .reveal-delay-300 { transition-delay: 300ms; }
-  .reveal-delay-400 { transition-delay: 400ms; }
-  .reveal-delay-500 { transition-delay: 500ms; }
-  .reveal-delay-600 { transition-delay: 600ms; }
-  .reveal-delay-700 { transition-delay: 700ms; }
+  .reveal-delay-100 {
+    transition-delay: 100ms;
+  }
+  .reveal-delay-150 {
+    transition-delay: 150ms;
+  }
+  .reveal-delay-200 {
+    transition-delay: 200ms;
+  }
+  .reveal-delay-300 {
+    transition-delay: 300ms;
+  }
+  .reveal-delay-400 {
+    transition-delay: 400ms;
+  }
+  .reveal-delay-500 {
+    transition-delay: 500ms;
+  }
+  .reveal-delay-600 {
+    transition-delay: 600ms;
+  }
+  .reveal-delay-700 {
+    transition-delay: 700ms;
+  }
 
   @keyframes float-y {
     0%,
-    100% { transform: translateY(0px); }
-    50% { transform: translateY(-12px); }
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
   }
 
   @keyframes float-slow {
     0%,
-    100% { transform: translateY(0px) rotate(0deg); }
-    33% { transform: translateY(-8px) rotate(2deg); }
-    66% { transform: translateY(4px) rotate(-2deg); }
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    33% {
+      transform: translateY(-8px) rotate(2deg);
+    }
+    66% {
+      transform: translateY(4px) rotate(-2deg);
+    }
   }
 
   @keyframes pulse-ring {
-    0% { transform: scale(0.95); opacity: 0.6; }
-    70% { transform: scale(1.1); opacity: 0; }
-    100% { transform: scale(0.95); opacity: 0; }
+    0% {
+      transform: scale(0.95);
+      opacity: 0.6;
+    }
+    70% {
+      transform: scale(1.1);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
   }
 
   @keyframes gradient-x {
     0%,
-    100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
   }
 
   @keyframes ticker-slide {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
   }
 
-  .animate-float { animation: float-y 4s ease-in-out infinite; }
-  .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
-  .animate-pulse-ring { animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite; }
-  .animate-gradient-x { background-size: 200% 200%; animation: gradient-x 4s ease infinite; }
-  .animate-ticker { animation: ticker-slide 28s linear infinite; }
+  .animate-float {
+    animation: float-y 4s ease-in-out infinite;
+  }
+  .animate-float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
+  .animate-pulse-ring {
+    animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  }
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 4s ease infinite;
+  }
+  .animate-ticker {
+    animation: ticker-slide 28s linear infinite;
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slide-right {
+    from {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-left {
+    from {
+      opacity: 0;
+      transform: translateX(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes glow-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.25);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(37, 99, 235, 0);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-scale-in {
+    animation: scale-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-slide-right {
+    animation: slide-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-slide-left {
+    animation: slide-left 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
 
   .dark .dm-surface {
     background-color: var(--app-surface) !important;
@@ -413,7 +563,8 @@
   }
 
   .interactive-item {
-    transition: background-color 180ms ease, color 180ms ease, transform 120ms ease;
+    transition: background-color 180ms ease, color 180ms ease,
+      transform 120ms ease;
   }
 
   .interactive-item:hover {
@@ -437,7 +588,12 @@
   }
 
   .text-gradient-primary {
-    background: linear-gradient(135deg, var(--app-primary), var(--app-primary-dark), #5d7fb5);
+    background: linear-gradient(
+      135deg,
+      var(--app-primary),
+      var(--app-primary-dark),
+      #5d7fb5
+    );
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -458,8 +614,12 @@
   }
 
   @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
   }
 
   .skeleton-shimmer {
@@ -475,7 +635,9 @@
 
   .app-touch {
     -webkit-tap-highlight-color: transparent;
-    transition: transform 120ms ease, opacity 120ms ease;
+    transition: transform 120ms ease, opacity 120ms ease, color 180ms ease,
+      background-color 180ms ease, border-color 180ms ease,
+      box-shadow 180ms ease;
   }
 
   .app-touch:active {

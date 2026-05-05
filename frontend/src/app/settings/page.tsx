@@ -46,7 +46,7 @@ export default function SettingsPage() {
 
   const handleLogout = () => {
     void clearStoredAuth().finally(() => {
-      router.push(localizePath(locale, "/landing"));
+      router.push(localizePath(locale, "/"));
     });
   };
 

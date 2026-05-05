@@ -856,7 +856,7 @@ export default function GroupDetailClient() {
       type="button"
       onClick={() => void handleAnnounce()}
       disabled={announceLoading}
-      className="flex w-full items-center justify-center gap-2 rounded-[16px] bg-amber-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-sm transition-all active:scale-95 disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-[16px] bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-sm transition-all hover:bg-[var(--app-primary-dark)] active:scale-95 disabled:opacity-60"
     >
       {announceLoading ? (
         <Loader2 size={14} className="animate-spin" />
