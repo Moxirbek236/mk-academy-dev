@@ -163,8 +163,6 @@ function LangSwitcher() {
     window.location.reload();
   };
 
-  const visibleQuestions = publishedQuestions.length > 0 ? publishedQuestions : DEFAULT_PUBLIC_QUESTIONS;
-
   return (
     <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
       {LANG_OPTIONS.map((lang) => (
