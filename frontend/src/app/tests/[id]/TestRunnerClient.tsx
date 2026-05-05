@@ -10,7 +10,6 @@ import {
   submitTestAttempt,
   type TestAttempt,
   type TestItem,
-  validateAttemptAnswers,
 } from '@/lib/backend-api';
 import {
   PageEmptyState,
@@ -47,6 +46,9 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>(
+    {},
+  );
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -93,10 +95,50 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
   const remainingSeconds = timeLimitSeconds ? Math.max(0, timeLimitSeconds - spentSeconds) : null;
   const answeredCount = activeQuestions.filter((question) => ![undefined, null, ''].includes(answers[String(question.id)] as any)).length;
 
+  function validateQuestionAnswers() {
+    const nextErrors: Record<string, string> = {};
+
+    activeQuestions.forEach((question) => {
+      const key = String(question.id);
+      const value = answers[key];
+
+      if ([undefined, null, ''].includes(value as any)) {
+        nextErrors[key] = 'Ushbu savol belgilanmadi';
+        return;
+      }
+
+      const options = normalizeQuestionOptionItems(question.options);
+      if (
+        options.length > 0 &&
+        !options.some(
+          (option) => option.label === String(value).trim().toUpperCase(),
+        )
+      ) {
+        nextErrors[key] = 'Javob mavjud variantlardan tanlanishi kerak';
+      }
+    });
+
+    return nextErrors;
+  }
+
+  function updateAnswer(questionId: number, value: unknown) {
+    const key = String(questionId);
+    setAnswers((current) => ({
+      ...current,
+      [key]: value,
+    }));
+    setQuestionErrors((current) => {
+      if (!current[key]) return current;
+      const { [key]: _removed, ...rest } = current;
+      return rest;
+    });
+  }
+
   async function handleStart() {
     try {
       setStarting(true);
       setFormError(null);
+      setQuestionErrors({});
       const response = await startTestAttempt(testId);
       setAttempt(response.data);
       setTest(response.test || test);
@@ -116,10 +158,11 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
     try {
       setSubmitting(true);
       setFormError(null);
+      setQuestionErrors({});
 
-      const errors = validateAttemptAnswers(test, answers);
-      if (errors.length) {
-        setFormError(errors.join('\n'));
+      const nextQuestionErrors = validateQuestionAnswers();
+      if (Object.keys(nextQuestionErrors).length) {
+        setQuestionErrors(nextQuestionErrors);
         return;
       }
 
@@ -242,10 +285,18 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
           {activeQuestions.map((question, index) => {
             const options = normalizeQuestionOptionItems(question.options);
             const value = answers[String(question.id)] ?? '';
+            const questionError = questionErrors[String(question.id)];
             const graded = result?.answers?.results?.find?.((item: any) => Number(item.questionId) === question.id);
 
             return (
-              <div key={question.id} className="rounded-[22px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5">
+              <div
+                key={question.id}
+                className={`rounded-[22px] border p-5 transition-colors ${
+                  questionError
+                    ? 'border-red-300 bg-red-50/80'
+                    : 'border-[var(--app-border)] bg-[var(--app-surface)]'
+                }`}
+              >
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
@@ -275,10 +326,7 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
                           key={option.label}
                           onClick={() =>
                             !result &&
-                            setAnswers((current) => ({
-                              ...current,
-                              [String(question.id)]: option.label,
-                            }))
+                            updateAnswer(question.id, option.label)
                           }
                           className={`rounded-[16px] border px-4 py-3 text-left text-sm font-bold transition-transform active:scale-95 ${
                             selected
@@ -296,15 +344,18 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
                     value={String(value)}
                     disabled={Boolean(result)}
                     onChange={(event) =>
-                      setAnswers((current) => ({
-                        ...current,
-                        [String(question.id)]: event.target.value,
-                      }))
+                      updateAnswer(question.id, event.target.value)
                     }
                     placeholder="Javobingizni yozing..."
                     className="min-h-28 w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold text-[var(--app-text)] disabled:opacity-70"
                   />
                 )}
+
+                {questionError ? (
+                  <div className="mt-4 rounded-[16px] border border-red-200 bg-white px-4 py-3 text-sm font-bold text-red-700 shadow-sm">
+                    {questionError}
+                  </div>
+                ) : null}
 
                 {graded ? (
                   <div className="mt-4 rounded-[16px] bg-[var(--app-surface-soft)] p-4 text-sm font-semibold text-[var(--app-muted)]">
