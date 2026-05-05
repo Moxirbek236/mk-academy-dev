@@ -45,7 +45,7 @@ jobs:
           script: |
             set -euo pipefail
             # 1. Loyiha papkasiga kirish (O'zingizning serveringizdagi manzilni ko'rsatasiz)
-            cd /root/mk_academia/
+            cd /root/mk-academia-dev/
 
             # 2. Yangi kodni Git dan tortib olish
             git pull origin main
