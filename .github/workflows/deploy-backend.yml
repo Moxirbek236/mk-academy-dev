@@ -41,6 +41,7 @@ jobs:
           passphrase: ${{ env.DEPLOY_PASSPHRASE }}
           port: ${{ env.DEPLOY_PORT }}
           script: |
+            set -euo pipefail
             # 1. Loyiha papkasiga kirish (O'zingizning serveringizdagi manzilni ko'rsatasiz)
             cd /root/mk_academia/
 
