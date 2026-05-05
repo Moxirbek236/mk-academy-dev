@@ -153,7 +153,7 @@ jobs:
             fi
             if command -v podman >/dev/null 2>&1; then
               podman rm -f mk_academy_backend 2>/dev/null || true
-              POD_IDS="$(podman pod ps -a --format '{{.ID}} {{.Name}}' | awk '$2 ~ /mk[_-]academy|mk_academy/ { print $1 }')"
+              POD_IDS="$(podman pod ps --format '{{.ID}} {{.Name}}' 2>/dev/null | awk '$2 ~ /mk[_-]academy|mk_academy/ { print $1 }')"
               if [ -n "${POD_IDS}" ]; then
                 echo "${POD_IDS}" | xargs -r podman pod rm -f
               fi
