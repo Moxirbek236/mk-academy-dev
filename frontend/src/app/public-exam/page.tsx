@@ -60,11 +60,10 @@ export default function PublicExamPage() {
         });
         const items = response.data || [];
         setCatalog(items);
-        if (items.length === 0) {
-          setSelectedTestId(null);
-        } else if (!items.some((item) => item.id === selectedTestId)) {
-          setSelectedTestId(items[0].id);
-        }
+        setSelectedTestId((currentId) => {
+          if (items.length === 0) return null;
+          return items.some((item) => item.id === currentId) ? currentId : items[0].id;
+        });
       } catch (error) {
         setCatalogError(getErrorMessage(error, 'Failed to load public exams'));
       } finally {
@@ -73,7 +72,7 @@ export default function PublicExamPage() {
     };
 
     void fetchCatalog();
-  }, [isLevelMode, selectedDirection, selectedLevel, selectedMode, selectedTestId]);
+  }, [isLevelMode, selectedDirection, selectedLevel, selectedMode]);
 
   const selectedTest = useMemo(
     () => catalog.find((item) => item.id === selectedTestId) || null,

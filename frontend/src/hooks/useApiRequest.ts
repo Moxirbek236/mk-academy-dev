@@ -9,6 +9,7 @@ interface UseApiRequestOptions<T> {
   initialData: T;
   request: () => Promise<T>;
   requestKey?: string | number | boolean | null;
+  staleTimeMs?: number;
 }
 
 type CacheEntry<T> = {
@@ -41,6 +42,7 @@ export function useApiRequest<T>({
   initialData,
   request,
   requestKey = null,
+  staleTimeMs = 30_000,
 }: UseApiRequestOptions<T>) {
   const cacheKey = normalizeCacheKey(requestKey);
   const initialDataRef = useRef(initialData);
@@ -52,9 +54,19 @@ export function useApiRequest<T>({
 
   requestRef.current = request;
 
-  const execute = useCallback(async (options?: { background?: boolean }) => {
+  const execute = useCallback(async (options?: { background?: boolean; force?: boolean }) => {
     const cacheExists = Boolean(cacheKey && requestCache.has(cacheKey));
     const shouldKeepCurrentData = options?.background || cacheExists;
+    const cached = cacheKey ? requestCache.get(cacheKey) : undefined;
+    const cacheFresh =
+      Boolean(cached) &&
+      staleTimeMs > 0 &&
+      Date.now() - (cached?.updatedAt || 0) < staleTimeMs;
+
+    if (cacheFresh && !options?.force) {
+      setLoading(false);
+      return;
+    }
 
     if (!shouldKeepCurrentData) {
       setLoading(true);
@@ -93,7 +105,7 @@ export function useApiRequest<T>({
     } finally {
       setLoading(false);
     }
-  }, [cacheKey]);
+  }, [cacheKey, staleTimeMs]);
 
   useEffect(() => {
     const nextCachedEntry = cacheKey
@@ -128,6 +140,6 @@ export function useApiRequest<T>({
     data,
     loading,
     error,
-    refetch: execute,
+    refetch: () => execute({ force: true }),
   };
 }

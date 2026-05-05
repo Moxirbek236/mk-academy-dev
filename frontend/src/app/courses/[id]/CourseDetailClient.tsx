@@ -127,7 +127,7 @@ export default function CourseDetailClient() {
   }, [courseId]);
 
   const fetchAvailableGroups = useCallback(async () => {
-    if (!canManageCourseGroups) return;
+    if (!canManageCourseGroups || availableGroupsFetchedRef.current) return;
     setAvailableGroupsLoading(true);
     try {
       const data = await listGroups();
@@ -154,7 +154,7 @@ export default function CourseDetailClient() {
         if (cancelled) return;
         setCourse(courseData);
 
-        // Fire secondary fetches in parallel — non-blocking
+        // Keep initial load focused; group picker options are loaded on demand.
         const secondary: Promise<unknown>[] = [
           // Course groups always fetched
           getGroupsByCourse(courseId)
@@ -169,26 +169,7 @@ export default function CourseDetailClient() {
             }),
         ];
 
-        // Available groups only for admins/managers
-        if (canManageCourseGroups) {
-          secondary.push(
-            listGroups()
-              .then((d) => {
-                if (!cancelled) {
-                  setAvailableGroups(Array.isArray(d) ? d : []);
-                  availableGroupsFetchedRef.current = true;
-                }
-              })
-              .catch(() => {
-                if (!cancelled) setAvailableGroups([]);
-              })
-              .finally(() => {
-                if (!cancelled) setAvailableGroupsLoading(false);
-              })
-          );
-        } else {
-          setAvailableGroupsLoading(false);
-        }
+        setAvailableGroupsLoading(false);
 
         void Promise.allSettled(secondary);
       } catch (err: any) {
@@ -234,6 +215,7 @@ export default function CourseDetailClient() {
     try {
       await assignCourseToGroup(gid, courseId);
       setAssignGroupId("");
+      availableGroupsFetchedRef.current = false;
       // Refresh both in parallel
       await Promise.all([fetchCourseGroups(), fetchAvailableGroups()]);
     } catch (err: any) {
@@ -253,6 +235,7 @@ export default function CourseDetailClient() {
         await removeGroupCourse(gcId);
         // Optimistic update — no round-trip
         setCourseGroups((prev) => prev.filter((_, i) => i !== index));
+        availableGroupsFetchedRef.current = false;
         // Refresh available list (non-blocking)
         void fetchAvailableGroups();
       } catch (err: any) {
@@ -437,6 +420,7 @@ export default function CourseDetailClient() {
               ) : (
                 <select
                   value={assignGroupId}
+                  onFocus={() => void fetchAvailableGroups()}
                   onChange={(e) => setAssignGroupId(e.target.value)}
                   className="flex-1 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[#2563eb]"
                 >

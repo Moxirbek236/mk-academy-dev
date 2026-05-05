@@ -48,7 +48,8 @@ type NotificationContextValue = {
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
-const PUBLIC_PATHS = new Set(['/login', '/landing', '/public-exam', '/public-rating']);
+const PUBLIC_PATHS = new Set(['/', '/login', '/landing', '/public-exam', '/public-rating']);
+const NOTIFICATION_POLL_MS = 180_000;
 const DELIVERED_NOTIFICATIONS_STORAGE_KEY_PREFIX =
   'mk-academy:device-notifications:delivered:v1:';
 const PERMISSION_PROMPT_STORAGE_KEY_PREFIX =
@@ -365,7 +366,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       }
 
       void refresh();
-    }, 90_000);
+    }, NOTIFICATION_POLL_MS);
 
     return () => window.clearInterval(timer);
   }, [enabled, refresh]);

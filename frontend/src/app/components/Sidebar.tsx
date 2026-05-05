@@ -24,7 +24,7 @@ export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname() || "/";
   const normalizedPathname = stripLocaleFromPathname(pathname);
   const navItems = getNavigationConfig(role, "sidebar");
-  const { data: health } = useSystemHealth(true);
+  const { data: health } = useSystemHealth(normalizedPathname !== "/system");
   const { centerBranding } = useCenterBranding();
   const systemHealthy = ["ok", "healthy"].includes(
     String(health?.status || "").toLowerCase()

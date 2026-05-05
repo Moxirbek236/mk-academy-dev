@@ -135,6 +135,9 @@ export default function GroupDetailClient() {
   const [studentsLoading, setStudentsLoading] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const studentsFetchedRef = useRef(false);
+  const courseOptionsFetchedRef = useRef(false);
+  const testsFetchedRef = useRef(false);
+  const tasksFetchedRef = useRef(false);
 
   // "Any student" picker (admin announces to students not in group)
   const [anyPickerId, setAnyPickerId] = useState("");
@@ -168,17 +171,46 @@ export default function GroupDetailClient() {
   }, [groupId]);
 
   const fetchCourseOptions = useCallback(async () => {
-    if (!isAdmin) return;
+    if (!isAdmin || courseOptionsFetchedRef.current) return;
     setCourseOptionsLoading(true);
     try {
       const data = await listCourses({ limit: 100 });
       setCourseOptions(Array.isArray(data.items) ? data.items : []);
+      courseOptionsFetchedRef.current = true;
     } catch {
       setCourseOptions([]);
     } finally {
       setCourseOptionsLoading(false);
     }
   }, [isAdmin]);
+
+  const fetchTestOptions = useCallback(async () => {
+    if (!canAnnounce || testsFetchedRef.current) return;
+    setTestsLoading(true);
+    try {
+      const data = await listTests({ page: 1, limit: 100, isActive: true, isPublished: true });
+      setTestOptions(Array.isArray(data.items) ? data.items : []);
+      testsFetchedRef.current = true;
+    } catch {
+      setTestOptions([]);
+    } finally {
+      setTestsLoading(false);
+    }
+  }, [canAnnounce]);
+
+  const fetchTaskOptions = useCallback(async () => {
+    if (!canAnnounce || tasksFetchedRef.current) return;
+    setTasksLoading(true);
+    try {
+      const data = await listTasks();
+      setTaskOptions(Array.isArray(data) ? data : []);
+      tasksFetchedRef.current = true;
+    } catch {
+      setTaskOptions([]);
+    } finally {
+      setTasksLoading(false);
+    }
+  }, [canAnnounce]);
 
   const fetchStudentOptions = useCallback(async () => {
     if (studentsFetchedRef.current) return;
@@ -216,9 +248,7 @@ export default function GroupDetailClient() {
         }
 
         const isAdminLocal = role === "admin" || role === "superadmin";
-        const canAnnounceLocal = isAdminLocal || role === "teacher";
-
-        // All secondary fetches fire in parallel — non-blocking
+        // Initial load keeps only visible group essentials.
         const secondary: Promise<unknown>[] = [
           getCoursesByGroup(groupId)
             .then((d) => {
@@ -230,53 +260,11 @@ export default function GroupDetailClient() {
             .finally(() => {
               if (!cancelled) setCoursesLoading(false);
             }),
-
-          listTests({ page: 1, limit: 100, isActive: true, isPublished: true })
-            .then((d) => {
-              if (!cancelled)
-                setTestOptions(Array.isArray(d.items) ? d.items : []);
-            })
-            .catch(() => {
-              if (!cancelled) setTestOptions([]);
-            })
-            .finally(() => {
-              if (!cancelled) setTestsLoading(false);
-            }),
-
-          listTasks()
-            .then((d) => {
-              if (!cancelled) setTaskOptions(Array.isArray(d) ? d : []);
-            })
-            .catch(() => {
-              if (!cancelled) setTaskOptions([]);
-            })
-            .finally(() => {
-              if (!cancelled) setTasksLoading(false);
-            }),
         ];
 
-        if (isAdminLocal) {
-          secondary.push(
-            listCourses({ limit: 100 })
-              .then((d) => {
-                if (!cancelled)
-                  setCourseOptions(Array.isArray(d.items) ? d.items : []);
-              })
-              .catch(() => {
-                if (!cancelled) setCourseOptions([]);
-              })
-              .finally(() => {
-                if (!cancelled) setCourseOptionsLoading(false);
-              })
-          );
-        } else {
-          setCourseOptionsLoading(false);
-        }
-
-        if (!canAnnounceLocal) {
-          setTestsLoading(false);
-          setTasksLoading(false);
-        }
+        setCourseOptionsLoading(false);
+        setTestsLoading(false);
+        setTasksLoading(false);
 
         if (!groupData?.members?.length) {
           secondary.push(
@@ -571,6 +559,7 @@ export default function GroupDetailClient() {
     try {
       await assignCourseToGroup(groupId, courseId);
       setAssignCourseId("");
+      courseOptionsFetchedRef.current = false;
       await Promise.all([fetchCourses(), fetchCourseOptions()]);
     } catch (err: any) {
       setCourseError(
@@ -587,6 +576,7 @@ export default function GroupDetailClient() {
       try {
         await removeGroupCourse(gcId);
         setCourses((prev) => prev.filter((_, i) => i !== idx));
+        courseOptionsFetchedRef.current = false;
         void fetchCourseOptions();
       } catch (err: any) {
         setActionError(err?.response?.data?.message || "O'chirib bo'lmadi");
@@ -1002,9 +992,10 @@ export default function GroupDetailClient() {
                   {testsLoading ? (
                     <Sk className="h-[46px] w-full" />
                   ) : (
-                    <select
-                      value={assignTestId}
-                      onChange={(e) => setAssignTestId(e.target.value)}
+                      <select
+                        value={assignTestId}
+                        onFocus={() => void fetchTestOptions()}
+                        onChange={(e) => setAssignTestId(e.target.value)}
                       className="w-full rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)]"
                     >
                       <option value="">Test tanlang...</option>
@@ -1063,6 +1054,7 @@ export default function GroupDetailClient() {
                       ) : (
                         <select
                           value={assignTaskId}
+                          onFocus={() => void fetchTaskOptions()}
                           onChange={(e) => setAssignTaskId(e.target.value)}
                           className="w-full rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)]"
                         >
@@ -1155,6 +1147,7 @@ export default function GroupDetailClient() {
               ) : (
                 <select
                   value={assignCourseId}
+                  onFocus={() => void fetchCourseOptions()}
                   onChange={(e) => setAssignCourseId(e.target.value)}
                   className="flex-1 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-bold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)]"
                 >
