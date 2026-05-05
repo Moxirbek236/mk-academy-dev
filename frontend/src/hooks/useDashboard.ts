@@ -11,5 +11,6 @@ export function useDashboard(enabled = true) {
     enabled,
     initialData: null,
     request,
+    requestKey: 'dashboard:stats',
   });
 }

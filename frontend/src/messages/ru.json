@@ -46,9 +46,12 @@
     "reports": "Отчёты",
     "monitor": "Монитор",
     "groups": "Группы",
+    "assignments": "Assignments",
     "tasks": "Задания",
     "results": "Результаты",
     "learning": "Обучение",
+    "vocabularyAdmin": "Vocabulary admin",
+    "gamification": "Gamification",
     "books": "Книги",
     "rating": "Рейтинг",
     "profile": "Профиль"
@@ -65,12 +68,16 @@
     "reports": "Отчёты",
     "monitor": "Монитор",
     "groups": "Группы",
+    "assignments": "Assignments",
     "tasks": "Задания",
     "results": "Результаты",
     "learning": "Обучение",
+    "vocabularyAdmin": "Vocabulary admin",
+    "gamification": "Gamification",
     "books": "Книги",
     "rating": "Рейтинг",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "more": "Ещё"
   },
   "ExamCard": {
     "title": "Экзамен",
@@ -285,7 +292,10 @@
     },
     "ios": {
       "title": "iOS приложение",
-      "description": "IPA файл для iPhone и iPad."
-    }
+      "description": "IPA файл для iPhone и iPad.",
+      "installNote": "Open from Safari on iPhone. IPA must be signed with Apple certificate and provisioning profile."
+    },
+    "install": "Install",
+    "directDownload": "Download IPA"
   }
 }

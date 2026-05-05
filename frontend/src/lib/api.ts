@@ -1,4 +1,4 @@
-import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosHeaders, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import { buildGetCacheKey, getCachedGetResponse, normalizeHeaders, setCachedGetResponse } from '@/lib/offline/cache';
 import { OFFLINE_BANNER_MESSAGE, OFFLINE_MUTATION_MESSAGE } from '@/lib/offline/constants';
 import { AppApiError, normalizeApiError } from '@/lib/offline/errors';
@@ -25,6 +25,15 @@ export interface OfflineResponseMeta {
 export type OfflineAwareAxiosResponse<T = unknown> = AxiosResponse<T> & {
   offline?: OfflineResponseMeta;
 };
+
+function setAuthorizationHeader(
+  config: ApiRequestConfig,
+  token: string,
+) {
+  const headers = AxiosHeaders.from(config.headers ?? {});
+  headers.set('Authorization', `Bearer ${token}`);
+  config.headers = headers;
+}
 
 function getCacheScope(token: string | null): string {
   if (!token) return 'public';
@@ -69,7 +78,7 @@ api.interceptors.request.use(async (incomingConfig) => {
   }
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    setAuthorizationHeader(config, token);
   }
 
   const isOnline = await isNetworkOnline();
@@ -179,12 +188,11 @@ api.interceptors.response.use(
       const currentPath = stripLocaleFromPathname(window.location.pathname);
       if (
         currentPath !== '/login' &&
-        currentPath !== '/landing' &&
         currentPath !== '/public-exam' &&
         currentPath !== '/public-rating'
       ) {
         await clearStoredAuth();
-        window.location.href = '/landing';
+        window.location.href = '/';
       }
     }
 

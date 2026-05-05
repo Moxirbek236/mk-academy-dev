@@ -1,6 +1,7 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { Sidebar } from './components/Sidebar';
@@ -8,27 +9,23 @@ import { OfflineStatusBanner } from './components/OfflineStatusBanner';
 import { GlobalApiNotice } from './components/GlobalApiNotice';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
 import { getRoleHomePath, isRoleAllowedForPath } from '@/lib/role-access';
 import { isNativeApp } from '@/lib/native-app';
-import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
 
 export default function ClientLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const locale = useLocale();
-  const t = useTranslations('Common');
   const { role, loading, token } = useAuth();
-  const { centerBranding } = useCenterBranding();
-  const [mounted, setMounted] = useState(false);
   const [nativeApp, setNativeApp] = useState(false);
+  const [navPortalReady, setNavPortalReady] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     setNativeApp(isNativeApp());
+    setNavPortalReady(true);
   }, []);
 
   useEffect(() => {
@@ -57,48 +54,43 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const isAuthorizedRoute = isPublicRoute || isRoleAllowedForPath(normalizedPath, role);
 
   useEffect(() => {
-    if (mounted && !loading && !token && !isPublicRoute) {
+    if (!loading && !token && !isPublicRoute) {
       router.replace(localizePath(locale, '/'));
     }
-  }, [mounted, loading, token, isPublicRoute, locale, router]);
+  }, [loading, token, isPublicRoute, locale, router]);
 
   useEffect(() => {
-    if (mounted && !loading && token && !isAuthorizedRoute) {
+    if (!loading && token && !isAuthorizedRoute) {
       router.replace(localizePath(locale, getRoleHomePath(role)));
     }
-  }, [mounted, loading, token, isAuthorizedRoute, locale, role, router]);
+  }, [loading, token, isAuthorizedRoute, locale, role, router]);
 
-  if (!mounted || (loading && !isPublicRoute)) {
-    return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--app-bg)]">
-         <div className="flex flex-col items-center gap-5 px-6 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-[var(--app-primary)] shadow-lg shadow-black/5">
-               <Loader2 size={32} className="text-white animate-spin" />
-            </div>
-            <p className="ml-1 text-[10px] font-black uppercase tracking-[0.32em] text-gray-500">
-              {t('loading')} {centerBranding.shortName}
-            </p>
-         </div>
-      </div>
-    );
-  }
-
-  if (!isAuthorizedRoute) {
+  if (!loading && !isAuthorizedRoute) {
     return null;
   }
 
   const hideNav = isPublicRoute;
+  const fixedNavigation =
+    navPortalReady && !hideNav
+      ? createPortal(
+          <>
+            <Sidebar role={role} />
+            <BottomNav role={role} />
+          </>,
+          document.body,
+        )
+      : null;
 
   return (
     <div
-      className="app-shell flex bg-[var(--app-bg)]"
+      className="app-shell relative flex min-h-screen bg-[var(--app-bg)] overflow-x-clip"
     >
-      {!hideNav && <Sidebar role={role} />}
+      {fixedNavigation}
       
       <div className={`flex-1 flex min-h-screen-safe flex-col ${!hideNav ? 'lg:pl-72' : ''}`}>
-        {!hideNav && <div className="lg:hidden"><Header role={role} /></div>}
+        {!hideNav && <Header role={role} />}
         <OfflineStatusBanner />
-        <main className={`w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-5 sm:pt-7 lg:pt-10' : ''}`}>
+        <main className={`min-w-0 w-full flex-1 ${!hideNav ? 'mx-auto max-w-7xl pb-nav-safe pt-5 sm:pt-7 lg:pt-10' : ''}`}>
           {nativeApp ? (
             <div>{children}</div>
           ) : (
@@ -115,7 +107,6 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
             </AnimatePresence>
           )}
         </main>
-        {!hideNav && <div className="lg:hidden"><BottomNav role={role} /></div>}
       </div>
       <GlobalApiNotice />
     </div>

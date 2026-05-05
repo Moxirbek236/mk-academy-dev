@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   CheckCircle2,
   Eye,
@@ -11,10 +11,10 @@ import {
   UserPlus,
   UserRound,
   XCircle,
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useAuth } from '@/hooks/useAuth';
-import { useUsers } from '@/hooks/useUsers';
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useAuth } from "@/hooks/useAuth";
+import { useUsers } from "@/hooks/useUsers";
 import {
   activateUser,
   createAdmin,
@@ -25,46 +25,50 @@ import {
   type UserDirectoryRole,
   CEFR_LEVELS,
   removeUser,
-} from '@/lib/backend-api';
-import { hasRoleCapability, isRoleAllowedForPath } from '@/lib/role-access';
+} from "@/lib/backend-api";
+import { hasRoleCapability, isRoleAllowedForPath } from "@/lib/role-access";
 import {
   PageEmptyState,
   PageErrorState,
   PageLoadingState,
   PageShell,
-} from '@/app/components/ui/PagePrimitives';
+} from "@/app/components/ui/PagePrimitives";
 
-type CreateRole = 'ADMIN' | 'TEACHER' | 'STUDENT';
+type CreateRole = "ADMIN" | "TEACHER" | "STUDENT";
 
 const ROLE_BADGES: Record<string, string> = {
-  SUPERADMIN: 'bg-red-50 text-red-600',
-  ADMIN: 'bg-amber-50 text-amber-600',
-  TEACHER: 'bg-blue-50 text-blue-600',
-  STUDENT: 'bg-blue-50 text-blue-600',
+  SUPERADMIN: "bg-red-50 text-red-600",
+  ADMIN: "bg-amber-50 text-amber-600",
+  TEACHER: "bg-blue-50 text-blue-600",
+  STUDENT: "bg-blue-50 text-blue-600",
 };
 
-const ROLE_FILTERS: UserDirectoryRole[] = ['ADMIN', 'TEACHER', 'STUDENT'];
+const ROLE_FILTERS: UserDirectoryRole[] = ["ADMIN", "TEACHER", "STUDENT"];
 
 const EMPTY_FORM = {
-  phone: '',
-  passwordHash: '',
-  fullName: '',
-  cefrLevel: '',
+  phone: "",
+  passwordHash: "",
+  fullName: "",
+  cefrLevel: "",
 };
 
 export default function UsersPage() {
-  const t = useTranslations('UsersPage');
-  const uiT = useTranslations('UiStates');
+  const t = useTranslations("UsersPage");
+  const uiT = useTranslations("UiStates");
   const { role, loading: authLoading } = useAuth();
-  const canAccess = isRoleAllowedForPath('/users', role);
-  const canManageUsers = hasRoleCapability(role, 'manage_users');
-  const canCreateAdmin = hasRoleCapability(role, 'create_admin');
-  const canCreateTeacher = hasRoleCapability(role, 'create_teacher');
-  const canCreateStudent = hasRoleCapability(role, 'create_student');
+  const canAccess = isRoleAllowedForPath("/users", role);
+  const canManageUsers = hasRoleCapability(role, "manage_users");
+  const canCreateAdmin = hasRoleCapability(role, "create_admin");
+  const canCreateTeacher = hasRoleCapability(role, "create_teacher");
+  const canCreateStudent = hasRoleCapability(role, "create_student");
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<UserDirectoryRole | undefined>(undefined);
-  const [activeFilter, setActiveFilter] = useState<boolean | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState<UserDirectoryRole | undefined>(
+    undefined
+  );
+  const [activeFilter, setActiveFilter] = useState<boolean | undefined>(
+    undefined
+  );
   const [createRole, setCreateRole] = useState<CreateRole | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
@@ -80,22 +84,22 @@ export default function UsersPage() {
       page: 1,
       limit: 20,
     }),
-    [activeFilter, roleFilter, searchTerm],
+    [activeFilter, roleFilter, searchTerm]
   );
 
-  const { data: users, loading, error, refetch } = useUsers(
-    role,
-    query,
-    canAccess && !authLoading,
-    'role-specific',
-  );
+  const {
+    data: users,
+    loading,
+    error,
+    refetch,
+  } = useUsers(role, query, canAccess && !authLoading, "role-specific");
 
   if (!authLoading && !canAccess) return null;
 
   const createOptions = [
-    canCreateAdmin ? { role: 'ADMIN' as const, label: 'Admin' } : null,
-    canCreateTeacher ? { role: 'TEACHER' as const, label: 'Teacher' } : null,
-    canCreateStudent ? { role: 'STUDENT' as const, label: 'Student' } : null,
+    canCreateAdmin ? { role: "ADMIN" as const, label: "Admin" } : null,
+    canCreateTeacher ? { role: "TEACHER" as const, label: "Teacher" } : null,
+    canCreateStudent ? { role: "STUDENT" as const, label: "Student" } : null,
   ].filter(Boolean) as Array<{ role: CreateRole; label: string }>;
 
   async function handleCreateUser() {
@@ -112,9 +116,9 @@ export default function UsersPage() {
         cefrLevel: (form.cefrLevel || undefined) as CefrLevel | undefined,
       };
 
-      if (createRole === 'ADMIN') {
+      if (createRole === "ADMIN") {
         await createAdmin(payload);
-      } else if (createRole === 'TEACHER') {
+      } else if (createRole === "TEACHER") {
         await createTeacher(payload);
       } else {
         await createStudent(payload);
@@ -124,7 +128,11 @@ export default function UsersPage() {
       setForm(EMPTY_FORM);
       await refetch();
     } catch (createError) {
-      setMutationError(createError instanceof Error ? createError.message : "Foydalanuvchini yaratib bo'lmadi");
+      setMutationError(
+        createError instanceof Error
+          ? createError.message
+          : "Foydalanuvchini yaratib bo'lmadi"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -137,7 +145,11 @@ export default function UsersPage() {
       const data = await getUserById(id);
       setSelectedUser(data);
     } catch (detailError) {
-      setMutationError(detailError instanceof Error ? detailError.message : "Foydalanuvchi ma'lumotini ochib bo'lmadi");
+      setMutationError(
+        detailError instanceof Error
+          ? detailError.message
+          : "Foydalanuvchi ma'lumotini ochib bo'lmadi"
+      );
     } finally {
       setDetailLoading(false);
     }
@@ -153,14 +165,18 @@ export default function UsersPage() {
       }
       await refetch();
     } catch (toggleError) {
-      setMutationError(toggleError instanceof Error ? toggleError.message : "Holatni yangilab bo'lmadi");
+      setMutationError(
+        toggleError instanceof Error
+          ? toggleError.message
+          : "Holatni yangilab bo'lmadi"
+      );
     }
   }
 
   return (
     <PageShell
-      title={t('title')}
-      subtitle={t('total', { count: users.length })}
+      title={t("title")}
+      subtitle={t("total", { count: users.length })}
       action={
         canManageUsers ? (
           <div className="flex items-center gap-2">
@@ -168,7 +184,7 @@ export default function UsersPage() {
               <button
                 key={option.role}
                 onClick={() => setCreateRole(option.role)}
-                className="rounded-[14px] bg-[var(--app-primary)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+                className="bg-[var(--app-primary)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
               >
                 {option.label}
               </button>
@@ -179,28 +195,41 @@ export default function UsersPage() {
     >
       <div className="mb-5 flex flex-col gap-3">
         <div className="relative">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--app-muted)]" />
+          <Search
+            size={18}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--app-muted)]"
+          />
           <input
             type="text"
-            placeholder={t('searchPlaceholder')}
+            placeholder={t("searchPlaceholder")}
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none sm:rounded-[18px] sm:py-3.5"
+            className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] py-3 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] transition-all focus:border-[var(--app-primary)] focus:outline-none sm:py-3.5"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setRoleFilter(undefined)}
-            className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${!roleFilter ? 'bg-[var(--app-primary)] text-white' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+            className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+              !roleFilter
+                ? "bg-[var(--app-primary)] text-white"
+                : "border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]"
+            }`}
           >
             Barchasi
           </button>
-          {ROLE_FILTERS.filter((item) => !(item === 'ADMIN' && role !== 'superadmin')).map((item) => (
+          {ROLE_FILTERS.filter(
+            (item) => !(item === "ADMIN" && role !== "superadmin")
+          ).map((item) => (
             <button
               key={item}
               onClick={() => setRoleFilter(item)}
-              className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${roleFilter === item ? 'bg-[var(--app-primary)] text-white' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                roleFilter === item
+                  ? "bg-[var(--app-primary)] text-white"
+                  : "border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]"
+              }`}
             >
               {item}
             </button>
@@ -210,19 +239,31 @@ export default function UsersPage() {
             <>
               <button
                 onClick={() => setActiveFilter(undefined)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === undefined ? 'bg-[var(--app-surface-soft)] text-[var(--app-text)]' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+                className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                  activeFilter === undefined
+                    ? "bg-[var(--app-surface-soft)] text-[var(--app-text)]"
+                    : "border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]"
+                }`}
               >
                 Holat: barchasi
               </button>
               <button
                 onClick={() => setActiveFilter(true)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === true ? 'bg-blue-50 text-blue-700' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+                className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                  activeFilter === true
+                    ? "bg-blue-50 text-blue-700"
+                    : "border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]"
+                }`}
               >
                 Faol
               </button>
               <button
                 onClick={() => setActiveFilter(false)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === false ? 'bg-red-50 text-red-700' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+                className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                  activeFilter === false
+                    ? "bg-red-50 text-red-700"
+                    : "border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]"
+                }`}
               >
                 Nofaol
               </button>
@@ -232,52 +273,68 @@ export default function UsersPage() {
       </div>
 
       {mutationError ? (
-        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <div className="mb-4 border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
           {mutationError}
         </div>
       ) : null}
 
       {loading ? (
-        <PageLoadingState title={uiT('loadingTitle')} description={uiT('loadingDescription')} />
+        <PageLoadingState
+          title={uiT("loadingTitle")}
+          description={uiT("loadingDescription")}
+        />
       ) : error ? (
         <PageErrorState
-          title={uiT('errorTitle')}
-          description={error || uiT('errorDescription')}
-          retryLabel={uiT('retry')}
+          title={uiT("errorTitle")}
+          description={error || uiT("errorDescription")}
+          retryLabel={uiT("retry")}
           onRetry={() => {
             void refetch();
           }}
         />
       ) : users.length === 0 ? (
-        <PageEmptyState title={t('emptyTitle')} description={t('emptyDescription')} />
+        <PageEmptyState
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 pb-20 xl:grid-cols-2">
           {users.map((user: any, index: number) => (
-            <div key={user.id || index} className="app-card flex flex-col gap-4 overflow-hidden p-4 transition-all sm:p-5">
+            <div
+              key={user.id || index}
+              className="app-card flex flex-col gap-4 overflow-hidden p-4 transition-all sm:p-5"
+            >
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--app-surface-soft)] text-base font-black text-[var(--app-primary)] sm:h-14 sm:w-14 sm:rounded-[18px] sm:text-lg">
-                  {user.fullName?.charAt(0) || 'U'}
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-[var(--app-surface-soft)] text-base font-black text-[var(--app-primary)] sm:h-14 sm:w-14 sm:text-lg">
+                  {user.fullName?.charAt(0) || "U"}
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-text)]">
-                    {user.fullName || t('newUser')}
+                    {user.fullName || t("newUser")}
                   </h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${ROLE_BADGES[user.role] || 'bg-[var(--app-surface-soft)] text-[var(--app-muted)]'}`}>
+                    <span
+                      className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${
+                        ROLE_BADGES[user.role] ||
+                        "bg-[var(--app-surface-soft)] text-[var(--app-muted)]"
+                      }`}
+                    >
                       {user.role}
                     </span>
                     {user.cefrLevel ? (
-                      <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      <span className="bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                         {user.cefrLevel}
                       </span>
                     ) : null}
                     <span
-                      className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${
-                        user.isActive ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'
+                      className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${
+                        user.isActive
+                          ? "bg-blue-50 text-blue-700"
+                          : "bg-red-50 text-red-700"
                       }`}
                     >
-                      {user.isActive ? 'ACTIVE' : 'INACTIVE'}
+                      {user.isActive ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </div>
                 </div>
@@ -286,24 +343,32 @@ export default function UsersPage() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => void handleOpenDetails(user.id)}
-                  className="flex items-center justify-center gap-2 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
+                  className="flex items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
                 >
-                  {detailLoading && selectedUser?.id !== user.id ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
+                  {detailLoading && selectedUser?.id !== user.id ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Eye size={14} />
+                  )}
                   Detail
                 </button>
 
                 {canManageUsers ? (
                   <button
                     onClick={() => void handleToggleActive(user)}
-                    className={`flex items-center justify-center gap-2 rounded-[14px] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 ${
-                      user.isActive ? 'bg-red-500' : 'bg-blue-500'
+                    className={`flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 ${
+                      user.isActive ? "bg-red-500" : "bg-blue-500"
                     }`}
                   >
-                    {user.isActive ? <XCircle size={14} /> : <CheckCircle2 size={14} />}
-                    {user.isActive ? "O'chirish" : 'Faollashtirish'}
+                    {user.isActive ? (
+                      <XCircle size={14} />
+                    ) : (
+                      <CheckCircle2 size={14} />
+                    )}
+                    {user.isActive ? "O'chirish" : "Faollashtirish"}
                   </button>
                 ) : (
-                  <div className="flex items-center justify-center gap-2 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  <div className="flex items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                     <Shield size={14} />
                     Read only
                   </div>
@@ -315,16 +380,21 @@ export default function UsersPage() {
       )}
 
       {createRole ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-3 sm:px-4">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-primary)]/20 backdrop-blur-md px-3 sm:px-4">
           <div className="w-full max-w-md rounded-[20px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-2xl sm:rounded-[26px] sm:p-6">
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">{createRole} yaratish</h3>
+                <h3 className="text-xl font-black tracking-tight text-[var(--app-text)]">
+                  {createRole} yaratish
+                </h3>
                 <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                   DTO maydonlariga mos forma
                 </p>
               </div>
-              <button onClick={() => setCreateRole(null)} className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)]">
+              <button
+                onClick={() => setCreateRole(null)}
+                className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)]"
+              >
                 <XCircle size={18} />
               </button>
             </div>
@@ -332,26 +402,46 @@ export default function UsersPage() {
             <div className="space-y-3">
               <input
                 value={form.fullName}
-                onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    fullName: event.target.value,
+                  }))
+                }
                 placeholder="Full name"
                 className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
               />
               <input
                 value={form.phone}
-                onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    phone: event.target.value,
+                  }))
+                }
                 placeholder="+998901234567"
                 className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
               />
               <input
                 value={form.passwordHash}
-                onChange={(event) => setForm((current) => ({ ...current, passwordHash: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    passwordHash: event.target.value,
+                  }))
+                }
                 placeholder="Password"
                 type="password"
                 className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
               />
               <select
                 value={form.cefrLevel}
-                onChange={(event) => setForm((current) => ({ ...current, cefrLevel: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    cefrLevel: event.target.value,
+                  }))
+                }
                 className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
               >
                 <option value="">CEFR level</option>
@@ -375,7 +465,11 @@ export default function UsersPage() {
                 disabled={submitting}
                 className="flex flex-1 items-center justify-center gap-2 rounded-[16px] bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white disabled:opacity-60"
               >
-                {submitting ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />}
+                {submitting ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <UserPlus size={14} />
+                )}
                 Saqlash
               </button>
             </div>
@@ -384,7 +478,7 @@ export default function UsersPage() {
       ) : null}
 
       {selectedUser ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-3 sm:px-4">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-primary)]/20 backdrop-blur-md px-3 sm:px-4">
           <div className="w-full max-w-lg rounded-[20px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-2xl sm:rounded-[26px] sm:p-6">
             <div className="mb-5 flex items-center justify-between">
               <div>
@@ -395,36 +489,61 @@ export default function UsersPage() {
                   User detail
                 </p>
               </div>
-              <button onClick={() => setSelectedUser(null)} className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)]">
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-muted)]"
+              >
                 <XCircle size={18} />
               </button>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Phone</p>
-                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{selectedUser.phone || '-'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  Phone
+                </p>
+                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">
+                  {selectedUser.phone || "-"}
+                </p>
               </div>
               <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Role</p>
-                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{selectedUser.role || '-'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  Role
+                </p>
+                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">
+                  {selectedUser.role || "-"}
+                </p>
               </div>
               <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">CEFR</p>
-                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{selectedUser.cefrLevel || '-'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  CEFR
+                </p>
+                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">
+                  {selectedUser.cefrLevel || "-"}
+                </p>
               </div>
               <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Status</p>
-                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">{selectedUser.isActive ? 'ACTIVE' : 'INACTIVE'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  Status
+                </p>
+                <p className="mt-2 text-sm font-bold text-[var(--app-text)]">
+                  {selectedUser.isActive ? "ACTIVE" : "INACTIVE"}
+                </p>
               </div>
             </div>
 
-            {Array.isArray(selectedUser.groupsCreated) && selectedUser.groupsCreated.length > 0 ? (
+            {Array.isArray(selectedUser.groupsCreated) &&
+            selectedUser.groupsCreated.length > 0 ? (
               <div className="mt-4 rounded-[18px] bg-[var(--app-surface-soft)] p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Groups</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  Groups
+                </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {selectedUser.groupsCreated.map((group: any) => (
-                    <span key={group.id} className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)]">
+                    <span
+                      key={group.id}
+                      className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)]"
+                    >
                       {group.name}
                     </span>
                   ))}

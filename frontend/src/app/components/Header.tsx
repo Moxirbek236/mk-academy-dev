@@ -1,126 +1,53 @@
-'use client';
+"use client";
 
-import { User, Layers, Activity, TrendingUp, Users } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { LanguageSwitcher } from './LanguageSwitcher';
-import { ThemeToggle } from './ThemeToggle';
-import { NotificationBell } from './notifications/NotificationBell';
-import { useCenterBranding } from './branding/CenterBrandingProvider';
+import { User } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { NotificationBell } from "./notifications/NotificationBell";
+import { useCenterBranding } from "./branding/CenterBrandingProvider";
 
 interface HeaderProps {
   role?: string | null;
 }
 
 export function Header({ role }: HeaderProps) {
-  const t = useTranslations('Header');
+  const t = useTranslations("Header");
   const { centerBranding } = useCenterBranding();
   const currentRole = role?.toLowerCase();
-  const isStudent = currentRole === 'student' || !currentRole;
-  const isTeacher = currentRole === 'teacher' || currentRole === 'mentor';
-  const isAdmin = currentRole === 'admin' || currentRole === 'superadmin';
+  const isTeacher = currentRole === "teacher" || currentRole === "mentor";
 
   return (
-    <div
-      className={`relative z-0 overflow-hidden border-b border-[var(--app-border)] px-safe pb-4 pt-[calc(0.85rem+var(--app-safe-top))] shadow-sm sm:px-6 sm:pb-6 sm:pt-7 ${
-        isAdmin
-          ? 'bg-[linear-gradient(180deg,rgba(37,99,235,0.12),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(96,165,250,0.18),rgba(19,32,44,0.98))]'
-          : 'bg-[linear-gradient(180deg,rgba(37,99,235,0.10),rgba(255,255,255,0.98))] dark:bg-[linear-gradient(180deg,rgba(96,165,250,0.16),rgba(19,32,44,0.98))]'
-      }`}
-    >
+    <div className="animate-fade-up relative z-0 overflow-hidden border-b border-[var(--app-border)] bg-[var(--sidebar)] px-safe pb-3 pt-[calc(0.85rem+var(--app-safe-top))] sm:px-6 sm:pb-4 sm:pt-7">
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-2.5 sm:gap-3">
           <div className="min-w-0">
-          <h1 className="truncate text-[1.2rem] font-black tracking-tight text-[var(--app-text)] sm:text-2xl">
-            {centerBranding.shortName}
-          </h1>
-          <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--app-muted)] sm:text-xs">
-            {currentRole === 'superadmin'
-              ? t('subtitleSuperadmin')
-              : currentRole === 'admin'
-                ? t('subtitleAdmin')
-              : isTeacher
-                  ? t('subtitleTeacher')
-                  : t('subtitleStudent')}
-          </p>
+            <h1 className="truncate text-[1.2rem] font-black tracking-tight text-[var(--app-text)] sm:text-2xl">
+              {centerBranding.shortName}
+            </h1>
+            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--app-muted)] sm:text-xs">
+              {currentRole === "superadmin"
+                ? t("subtitleSuperadmin")
+                : currentRole === "admin"
+                ? t("subtitleAdmin")
+                : isTeacher
+                ? t("subtitleTeacher")
+                : t("subtitleStudent")}
+            </p>
           </div>
-          <div className="app-touch flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-primary)] shadow-sm transition-all group sm:h-11 sm:w-11">
-            <User size={20} className="transition-transform group-hover:scale-105" />
+          <div className="app-touch group flex h-10 w-10 items-center justify-center border border-[var(--app-border)] bg-white text-[var(--app-primary)] transition-all sm:h-11 sm:w-11">
+            <User
+              size={20}
+              className="transition-transform group-hover:scale-105"
+            />
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 sm:mt-4 sm:justify-end">
+
+        {/* Bell + language switcher — hidden on desktop; the Sidebar renders them there */}
+        <div className="mt-2 flex items-center gap-2 lg:hidden">
           <NotificationBell />
           <LanguageSwitcher className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
-          <ThemeToggle className="border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
         </div>
       </div>
-
-      {isStudent && (
-        <>
-          <div className="relative z-10 mt-6 sm:mt-8">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)] sm:text-[11px]">{t('progress')}</p>
-            <div className="h-3 w-full overflow-hidden rounded-full border border-[var(--app-border)] bg-[var(--app-surface-soft)]">
-              <div className="h-full w-1/5 rounded-full bg-[var(--app-primary)]" />
-            </div>
-            <div className="flex justify-between items-center mt-3">
-               <span className="text-xs font-black tracking-tight text-[var(--app-text)] sm:text-sm">20% {t('done')}</span>
-               <span className="rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">Level A2</span>
-            </div>
-          </div>
-
-          <div className="relative z-10 mt-5 grid grid-cols-3 gap-2.5 sm:gap-3">
-            <div className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-3 shadow-sm">
-              <p className="text-lg font-black text-[var(--app-text)] sm:text-xl">1/5</p>
-              <p className="mt-1 text-[9px] font-bold uppercase text-[var(--app-muted)] sm:text-[10px]">{t('tasks')}</p>
-            </div>
-            <div className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-3 shadow-sm">
-              <p className="text-lg font-black text-[var(--app-accent)] sm:text-xl">3</p>
-              <p className="mt-1 text-[9px] font-bold uppercase text-[var(--app-muted)] sm:text-[10px]">{t('daysLeft')}</p>
-            </div>
-            <div className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-3 shadow-sm">
-              <p className="text-lg font-black text-[var(--app-text)] sm:text-xl">0</p>
-              <p className="mt-1 text-[9px] font-bold uppercase text-[var(--app-muted)] sm:text-[10px]">{t('errors')}</p>
-            </div>
-          </div>
-        </>
-      )}
-
-      {isTeacher && (
-        <div className="relative z-10 mt-6 grid grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2">
-          <div className="flex flex-1 items-center gap-3 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
-            <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2 text-[var(--app-primary)]"><Layers size={20} /></div>
-            <div>
-              <p className="text-lg font-black leading-none text-[var(--app-text)]">3 ta</p>
-              <p className="text-[10px] font-bold text-[var(--app-muted)] mt-1 uppercase">GURUH</p>
-            </div>
-          </div>
-          <div className="flex flex-1 items-center gap-3 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
-             <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2 text-[var(--app-primary)]"><Users size={20} /></div>
-             <div>
-              <p className="text-lg font-black leading-none text-[var(--app-text)]">35 ta</p>
-              <p className="text-[10px] font-bold text-[var(--app-muted)] mt-1 uppercase">O&apos;QUVCHI</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isAdmin && (
-        <div className="relative z-10 mt-6 grid grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2">
-           <div className="flex flex-1 items-center gap-3 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
-             <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2 text-[var(--app-primary)]"><Activity size={20} /></div>
-             <div>
-               <p className="text-lg font-black leading-none text-[var(--app-text)]">100%</p>
-               <p className="text-[10px] font-bold text-[var(--app-muted)] mt-1 uppercase">UPTIME</p>
-             </div>
-           </div>
-           <div className="flex flex-1 items-center gap-3 rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm">
-              <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2 text-[var(--app-primary)]"><TrendingUp size={20} /></div>
-              <div>
-               <p className="text-lg font-black leading-none text-[var(--app-text)]">+12.5%</p>
-               <p className="text-[10px] font-bold text-[var(--app-muted)] mt-1 uppercase">O&apos;SISH</p>
-             </div>
-           </div>
-        </div>
-      )}
     </div>
   );
 }

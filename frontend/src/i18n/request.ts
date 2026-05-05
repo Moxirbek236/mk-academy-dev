@@ -1,4 +1,3 @@
-import { cookies, headers } from 'next/headers';
 import { getRequestConfig } from 'next-intl/server';
 import { defaultLocale, defaultTimeZone, isAppLocale, localeCookieName } from './config';
 
@@ -14,6 +13,7 @@ export default getRequestConfig(async () => {
     };
   }
 
+  const { cookies, headers } = await import('next/headers');
   const headerStore = await headers();
   const cookieStore = await cookies();
 

@@ -42,6 +42,7 @@ export default function PublicExamPage() {
   const [step, setStep] = useState<'setup' | 'exam' | 'result'>('setup');
   const [submitting, setSubmitting] = useState(false);
   const [setupError, setSetupError] = useState<string | null>(null);
+  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>({});
   const [result, setResult] = useState<PublicExamResult | null>(null);
 
   const isLevelMode = selectedMode === 'LEVEL';
@@ -59,11 +60,10 @@ export default function PublicExamPage() {
         });
         const items = response.data || [];
         setCatalog(items);
-        if (items.length === 0) {
-          setSelectedTestId(null);
-        } else if (!items.some((item) => item.id === selectedTestId)) {
-          setSelectedTestId(items[0].id);
-        }
+        setSelectedTestId((currentId) => {
+          if (items.length === 0) return null;
+          return items.some((item) => item.id === currentId) ? currentId : items[0].id;
+        });
       } catch (error) {
         setCatalogError(getErrorMessage(error, 'Failed to load public exams'));
       } finally {
@@ -72,7 +72,7 @@ export default function PublicExamPage() {
     };
 
     void fetchCatalog();
-  }, [isLevelMode, selectedDirection, selectedLevel, selectedMode, selectedTestId]);
+  }, [isLevelMode, selectedDirection, selectedLevel, selectedMode]);
 
   const selectedTest = useMemo(
     () => catalog.find((item) => item.id === selectedTestId) || null,
@@ -80,6 +80,43 @@ export default function PublicExamPage() {
   );
 
   const questionCount = test?.questions?.length || 0;
+
+  function validateQuestionAnswers() {
+    const nextErrors: Record<string, string> = {};
+
+    (test?.questions || []).forEach((question) => {
+      const key = String(question.id);
+      const value = answers[key];
+
+      if ([undefined, null, ''].includes(value as any)) {
+        nextErrors[key] = 'This question is not answered';
+        return;
+      }
+
+      const options = normalizeQuestionOptionItems(question.options);
+      if (
+        options.length > 0 &&
+        !options.some((option) => option.label === String(value).trim().toUpperCase())
+      ) {
+        nextErrors[key] = 'Please choose one of the available options';
+      }
+    });
+
+    return nextErrors;
+  }
+
+  function updateAnswer(questionId: number, value: unknown) {
+    const key = String(questionId);
+    setAnswers((current) => ({
+      ...current,
+      [key]: value,
+    }));
+    setQuestionErrors((current) => {
+      if (!current[key]) return current;
+      const { [key]: _removed, ...rest } = current;
+      return rest;
+    });
+  }
 
   async function handleStartExam() {
     try {
@@ -107,6 +144,7 @@ export default function PublicExamPage() {
       const loadedTest = await getPublicExamById(selectedTestId);
       setTest(loadedTest);
       setAnswers({});
+      setQuestionErrors({});
       setResult(null);
       setStartedAtMs(Date.now());
       setStep('exam');
@@ -121,6 +159,14 @@ export default function PublicExamPage() {
     try {
       setSubmitting(true);
       setSetupError(null);
+      setQuestionErrors({});
+
+      const nextQuestionErrors = validateQuestionAnswers();
+      if (Object.keys(nextQuestionErrors).length) {
+        setQuestionErrors(nextQuestionErrors);
+        return;
+      }
+
       const elapsed =
         startedAtMs && startedAtMs > 0
           ? Math.max(0, Math.round((Date.now() - startedAtMs) / 1000))
@@ -148,6 +194,7 @@ export default function PublicExamPage() {
     setStep('setup');
     setTest(null);
     setAnswers({});
+    setQuestionErrors({});
     setStartedAtMs(null);
     setResult(null);
     setSetupError(null);
@@ -157,11 +204,11 @@ export default function PublicExamPage() {
     <div className="app-page pb-16 pt-6 sm:pt-10">
       <div className="mb-6 flex items-center justify-between gap-3">
         <Link
-          href="/landing"
+          href="/"
           className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--app-muted)]"
         >
           <ArrowLeft size={16} />
-          Back to landing
+          Back to home
         </Link>
         <Link
           href="/public-rating"
@@ -310,8 +357,16 @@ export default function PublicExamPage() {
             {(test.questions || []).map((question, index) => {
               const options = normalizeQuestionOptionItems(question.options);
               const key = String(question.id);
+              const questionError = questionErrors[key];
               return (
-                <div key={question.id} className="border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
+                <div
+                  key={question.id}
+                  className={`border p-4 transition-colors ${
+                    questionError
+                      ? 'border-red-300 bg-red-50/80'
+                      : 'border-[var(--app-border)] bg-[var(--app-surface)]'
+                  }`}
+                >
                   <p className="text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">
                     Question {index + 1}
                   </p>
@@ -329,10 +384,7 @@ export default function PublicExamPage() {
                           value={option.label}
                           checked={String(answers[key] || '') === option.label}
                           onChange={(event) =>
-                            setAnswers((current) => ({
-                              ...current,
-                              [key]: event.target.value,
-                            }))
+                            updateAnswer(question.id, event.target.value)
                           }
                         />
                         <span className="font-black">{option.label})</span>
@@ -340,6 +392,12 @@ export default function PublicExamPage() {
                       </label>
                     ))}
                   </div>
+
+                  {questionError ? (
+                    <div className="mt-4 border border-red-200 bg-white px-4 py-3 text-sm font-bold text-red-700 shadow-sm">
+                      {questionError}
+                    </div>
+                  ) : null}
                 </div>
               );
             })}

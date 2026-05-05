@@ -46,9 +46,12 @@
     "reports": "Reports",
     "monitor": "Monitor",
     "groups": "Groups",
+    "assignments": "Assignments",
     "tasks": "Tasks",
     "results": "Results",
     "learning": "Learning",
+    "vocabularyAdmin": "Vocabulary admin",
+    "gamification": "Gamification",
     "books": "Books",
     "rating": "Rating",
     "profile": "Profile"
@@ -65,12 +68,16 @@
     "reports": "Reports",
     "monitor": "Monitor",
     "groups": "Groups",
+    "assignments": "Assignments",
     "tasks": "Tasks",
     "results": "Results",
     "learning": "Learning",
+    "vocabularyAdmin": "Vocabulary admin",
+    "gamification": "Gamification",
     "books": "Books",
     "rating": "Rating",
-    "profile": "Profile"
+    "profile": "Profile",
+    "more": "More"
   },
   "ExamCard": {
     "title": "Exam",
@@ -276,6 +283,8 @@
     "subtitle": "Latest app files for Android phones and iOS.",
     "back": "Back",
     "download": "Download",
+    "install": "Install",
+    "directDownload": "Download IPA file",
     "fileLabel": "File",
     "release": "Release",
     "latestTitle": "Updated after every push",
@@ -286,7 +295,8 @@
     },
     "ios": {
       "title": "iOS app",
-      "description": "IPA file for iPhone and iPad."
+      "description": "IPA file for iPhone and iPad.",
+      "installNote": "Open this from Safari on iPhone. Installation works only when the IPA is signed with an Apple certificate and provisioning profile."
     }
   }
 }

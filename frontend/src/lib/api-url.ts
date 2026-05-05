@@ -147,7 +147,11 @@ export function getDirectApiBaseUrl() {
 }
 
 export function getApiBaseUrl() {
-  if (typeof window !== 'undefined' && !isNativeRuntime()) {
+  const capacitorExport =
+    process.env.NEXT_PUBLIC_CAPACITOR_EXPORT === 'true' ||
+    process.env.CAPACITOR_EXPORT === 'true';
+
+  if (typeof window !== 'undefined' && !isNativeRuntime() && !capacitorExport) {
     const relativeApiUrl = normalizeRelativeApiUrl(process.env.NEXT_PUBLIC_API_URL);
     if (relativeApiUrl) return relativeApiUrl;
   }

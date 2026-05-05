@@ -11,5 +11,6 @@ export function useLeads(enabled = true) {
     enabled,
     initialData: [] as LeadItem[],
     request,
+    requestKey: 'leads:list',
   });
 }

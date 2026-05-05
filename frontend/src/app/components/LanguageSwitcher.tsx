@@ -1,33 +1,27 @@
 'use client';
 
 import { Languages } from 'lucide-react';
-import { useLocale } from 'next-intl';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname, useRouter } from 'next/navigation';
 import { localeCookieName, locales, type AppLocale } from '@/i18n/config';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { cn } from '@/app/components/ui/utils';
-
-const localeLabel: Record<AppLocale, string> = {
-  uz: 'UZ',
-  ru: 'RU',
-  en: 'EN',
-};
 
 interface LanguageSwitcherProps {
   className?: string;
 }
 
 export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
+  const t = useTranslations('SettingsPage');
   const router = useRouter();
   const pathname = usePathname() || '/';
-  const searchParams = useSearchParams();
   const locale = useLocale() as AppLocale;
 
   const onChange = (nextLocale: string) => {
     const newLocale = nextLocale as AppLocale;
     const strippedPath = stripLocaleFromPathname(pathname);
-    const query = searchParams.toString();
-    const nextPath = `${strippedPath}${query ? `?${query}` : ''}`;
+    const query = typeof window !== 'undefined' ? window.location.search : '';
+    const nextPath = `${strippedPath}${query}`;
 
     document.cookie = `${localeCookieName}=${newLocale}; path=/; max-age=31536000; samesite=lax`;
     router.replace(nextPath);
@@ -43,14 +37,14 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
     >
       <Languages size={14} className="shrink-0" />
       <select
-        aria-label="Language"
+        aria-label={t('language')}
         className="min-h-8 min-w-0 flex-1 bg-transparent text-[11px] uppercase outline-none sm:text-xs"
         value={locale}
         onChange={(event) => onChange(event.target.value)}
       >
         {locales.map((item) => (
-          <option key={item} value={item} className="bg-white text-gray-900 dark:bg-slate-900 dark:text-slate-100">
-            {localeLabel[item]}
+          <option key={item} value={item} className="bg-white text-[var(--app-text)]">
+            {t(`languages.${item}`)}
           </option>
         ))}
       </select>

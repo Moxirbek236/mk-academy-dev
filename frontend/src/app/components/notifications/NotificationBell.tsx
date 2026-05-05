@@ -117,7 +117,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
   const panelContent = (
     <>
       <div className="flex justify-center border-b border-[var(--app-border)] py-2 lg:hidden">
-        <span className="h-1.5 w-12 rounded-full bg-[var(--app-border)]" />
+        <span className="h-1.5 w-12 bg-[var(--app-border)]" />
       </div>
 
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--app-border)] px-4 py-3">
@@ -129,7 +129,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
         </div>
         <button
           onClick={() => void markAllAsRead()}
-          className="ml-3 shrink-0 rounded-full bg-[var(--app-surface-soft)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)]"
+          className="ml-3 shrink-0 border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)]"
         >
           <span className="flex items-center gap-1">
             <CheckCheck size={12} />
@@ -143,9 +143,9 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
           {previewItems.map((item) => (
             <div
               key={item.id}
-              className={`rounded-[18px] border p-3 transition-colors ${
+              className={`border p-3 transition-colors ${
                 item.isRead
-                  ? 'border-transparent bg-transparent'
+                  ? 'border-[var(--app-border)] bg-white'
                   : 'border-[var(--app-border)] bg-[var(--app-surface-soft)]'
               }`}
             >
@@ -166,7 +166,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
                     </p>
                   </div>
                   {!item.isRead ? (
-                    <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--app-primary)]" />
+                    <span className="mt-1 h-2.5 w-2.5 shrink-0 bg-[var(--app-primary)]" />
                   ) : null}
                 </div>
               </button>
@@ -176,7 +176,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
                 </span>
                 <button
                   onClick={() => void removeItem(item.id)}
-                  className="shrink-0 rounded-full bg-red-50 p-2 text-red-500"
+                  className="shrink-0 border border-red-200 bg-red-50 p-2 text-red-600"
                   aria-label={t('delete')}
                 >
                   <Trash2 size={12} />
@@ -190,7 +190,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
               router.push(localizePath(locale, '/notifications'));
               setOpen(false);
             }}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-[18px] border border-[var(--app-border)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-primary)]"
+            className="mt-2 flex w-full items-center justify-center gap-2 border border-[var(--app-border)] bg-white px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-primary)]"
           >
             {t('viewAll')}
             <ChevronRight size={14} />
@@ -210,12 +210,12 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
       <button
         ref={buttonRef}
         onClick={() => setOpen((current) => !current)}
-        className="app-touch relative flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-primary)] shadow-sm transition-all sm:h-11 sm:w-11"
+        className="app-touch relative flex h-10 w-10 items-center justify-center border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-primary)] transition-all sm:h-11 sm:w-11"
         aria-label={t('title')}
       >
         <Bell size={18} strokeWidth={2.4} />
         {unreadCount > 0 ? (
-          <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[var(--app-primary)] px-1.5 py-0.5 text-center text-[9px] font-black text-white">
+          <span className="absolute -right-1 -top-1 min-w-5 bg-[var(--app-primary)] px-1.5 py-0.5 text-center text-[9px] font-black text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         ) : null}
@@ -225,7 +225,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetContent
             side="bottom"
-            className="z-[140] gap-0 rounded-t-[22px] border-[var(--app-border)] bg-[var(--app-surface)] p-0 shadow-[0_-18px_45px_rgba(15,23,42,0.18)] [&>button]:hidden"
+            className="z-[140] gap-0 border-[var(--app-border)] bg-[var(--app-surface)] p-0 [&>button]:hidden"
           >
             <div className="flex max-h-[min(72dvh,34rem)] flex-col">
               {panelContent}
@@ -242,7 +242,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
           }}
         >
           <div
-            className="flex flex-col overflow-hidden rounded-[24px] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-2xl"
+            className="flex flex-col overflow-hidden border border-[var(--app-border)] bg-[var(--app-surface)]"
             style={{
               maxHeight: desktopPanelStyle?.maxHeight ?? 384,
             }}
