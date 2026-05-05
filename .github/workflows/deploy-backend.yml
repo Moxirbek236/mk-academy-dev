@@ -10,18 +10,36 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.SSH_HOST || secrets.SERVER_HOST }}
+      DEPLOY_PORT: ${{ secrets.SSH_PORT || secrets.SERVER_PORT || '22' }}
+      DEPLOY_USER: ${{ secrets.SSH_USER || secrets.SERVER_USER }}
+      DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY || secrets.SERVER_SSH_KEY }}
+      DEPLOY_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE || secrets.SERVER_SSH_PASSPHRASE }}
+      DEPLOY_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Validate deploy secrets
+        run: |
+          test -n "$DEPLOY_HOST" || { echo "Missing deploy host secret (SSH_HOST or SERVER_HOST)"; exit 1; }
+          test -n "$DEPLOY_USER" || { echo "Missing deploy user secret (SSH_USER or SERVER_USER)"; exit 1; }
+          if [ -z "$DEPLOY_KEY" ] && [ -z "$DEPLOY_PASSWORD" ]; then
+            echo "Missing authentication secret. Set SSH_PRIVATE_KEY (or SERVER_SSH_KEY) or SERVER_PASSWORD."
+            exit 1
+          fi
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }} # Yoki kalit (SSH Key) ishlatsangiz: key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
+          host: ${{ env.DEPLOY_HOST }}
+          username: ${{ env.DEPLOY_USER }}
+          password: ${{ env.DEPLOY_PASSWORD }}
+          key: ${{ env.DEPLOY_KEY }}
+          passphrase: ${{ env.DEPLOY_PASSPHRASE }}
+          port: ${{ env.DEPLOY_PORT }}
           script: |
             # 1. Loyiha papkasiga kirish (O'zingizning serveringizdagi manzilni ko'rsatasiz)
             cd /root/mk_academia/
