@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build and cache output
+dist/
+build/
+coverage/
+.next/
+out/
+*.tsbuildinfo
+
+# Accidental root npm install artifacts
+/package.json
+/package-lock.json
+
+# Windows reserved-name files created by mistake
+nul
