@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
   ArrowRight,
   BookOpen,
+  CheckCircle2,
   ChevronDown,
+  ChevronUp,
   Clock,
   GraduationCap,
   LogIn,
-  MailQuestion,
   MapPin,
   Menu,
-  Monitor,
+  MessageCircle,
   Phone,
   Send,
   Sparkles,
@@ -21,10 +22,9 @@ import {
   Trophy,
   Users,
   X,
+  Zap,
 } from "lucide-react";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
-import { Textarea } from "@/app/components/ui/textarea";
+import Link_next from "next/link";
 import { createLead, getPublicCenterSettings } from "@/lib/backend-api";
 import {
   DEFAULT_ABOUT_POINTS,
@@ -37,7 +37,8 @@ import {
 import { useCenterBranding } from "./branding/CenterBrandingProvider";
 import "./landing.css";
 
-const navLinks = [
+/* ─── nav links ─────────────────────────────────────────────────── */
+const NAV_LINKS = [
   { label: "Biz haqimizda", href: "#about" },
   { label: "Imkoniyatlar", href: "#features" },
   { label: "Kurslar", href: "#courses" },
@@ -46,89 +47,142 @@ const navLinks = [
   { label: "Bog'lanish", href: "#contact" },
 ];
 
-const features = [
+const FEATURES = [
   {
     icon: BookOpen,
+    color: "from-blue-500 to-blue-700",
     title: "CEFR yo'nalishi",
-    desc: "A1 dan C2 gacha bosqichma-bosqich o'quv rejasi.",
+    desc: "A1 dan C2 gacha bosqichma-bosqich o'quv rejasi. Har bir darajada aniq maqsad va o'lchov.",
   },
   {
     icon: Trophy,
+    color: "from-indigo-500 to-purple-600",
     title: "Gamification",
-    desc: "XP, reyting va natijalar orqali doimiy motivatsiya.",
+    desc: "XP, reyting va natijalar orqali doimiy motivatsiya. O'rganish jarayoni qiziqarli bo'ladi.",
   },
   {
     icon: Users,
+    color: "from-cyan-500 to-blue-600",
     title: "Mentor nazorati",
-    desc: "Guruhlar, topshiriqlar va fikr-mulohaza bitta platformada.",
+    desc: "Guruhlar, topshiriqlar va fikr-mulohaza bitta platformada. Har qadamda qo'llab-quvvatlash.",
+  },
+  {
+    icon: Zap,
+    color: "from-emerald-500 to-teal-600",
+    title: "Tez natija",
+    desc: "Intensiv darslar va spaced repetition texnikasi bilan 3 oyda sezilarli o'sish.",
+  },
+  {
+    icon: Star,
+    color: "from-amber-400 to-orange-500",
+    title: "IELTS tayyorlov",
+    desc: "Maqsadli trening, mock test va expert feedback bilan 7.0+ ball.",
+  },
+  {
+    icon: MessageCircle,
+    color: "from-rose-500 to-pink-600",
+    title: "Speaking club",
+    desc: "Native speaker va tengdoshlar bilan haftasiga 3 marta amaliyot sessiyalari.",
   },
 ];
 
-const faqItems = [
+const FAQ_ITEMS = [
   {
-    question: "Qaysi darajadan boshlashim kerak?",
-    answer:
-      "Avval qisqa placement test topshirasiz. Natijaga qarab sizga mos kurs va guruh tavsiya qilinadi.",
+    q: "Qaysi darajadan boshlashim kerak?",
+    a: "Avval qisqa placement test topshirasiz. Natijaga qarab sizga mos kurs va guruh tavsiya qilinadi. Placement test 15 daqiqa oladi va bepul.",
   },
   {
-    question: "IELTS kursi qancha davom etadi?",
-    answer:
-      "Odatda 3-6 oy. Aniq muddat boshlang'ich daraja va target ballga bog'liq.",
+    q: "IELTS kursi qancha davom etadi?",
+    a: "Odatda 3-6 oy. Aniq muddat boshlang'ich daraja va target ballga bog'liq. Intensiv kurs 3 oy, standart kurs 6 oy davom etadi.",
   },
   {
-    question: "Online o'qish mumkinmi?",
-    answer:
-      "Ha, markaz sozlamalariga qarab offline, online yoki hybrid formatdagi guruhlar mavjud bo'lishi mumkin.",
+    q: "Online o'qish mumkinmi?",
+    a: "Ha, offline, online va hybrid formatdagi guruhlar mavjud. Online darslar Zoom orqali, yozuvlari platformada saqlanadi.",
+  },
+  {
+    q: "To'lov qanday amalga oshiriladi?",
+    a: "Oylik to'lov yoki to'liq kurs uchun chegirmali to'lov. Naqd, karta va bank o'tkazma orqali qabul qilinadi.",
   },
 ];
 
-const courseColors = [
-  "from-blue-500 to-blue-700",
-  "from-indigo-500 to-indigo-700",
-  "from-emerald-500 to-emerald-700",
-  "from-rose-500 to-rose-700",
-  "from-cyan-500 to-cyan-700",
-  "from-amber-500 to-amber-700",
+const COURSE_COLORS = [
+  { from: "#3b82f6", to: "#1d4ed8" },
+  { from: "#8b5cf6", to: "#6d28d9" },
+  { from: "#10b981", to: "#059669" },
+  { from: "#f59e0b", to: "#d97706" },
+  { from: "#06b6d4", to: "#0284c7" },
+  { from: "#ec4899", to: "#db2777" },
 ];
 
+/* ─── Settings hook ─────────────────────────────────────────────── */
 function usePublicLandingSettings() {
   const { centerBranding } = useCenterBranding();
   const [settings, setSettings] = useState<CenterBranding>(
-    normalizeCenterBranding(centerBranding),
+    normalizeCenterBranding(centerBranding)
   );
-
   useEffect(() => {
     let active = true;
-
     getPublicCenterSettings()
       .then((data) => {
-        if (active) {
-          setSettings(normalizeCenterBranding(data));
-        }
+        if (active) setSettings(normalizeCenterBranding(data));
       })
       .catch(() => {
-        if (active) {
-          setSettings(normalizeCenterBranding(centerBranding));
-        }
+        if (active) setSettings(normalizeCenterBranding(centerBranding));
       });
-
     return () => {
       active = false;
     };
   }, [centerBranding]);
-
   return settings;
 }
 
+/* ─── Scroll reveal hook ────────────────────────────────────────── */
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("lp-visible");
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return ref;
+}
+
+/* ─── Section wrapper ───────────────────────────────────────────── */
+function Reveal({
+  children,
+  className = "",
+  style,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const ref = useReveal();
+  return (
+    <div ref={ref} className={`lp-reveal ${className}`} style={style}>
+      {children}
+    </div>
+  );
+}
+
+/* ─── Main component ────────────────────────────────────────────── */
 export function LandingPage() {
   const settings = usePublicLandingSettings();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    fullName: "",
-    phone: "",
-    message: "",
-  });
+  const [form, setForm] = useState({ fullName: "", phone: "", message: "" });
 
   const aboutPoints = settings.aboutPoints?.length
     ? settings.aboutPoints
@@ -149,17 +203,21 @@ export function LandingPage() {
       { value: "48+", label: "Guruhlar" },
       { value: `${Math.max(team.length, 3)}+`, label: "Mentorlar" },
     ],
-    [courses.length, team.length],
+    [courses.length, team.length]
   );
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     if (!form.fullName.trim() || !form.phone.trim() || !form.message.trim()) {
-      toast.error("Iltimos, barcha maydonlarni to'ldiring.");
+      toast.error("Barcha maydonlarni to'ldiring.");
       return;
     }
-
     setLoading(true);
     try {
       await createLead({
@@ -167,285 +225,468 @@ export function LandingPage() {
         phone: form.phone.trim(),
         message: form.message.trim(),
       });
-      toast.success("Yuborildi!", {
-        description: "Admin tez orada siz bilan bog'lanadi.",
-      });
+      toast.success("Yuborildi! Admin tez orada bog'lanadi.");
       setForm({ fullName: "", phone: "", message: "" });
     } catch {
-      toast.error("Xabar yuborilmadi", {
-        description: "Aloqani tekshirib, qayta urinib ko'ring.",
-      });
+      toast.error("Xabar yuborilmadi. Qayta urinib ko'ring.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="landing-v2 min-h-screen">
-      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/85 backdrop-blur-lg">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <a href="#hero" className="flex min-w-0 items-center gap-2 text-xl font-bold text-foreground">
+    <div className="lp-root">
+      {/* ══════════════════════ NAVBAR ══════════════════════════════ */}
+      <nav className={`lp-nav ${scrolled ? "lp-nav--scrolled" : ""}`}>
+        <div className="lp-container lp-nav__inner">
+          <a href="#hero" className="lp-nav__logo">
             <img
               src={settings.logoUrl || DEFAULT_CENTER_BRANDING.logoUrl}
               alt={settings.shortName}
-              className="h-9 w-9 rounded-md object-cover"
+              className="lp-nav__logo-img"
             />
-            <span className="truncate">{settings.shortName}</span>
+            <span className="lp-nav__logo-text">{settings.shortName}</span>
           </a>
-          <div className="hidden items-center gap-6 md:flex">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
+
+          <div className="lp-nav__links">
+            {NAV_LINKS.map((l) => (
+              <a key={l.href} href={l.href} className="lp-nav__link">
+                {l.label}
               </a>
             ))}
           </div>
-          <Button asChild className="hidden gap-2 md:inline-flex">
-            <Link href="/login">
-              <LogIn className="h-4 w-4" /> Kirish
+
+          <div className="lp-nav__actions">
+            <Link href="/login" className="lp-btn lp-btn--ghost lp-btn--sm">
+              <LogIn size={15} /> Kirish
             </Link>
-          </Button>
+            <a href="#contact" className="lp-btn lp-btn--primary lp-btn--sm">
+              Ro'yxatdan o'tish <ArrowRight size={15} />
+            </a>
+          </div>
+
           <button
             type="button"
-            aria-label="Menyuni ochish"
-            className="md:hidden"
-            onClick={() => setMenuOpen((value) => !value)}
+            className="lp-nav__burger"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Menyu"
           >
-            {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
+
         {menuOpen && (
-          <div className="space-y-3 border-t border-border bg-background px-4 pb-4 md:hidden">
-            {navLinks.map((link) => (
+          <div className="lp-nav__mobile">
+            {NAV_LINKS.map((l) => (
               <a
-                key={link.href}
-                href={link.href}
+                key={l.href}
+                href={l.href}
+                className="lp-nav__mobile-link"
                 onClick={() => setMenuOpen(false)}
-                className="block py-2 text-sm text-muted-foreground"
               >
-                {link.label}
+                {l.label}
               </a>
             ))}
-            <Button asChild className="w-full gap-2">
-              <Link href="/login">
-                <LogIn className="h-4 w-4" /> Kirish
+            <div className="lp-nav__mobile-actions">
+              <Link
+                href="/login"
+                className="lp-btn lp-btn--outline lp-btn--full"
+                onClick={() => setMenuOpen(false)}
+              >
+                <LogIn size={16} /> Kirish
               </Link>
-            </Button>
+              <a
+                href="#contact"
+                className="lp-btn lp-btn--primary lp-btn--full"
+                onClick={() => setMenuOpen(false)}
+              >
+                Ro'yxatdan o'tish
+              </a>
+            </div>
           </div>
         )}
       </nav>
 
-      <section id="hero" className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,hsl(224_76%_48%/0.12),transparent_36%),radial-gradient(circle_at_bottom_left,hsl(162_69%_42%/0.10),transparent_30%)]" />
-        <div className="mx-auto w-full max-w-4xl space-y-8 px-4 pb-24 text-center">
-          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-2 text-sm text-muted-foreground">
-            <Sparkles className="h-4 w-4 text-primary" />
+      {/* ══════════════════════ HERO ════════════════════════════════ */}
+      <section id="hero" className="lp-hero">
+        {/* Background blobs */}
+        <div className="lp-hero__blob lp-hero__blob--1" />
+        <div className="lp-hero__blob lp-hero__blob--2" />
+        <div className="lp-hero__blob lp-hero__blob--3" />
+
+        <div className="lp-container lp-hero__content">
+          <div className="lp-hero__badge">
+            <Sparkles size={14} className="lp-hero__badge-icon" />
             Ingliz tilini biz bilan o'rganing
           </div>
-          <h1 className="text-5xl font-extrabold tracking-normal md:text-7xl">
+
+          <h1 className="lp-hero__title">
             {settings.name}
             <br />
-            <span className="text-gradient text-3xl font-semibold md:text-5xl">
+            <span className="lp-hero__title-sub">
               English mastery shu yerdan boshlanadi
             </span>
           </h1>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            {settings.description}
-          </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button asChild size="lg" className="gap-2 px-8 text-base">
-              <a href="#contact">
-                Boshlash <ArrowRight className="h-4 w-4" />
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="gap-2 px-8 text-base">
-              <a href="#about">
-                Batafsil <ChevronDown className="h-4 w-4" />
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="ghost" className="px-8 text-base">
-              <Link href="/public-exam">Ochiq imtihon</Link>
-            </Button>
+
+          <p className="lp-hero__desc">{settings.description}</p>
+
+          <div className="lp-hero__ctas">
+            <a href="#contact" className="lp-btn lp-btn--primary lp-btn--lg">
+              Boshlash <ArrowRight size={18} />
+            </a>
+            <a href="#courses" className="lp-btn lp-btn--white lp-btn--lg">
+              Kurslarni ko'rish <ChevronDown size={18} />
+            </a>
+            <Link
+              href="/public-exam"
+              className="lp-btn lp-btn--ghost-white lp-btn--lg"
+            >
+              Ochiq imtihon
+            </Link>
+          </div>
+
+          {/* Stats row */}
+          <div className="lp-hero__stats">
+            {stats.map((s) => (
+              <div key={s.label} className="lp-hero__stat">
+                <span className="lp-hero__stat-value">{s.value}</span>
+                <span className="lp-hero__stat-label">{s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-background/70 backdrop-blur">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="text-xl font-bold text-primary">{stat.value}</div>
-                  <div className="text-xs text-muted-foreground">{stat.label}</div>
+
+        {/* Scroll indicator */}
+        <a href="#about" className="lp-hero__scroll">
+          <ChevronDown size={20} className="lp-hero__scroll-icon" />
+        </a>
+      </section>
+
+      {/* ══════════════════════ ABOUT ═══════════════════════════════ */}
+      <section id="about" className="lp-section">
+        <div className="lp-container lp-about">
+          <Reveal className="lp-about__text">
+            <p className="lp-label">Biz haqimizda</p>
+            <h2 className="lp-heading">
+              Har bir o'quvchi uchun
+              <br />
+              aniq o'sish yo'li
+            </h2>
+            <p className="lp-body">{settings.aboutText}</p>
+            <a
+              href="#contact"
+              className="lp-btn lp-btn--primary lp-btn--md lp-mt-6"
+            >
+              Bepul konsultatsiya <ArrowRight size={16} />
+            </a>
+          </Reveal>
+
+          <Reveal className="lp-about__points">
+            {aboutPoints.map((pt, i) => (
+              <div key={i} className="lp-about__point">
+                <div className="lp-about__point-icon">
+                  <CheckCircle2 size={20} />
                 </div>
-              ))}
-            </div>
-          </div>
+                <span className="lp-about__point-text">{pt}</span>
+              </div>
+            ))}
+          </Reveal>
         </div>
       </section>
 
-      <section id="about" className="py-24">
-        <div className="container mx-auto grid items-center gap-12 px-4 lg:grid-cols-[1.05fr_0.95fr]">
-          <div>
-            <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">Biz haqimizda</p>
-            <h2 className="mb-5 text-3xl font-bold md:text-4xl">Har bir o'quvchi uchun aniq o'sish yo'li</h2>
-            <p className="text-muted-foreground">{settings.aboutText}</p>
-          </div>
-          <div className="grid gap-3">
-            {aboutPoints.map((point) => (
-              <div key={point} className="flex items-start gap-3 rounded-md border border-border bg-card p-4">
-                <Star className="mt-0.5 h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">{point}</span>
-              </div>
+      {/* ══════════════════════ FEATURES ════════════════════════════ */}
+      <section id="features" className="lp-section lp-section--alt">
+        <div className="lp-container">
+          <Reveal className="lp-section__head">
+            <p className="lp-label">Imkoniyatlar</p>
+            <h2 className="lp-heading">Ta'lim jarayoni bitta tizimda</h2>
+            <p className="lp-body lp-body--center">
+              Zamonaviy texnologiya va metodika birlashib, eng samarali natijani
+              beradi.
+            </p>
+          </Reveal>
+
+          <div className="lp-features-grid">
+            {FEATURES.map((f, i) => (
+              <Reveal
+                key={f.title}
+                className="lp-feature-card"
+                style={{ animationDelay: `${i * 80}ms` } as React.CSSProperties}
+              >
+                <div
+                  className="lp-feature-card__icon"
+                  style={{
+                    background: `linear-gradient(135deg, ${
+                      COURSE_COLORS[i % COURSE_COLORS.length].from
+                    }, ${COURSE_COLORS[i % COURSE_COLORS.length].to})`,
+                  }}
+                >
+                  <f.icon size={22} color="#fff" />
+                </div>
+                <h3 className="lp-feature-card__title">{f.title}</h3>
+                <p className="lp-feature-card__desc">{f.desc}</p>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="features" className="section-alt py-24">
-        <div className="container mx-auto px-4">
-          <p className="mb-2 text-center text-sm font-semibold uppercase tracking-widest text-primary">Imkoniyatlar</p>
-          <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">Ta'lim jarayoni bitta tizimda</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {features.map((feature) => (
-              <div key={feature.title} className="rounded-md border border-border bg-card p-6">
-                <div className="hero-gradient mb-5 flex h-11 w-11 items-center justify-center rounded-md">
-                  <feature.icon className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <h3 className="mb-2 text-xl font-bold">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ══════════════════════ COURSES ═════════════════════════════ */}
+      <section id="courses" className="lp-section">
+        <div className="lp-container">
+          <Reveal className="lp-section__head">
+            <p className="lp-label">Yo'nalishlar</p>
+            <h2 className="lp-heading">Sizga mos kurs</h2>
+            <p className="lp-body lp-body--center">
+              CEFR standartiga asoslangan, bosqichma-bosqich o'quv dasturlari.
+            </p>
+          </Reveal>
 
-      <section id="courses" className="py-24">
-        <div className="container mx-auto px-4">
-          <p className="mb-2 text-center text-sm font-semibold uppercase tracking-widest text-primary">Yo'nalishlar</p>
-          <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">Sizga mos kurs</h2>
-          <div className="grid gap-8 md:grid-cols-3">
-            {courses.map((course, index) => (
-              <div key={`${course.title}-${index}`} className="flex flex-col overflow-hidden rounded-md border border-border bg-card">
-                <div className={`h-2 bg-gradient-to-r ${courseColors[index % courseColors.length]}`} />
-                <div className="flex flex-1 flex-col p-6">
-                  <span className="mb-4 w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                    {course.level}
-                  </span>
-                  <h3 className="mb-2 text-xl font-bold">{course.title}</h3>
-                  <p className="flex-1 text-sm text-muted-foreground">{course.desc}</p>
-                  <Button asChild className="mt-6 w-full gap-2">
-                    <a href="#contact">
-                      Kursga yozilish <ArrowRight className="h-4 w-4" />
+          <div className="lp-courses-grid">
+            {courses.map((c, i) => {
+              const col = COURSE_COLORS[i % COURSE_COLORS.length];
+              return (
+                <Reveal
+                  key={`${c.title}-${i}`}
+                  className="lp-course-card"
+                  style={
+                    { animationDelay: `${i * 80}ms` } as React.CSSProperties
+                  }
+                >
+                  <div
+                    className="lp-course-card__stripe"
+                    style={{
+                      background: `linear-gradient(90deg, ${col.from}, ${col.to})`,
+                    }}
+                  />
+                  <div className="lp-course-card__body">
+                    <span
+                      className="lp-course-card__level"
+                      style={{
+                        color: col.from,
+                        backgroundColor: `${col.from}18`,
+                      }}
+                    >
+                      {c.level}
+                    </span>
+                    <h3 className="lp-course-card__title">{c.title}</h3>
+                    <p className="lp-course-card__desc">{c.desc}</p>
+                    <a
+                      href="#contact"
+                      className="lp-course-card__cta"
+                      style={{ color: col.from }}
+                    >
+                      Kursga yozilish <ArrowRight size={14} />
                     </a>
-                  </Button>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════ TEAM ════════════════════════════════ */}
+      <section id="team" className="lp-section lp-section--alt">
+        <div className="lp-container">
+          <Reveal className="lp-section__head">
+            <p className="lp-label">Jamoa</p>
+            <h2 className="lp-heading">Siz bilan ishlaydigan mentorlar</h2>
+            <p className="lp-body lp-body--center">
+              Har bir mentor o'z yo'nalishida sertifikatlangan va tajribali
+              mutaxassis.
+            </p>
+          </Reveal>
+
+          <div className="lp-team-grid">
+            {team.map((m) => (
+              <Reveal key={m.name} className="lp-team-card">
+                <div className="lp-team-card__img-wrap">
+                  <img
+                    src={m.image}
+                    alt={m.name}
+                    className="lp-team-card__img"
+                  />
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="team" className="section-alt py-24">
-        <div className="container mx-auto px-4">
-          <p className="mb-2 text-center text-sm font-semibold uppercase tracking-widest text-primary">Jamoa</p>
-          <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">Siz bilan ishlaydigan mentorlar</h2>
-          <div className="grid gap-8 md:grid-cols-3">
-            {team.map((member) => (
-              <div key={member.name} className="overflow-hidden rounded-md border border-border bg-card">
-                <img src={member.image} alt={member.name} className="h-64 w-full object-cover" />
-                <div className="p-5">
-                  <h3 className="text-xl font-bold">{member.name}</h3>
-                  <p className="text-sm font-semibold text-primary">{member.role}</p>
-                  <p className="mt-3 text-sm text-muted-foreground">{member.focus}</p>
+                <div className="lp-team-card__body">
+                  <h3 className="lp-team-card__name">{m.name}</h3>
+                  <p className="lp-team-card__role">{m.role}</p>
+                  <p className="lp-team-card__focus">{m.focus}</p>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="faq" className="py-24">
-        <div className="container mx-auto max-w-3xl px-4">
-          <p className="mb-2 text-center text-sm font-semibold uppercase tracking-widest text-primary">Savollar</p>
-          <h2 className="mb-10 text-center text-3xl font-bold md:text-4xl">Ko'p so'raladigan savollar</h2>
-          <div className="space-y-4">
-            {faqItems.map((item) => (
-              <div key={item.question} className="rounded-md border border-border bg-card p-5">
-                <h3 className="font-bold">{item.question}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{item.answer}</p>
-              </div>
+      {/* ══════════════════════ FAQ ═════════════════════════════════ */}
+      <section id="faq" className="lp-section">
+        <div className="lp-container lp-faq">
+          <Reveal className="lp-section__head">
+            <p className="lp-label">Savollar</p>
+            <h2 className="lp-heading">Ko'p so'raladigan savollar</h2>
+          </Reveal>
+
+          <div className="lp-faq__list">
+            {FAQ_ITEMS.map((item, i) => (
+              <Reveal key={i} className="lp-faq__item">
+                <button
+                  type="button"
+                  className="lp-faq__q"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  <span>{item.q}</span>
+                  {openFaq === i ? (
+                    <ChevronUp size={18} />
+                  ) : (
+                    <ChevronDown size={18} />
+                  )}
+                </button>
+                {openFaq === i && <div className="lp-faq__a">{item.a}</div>}
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="contact" className="section-alt py-24">
-        <div className="container mx-auto px-4">
-          <p className="mb-2 text-center text-sm font-semibold uppercase tracking-widest text-primary">Bog'lanish</p>
-          <h2 className="mb-4 text-center text-3xl font-bold md:text-4xl">Biz bilan yaqinroq tanishing</h2>
-          <p className="mx-auto mb-12 max-w-xl text-center text-muted-foreground">
-            Kurs, guruh yoki jadval haqida yozing, admin javob beradi.
-          </p>
-          <div className="mx-auto grid max-w-4xl gap-12 md:grid-cols-2">
-            <div className="space-y-6">
+      {/* ══════════════════════ CONTACT ═════════════════════════════ */}
+      <section id="contact" className="lp-section lp-section--blue">
+        <div className="lp-container lp-contact">
+          <Reveal className="lp-contact__info">
+            <p className="lp-label lp-label--white">Bog'lanish</p>
+            <h2 className="lp-heading lp-heading--white">
+              Bugun birinchi qadamni qo'ying
+            </h2>
+            <p className="lp-body lp-body--white-muted">
+              Savol, konsultatsiya yoki ro'yxatdan o'tish uchun yozing — admin
+              24 soat ichida javob beradi.
+            </p>
+
+            <div className="lp-contact__details">
               {[
                 { icon: MapPin, label: "Manzil", value: settings.address },
                 { icon: Phone, label: "Aloqa", value: settings.phoneNumber },
-                { icon: Clock, label: "Ish vaqti", value: settings.workingHours },
-                { icon: Monitor, label: "Format", value: "Offline, online va hybrid guruhlar" },
-              ].map((item) => (
-                <div key={item.label} className="flex items-start gap-4">
-                  <div className="hero-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-md">
-                    <item.icon className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">{item.label}</div>
-                    <div className="text-sm text-muted-foreground">{item.value}</div>
-                  </div>
-                </div>
-              ))}
+                {
+                  icon: Clock,
+                  label: "Ish vaqti",
+                  value: settings.workingHours,
+                },
+              ].map(
+                (item) =>
+                  item.value && (
+                    <div key={item.label} className="lp-contact__detail">
+                      <div className="lp-contact__detail-icon">
+                        <item.icon size={18} />
+                      </div>
+                      <div>
+                        <div className="lp-contact__detail-label">
+                          {item.label}
+                        </div>
+                        <div className="lp-contact__detail-value">
+                          {item.value}
+                        </div>
+                      </div>
+                    </div>
+                  )
+              )}
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4 rounded-md border border-border bg-card p-5">
-              <div className="flex items-center gap-2">
-                <MailQuestion className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Savolingizni yuboring</h3>
-              </div>
-              <Input
+          </Reveal>
+
+          <Reveal className="lp-contact__form-wrap">
+            <form onSubmit={handleSubmit} className="lp-contact__form">
+              <h3 className="lp-contact__form-title">
+                <MessageCircle size={20} />
+                Savolingizni yuboring
+              </h3>
+              <input
+                className="lp-input"
                 placeholder="To'liq ism"
                 value={form.fullName}
-                onChange={(event) => setForm((value) => ({ ...value, fullName: event.target.value }))}
+                onChange={(e) =>
+                  setForm((v) => ({ ...v, fullName: e.target.value }))
+                }
                 required
               />
-              <Input
-                placeholder="Telefon raqam"
+              <input
+                className="lp-input"
+                placeholder="Telefon: +998 90 000 00 00"
                 value={form.phone}
-                onChange={(event) => setForm((value) => ({ ...value, phone: event.target.value }))}
+                onChange={(e) =>
+                  setForm((v) => ({ ...v, phone: e.target.value }))
+                }
                 required
               />
-              <Textarea
-                placeholder="Savol yoki xabar"
+              <textarea
+                className="lp-input lp-input--textarea"
+                placeholder="Savol yoki xabar..."
                 rows={4}
                 value={form.message}
-                onChange={(event) => setForm((value) => ({ ...value, message: event.target.value }))}
+                onChange={(e) =>
+                  setForm((v) => ({ ...v, message: e.target.value }))
+                }
                 required
               />
-              <Button type="submit" className="w-full gap-2" disabled={loading}>
-                <Send className="h-4 w-4" /> {loading ? "Yuborilmoqda..." : "Yuborish"}
-              </Button>
+              <button
+                type="submit"
+                className="lp-btn lp-btn--primary lp-btn--full lp-btn--lg"
+                disabled={loading}
+              >
+                <Send size={16} />
+                {loading ? "Yuborilmoqda..." : "Yuborish"}
+              </button>
+              <p className="lp-contact__form-note">
+                ✓ Spam yo'q. Faqat kurs haqida ma'lumot.
+              </p>
             </form>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <footer className="border-t border-border py-8">
-        <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 text-sm text-muted-foreground md:flex-row">
-          <div className="flex items-center gap-2 font-semibold text-foreground">
-            <GraduationCap className="h-5 w-5 text-primary" />
-            {settings.name}
+      {/* ══════════════════════ FOOTER ══════════════════════════════ */}
+      <footer className="lp-footer">
+        <div className="lp-container lp-footer__inner">
+          <div className="lp-footer__brand">
+            <div className="lp-footer__logo">
+              <img
+                src={settings.logoUrl || DEFAULT_CENTER_BRANDING.logoUrl}
+                alt={settings.shortName}
+                className="lp-footer__logo-img"
+              />
+              <span className="lp-footer__logo-text">{settings.shortName}</span>
+            </div>
+            <p className="lp-footer__tagline">{settings.description}</p>
           </div>
-          <div>© 2026 {settings.name}. Barcha huquqlar himoyalangan.</div>
+
+          <div className="lp-footer__links">
+            <p className="lp-footer__links-title">Saytda</p>
+            {NAV_LINKS.map((l) => (
+              <a key={l.href} href={l.href} className="lp-footer__link">
+                {l.label}
+              </a>
+            ))}
+          </div>
+
+          <div className="lp-footer__links">
+            <p className="lp-footer__links-title">Platforma</p>
+            <Link href="/login" className="lp-footer__link">
+              Tizimga kirish
+            </Link>
+            <Link href="/public-exam" className="lp-footer__link">
+              Ochiq imtihon
+            </Link>
+            <Link href="/public-rating" className="lp-footer__link">
+              Reyting
+            </Link>
+          </div>
+        </div>
+        <div className="lp-footer__bottom">
+          <div className="lp-container">
+            <span>© 2026 {settings.name}. Barcha huquqlar himoyalangan.</span>
+            <div className="lp-footer__bottom-right">
+              <GraduationCap size={15} />
+              <span>Powered by MK Academy Platform</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

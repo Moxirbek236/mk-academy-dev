@@ -38,7 +38,7 @@ export function AppProviders({
         <CenterBrandingProvider initialBranding={centerBranding}>
           <NotificationProvider>
             {children}
-            <Toaster richColors position="top-right" />
+            <Toaster position="top-right" />
           </NotificationProvider>
         </CenterBrandingProvider>
       </ThemeProvider>

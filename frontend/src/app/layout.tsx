@@ -36,7 +36,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#202734',
+  themeColor: '#2563eb',
   colorScheme: 'light dark',
 };
 
@@ -75,7 +75,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="h-full" suppressHydrationWarning>
       <body
-        className="min-h-full antialiased bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[#202734] selection:text-[#f2f2f0]"
+        className="min-h-full antialiased bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[var(--app-primary)] selection:text-white"
         suppressHydrationWarning
       >
         <AppProviders

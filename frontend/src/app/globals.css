@@ -1,31 +1,31 @@
 @layer base {
   :root {
-    --background: #f7faff;
-    --foreground: #10233f;
+    --background: #ffffff;
+    --foreground: #0b1220;
     --card: #ffffff;
     --card-foreground: #10233f;
     --popover: #ffffff;
     --popover-foreground: #10233f;
     --primary: #2563eb;
     --primary-foreground: #f9fafb;
-    --secondary: #dbeafe;
+    --secondary: #eff6ff;
     --secondary-foreground: #1d4ed8;
-    --muted: #eff4fb;
-    --muted-foreground: #52647f;
+    --muted: #eff6ff;
+    --muted-foreground: #0b1220;
     --accent: #bfdbfe;
     --accent-foreground: #1d4ed8;
-    --destructive: #b42318;
+    --destructive: #2563eb;
     --destructive-foreground: #ffffff;
     --border: #c9d8ee;
     --input: rgba(255, 255, 255, 0.96);
     --input-background: rgba(255, 255, 255, 0.96);
     --switch-background: #d6e2f4;
     --ring: rgba(37, 99, 235, 0.2);
-    --sidebar: #f2f7ff;
-    --sidebar-foreground: #10233f;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #0b1220;
     --sidebar-primary: #2563eb;
     --sidebar-primary-foreground: #f9fafb;
-    --sidebar-accent: #e6eefb;
+    --sidebar-accent: #eff6ff;
     --sidebar-accent-foreground: #1d4ed8;
     --sidebar-border: #c9d8ee;
     --sidebar-ring: rgba(37, 99, 235, 0.2);
@@ -37,7 +37,7 @@
     --app-text: var(--foreground);
     --app-muted: var(--muted-foreground);
     --app-primary: var(--primary);
-    --app-primary-dark: #1e40af;
+    --app-primary-dark: #1d4ed8;
     --app-secondary: #2563eb;
     --app-accent: #3b82f6;
 
@@ -55,32 +55,32 @@
   }
 
   .dark {
-    --background: #f7faff;
-    --foreground: #10233f;
+    --background: #ffffff;
+    --foreground: #0b1220;
     --card: #ffffff;
     --card-foreground: #10233f;
     --popover: #ffffff;
     --popover-foreground: #10233f;
     --primary: #2563eb;
     --primary-foreground: #f9fafb;
-    --secondary: #dbeafe;
+    --secondary: #eff6ff;
     --secondary-foreground: #1d4ed8;
-    --muted: #eff4fb;
-    --muted-foreground: #52647f;
+    --muted: #eff6ff;
+    --muted-foreground: #0b1220;
     --accent: #bfdbfe;
     --accent-foreground: #1d4ed8;
-    --destructive: #b42318;
+    --destructive: #2563eb;
     --destructive-foreground: #ffffff;
     --border: #c9d8ee;
     --input: rgba(255, 255, 255, 0.96);
     --input-background: rgba(255, 255, 255, 0.96);
     --switch-background: #d6e2f4;
     --ring: rgba(37, 99, 235, 0.2);
-    --sidebar: #f2f7ff;
-    --sidebar-foreground: #10233f;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #0b1220;
     --sidebar-primary: #2563eb;
     --sidebar-primary-foreground: #f9fafb;
-    --sidebar-accent: #e6eefb;
+    --sidebar-accent: #eff6ff;
     --sidebar-accent-foreground: #1d4ed8;
     --sidebar-border: #c9d8ee;
     --sidebar-ring: rgba(37, 99, 235, 0.2);
@@ -92,7 +92,7 @@
     --app-text: var(--foreground);
     --app-muted: var(--muted-foreground);
     --app-primary: var(--primary);
-    --app-primary-dark: #1e40af;
+    --app-primary-dark: #1d4ed8;
   }
 
   *,
@@ -643,5 +643,123 @@
   .app-touch:active {
     transform: scale(0.96);
     opacity: 0.85;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *)) {
+    scrollbar-color: var(--app-primary) #ffffff;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-black"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-slate"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-gray"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-zinc"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-neutral"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-stone"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-red"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-amber"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-yellow"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-orange"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-emerald"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-green"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-teal"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-cyan"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-purple"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-violet"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-pink"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-rose"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[#"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[var(--app-surface-soft)]"] {
+    background-color: #ffffff !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-blue"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[#2563eb]"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[#1d4ed8]"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[#007AFF]"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[var(--app-primary)]"] {
+    background-color: var(--app-primary) !important;
+    color: #ffffff !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[#eff6ff]"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[#E5F3FF]"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="bg-[#dbeafe]"] {
+    background-color: var(--app-secondary) !important;
+    color: var(--app-primary) !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="hover:bg-blue"]:hover,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="hover:bg-gray"]:hover,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="hover:bg-red"]:hover,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="hover:bg-amber"]:hover,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="hover:bg-emerald"]:hover,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="hover:bg-[#"]:hover {
+    background-color: #eff6ff !important;
+    color: var(--app-primary) !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-gray"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-slate"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-zinc"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-neutral"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-stone"] {
+    color: var(--app-text) !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-red"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-amber"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-yellow"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-orange"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-emerald"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-green"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-teal"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-cyan"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-purple"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-violet"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-pink"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-rose"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-[#"] {
+    color: var(--app-primary) !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-[#111827]"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-[#030213]"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="text-[#10233f]"] {
+    color: var(--app-text) !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-gray"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-slate"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-zinc"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-neutral"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-red"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-amber"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-emerald"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-purple"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-violet"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="border-[#"] {
+    border-color: var(--app-border) !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="shadow-black"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="shadow-gray"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="shadow-red"],
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *))[class*="shadow-amber"] {
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1) !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *)) input,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *)) textarea,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *)) select {
+    background-color: #ffffff !important;
+    border-color: var(--app-border) !important;
+    color: var(--app-text) !important;
+  }
+
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *)) input:focus,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *)) textarea:focus,
+  .app-shell :where(:not(.landing-v2):not(.landing-v2 *)) select:focus {
+    border-color: var(--app-primary) !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
   }
 }

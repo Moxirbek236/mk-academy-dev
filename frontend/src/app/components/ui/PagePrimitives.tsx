@@ -152,7 +152,7 @@ export function PageErrorState({
 }) {
   return (
     <div className="app-card flex flex-col items-center px-5 py-8 text-center sm:px-6 sm:py-10">
-      <div className="border border-red-200 bg-red-50 p-4 text-red-600">
+      <div className="border border-[var(--app-border)] bg-[var(--app-secondary)] p-4 text-[var(--app-primary)]">
         <AlertTriangle size={24} strokeWidth={2.5} />
       </div>
       <h3 className="mt-4 text-lg font-black tracking-tight text-[var(--app-text)]">

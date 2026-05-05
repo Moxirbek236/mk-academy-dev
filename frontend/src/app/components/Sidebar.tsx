@@ -82,8 +82,8 @@ export function Sidebar({ role }: SidebarProps) {
                   prefetch={false}
                   className={`flex items-center gap-4 border px-5 py-3.5 rounded-lg transition-all duration-200 group ${
                     isActive
-                      ? "border-[color:color-mix(in_srgb,var(--app-primary)_26%,var(--app-border))] bg-white text-[var(--app-primary)] shadow-sm shadow-[var(--app-primary)]/10"
-                      : "border-transparent text-[var(--app-muted)] hover:border-[var(--app-border)] hover:bg-white hover:text-[var(--app-text)]"
+                      ? "border-[var(--app-primary)] bg-[var(--app-primary)] text-white shadow-sm shadow-[var(--app-primary)]/20"
+                      : "border-transparent bg-white text-[var(--app-text)] hover:border-[var(--app-border)] hover:bg-[var(--app-secondary)] hover:text-[var(--app-primary)]"
                   }`}
                 >
                   <Icon
@@ -109,7 +109,7 @@ export function Sidebar({ role }: SidebarProps) {
             <div className="mb-2 flex items-center justify-center gap-1.5">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${
-                  systemHealthy ? "bg-[var(--app-primary)]" : "bg-[#b42318]"
+                  "bg-[var(--app-primary)]"
                 }`}
               />
               <p className="text-[10px] font-black uppercase tracking-widest leading-none text-[var(--app-primary)]">
@@ -121,7 +121,7 @@ export function Sidebar({ role }: SidebarProps) {
                 className={`h-full transition-all duration-300 ${
                   systemHealthy
                     ? "w-full bg-[var(--app-primary)]"
-                    : "w-2/5 bg-[#b42318]"
+                    : "w-2/5 bg-[var(--app-primary)]"
                 }`}
               />
             </div>
@@ -132,7 +132,7 @@ export function Sidebar({ role }: SidebarProps) {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 border border-transparent px-6 py-4 text-[13px] font-extrabold text-red-600 transition-all duration-200 group hover:border-red-200 hover:bg-white"
+            className="w-full flex items-center gap-4 border border-transparent bg-white px-6 py-4 text-[13px] font-extrabold text-[var(--app-primary)] transition-all duration-200 group hover:border-[var(--app-border)] hover:bg-[var(--app-secondary)]"
           >
             <LogOut
               size={20}
