@@ -99,6 +99,7 @@ jobs:
       DEPLOY_PORT: ${{ secrets.SSH_PORT || secrets.SERVER_PORT || '22' }}
       DEPLOY_USER: ${{ secrets.SSH_USER || secrets.SERVER_USER }}
       DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY || secrets.SERVER_SSH_KEY }}
+      # Optional: only needed when the private key is passphrase-protected.
       DEPLOY_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE || secrets.SERVER_SSH_PASSPHRASE }}
     steps:
       - name: Checkout code
