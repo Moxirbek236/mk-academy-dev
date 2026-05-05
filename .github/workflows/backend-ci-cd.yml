@@ -135,13 +135,20 @@ jobs:
           passphrase: ${{ env.DEPLOY_PASSPHRASE }}
           envs: CR_PAT
           script: |
+            set -euo pipefail
             echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd /root/mk_academy_deploy
             docker pull ghcr.io/moxirbek236/mk-academy-backend:latest
+            # Remove legacy container name if it exists to avoid name collisions.
+            if docker ps -a --format '{{.Names}}' | awk '$0=="mk_academy_backend"{ found=1 } END{ exit !found }'; then
+              docker rm -f mk_academy_backend
+            fi
             # Check if docker compose or docker-compose is available
             if command -v docker compose &> /dev/null; then
-              docker compose up -d
+              docker compose down --remove-orphans || true
+              docker compose up -d --force-recreate
             else
-              docker-compose up -d
+              docker-compose down --remove-orphans || true
+              docker-compose up -d --force-recreate
             fi
             docker image prune -af --filter "until=24h"
