@@ -9,7 +9,7 @@ import { TestModule } from '../test/test.module';
 
 @Module({
   imports: [PrismaModule, JwtModule, TestModule],
-  controllers: [QuestionsController, QuestionAnalyticsController],
+  controllers: [QuestionAnalyticsController, QuestionsController],
   providers: [QuestionsService, QuestionAnalyticsService],
   exports: [QuestionsService, QuestionAnalyticsService],
 })

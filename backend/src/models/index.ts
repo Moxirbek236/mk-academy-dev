@@ -18,4 +18,5 @@ export * from './dashboard/dashboard.module';
 export * from './bot/bot.module';
 export * from './center-settings/center-settings.module';
 export * from './questions/questions.module';
+export * from './group-member/group-member.module';
 
