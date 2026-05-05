@@ -101,6 +101,7 @@ jobs:
       DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY || secrets.SERVER_SSH_KEY }}
       # Optional: only needed when the private key is passphrase-protected.
       DEPLOY_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE || secrets.SERVER_SSH_PASSPHRASE }}
+      DEPLOY_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -109,7 +110,21 @@ jobs:
         run: |
           test -n "$DEPLOY_HOST" || { echo "Missing deploy host secret (SSH_HOST or SERVER_HOST)"; exit 1; }
           test -n "$DEPLOY_USER" || { echo "Missing deploy user secret (SSH_USER or SERVER_USER)"; exit 1; }
-          test -n "$DEPLOY_KEY" || { echo "Missing deploy key secret (SSH_PRIVATE_KEY or SERVER_SSH_KEY)"; exit 1; }
+          if [ -z "$DEPLOY_KEY" ] && [ -z "$DEPLOY_PASSWORD" ]; then
+            echo "Missing authentication secret. Set SSH_PRIVATE_KEY (or SERVER_SSH_KEY) or SERVER_PASSWORD."
+            exit 1
+          fi
+
+      - name: Prepare deploy directory
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.DEPLOY_HOST }}
+          port: ${{ env.DEPLOY_PORT }}
+          username: ${{ env.DEPLOY_USER }}
+          password: ${{ env.DEPLOY_PASSWORD }}
+          key: ${{ env.DEPLOY_KEY }}
+          passphrase: ${{ env.DEPLOY_PASSPHRASE }}
+          script: mkdir -p /root/mk_academy_deploy
 
       - name: Copy docker-compose.yml to Droplet
         uses: appleboy/scp-action@v0.1.7
@@ -117,6 +132,7 @@ jobs:
           host: ${{ env.DEPLOY_HOST }}
           port: ${{ env.DEPLOY_PORT }}
           username: ${{ env.DEPLOY_USER }}
+          password: ${{ env.DEPLOY_PASSWORD }}
           key: ${{ env.DEPLOY_KEY }}
           passphrase: ${{ env.DEPLOY_PASSPHRASE }}
           source: "backend/docker-compose.yml"
@@ -131,15 +147,14 @@ jobs:
           host: ${{ env.DEPLOY_HOST }}
           port: ${{ env.DEPLOY_PORT }}
           username: ${{ env.DEPLOY_USER }}
+          password: ${{ env.DEPLOY_PASSWORD }}
           key: ${{ env.DEPLOY_KEY }}
           passphrase: ${{ env.DEPLOY_PASSPHRASE }}
           envs: CR_PAT
           script: |
             set -euo pipefail
             echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            cd /root/mk-academy-dev/
-            git pull origin main
-            cd backend
+            cd /root/mk_academy_deploy
             docker pull ghcr.io/moxirbek236/mk-academy-backend:latest
             export HOST_PORT="${HOST_PORT:-3232}"
             # Remove legacy container name if it exists to avoid name collisions.
