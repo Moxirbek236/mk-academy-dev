@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { localeCookieName } from "@/i18n/config";
@@ -162,6 +162,8 @@ function LangSwitcher() {
     setCurrent(code);
     window.location.reload();
   };
+
+  const visibleQuestions = publishedQuestions.length > 0 ? publishedQuestions : DEFAULT_PUBLIC_QUESTIONS;
 
   return (
     <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>

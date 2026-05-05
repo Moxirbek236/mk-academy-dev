@@ -130,6 +130,29 @@ export default function LeadsPage() {
     }
   }
 
+  async function handleAnswerSubmit(lead: LeadItem) {
+    const answer = (answerDrafts[lead.id] ?? lead.answer ?? '').trim();
+
+    if (!answer) {
+      setMutationError('Javob matnini kiriting');
+      return;
+    }
+
+    try {
+      setMutationError(null);
+      setAnsweringId(lead.id);
+      await answerLeadQuestion(lead.id, {
+        answer,
+        isPublished: publishDrafts[lead.id] ?? lead.isPublished ?? true,
+      });
+      await refetch();
+    } catch (leadError) {
+      setMutationError(leadError instanceof Error ? leadError.message : "Savolga javobni saqlab bo'lmadi");
+    } finally {
+      setAnsweringId(null);
+    }
+  }
+
   return (
     <PageShell
       title="Leads"
