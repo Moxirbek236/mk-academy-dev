@@ -94,17 +94,30 @@ jobs:
     name: Deploy Backend to DigitalOcean
     needs: build-and-push
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.SSH_HOST || secrets.SERVER_HOST }}
+      DEPLOY_PORT: ${{ secrets.SSH_PORT || secrets.SERVER_PORT || '22' }}
+      DEPLOY_USER: ${{ secrets.SSH_USER || secrets.SERVER_USER }}
+      DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY || secrets.SERVER_SSH_KEY }}
+      DEPLOY_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE || secrets.SERVER_SSH_PASSPHRASE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Validate deploy secrets
+        run: |
+          test -n "$DEPLOY_HOST" || { echo "Missing deploy host secret (SSH_HOST or SERVER_HOST)"; exit 1; }
+          test -n "$DEPLOY_USER" || { echo "Missing deploy user secret (SSH_USER or SERVER_USER)"; exit 1; }
+          test -n "$DEPLOY_KEY" || { echo "Missing deploy key secret (SSH_PRIVATE_KEY or SERVER_SSH_KEY)"; exit 1; }
+
       - name: Copy docker-compose.yml to Droplet
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ env.DEPLOY_HOST }}
+          port: ${{ env.DEPLOY_PORT }}
+          username: ${{ env.DEPLOY_USER }}
+          key: ${{ env.DEPLOY_KEY }}
+          passphrase: ${{ env.DEPLOY_PASSPHRASE }}
           source: "backend/docker-compose.yml"
           target: "/root/mk_academy_deploy"
           strip_components: 1
@@ -114,10 +127,11 @@ jobs:
         env:
           CR_PAT: ${{ secrets.GITHUB_TOKEN }}
         with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ env.DEPLOY_HOST }}
+          port: ${{ env.DEPLOY_PORT }}
+          username: ${{ env.DEPLOY_USER }}
+          key: ${{ env.DEPLOY_KEY }}
+          passphrase: ${{ env.DEPLOY_PASSPHRASE }}
           envs: CR_PAT
           script: |
             echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
