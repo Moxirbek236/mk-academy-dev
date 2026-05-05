@@ -28,6 +28,9 @@ const RESTRICTED_PREFIXES: Array<{ prefix: string; roles: string[] }> = [
   { prefix: '/users', roles: ['superadmin', 'admin', 'teacher', 'mentor'] },
   { prefix: '/leads', roles: ['superadmin', 'admin'] },
   { prefix: '/tasks', roles: ['superadmin', 'admin', 'teacher', 'mentor'] },
+  { prefix: '/assignments', roles: ['superadmin', 'admin', 'teacher', 'mentor'] },
+  { prefix: '/vocabulary-admin', roles: ['superadmin', 'admin', 'teacher', 'mentor'] },
+  { prefix: '/gamification', roles: ['superadmin', 'admin', 'teacher', 'mentor', 'student'] },
 ];
 
 const ROLE_CAPABILITIES: Record<AppRole, RoleCapability[]> = {

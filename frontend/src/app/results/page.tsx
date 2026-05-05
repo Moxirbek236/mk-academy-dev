@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { CheckCircle, Clock, Loader2, TrendingUp } from 'lucide-react';
-import { getDashboardStats, getMyTestAttempts, type TestAttempt } from '@/lib/backend-api';
+import { getDashboardStats, type TestAttempt } from '@/lib/backend-api';
+import { useTestAttempts } from '@/hooks/useTestAttempts';
 import { PageErrorState, PageEmptyState, PageShell } from '@/app/components/ui/PagePrimitives';
 
 export default function Results() {
@@ -10,17 +11,14 @@ export default function Results() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const attemptRequest = useTestAttempts(null);
 
   const fetchData = async () => {
     try {
       setError(null);
       setLoading(true);
-      const [statsRes, attemptsRes] = await Promise.all([
-        getDashboardStats(),
-        getMyTestAttempts(),
-      ]);
+      const statsRes = await getDashboardStats();
       setStats(statsRes);
-      setAttempts(attemptsRes);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Natijalarni yuklab bo'lmadi");
     } finally {
@@ -31,6 +29,16 @@ export default function Results() {
   useEffect(() => {
     void fetchData();
   }, []);
+
+  useEffect(() => {
+    setAttempts((attemptRequest.data ?? []) as TestAttempt[]);
+  }, [attemptRequest.data]);
+
+  useEffect(() => {
+    if (attemptRequest.error) {
+      setError(String(attemptRequest.error));
+    }
+  }, [attemptRequest.error]);
 
   if (loading) {
     return (
@@ -51,6 +59,7 @@ export default function Results() {
           retryLabel="Qayta urinish"
           onRetry={() => {
             void fetchData();
+            void attemptRequest.refetch();
           }}
         />
       </div>

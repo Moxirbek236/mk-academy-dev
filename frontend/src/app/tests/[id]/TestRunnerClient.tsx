@@ -5,9 +5,11 @@ import { ArrowLeft, CheckCircle2, Clock, Loader2, Send, XCircle } from 'lucide-r
 import { useRouter } from 'next/navigation';
 import {
   getTestById,
+  getQuestionsByTest,
   normalizeQuestionOptionItems,
   startTestAttempt,
   submitTestAttempt,
+  submitTestAttemptRecord,
   type TestAttempt,
   type TestItem,
 } from '@/lib/backend-api';
@@ -59,7 +61,12 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
         setLoading(true);
         setError(null);
         const data = await getTestById(testId);
-        if (mounted) setTest(data);
+        if (!data.questions?.length) {
+          const questions = await getQuestionsByTest(testId).catch(() => []);
+          if (mounted) setTest({ ...data, questions });
+        } else if (mounted) {
+          setTest(data);
+        }
       } catch (loadError) {
         if (mounted) setError(getReadableError(loadError, "Testni yuklab bo'lmadi"));
       } finally {
@@ -166,15 +173,23 @@ export default function TestRunnerClient({ testId }: { testId: number }) {
         return;
       }
 
-      const submitted = await submitTestAttempt(
-        test.id,
-        {
-          attemptId: attempt.id,
-          answers,
-          timeSpentSeconds: spentSeconds,
-        },
-        test,
-      );
+      const submitPayload = {
+        testId: test.id,
+        attemptId: attempt.id,
+        answers,
+        timeSpentSeconds: spentSeconds,
+      };
+
+      let submitted: TestAttempt;
+      try {
+        submitted = await submitTestAttempt(test.id, submitPayload, test);
+      } catch (primarySubmitError) {
+        const message = getReadableError(primarySubmitError, '');
+        if (!/404|not found|cannot post/i.test(message)) {
+          throw primarySubmitError;
+        }
+        submitted = await submitTestAttemptRecord(submitPayload);
+      }
 
       setResult(submitted);
     } catch (submitError) {

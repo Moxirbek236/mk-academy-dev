@@ -19,6 +19,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { localizePath } from "@/i18n/localizedPath";
 import { clearStoredAuth } from "@/lib/auth-storage";
+import { logout } from "@/lib/backend-api";
 import { useProfile } from "@/hooks/useProfile";
 import {
   PageErrorState,
@@ -45,7 +46,7 @@ export default function SettingsPage() {
   const { data: profile, loading, error, refetch } = useProfile();
 
   const handleLogout = () => {
-    void clearStoredAuth().finally(() => {
+    void logout().catch(() => undefined).finally(() => clearStoredAuth()).finally(() => {
       router.push(localizePath(locale, "/"));
     });
   };

@@ -9,6 +9,7 @@ import { stripLocaleFromPathname } from "@/i18n/pathname";
 import { localizePath } from "@/i18n/localizedPath";
 import { getNavigationConfig } from "@/lib/navigation-config";
 import { clearStoredAuth } from "@/lib/auth-storage";
+import { logout } from "@/lib/backend-api";
 import { useSystemHealth } from "@/hooks/useSystemStats";
 import { useCenterBranding } from "./branding/CenterBrandingProvider";
 
@@ -31,7 +32,7 @@ export function Sidebar({ role }: SidebarProps) {
   );
 
   function handleLogout() {
-    void clearStoredAuth().finally(() => {
+    void logout().catch(() => undefined).finally(() => clearStoredAuth()).finally(() => {
       router.push(localizePath(locale, "/"));
     });
   }
