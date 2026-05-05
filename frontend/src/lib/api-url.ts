@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 
-const DEFAULT_API_ORIGIN = 'http://api.mk-academia.uz';
+const DEFAULT_API_ORIGIN = 'https://api.mk-academia.uz';
 const DEFAULT_API_URL = normalizeConfiguredApiUrl(DEFAULT_API_ORIGIN);
 const FRONTEND_PROXY_PATH = '/api';
 

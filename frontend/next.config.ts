@@ -5,6 +5,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const isVercelBuild = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true' && !isVercelBuild;
+const backendApiUrl = process.env.NEXT_SERVER_API_URL ?? 'https://api.mk-academia.uz';
 
 const withPWA = withPWAInit({
   dest: 'public',
@@ -34,7 +35,7 @@ const nextConfig: NextConfig = {
             beforeFiles: [
               {
                 source: '/api/:path*',
-                destination: 'http://api.mk-academia.uz/api/:path*',
+                destination: `${backendApiUrl.replace(/\/+$/, '')}/api/:path*`,
               },
             ],
           };
