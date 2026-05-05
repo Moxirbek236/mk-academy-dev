@@ -137,7 +137,9 @@ jobs:
           script: |
             set -euo pipefail
             echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            cd /root/mk_academy_deploy
+            cd /root/mk-academy-dev/
+            git pull origin main
+            cd backend
             docker pull ghcr.io/moxirbek236/mk-academy-backend:latest
             export HOST_PORT="${HOST_PORT:-3232}"
             # Remove legacy container name if it exists to avoid name collisions.
