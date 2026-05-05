@@ -5,14 +5,11 @@ permissions:
   packages: write
 
 on:
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - 'backend/**'
-      - '.github/workflows/deploy-backend.yml'
   workflow_dispatch:
+
+concurrency:
+  group: backend-deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-push:
@@ -84,6 +81,16 @@ jobs:
           script: |
             set -euo pipefail
             echo "$CR_PAT" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            if [ -d /root/mk_academy_deploy ]; then
+              cd /root/mk_academy_deploy
+              if docker compose version >/dev/null 2>&1; then
+                docker compose down --remove-orphans || true
+              elif command -v docker-compose >/dev/null 2>&1; then
+                docker-compose down --remove-orphans || true
+              fi
+            fi
+
             cd "$DEPLOY_APP_DIR"
             git pull --ff-only origin main
             cd backend
@@ -97,6 +104,11 @@ jobs:
             PORT_CONFLICT_IDS="$(docker ps -a --format '{{.ID}} {{.Ports}}' | awk -v p=":${HOST_PORT}->" 'index($0, p) { print $1 }')"
             if [ -n "${PORT_CONFLICT_IDS}" ]; then
               echo "${PORT_CONFLICT_IDS}" | xargs -r docker rm -f
+            fi
+
+            PUBLISHED_PORT_IDS="$(docker ps -a --filter "publish=${HOST_PORT}" -q 2>/dev/null || true)"
+            if [ -n "${PUBLISHED_PORT_IDS}" ]; then
+              echo "${PUBLISHED_PORT_IDS}" | xargs -r docker rm -f
             fi
 
             if docker compose version >/dev/null 2>&1; then
