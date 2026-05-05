@@ -139,9 +139,15 @@ jobs:
             echo $CR_PAT | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd /root/mk_academy_deploy
             docker pull ghcr.io/moxirbek236/mk-academy-backend:latest
+            export HOST_PORT="${HOST_PORT:-3232}"
             # Remove legacy container name if it exists to avoid name collisions.
             if docker ps -a --format '{{.Names}}' | awk '$0=="mk_academy_backend"{ found=1 } END{ exit !found }'; then
               docker rm -f mk_academy_backend
+            fi
+            # Free the configured host port if another old container still owns it.
+            PORT_CONFLICT_IDS="$(docker ps -a --format '{{.ID}} {{.Ports}}' | awk -v p=":${HOST_PORT}->" 'index($0, p) { print $1 }')"
+            if [ -n "${PORT_CONFLICT_IDS}" ]; then
+              echo "${PORT_CONFLICT_IDS}" | xargs -r docker rm -f
             fi
             # Check if docker compose or docker-compose is available
             if command -v docker compose &> /dev/null; then
