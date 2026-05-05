@@ -140,9 +140,23 @@ jobs:
             cd backend
             docker pull ghcr.io/moxirbek236/mk-academy-backend:latest
             export HOST_PORT="${HOST_PORT:-3232}"
+
+            if docker compose version >/dev/null 2>&1; then
+              docker compose down --remove-orphans || true
+            else
+              docker-compose down --remove-orphans || true
+            fi
+
             # Remove legacy container name if it exists to avoid name collisions.
             if docker ps -a --format '{{.Names}}' | awk '$0=="mk_academy_backend"{ found=1 } END{ exit !found }'; then
               docker rm -f mk_academy_backend
+            fi
+            if command -v podman >/dev/null 2>&1; then
+              podman rm -f mk_academy_backend 2>/dev/null || true
+              POD_IDS="$(podman pod ps -a --format '{{.ID}} {{.Name}}' | awk '$2 ~ /mk[_-]academy|mk_academy/ { print $1 }')"
+              if [ -n "${POD_IDS}" ]; then
+                echo "${POD_IDS}" | xargs -r podman pod rm -f
+              fi
             fi
             # Free the configured host port if another old container still owns it.
             PORT_CONFLICT_IDS="$(docker ps -a --format '{{.ID}} {{.Ports}}' | awk -v p=":${HOST_PORT}->" 'index($0, p) { print $1 }')"
@@ -169,13 +183,11 @@ jobs:
             if command -v fuser >/dev/null 2>&1; then
               fuser -k "${HOST_PORT}/tcp" || true
             fi
+            sleep 3
 
-            # Check if docker compose or docker-compose is available
             if docker compose version >/dev/null 2>&1; then
-              docker compose down --remove-orphans || true
               docker compose up -d --force-recreate
             else
-              docker-compose down --remove-orphans || true
               docker-compose up -d --force-recreate
             fi
 
