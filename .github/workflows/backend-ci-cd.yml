@@ -178,4 +178,20 @@ jobs:
               docker-compose down --remove-orphans || true
               docker-compose up -d --force-recreate
             fi
+
+            echo "Waiting for backend healthcheck..."
+            sleep 10
+            docker ps -a --filter "name=mk_academy_backend"
+            if command -v wget >/dev/null 2>&1; then
+              wget -qO- "http://127.0.0.1:${HOST_PORT}/api/system/health" || {
+                docker logs --tail 200 mk_academy_backend || true
+                exit 1
+              }
+            else
+              curl -fsS "http://127.0.0.1:${HOST_PORT}/api/system/health" || {
+                docker logs --tail 200 mk_academy_backend || true
+                exit 1
+              }
+            fi
+
             docker image prune -af --filter "until=24h"
