@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 
-const DEFAULT_API_ORIGIN = 'https://api.mk-academia.uz';
+const DEFAULT_API_ORIGIN = 'http://api.mk-academia.uz';
 const DEFAULT_API_URL = normalizeConfiguredApiUrl(DEFAULT_API_ORIGIN);
 const FRONTEND_PROXY_PATH = '/api';
 
@@ -103,6 +103,7 @@ function shouldUseBrowserProxy(url: string) {
 }
 
 export function getDirectApiBaseUrl() {
+  const configuredServerApiUrl = process.env.NEXT_SERVER_API_URL?.trim();
   const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
   const configuredNativeApiUrl = process.env.NEXT_PUBLIC_NATIVE_API_URL?.trim();
   const capacitorExport = process.env.CAPACITOR_EXPORT === 'true';
@@ -130,6 +131,11 @@ export function getDirectApiBaseUrl() {
     if (nativeApiUrl) return nativeApiUrl;
 
     return DEFAULT_API_URL;
+  }
+
+  const serverApiUrl = tryNormalizeApiUrl(configuredServerApiUrl);
+  if (serverApiUrl) {
+    return serverApiUrl;
   }
 
   const apiUrl = tryNormalizeApiUrl(configuredApiUrl);
@@ -170,6 +176,11 @@ export function getApiBaseUrl() {
 }
 
 export function getBackendProxyBaseUrl(frontendOrigin?: string) {
+  const serverApiUrl = tryNormalizeApiUrl(process.env.NEXT_SERVER_API_URL);
+  if (serverApiUrl) {
+    return serverApiUrl;
+  }
+
   const directApiUrl = getDirectApiBaseUrl();
 
   if (frontendOrigin) {
