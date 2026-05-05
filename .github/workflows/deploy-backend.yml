@@ -6,6 +6,8 @@ on:
       - main # Yoki o'zingizning asosiy branch nomingiz (masalan, master)
     paths:
       - 'backend/**' # Faqat backend papkasida o'zgarish bo'lganda ishlaydi
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
