@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { localeCookieName } from "@/i18n/config";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -136,6 +137,60 @@ function usePublicLandingSettings() {
   return settings;
 }
 
+/* ─── Language switcher ─────────────────────────────────────────── */
+const LANG_OPTIONS = [
+  { code: 'en', flag: '🇬🇧', label: 'EN' },
+  { code: 'ru', flag: '🇷🇺', label: 'RU' },
+  { code: 'uz', flag: '🇺🇿', label: 'UZ' },
+] as const;
+
+function LangSwitcher() {
+  const [current, setCurrent] = useState('en');
+
+  useEffect(() => {
+    const cookie = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith(`${localeCookieName}=`));
+    const saved = cookie?.split('=')[1];
+    if (saved === 'ru' || saved === 'uz' || saved === 'en') {
+      setCurrent(saved);
+    }
+  }, []);
+
+  const switchLang = (code: string) => {
+    document.cookie = `${localeCookieName}=${code}; path=/; max-age=31536000; samesite=lax`;
+    setCurrent(code);
+    window.location.reload();
+  };
+
+  return (
+    <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+      {LANG_OPTIONS.map((lang) => (
+        <button
+          key={lang.code}
+          type="button"
+          onClick={() => switchLang(lang.code)}
+          style={{
+            padding: '4px 8px',
+            fontSize: '11px',
+            fontWeight: 700,
+            borderRadius: '6px',
+            border: current === lang.code ? '1.5px solid hsl(var(--lp-primary))' : '1.5px solid transparent',
+            background: current === lang.code ? 'hsl(var(--lp-primary) / 0.1)' : 'transparent',
+            color: current === lang.code ? 'hsl(var(--lp-primary))' : 'hsl(var(--lp-muted-fg))',
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            lineHeight: 1,
+          }}
+          aria-label={`Switch to ${lang.label}`}
+        >
+          {lang.flag} {lang.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /* ─── Scroll reveal hook ────────────────────────────────────────── */
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -257,6 +312,7 @@ export function LandingPage() {
           </div>
 
           <div className="lp-nav__actions">
+            <LangSwitcher />
             <Link href="/login" className="lp-btn lp-btn--ghost lp-btn--sm">
               <LogIn size={15} /> Kirish
             </Link>
@@ -288,6 +344,9 @@ export function LandingPage() {
               </a>
             ))}
             <div className="lp-nav__mobile-actions">
+              <div style={{ paddingBottom: '8px' }}>
+                <LangSwitcher />
+              </div>
               <Link
                 href="/login"
                 className="lp-btn lp-btn--outline lp-btn--full"

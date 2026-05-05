@@ -32,9 +32,12 @@ export function Sidebar({ role }: SidebarProps) {
   );
 
   function handleLogout() {
-    void logout().catch(() => undefined).finally(() => clearStoredAuth()).finally(() => {
-      router.push(localizePath(locale, "/"));
-    });
+    void logout()
+      .catch(() => undefined)
+      .finally(() => clearStoredAuth())
+      .finally(() => {
+        router.push(localizePath(locale, "/"));
+      });
   }
 
   return (
@@ -84,7 +87,7 @@ export function Sidebar({ role }: SidebarProps) {
                   className={`flex items-center gap-4 border px-5 py-3.5 rounded-lg transition-all duration-200 group ${
                     isActive
                       ? "border-[var(--app-primary)] bg-[var(--app-primary)] text-white shadow-sm shadow-[var(--app-primary)]/20"
-                      : "border-transparent bg-white text-[var(--app-text)] hover:border-[var(--app-border)] hover:bg-[var(--app-secondary)] hover:text-[var(--app-primary)]"
+                      : "border-transparent bg-white text-[var(--app-text)] hover:border-[var(--app-primary)]/30 hover:bg-[var(--app-primary)] hover:text-white"
                   }`}
                 >
                   <Icon
@@ -110,7 +113,7 @@ export function Sidebar({ role }: SidebarProps) {
             <div className="mb-2 flex items-center justify-center gap-1.5">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${
-                  "bg-[var(--app-primary)]"
+                  systemHealthy ? "bg-[var(--app-primary)]" : "bg-red-500"
                 }`}
               />
               <p className="text-[10px] font-black uppercase tracking-widest leading-none text-[var(--app-primary)]">
@@ -122,7 +125,7 @@ export function Sidebar({ role }: SidebarProps) {
                 className={`h-full transition-all duration-300 ${
                   systemHealthy
                     ? "w-full bg-[var(--app-primary)]"
-                    : "w-2/5 bg-[var(--app-primary)]"
+                    : "w-2/5 bg-red-500"
                 }`}
               />
             </div>
@@ -133,7 +136,7 @@ export function Sidebar({ role }: SidebarProps) {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 border border-transparent bg-white px-6 py-4 text-[13px] font-extrabold text-[var(--app-primary)] transition-all duration-200 group hover:border-[var(--app-border)] hover:bg-[var(--app-secondary)]"
+            className="w-full flex items-center gap-4 border border-transparent bg-white px-6 py-4 text-[13px] font-extrabold text-red-500 transition-all duration-200 group hover:border-red-200 hover:bg-red-500 hover:text-white"
           >
             <LogOut
               size={20}
