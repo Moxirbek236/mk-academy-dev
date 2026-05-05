@@ -160,8 +160,20 @@ jobs:
             if [ -n "${PUBLISHED_PORT_IDS}" ]; then
               echo "${PUBLISHED_PORT_IDS}" | xargs -r docker rm -f
             fi
+
+            echo "Checking host port ${HOST_PORT} before compose up..."
+            if command -v ss >/dev/null 2>&1; then
+              ss -ltnp "sport = :${HOST_PORT}" || true
+            fi
+            if command -v lsof >/dev/null 2>&1; then
+              lsof -iTCP:"${HOST_PORT}" -sTCP:LISTEN || true
+            fi
+            if command -v fuser >/dev/null 2>&1; then
+              fuser -k "${HOST_PORT}/tcp" || true
+            fi
+
             # Check if docker compose or docker-compose is available
-            if command -v docker compose &> /dev/null; then
+            if docker compose version >/dev/null 2>&1; then
               docker compose down --remove-orphans || true
               docker compose up -d --force-recreate
             else
