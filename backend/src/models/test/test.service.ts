@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/config/prisma.service';
+import { CreateQuestionDto } from '../questions/dto/create-question.dto';
 import {
-  CreateQuestionDto,
   CreateTestDto,
   PUBLIC_EXAM_DIRECTIONS,
   PUBLIC_EXAM_MODES,
@@ -83,7 +83,9 @@ export class TestService {
 
     if (dto.questions?.length) {
       data.questions = {
-        create: dto.questions.map((question) => this.toQuestionWriteData(question)),
+        create: dto.questions.map((question) =>
+          this.toQuestionWriteData(question),
+        ),
       };
     }
 
@@ -198,11 +200,16 @@ export class TestService {
       return;
     }
 
-    if (isTeacher(currentUser) && (await this.teacherOwnsTest(+testId, currentUser.id))) {
+    if (
+      isTeacher(currentUser) &&
+      (await this.teacherOwnsTest(+testId, currentUser.id))
+    ) {
       return;
     }
 
-    throw new ForbiddenException('You do not have permission to manage this test');
+    throw new ForbiddenException(
+      'You do not have permission to manage this test',
+    );
   }
 
   async assertCanReadTest(testId: number, currentUser: CurrentUser) {
@@ -210,15 +217,23 @@ export class TestService {
       return;
     }
 
-    if (isTeacher(currentUser) && (await this.teacherOwnsTest(+testId, currentUser.id))) {
+    if (
+      isTeacher(currentUser) &&
+      (await this.teacherOwnsTest(+testId, currentUser.id))
+    ) {
       return;
     }
 
-    if (isStudent(currentUser) && (await this.studentCanAccessTest(+testId, currentUser.id))) {
+    if (
+      isStudent(currentUser) &&
+      (await this.studentCanAccessTest(+testId, currentUser.id))
+    ) {
       return;
     }
 
-    throw new ForbiddenException('You do not have permission to view this test');
+    throw new ForbiddenException(
+      'You do not have permission to view this test',
+    );
   }
 
   normalizeQuestion(question: any, currentUser: CurrentUser) {
@@ -309,9 +324,13 @@ export class TestService {
     if (isTeacher(currentUser)) {
       if (requestedPublished !== undefined) {
         where.isPublished = requestedPublished;
+        if (!requestedPublished) {
+          where.createdById = currentUser.id;
+        }
+        return where;
       }
 
-      where.OR = this.teacherTestScope(currentUser.id);
+      where.OR = [{ isPublished: true }, { createdById: currentUser.id }];
       return where;
     }
 
@@ -319,36 +338,6 @@ export class TestService {
     where.OR = this.studentTestScope(currentUser.id);
 
     return where;
-  }
-
-  private teacherTestScope(teacherId: number) {
-    return [
-      { createdById: teacherId },
-      {
-        assignments: {
-          some: {
-            isActive: true,
-            group: {
-              teacherId,
-              isActive: true,
-            },
-          },
-        },
-      },
-      {
-        course: {
-          groups: {
-            some: {
-              isActive: true,
-              group: {
-                teacherId,
-                isActive: true,
-              },
-            },
-          },
-        },
-      },
-    ];
   }
 
   private studentTestScope(studentId: number) {
@@ -363,6 +352,7 @@ export class TestService {
         assignments: {
           some: {
             isActive: true,
+            OR: [{ studentId: null }, { studentId }],
             group: {
               isActive: true,
               members: {
@@ -372,37 +362,18 @@ export class TestService {
           },
         },
       },
-      {
-        course: {
-          groups: {
-            some: {
-              isActive: true,
-              group: {
-                isActive: true,
-                members: {
-                  some: activeMembership,
-                },
-              },
-            },
-          },
-        },
-      },
-      {
-        courseId: null,
-        assignments: {
-          none: {
-            isActive: true,
-          },
-        },
-      },
     ];
   }
 
-  private async teacherOwnsTest(testId: number, teacherId: number): Promise<boolean> {
+  private async teacherOwnsTest(
+    testId: number,
+    teacherId: number,
+  ): Promise<boolean> {
     const test = await (this.prisma.test as any).findFirst({
       where: {
         id: +testId,
-        OR: this.teacherTestScope(teacherId),
+        createdById: teacherId,
+        isActive: true,
       },
       select: { id: true },
     });
@@ -410,7 +381,23 @@ export class TestService {
     return Boolean(test);
   }
 
-  private async studentCanAccessTest(testId: number, studentId: number): Promise<boolean> {
+  private async teacherCanReadTest(testId: number, teacherId: number): Promise<boolean> {
+    const test = await (this.prisma.test as any).findFirst({
+      where: {
+        id: +testId,
+        isActive: true,
+        OR: [{ isPublished: true }, { createdById: teacherId }],
+      },
+      select: { id: true },
+    });
+
+    return Boolean(test);
+  }
+
+  private async studentCanAccessTest(
+    testId: number,
+    studentId: number,
+  ): Promise<boolean> {
     const test = await (this.prisma.test as any).findFirst({
       where: {
         id: +testId,
@@ -461,7 +448,9 @@ export class TestService {
     });
 
     if (!teacherCourse) {
-      throw new ForbiddenException('You can only attach tests to your own courses');
+      throw new ForbiddenException(
+        'You can only attach tests to your own courses',
+      );
     }
   }
 
@@ -477,7 +466,8 @@ export class TestService {
     if (dto.type !== undefined) data.type = dto.type;
     if (dto.cefrLevel !== undefined) data.cefrLevel = dto.cefrLevel;
     if (dto.passingScore !== undefined) data.passingScore = dto.passingScore;
-    if (dto.shuffleQuestions !== undefined) data.shuffleQuestions = dto.shuffleQuestions;
+    if (dto.shuffleQuestions !== undefined)
+      data.shuffleQuestions = dto.shuffleQuestions;
     if (dto.maxAttempts !== undefined) data.maxAttempts = dto.maxAttempts;
     if (dto.isAdaptive !== undefined) data.isAdaptive = dto.isAdaptive;
     if (dto.isPublished !== undefined) data.isPublished = dto.isPublished;
@@ -542,14 +532,18 @@ export class TestService {
 
     if (question.type !== undefined) data.type = question.type;
     if (question.inputType !== undefined) data.inputType = question.inputType;
-    if (question.questionText !== undefined) data.questionText = question.questionText;
-    if (question.options !== undefined) data.options = encodeJsonField(question.options);
+    if (question.questionText !== undefined)
+      data.questionText = question.questionText;
+    if (question.options !== undefined)
+      data.options = encodeJsonField(question.options);
     if (question.correctAnswer !== undefined) {
       data.correctAnswer = encodeJsonField(question.correctAnswer);
     }
-    if (question.explanation !== undefined) data.explanation = question.explanation;
+    if (question.explanation !== undefined)
+      data.explanation = question.explanation;
     if (question.points !== undefined) data.points = question.points;
-    if (question.difficulty !== undefined) data.difficulty = question.difficulty;
+    if (question.difficulty !== undefined)
+      data.difficulty = question.difficulty;
     if (question.skill !== undefined) data.skill = question.skill;
 
     return data;
@@ -562,7 +556,9 @@ export class TestService {
       ...test,
       duration: test.timeLimitMinutes ?? test.timeLimit ?? null,
       questions: Array.isArray(test.questions)
-        ? test.questions.map((question: any) => this.toQuestionReadData(question, includeAnswers))
+        ? test.questions.map((question: any) =>
+            this.toQuestionReadData(question, includeAnswers),
+          )
         : [],
     };
   }

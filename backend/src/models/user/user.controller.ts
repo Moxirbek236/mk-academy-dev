@@ -16,8 +16,40 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { QueryUserAdminDto } from './dto/query.admin.dto';
 import { QueryUserTeacherDto } from './dto/query.teacher.dto';
+import { mkdirSync } from 'node:fs';
+import { extname, join } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import type { Request } from 'express';
+import { validateImage } from 'src/common/functions/check.file';
 
-@ApiTags('users')
+const avatarUploadDir = join(process.cwd(), 'uploads', 'avatars');
+mkdirSync(avatarUploadDir, { recursive: true });
+
+const avatarUploadOptions = {
+  storage: diskStorage({
+    destination: avatarUploadDir,
+    filename: (_req, file, callback) => {
+      const extension = extname(file.originalname).toLowerCase() || '.jpg';
+      callback(null, `${Date.now()}-${randomUUID()}${extension}`);
+    },
+  }),
+  fileFilter: (
+    _req: Request,
+    file: Express.Multer.File,
+    callback: (error: Error | null, acceptFile: boolean) => void,
+  ) => {
+    if (!file.mimetype.startsWith('image/')) {
+      callback(new Error('Only image uploads are allowed'), false);
+      return;
+    }
+
+    callback(null, true);
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+};
+
 @Controller('users')
 @ApiBearerAuth()
 export class UserController {
@@ -41,17 +73,14 @@ export class UserController {
     },
   })
   @UseInterceptors(
-    FileInterceptor('avatarUrl', {
-      storage: diskStorage({
-        destination: './src/uploads',
-        filename: (req, file, callback) => {
-          const filename = Date.now() + '.' + file.originalname.split('.')[1];
-          callback(null, filename);
-        },
-      }),
-    }),
+    FileInterceptor('avatarUrl', avatarUploadOptions),
   )
-  createTeacher(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
+  createTeacher(
+    @Body() payload: CreateUserDto,
+    @Req() req: Request,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (file) validateImage(file);
     return this.userService.createTeacher(payload, req['user'], file?.filename);
   }
 
@@ -73,17 +102,14 @@ export class UserController {
     },
   })
   @UseInterceptors(
-    FileInterceptor('avatarUrl', {
-      storage: diskStorage({
-        destination: './src/uploads',
-        filename: (req, file, callback) => {
-          const filename = Date.now() + '.' + file.originalname.split('.')[1];
-          callback(null, filename);
-        },
-      }),
-    }),
+    FileInterceptor('avatarUrl', avatarUploadOptions),
   )
-  createStudent(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
+  createStudent(
+    @Body() payload: CreateUserDto,
+    @Req() req: Request,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (file) validateImage(file);
     return this.userService.createStudent(payload, req['user'], file?.filename);
   }
 
@@ -105,17 +131,14 @@ export class UserController {
     },
   })
   @UseInterceptors(
-    FileInterceptor('avatarUrl', {
-      storage: diskStorage({
-        destination: './src/uploads',
-        filename: (req, file, callback) => {
-          const filename = Date.now() + '.' + file.originalname.split('.')[1];
-          callback(null, filename);
-        },
-      }),
-    }),
+    FileInterceptor('avatarUrl', avatarUploadOptions),
   )
-  createAdmin(@Body() payload: CreateUserDto, @Req() req: Request, @UploadedFile() file?: any) {
+  createAdmin(
+    @Body() payload: CreateUserDto,
+    @Req() req: Request,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (file) validateImage(file);
     return this.userService.createAdmin(payload, req['user'], file?.filename);
   }
 

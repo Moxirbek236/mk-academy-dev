@@ -12,7 +12,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { CefrLevel } from 'src/core/enums';
-import { CreateQuestionDto } from './create-question.dto';
+import { CreateQuestionDto } from '../../questions/dto/create-question.dto';
 import { PUBLIC_EXAM_DIRECTIONS, PUBLIC_EXAM_MODES } from './public-exam.dto';
 
 export class CreateTestDto {
@@ -35,7 +35,10 @@ export class CreateTestDto {
   @IsString()
   cefrLevel?: CefrLevel;
 
-  @ApiPropertyOptional({ example: 60, description: 'Legacy alias for timeLimitMinutes.' })
+  @ApiPropertyOptional({
+    example: 60,
+    description: 'Legacy alias for timeLimitMinutes.',
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()

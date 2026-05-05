@@ -243,6 +243,15 @@ function answerMatchesQuestion(answer: unknown, correctAnswer: unknown, options:
   return false;
 }
 
+function shuffleArray<T>(items: T[]): T[] {
+  const next = [...items];
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [next[index], next[randomIndex]] = [next[randomIndex], next[index]];
+  }
+  return next;
+}
+
 @Injectable()
 export class TestAttemptService {
   private readonly logger = new Logger(TestAttemptService.name);
@@ -424,41 +433,30 @@ export class TestAttemptService {
     if (role === UserRole.TEACHER) {
       const attempts = await (this.prisma.testAttempt as any).findMany({
         where: {
-          OR: [
-            {
-              test: {
-                createdById: currentUser.id,
-              },
-            },
-            {
-              test: {
-                assignments: {
-                  some: {
-                    isActive: true,
-                    group: {
-                      teacherId: currentUser.id,
-                      isActive: true,
-                    },
-                  },
+          isActive: true,
+          student: {
+            groupMemberships: {
+              some: {
+                isActive: true,
+                status: 'ACTIVE',
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
                 },
               },
             },
-            {
-              test: {
-                course: {
-                  groups: {
-                    some: {
-                      isActive: true,
-                      group: {
-                        teacherId: currentUser.id,
-                        isActive: true,
-                      },
-                    },
-                  },
+          },
+          test: {
+            assignments: {
+              some: {
+                isActive: true,
+                group: {
+                  teacherId: currentUser.id,
+                  isActive: true,
                 },
               },
             },
-          ],
+          },
         },
         include: this.attemptInclude(),
         orderBy: { startedAt: 'desc' },
@@ -523,7 +521,7 @@ export class TestAttemptService {
     );
 
     if (test.shuffleQuestions) {
-      normalized.questions = [...normalized.questions].sort(() => Math.random() - 0.5);
+      normalized.questions = shuffleArray(normalized.questions);
     }
 
     return normalized;

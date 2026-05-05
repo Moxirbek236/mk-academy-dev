@@ -6,9 +6,10 @@ import { StudentTaskController } from './student-task.controller';
 import { TaskAttachmentService } from './task-attachment.service';
 import { TaskAttachmentController } from './task-attachment.controller';
 import { PrismaModule } from 'src/core/config/prisma.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule,JwtModule],
   controllers: [
     TaskController,
     StudentTaskController,
