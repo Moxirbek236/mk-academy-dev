@@ -1,5 +1,5 @@
 "use client";
-import { LogOut, Sun } from "lucide-react";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -64,9 +64,6 @@ export function Sidebar({ role }: SidebarProps) {
           <div className="mt-5 flex flex-wrap items-stretch gap-2">
             <NotificationBell className="shrink-0" />
             <LanguageSwitcher className="min-w-0 flex-1 basis-[calc(50%-0.25rem)] border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
-            <div className="min-w-0 flex-1 basis-[calc(50%-0.25rem)] border border-[var(--app-border)] bg-white px-3 py-2 flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--app-primary)]">
-              <Sun size={11} /> Light UI
-            </div>
           </div>
         </div>
 

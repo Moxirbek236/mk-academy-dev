@@ -139,9 +139,9 @@ function usePublicLandingSettings() {
 
 /* ─── Language switcher ─────────────────────────────────────────── */
 const LANG_OPTIONS = [
-  { code: 'en', flag: '🇬🇧', label: 'EN' },
-  { code: 'ru', flag: '🇷🇺', label: 'RU' },
-  { code: 'uz', flag: '🇺🇿', label: 'UZ' },
+  { code: 'uz', label: 'UZ' },
+  { code: 'ru', label: 'RU' },
+  { code: 'en', label: 'EN' },
 ] as const;
 
 function LangSwitcher() {
@@ -164,27 +164,18 @@ function LangSwitcher() {
   };
 
   return (
-    <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+    <div className="lp-lang" aria-label="Til tanlash">
       {LANG_OPTIONS.map((lang) => (
         <button
           key={lang.code}
           type="button"
           onClick={() => switchLang(lang.code)}
-          style={{
-            padding: '4px 8px',
-            fontSize: '11px',
-            fontWeight: 700,
-            borderRadius: '6px',
-            border: current === lang.code ? '1.5px solid hsl(var(--lp-primary))' : '1.5px solid transparent',
-            background: current === lang.code ? 'hsl(var(--lp-primary) / 0.1)' : 'transparent',
-            color: current === lang.code ? 'hsl(var(--lp-primary))' : 'hsl(var(--lp-muted-fg))',
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-            lineHeight: 1,
-          }}
+          className={`lp-lang__item ${
+            current === lang.code ? "lp-lang__item--active" : ""
+          }`}
           aria-label={`Switch to ${lang.label}`}
         >
-          {lang.flag} {lang.label}
+          {lang.label}
         </button>
       ))}
     </div>
@@ -368,11 +359,6 @@ export function LandingPage() {
 
       {/* ══════════════════════ HERO ════════════════════════════════ */}
       <section id="hero" className="lp-hero">
-        {/* Background blobs */}
-        <div className="lp-hero__blob lp-hero__blob--1" />
-        <div className="lp-hero__blob lp-hero__blob--2" />
-        <div className="lp-hero__blob lp-hero__blob--3" />
-
         <div className="lp-container lp-hero__content">
           <div className="lp-hero__badge">
             <Sparkles size={14} className="lp-hero__badge-icon" />
@@ -402,6 +388,39 @@ export function LandingPage() {
             >
               Ochiq imtihon
             </Link>
+          </div>
+
+          <div className="lp-hero__visual" aria-label="MK Academy platformasi">
+            <div className="lp-hero__visual-panel">
+              <div className="lp-hero__visual-top">
+                <img
+                  src={settings.logoUrl || DEFAULT_CENTER_BRANDING.logoUrl}
+                  alt={settings.shortName}
+                  className="lp-hero__visual-logo"
+                />
+                <div>
+                  <p className="lp-hero__visual-kicker">Bugungi reja</p>
+                  <p className="lp-hero__visual-title">{settings.shortName}</p>
+                </div>
+              </div>
+              <div className="lp-hero__progress">
+                <span />
+              </div>
+              <div className="lp-hero__visual-grid">
+                <div>
+                  <strong>CEFR</strong>
+                  <span>A1 - C2</span>
+                </div>
+                <div>
+                  <strong>IELTS</strong>
+                  <span>Mock test</span>
+                </div>
+                <div>
+                  <strong>XP</strong>
+                  <span>Reyting</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Stats row */}

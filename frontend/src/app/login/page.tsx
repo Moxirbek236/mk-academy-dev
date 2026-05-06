@@ -11,7 +11,6 @@ import {
   Home,
   Eye,
   EyeOff,
-  Globe,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { login as loginRequest } from "@/lib/backend-api";
@@ -44,10 +43,7 @@ type LoginCopy = {
   subtitle: string;
   phoneLabel: string;
   passwordLabel: string;
-  forgot: string;
   login: string;
-  socialLogin: string;
-  continueWithGoogle: string;
   accessNote: string;
   genericError: string;
   invalidCredentials: string;
@@ -62,10 +58,7 @@ const LOGIN_COPY: Record<AppLocale, LoginCopy> = {
     subtitle: "platformasiga kirish uchun ma'lumotlaringizni kiriting.",
     phoneLabel: "Telefon raqam",
     passwordLabel: "Parol",
-    forgot: "Unutdingizmi?",
     login: "Kirish",
-    socialLogin: "Ijtimoiy kirish",
-    continueWithGoogle: "Google orqali davom etish",
     accessNote: "Tizimga faqat ruxsat etilgan o'quvchilar kira oladi.",
     genericError: "Tizimga kirishda xatolik yuz berdi",
     invalidCredentials: "Telefon raqami yoki parol noto'g'ri",
@@ -78,10 +71,7 @@ const LOGIN_COPY: Record<AppLocale, LoginCopy> = {
     subtitle: "Enter your details to sign in to the platform.",
     phoneLabel: "Phone number",
     passwordLabel: "Password",
-    forgot: "Forgot?",
     login: "Log in",
-    socialLogin: "Social login",
-    continueWithGoogle: "Continue with Google",
     accessNote: "Only authorized learners can sign in to this platform.",
     genericError: "Something went wrong while signing in",
     invalidCredentials: "Phone number or password is incorrect",
@@ -94,10 +84,7 @@ const LOGIN_COPY: Record<AppLocale, LoginCopy> = {
     subtitle: "Voydite v platformu, ukazav svoi dannye.",
     phoneLabel: "Telefon",
     passwordLabel: "Parol",
-    forgot: "Zabyli?",
     login: "Voyti",
-    socialLogin: "Sotsialnyy vhod",
-    continueWithGoogle: "Prodolzhit cherez Google",
     accessNote: "V platformu mogut voyti tolko avtorizovannye ucheniki.",
     genericError: "Ne udalos voiti v sistemu",
     invalidCredentials: "Nevernyy telefon ili parol",
@@ -278,7 +265,7 @@ export default function LoginPage() {
     <div className="min-h-screen-safe relative flex flex-col bg-[var(--app-bg)] lg:grid lg:grid-cols-2 overflow-hidden text-[var(--app-text)]">
       {/* Desktop brand panel — left side */}
       <div className="hidden lg:flex flex-col items-center justify-center bg-[var(--app-primary)] p-16 text-white">
-        <div className="h-20 w-20 overflow-hidden border-2 border-white/20 mb-8">
+        <div className="h-20 w-20 overflow-hidden rounded-lg border-2 border-white/20 mb-8">
           <img
             src={centerBranding.logoUrl}
             alt={centerBranding.shortName}
@@ -301,7 +288,7 @@ export default function LoginPage() {
           ].map((s) => (
             <div
               key={s.label}
-              className="text-center border border-white/15 bg-white/10 p-4"
+              className="rounded-lg text-center border border-white/15 bg-white/10 p-4"
             >
               <div className="text-2xl font-black">{s.value}</div>
               <div className="text-xs font-bold uppercase tracking-widest mt-1 text-white/70">
@@ -314,18 +301,11 @@ export default function LoginPage() {
 
       {/* Right column — login form */}
       <div className="relative flex flex-1 flex-col items-center justify-start px-safe pb-safe pt-safe sm:justify-center sm:p-6 lg:bg-[var(--app-bg)]">
-        {!nativeApp && (
-          <>
-            <div className="absolute left-[-10%] top-[-10%] h-[50%] w-[50%] rounded-full bg-[var(--app-primary)]/12 blur-[120px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] h-[40%] w-[40%] rounded-full bg-[var(--app-accent)]/12 blur-[100px]" />
-          </>
-        )}
-
         <motion.button
           initial={nativeApp ? false : { opacity: 0, x: -20 }}
           animate={nativeApp ? undefined : { opacity: 1, x: 0 }}
           onClick={() => router.push(localizePath(locale, "/"))}
-          className="app-touch lg:hidden absolute left-[max(0.75rem,env(safe-area-inset-left))] top-[calc(0.75rem+env(safe-area-inset-top))] flex min-h-10 items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] px-3.5 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] shadow-sm transition-all hover:text-[var(--app-primary)] sm:left-8 sm:top-8"
+          className="app-touch lg:hidden absolute left-[max(0.75rem,env(safe-area-inset-left))] top-[calc(0.75rem+env(safe-area-inset-top))] flex min-h-10 items-center gap-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3.5 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] shadow-sm transition-all hover:text-[var(--app-primary)] sm:left-8 sm:top-8"
         >
           <Home size={14} /> {copy.backHome}
         </motion.button>
@@ -334,12 +314,12 @@ export default function LoginPage() {
           initial={nativeApp ? false : { opacity: 0, y: 20, scale: 0.96 }}
           animate={nativeApp ? undefined : { opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
-          className="relative z-10 mt-14 w-full max-w-[28rem] rounded-[32px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-[var(--shadow-premium)] sm:mt-0 sm:p-8 lg:my-0"
+          className="relative z-10 mt-14 w-full max-w-[28rem] rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-5 shadow-[var(--shadow-premium)] sm:mt-0 sm:p-8 lg:my-0"
         >
           <div className="mb-8 flex flex-col items-center sm:mb-10">
             <motion.div
               whileHover={nativeApp ? undefined : { rotate: 6, scale: 1.04 }}
-              className="mb-5 h-16 w-16 overflow-hidden rounded-[22px] border border-[var(--app-border)] shadow-lg shadow-[var(--app-primary)]/15"
+              className="mb-5 h-16 w-16 overflow-hidden rounded-lg border border-[var(--app-border)] shadow-lg shadow-[var(--app-primary)]/15"
             >
               <img
                 src={centerBranding.logoUrl}
@@ -373,7 +353,7 @@ export default function LoginPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="w-full rounded-[20px] border border-[var(--app-border)] bg-[var(--color-input-background)] py-4 pl-14 pr-6 text-[15px] font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)]/40 focus:outline-none focus:ring-4 focus:ring-[var(--app-primary)]/10"
+                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--color-input-background)] py-4 pl-14 pr-6 text-[15px] font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)]/40 focus:outline-none focus:ring-4 focus:ring-[var(--app-primary)]/10"
                   placeholder="+998 90 123 45 67"
                 />
               </div>
@@ -384,12 +364,6 @@ export default function LoginPage() {
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
                   {copy.passwordLabel}
                 </label>
-                <button
-                  type="button"
-                  className="text-[10px] font-black uppercase tracking-tight text-[var(--app-primary)] hover:underline"
-                >
-                  {copy.forgot}
-                </button>
               </div>
               <div className="group relative">
                 <Lock
@@ -404,7 +378,7 @@ export default function LoginPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="w-full rounded-[20px] border border-[var(--app-border)] bg-[var(--color-input-background)] py-4 pl-14 pr-14 text-[15px] font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)]/40 focus:outline-none focus:ring-4 focus:ring-[var(--app-primary)]/10"
+                  className="w-full rounded-lg border border-[var(--app-border)] bg-[var(--color-input-background)] py-4 pl-14 pr-14 text-[15px] font-bold text-[var(--app-text)] transition-all placeholder:text-[var(--app-muted)] focus:border-[var(--app-primary)]/40 focus:outline-none focus:ring-4 focus:ring-[var(--app-primary)]/10"
                   placeholder="********"
                 />
                 <button
@@ -423,7 +397,7 @@ export default function LoginPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="flex items-center gap-3 rounded-[18px] border border-red-500/20 bg-red-500/10 p-4 text-[13px] font-bold text-red-500"
+                  className="flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-[13px] font-bold text-red-500"
                 >
                   <div className="h-2 w-2 rounded-full bg-red-500" />
                   {error}
@@ -436,7 +410,7 @@ export default function LoginPage() {
               whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--app-primary)] py-4 text-base font-black text-[var(--primary-foreground)] shadow-lg shadow-[var(--app-primary)]/15 transition-all disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-3 rounded-lg bg-[var(--app-primary)] py-4 text-base font-black text-[var(--primary-foreground)] shadow-lg shadow-[var(--app-primary)]/15 transition-all disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 size={24} className="animate-spin" />
@@ -448,25 +422,7 @@ export default function LoginPage() {
             </motion.button>
           </form>
 
-          <div className="mt-8 flex flex-col items-center gap-5 sm:mt-10 sm:gap-6">
-            <div className="flex w-full items-center gap-4">
-              <div className="h-px flex-1 bg-[var(--app-border)]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-                {copy.socialLogin}
-              </span>
-              <div className="h-px flex-1 bg-[var(--app-border)]" />
-            </div>
-
-            <button className="group flex w-full items-center justify-center gap-4 rounded-[20px] border border-[var(--app-border)] bg-[var(--color-input-background)] py-3.5 transition-all hover:border-[var(--app-primary)]/20 hover:bg-[var(--app-surface)]">
-              <Globe
-                size={20}
-                className="text-[var(--app-muted)] group-hover:text-[var(--app-primary)]"
-              />
-              <span className="text-sm font-black tracking-tight">
-                {copy.continueWithGoogle}
-              </span>
-            </button>
-
+          <div className="mt-8 flex flex-col items-center gap-5 sm:mt-10">
             <p className="text-center text-[12px] font-bold text-[var(--app-muted)]">
               {copy.accessNote}
             </p>

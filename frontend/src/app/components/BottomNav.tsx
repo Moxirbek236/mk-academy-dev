@@ -117,10 +117,8 @@ export function BottomNav({ role }: BottomNavProps) {
                           />
                         </div>
                         <span
-                          className={`relative z-10 truncate text-[9px] uppercase tracking-[0.08em] ${
-                            isActive
-                              ? "font-black opacity-100"
-                              : "font-bold opacity-60"
+                          className={`relative z-10 max-w-full truncate text-[10px] font-bold leading-tight ${
+                            isActive ? "opacity-100" : "opacity-70"
                           }`}
                         >
                           {t(item.labelKey as any)}
@@ -180,10 +178,8 @@ export function BottomNav({ role }: BottomNavProps) {
                     />
                   </div>
                   <span
-                    className={`relative z-10 truncate text-[9px] uppercase tracking-[0.08em] ${
-                      isActive
-                        ? "font-black opacity-100"
-                        : "font-bold opacity-60"
+                    className={`relative z-10 max-w-full truncate text-[10px] font-bold leading-tight ${
+                      isActive ? "opacity-100" : "opacity-70"
                     }`}
                   >
                     {t(item.labelKey as any)}
@@ -231,10 +227,8 @@ export function BottomNav({ role }: BottomNavProps) {
                   />
                 </div>
                 <span
-                  className={`relative z-10 truncate text-[9px] uppercase tracking-[0.08em] ${
-                    isMoreActive || showMore
-                      ? "font-black opacity-100"
-                      : "font-bold opacity-60"
+                  className={`relative z-10 max-w-full truncate text-[10px] font-bold leading-tight ${
+                    isMoreActive || showMore ? "opacity-100" : "opacity-70"
                   }`}
                 >
                   {t("more")}

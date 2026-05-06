@@ -17,13 +17,13 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
   return (
     <button 
       onClick={isDone ? onClick : undefined}
-      className={`w-full text-left bg-white rounded-2xl p-3.5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100/50 flex items-start gap-3 transition-all sm:gap-4 sm:p-5 ${isDone ? 'active:scale-[0.98] cursor-pointer hover:border-gray-200' : 'opacity-75 cursor-not-allowed'}`}
+      className={`w-full text-left bg-[var(--app-surface)] rounded-lg p-3.5 shadow-[var(--shadow-premium)] border border-[var(--app-border)] flex items-start gap-3 transition-all sm:gap-4 sm:p-5 ${isDone ? 'active:scale-[0.98] cursor-pointer hover:border-[var(--app-primary)]/30' : 'opacity-75 cursor-not-allowed'}`}
     >
       {/* Icon */}
       <div className={`p-2.5 rounded-[14px] shrink-0 border sm:p-3 ${
         isDone 
-          ? 'bg-[#eff6ff] text-[#2563eb] border-[#bfdbfe]' 
-          : 'bg-[#F4F6F5] text-[#8EA297] border-[#E8ECE9]'
+          ? 'bg-[var(--app-secondary)] text-[var(--app-primary)] border-[var(--app-border)]' 
+          : 'bg-[var(--app-surface-soft)] text-[var(--app-muted)] border-[var(--app-border)]'
       }`}>
         {isDone ? <Clock size={20} strokeWidth={2.5} /> : <Lock size={20} strokeWidth={2.5} />}
       </div>
@@ -32,14 +32,14 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
       <div className="flex-1 min-w-0 flex flex-col pt-1">
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <h4 className="truncate font-extrabold text-gray-900 text-[15px] leading-tight tracking-tight sm:text-base">{t('unit', { unit })}</h4>
-            <p className="text-[13px] text-gray-500 mt-1 font-medium">{title}</p>
+            <h4 className="truncate font-extrabold text-[var(--app-text)] text-[15px] leading-tight tracking-tight sm:text-base">{t('unit', { unit })}</h4>
+            <p className="text-[13px] text-[var(--app-muted)] mt-1 font-medium">{title}</p>
           </div>
           {/* Badge */}
           <div className={`self-start text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border shrink-0 shadow-sm sm:ml-2 ${
             isDone
-              ? 'bg-[#eff6ff] text-[#2563eb] border-[#bfdbfe]'
-              : 'bg-[#F4F6F5] text-[#71877C] border-[#E5EAE7]'
+              ? 'bg-[var(--app-secondary)] text-[var(--app-primary)] border-[var(--app-border)]'
+              : 'bg-[var(--app-surface-soft)] text-[var(--app-muted)] border-[var(--app-border)]'
           }`}>
             {isDone ? <Check size={12} strokeWidth={3} /> : <Lock size={12} strokeWidth={2.5} />}
             {isDone ? t('done') : t('locked')}
@@ -47,9 +47,9 @@ export function LessonCard({ unit, title, status, progress, onClick }: LessonCar
         </div>
         
         {/* Progress Bar */}
-        <div className="mt-3.5 h-[3px] w-full bg-gray-100 rounded-full overflow-hidden">
+        <div className="mt-3.5 h-[3px] w-full bg-[var(--app-surface-soft)] rounded-full overflow-hidden">
           <div 
-            className={`h-full rounded-full transition-all duration-500 ${isDone ? 'bg-[#2563eb]' : 'bg-transparent'}`} 
+            className={`h-full rounded-full transition-all duration-500 ${isDone ? 'bg-[var(--app-primary)]' : 'bg-transparent'}`} 
             style={{ width: `${progress}%` }} 
           />
         </div>

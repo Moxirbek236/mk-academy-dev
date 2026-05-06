@@ -208,39 +208,39 @@ export default function PublicExamPage() {
           className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--app-muted)]"
         >
           <ArrowLeft size={16} />
-          Back to home
+          Bosh sahifaga
         </Link>
         <Link
           href="/public-rating"
           className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--app-primary)]"
         >
           <Trophy size={16} />
-          Global rating
+          Umumiy reyting
         </Link>
       </div>
 
       {step === 'setup' ? (
         <section className="app-card p-5 sm:p-7">
           <h1 className="text-2xl font-black text-[var(--app-text)] sm:text-3xl">
-            Open English Placement Exam
+            Ingliz tili placement imtihoni
           </h1>
           <p className="mt-2 text-sm font-medium text-[var(--app-muted)]">
-            Choose your exam mode, start immediately, and get your estimated level.
+            Imtihon turini tanlang, darhol boshlang va taxminiy darajangizni oling.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <label className="text-sm font-semibold text-[var(--app-text)]">
-              First name
+              Ism
               <input
                 value={participantName}
                 onChange={(event) => setParticipantName(event.target.value)}
-                placeholder="Enter your first name"
+                placeholder="Ismingizni kiriting"
                 className="mt-2 w-full border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold text-[var(--app-text)] outline-none"
               />
             </label>
 
             <label className="text-sm font-semibold text-[var(--app-text)]">
-              Exam mode
+              Imtihon turi
               <select
                 value={selectedMode}
                 onChange={(event) => setSelectedMode(event.target.value as PublicExamMode)}
@@ -248,7 +248,7 @@ export default function PublicExamPage() {
               >
                 {PUBLIC_EXAM_MODES.map((mode) => (
                   <option key={mode} value={mode}>
-                    {mode === 'LEVEL' ? 'Level-based' : 'Track-based'}
+                    {mode === 'LEVEL' ? 'Daraja bo‘yicha' : 'Yo‘nalish bo‘yicha'}
                   </option>
                 ))}
               </select>
@@ -256,7 +256,7 @@ export default function PublicExamPage() {
 
             {selectedMode === 'LEVEL' ? (
               <label className="text-sm font-semibold text-[var(--app-text)]">
-                Level
+                Daraja
                 <select
                   value={selectedLevel}
                   onChange={(event) => setSelectedLevel(event.target.value as CefrLevel)}
@@ -271,7 +271,7 @@ export default function PublicExamPage() {
               </label>
             ) : (
               <label className="text-sm font-semibold text-[var(--app-text)]">
-                Track
+                Yo‘nalish
                 <select
                   value={selectedDirection}
                   onChange={(event) => setSelectedDirection(event.target.value as PublicExamDirection)}
@@ -306,7 +306,7 @@ export default function PublicExamPage() {
           {loadingCatalog ? (
             <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-[var(--app-muted)]">
               <Loader2 size={16} className="animate-spin" />
-              Loading available tests...
+              Mavjud testlar yuklanmoqda...
             </div>
           ) : null}
 
@@ -316,7 +316,7 @@ export default function PublicExamPage() {
 
           {!loadingCatalog && catalog.length === 0 ? (
             <p className="mt-4 text-sm font-semibold text-[var(--app-muted)]">
-              No published public tests found for this selection.
+              Bu tanlov uchun e'lon qilingan ochiq test topilmadi.
             </p>
           ) : null}
 
@@ -324,8 +324,8 @@ export default function PublicExamPage() {
             <div className="mt-5 border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-4">
               <p className="text-sm font-bold text-[var(--app-text)]">{selectedTest.title}</p>
               <p className="mt-1 text-xs font-medium text-[var(--app-muted)]">
-                {selectedTest.questionCount || 0} questions • {selectedTest.duration || '-'} minutes •
-                Passing {selectedTest.passingScore ?? 0}%
+                {selectedTest.questionCount || 0} savol · {selectedTest.duration || '-'} daqiqa ·
+                O‘tish bali {selectedTest.passingScore ?? 0}%
               </p>
             </div>
           ) : null}
@@ -338,7 +338,7 @@ export default function PublicExamPage() {
             className="mt-6 inline-flex items-center gap-2 bg-[var(--app-primary)] px-6 py-3 text-sm font-black uppercase tracking-widest text-white disabled:opacity-50"
           >
             <PlayCircle size={16} />
-            Start exam
+            Imtihonni boshlash
           </button>
         </section>
       ) : null}
@@ -350,7 +350,7 @@ export default function PublicExamPage() {
             <p className="mt-2 text-sm font-medium text-[var(--app-muted)]">{test.description}</p>
           ) : null}
           <p className="mt-2 text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">
-            {questionCount} questions
+            {questionCount} savol
           </p>
 
           <div className="mt-6 space-y-4">
@@ -368,7 +368,7 @@ export default function PublicExamPage() {
                   }`}
                 >
                   <p className="text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">
-                    Question {index + 1}
+                    Savol {index + 1}
                   </p>
                   <p className="mt-2 text-sm font-semibold text-[var(--app-text)]">{question.questionText}</p>
 
@@ -412,13 +412,13 @@ export default function PublicExamPage() {
               className="inline-flex items-center gap-2 bg-[var(--app-primary)] px-6 py-3 text-sm font-black uppercase tracking-widest text-white disabled:opacity-50"
             >
               {submitting ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
-              Submit exam
+              Yakunlash
             </button>
             <button
               onClick={resetFlow}
               className="border border-[var(--app-border)] bg-[var(--app-surface)] px-6 py-3 text-sm font-black uppercase tracking-widest text-[var(--app-text)]"
             >
-              Cancel
+              Bekor qilish
             </button>
           </div>
         </section>
@@ -426,20 +426,20 @@ export default function PublicExamPage() {
 
       {step === 'result' && result ? (
         <section className="app-card p-5 sm:p-7">
-          <h2 className="text-2xl font-black text-[var(--app-text)]">Your result</h2>
+          <h2 className="text-2xl font-black text-[var(--app-text)]">Natijangiz</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             <div className="border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
-              <p className="text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">Score</p>
+              <p className="text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">Ball</p>
               <p className="mt-2 text-2xl font-black text-[var(--app-text)]">
                 {result.score}/{result.maxScore}
               </p>
             </div>
             <div className="border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
-              <p className="text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">Percentage</p>
+              <p className="text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">Foiz</p>
               <p className="mt-2 text-2xl font-black text-[var(--app-text)]">{Math.round(result.percentage)}%</p>
             </div>
             <div className="border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
-              <p className="text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">Estimated level</p>
+              <p className="text-xs font-black uppercase tracking-widest text-[var(--app-muted)]">Taxminiy daraja</p>
               <p className="mt-2 text-2xl font-black text-[var(--app-primary)]">
                 {result.estimatedLevel || 'N/A'}
               </p>
@@ -447,8 +447,8 @@ export default function PublicExamPage() {
           </div>
 
           <p className="mt-4 text-sm font-semibold text-[var(--app-muted)]">
-            {result.passed ? 'You passed this exam.' : 'You did not pass this exam.'}
-            {typeof result.rank === 'number' ? ` Current rank: #${result.rank}.` : ''}
+            {result.passed ? 'Siz imtihondan o‘tdingiz.' : 'Siz imtihondan o‘tmadingiz.'}
+            {typeof result.rank === 'number' ? ` Joriy o‘rin: #${result.rank}.` : ''}
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -456,13 +456,13 @@ export default function PublicExamPage() {
               onClick={resetFlow}
               className="bg-[var(--app-primary)] px-6 py-3 text-sm font-black uppercase tracking-widest text-white"
             >
-              Try another exam
+              Boshqa imtihon
             </button>
             <Link
               href="/public-rating"
               className="border border-[var(--app-border)] bg-[var(--app-surface)] px-6 py-3 text-sm font-black uppercase tracking-widest text-[var(--app-text)]"
             >
-              Open global rating
+              Umumiy reyting
             </Link>
           </div>
         </section>
