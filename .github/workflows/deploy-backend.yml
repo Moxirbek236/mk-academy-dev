@@ -51,7 +51,7 @@ jobs:
       DEPLOY_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE || secrets.SERVER_SSH_PASSPHRASE }}
       DEPLOY_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
       DEPLOY_APP_DIR: /root/mk-academy-dev
-      LEGACY_PM2_APP: mc-academy
+      LEGACY_PM2_APPS: mk-academy mc-academy
 
     steps:
       - name: Checkout Repository
@@ -71,7 +71,7 @@ jobs:
         env:
           CR_PAT: ${{ secrets.GITHUB_TOKEN }}
           DEPLOY_APP_DIR: ${{ env.DEPLOY_APP_DIR }}
-          LEGACY_PM2_APP: ${{ env.LEGACY_PM2_APP }}
+          LEGACY_PM2_APPS: ${{ env.LEGACY_PM2_APPS }}
         with:
           host: ${{ env.DEPLOY_HOST }}
           username: ${{ env.DEPLOY_USER }}
@@ -79,7 +79,7 @@ jobs:
           key: ${{ env.DEPLOY_KEY }}
           passphrase: ${{ env.DEPLOY_PASSPHRASE }}
           port: ${{ env.DEPLOY_PORT }}
-          envs: CR_PAT,DEPLOY_APP_DIR,LEGACY_PM2_APP
+          envs: CR_PAT,DEPLOY_APP_DIR,LEGACY_PM2_APPS
           script: |
             set -euo pipefail
             echo "$CR_PAT" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -117,8 +117,12 @@ jobs:
               echo "${PUBLISHED_PORT_IDS}" | xargs -r docker rm -f
             fi
 
-            if command -v pm2 >/dev/null 2>&1 && pm2 describe "$LEGACY_PM2_APP" >/dev/null 2>&1; then
-              pm2 delete "$LEGACY_PM2_APP" >/dev/null 2>&1 || pm2 stop "$LEGACY_PM2_APP" >/dev/null 2>&1 || true
+            if command -v pm2 >/dev/null 2>&1; then
+              for app in ${LEGACY_PM2_APPS:-}; do
+                if pm2 describe "$app" >/dev/null 2>&1; then
+                  pm2 delete "$app" >/dev/null 2>&1 || pm2 stop "$app" >/dev/null 2>&1 || true
+                fi
+              done
               pm2 save --force >/dev/null 2>&1 || true
             fi
 
@@ -135,24 +139,37 @@ jobs:
             sleep 3
 
             if docker compose version >/dev/null 2>&1; then
-              docker compose up -d --force-recreate
+              docker compose up -d --force-recreate --remove-orphans
             else
-              docker-compose up -d --force-recreate
+              docker-compose up -d --force-recreate --remove-orphans
             fi
 
             echo "Waiting for backend healthcheck..."
-            sleep 10
-            docker ps -a --filter "name=mk_academy_backend"
-            if command -v wget >/dev/null 2>&1; then
-              wget -qO- "http://127.0.0.1:${HOST_PORT}/api/system/health" || {
+            for attempt in $(seq 1 30); do
+              if command -v wget >/dev/null 2>&1; then
+                HEALTH_OK="$(wget -qO- "http://127.0.0.1:${HOST_PORT}/api/system/health" >/dev/null 2>&1 && echo yes || echo no)"
+              else
+                HEALTH_OK="$(curl -fsS "http://127.0.0.1:${HOST_PORT}/api/system/health" >/dev/null 2>&1 && echo yes || echo no)"
+              fi
+
+              if [ "$HEALTH_OK" = "yes" ]; then
+                echo "Backend is healthy."
+                break
+              fi
+
+              if ! docker ps --filter "name=mk_academy_backend" --filter "status=running" -q | grep -q .; then
+                docker ps -a --filter "name=mk_academy_backend"
                 docker logs --tail 200 mk_academy_backend || true
                 exit 1
-              }
-            else
-              curl -fsS "http://127.0.0.1:${HOST_PORT}/api/system/health" || {
+              fi
+
+              if [ "$attempt" -eq 30 ]; then
+                docker ps -a --filter "name=mk_academy_backend"
                 docker logs --tail 200 mk_academy_backend || true
                 exit 1
-              }
-            fi
+              fi
+
+              sleep 3
+            done
 
             docker image prune -af --filter "until=24h"

@@ -78,7 +78,7 @@ const generatedClientPath = resolve(
   'node_modules',
   '.prisma',
   'client',
-  'query_engine-windows.dll.node',
+  'index.js',
 );
 const shouldGenerateClient =
   process.env.FORCE_PRISMA_GENERATE === '1' || !existsSync(generatedClientPath);
