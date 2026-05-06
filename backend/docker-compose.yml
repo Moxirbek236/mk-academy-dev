@@ -33,7 +33,7 @@ services:
       SUPERADMIN_FULL_NAME: ${SUPERADMIN_FULL_NAME:-}
       SUPERADMIN_EMAIL: ${SUPERADMIN_EMAIL:-}
     volumes:
-      - ${SQLITE_DATA_DIR:-/var/lib/mk-academy}:/app/data
+      - ${SQLITE_DATA_DIR:-/var/lib/mk-academy}:/app/data:Z
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:${PORT:-3232}/api/system/health || exit 1"]
       interval: 30s

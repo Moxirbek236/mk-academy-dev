@@ -89,6 +89,8 @@ jobs:
             cd backend
             docker pull ghcr.io/moxirbek236/mk-academy-backend:latest
             export HOST_PORT="${HOST_PORT:-3232}"
+            SQLITE_DATA_DIR="$(awk -F= '$1=="SQLITE_DATA_DIR" { print $2 }' .env 2>/dev/null | tail -n 1)"
+            SQLITE_DATA_DIR="${SQLITE_DATA_DIR:-/var/lib/mk-academy}"
 
             if docker compose version >/dev/null 2>&1; then
               docker compose down --remove-orphans || true
@@ -137,6 +139,12 @@ jobs:
               fuser -k "${HOST_PORT}/tcp" || true
             fi
             sleep 3
+
+            echo "Preparing SQLite data directory ${SQLITE_DATA_DIR}..."
+            mkdir -p "$SQLITE_DATA_DIR"
+            touch "$SQLITE_DATA_DIR/mk-academy.db"
+            chown -R 1001:1001 "$SQLITE_DATA_DIR" || true
+            chmod -R u+rwX,g+rwX "$SQLITE_DATA_DIR" || true
 
             if docker compose version >/dev/null 2>&1; then
               docker compose up -d --force-recreate --remove-orphans
