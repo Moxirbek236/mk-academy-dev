@@ -91,7 +91,7 @@ export const DEFAULT_CENTER_BRANDING: CenterBranding = {
   name: "MK Academy",
   shortName: "MK Academy",
   logoUrl:
-    "https://res.cloudinary.com/dpfbu9aid/image/upload/v1775282809/academy_kaomaq.jpg",
+    "https://res.cloudinary.com/dpfbu9aid/image/upload/v1777795606/photo_2026-04-30_11-37-47_hvkj9q.jpg",
   description:
     "Ingliz tilini CEFR standarti bo'yicha noldan professional darajagacha o'rganish platformasi.",
   aboutText:

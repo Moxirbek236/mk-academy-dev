@@ -10,13 +10,23 @@ export class XPService {
       data: { studentId: +userId, amount, reason } as any
     });
 
-    // Update leaderboard score (upsert)
-    await this.prisma.leaderboard.upsert({
-      where: { id: +userId }, // Assuming user id maps to leaderboard id for simplicity or use unique [studentId, scope]
-      update: { score: { increment: amount } },
-      create: { studentId: +userId, score: amount, scope: 'GLOBAL' },
+    const existingLeaderboard = await (this.prisma.leaderboard as any).findFirst({
+      where: { studentId: +userId, scope: 'GLOBAL', isActive: true },
       select: { id: true },
-    } as any);
+    });
+
+    if (existingLeaderboard) {
+      await (this.prisma.leaderboard as any).update({
+        where: { id: existingLeaderboard.id },
+        data: { score: { increment: amount } },
+        select: { id: true },
+      });
+    } else {
+      await (this.prisma.leaderboard as any).create({
+        data: { studentId: +userId, score: amount, scope: 'GLOBAL' },
+        select: { id: true },
+      });
+    }
 
     return transaction;
   }

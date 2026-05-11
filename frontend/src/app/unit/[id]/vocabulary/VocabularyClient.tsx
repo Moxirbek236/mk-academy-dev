@@ -84,13 +84,13 @@ export default function VocabularyClient() {
 
   const stats = useMemo(
     () => [
-      { label: "Jami so'z", value: words.length, icon: BookOpen, tone: 'primary' as const },
-      { label: "Ko'rinmoqda", value: filteredWords.length, icon: Search, tone: 'success' as const },
+      { label: "Jami so'z", value: words.length, icon: BookOpen, tone: "primary" as const },
+      { label: "Ko'rinmoqda", value: filteredWords.length, icon: Search, tone: "success" as const },
       {
-        label: 'Talaffuz',
+        label: "Talaffuz",
         value: words.filter((word) => Boolean(word.pronunciation)).length,
         icon: Volume2,
-        tone: 'warning' as const,
+        tone: "warning" as const,
       },
     ],
     [filteredWords.length, words],

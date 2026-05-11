@@ -97,8 +97,9 @@ function shouldUseBrowserProxy(url: string) {
   if (process.env.NEXT_PUBLIC_CAPACITOR_EXPORT === 'true' || process.env.CAPACITOR_EXPORT === 'true') {
     return false;
   }
-  if (window.location.protocol !== 'https:') return false;
   if (isLoopbackUrl(url)) return false;
+  if (isLocalWebRuntime()) return true;
+  if (window.location.protocol !== 'https:') return false;
   return isInsecureHttpUrl(url);
 }
 

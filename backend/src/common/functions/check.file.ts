@@ -25,7 +25,7 @@ export const ALLOWED_FILE_FORMATS = [
 
 export const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 export const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
-export const MAX_FILE_SIZE = 50 * 1024 * 1024;
+export const MAX_FILE_SIZE = 500 * 1024 * 1024;
 
 export function validateImage(file: Express.Multer.File): void {
   if (!ALLOWED_IMAGE_FORMATS.includes(file.mimetype)) {
@@ -59,6 +59,6 @@ export function validateFile(file: Express.Multer.File): void {
   }
 
   if (file.size > MAX_FILE_SIZE) {
-    throw new BadRequestException('Fayl hajmi 50MB dan oshmasligi kerak');
+    throw new BadRequestException('Fayl hajmi 500MB dan oshmasligi kerak');
   }
 }

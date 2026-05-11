@@ -37,6 +37,10 @@ const nextConfig: NextConfig = {
                 source: '/api/:path*',
                 destination: `${backendApiUrl.replace(/\/+$/, '')}/api/:path*`,
               },
+              {
+                source: '/uploads/:path*',
+                destination: `${backendApiUrl.replace(/\/+$/, '')}/uploads/:path*`,
+              },
             ],
           };
         },

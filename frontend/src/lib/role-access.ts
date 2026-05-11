@@ -12,7 +12,8 @@ export type RoleCapability =
   | 'manage_groups'
   | 'manage_books'
   | 'manage_tasks'
-  | 'manage_tests';
+  | 'manage_tests'
+  | 'manage_gamification';
 
 const ROLE_HOME_PATHS: Record<string, string> = {
   superadmin: '/dashboard',
@@ -48,6 +49,7 @@ const ROLE_CAPABILITIES: Record<AppRole, RoleCapability[]> = {
     'manage_books',
     'manage_tasks',
     'manage_tests',
+    'manage_gamification',
   ],
   admin: [
     'view_users',
@@ -61,6 +63,7 @@ const ROLE_CAPABILITIES: Record<AppRole, RoleCapability[]> = {
     'manage_books',
     'manage_tasks',
     'manage_tests',
+    'manage_gamification',
   ],
   teacher: ['view_users', 'manage_books', 'manage_tasks', 'manage_tests'],
   mentor: ['view_users', 'manage_tasks', 'manage_tests'],

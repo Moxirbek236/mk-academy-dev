@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from '../../../core/enums';
 import {
@@ -9,6 +9,10 @@ import {
   questionsA as elementaryQuestionsA,
   questionsB as elementaryQuestionsB,
 } from './questions.elementry.seed';
+import {
+  questionsA as preIntermediateQuestionsA,
+  questionsB as preIntermediateQuestionsB,
+} from './questions.pre-intermediate.seed';
 import { PrismaService } from 'src/core/config/prisma.service';
 
 type RawSeedQuestion = {
@@ -46,7 +50,6 @@ export class SeedService {
 
   logger = new Logger(SeedService.name);
 
-
   async onApplicationBootstrap(): Promise<void> {
     try {
       const result = await this.seedQuestionsIfMissing();
@@ -77,7 +80,10 @@ export class SeedService {
     let questionsReactivated = 0;
 
     for (const seedQuestion of allSeedQuestions) {
-      const key = this.buildQuestionKey(seedQuestion.testId, seedQuestion.questionText);
+      const key = this.buildQuestionKey(
+        seedQuestion.testId,
+        seedQuestion.questionText,
+      );
       const existing = existingByKey.get(key);
 
       if (existing) {
@@ -125,8 +131,12 @@ export class SeedService {
 
   private async ensureSuperAdmin(): Promise<'created' | 'updated' | 'exists'> {
     const phone = String(process.env.SUPERADMIN_PHONE ?? '998999992000').trim();
-    const fullName = String(process.env.SUPERADMIN_FULL_NAME ?? 'SUPERADMIN').trim();
-    const rawPassword = String(process.env.SUPERADMIN_PASSWORD ?? 'mcacademy').trim();
+    const fullName = String(
+      process.env.SUPERADMIN_FULL_NAME ?? 'SUPERADMIN',
+    ).trim();
+    const rawPassword = String(
+      process.env.SUPERADMIN_PASSWORD ?? 'mcacademy',
+    ).trim();
     const email = process.env.SUPERADMIN_EMAIL?.trim() || null;
 
     const existing = await this.prisma.user.findUnique({
@@ -236,7 +246,9 @@ export class SeedService {
     return testsCreated;
   }
 
-  private async findExistingQuestions(testIds: number[]): Promise<ExistingQuestion[]> {
+  private async findExistingQuestions(
+    testIds: number[],
+  ): Promise<ExistingQuestion[]> {
     const rows = await (this.prisma.question as any).findMany({
       where: { testId: { in: testIds } },
       select: {
@@ -288,6 +300,8 @@ export class SeedService {
       ...beginnerQuestionsB,
       ...elementaryQuestionsA,
       ...elementaryQuestionsB,
+      ...preIntermediateQuestionsA,
+      ...preIntermediateQuestionsB,
     ];
 
     return combined

@@ -24,6 +24,8 @@ import {
   listAchievements,
   listRatings,
 } from '@/lib/backend-api';
+import { useAuth } from '@/hooks/useAuth';
+import { hasRoleCapability } from '@/lib/role-access';
 import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
 import {
   Badge,
@@ -66,6 +68,8 @@ function getScoreTone(score: unknown) {
 }
 
 export default function GamificationPage() {
+  const { role } = useAuth();
+  const canManageGamification = hasRoleCapability(role, 'manage_gamification');
   const [achievements, setAchievements] = useState<AnyRecord[]>([]);
   const [studentAchievements, setStudentAchievements] = useState<AnyRecord[]>([]);
   const [leaderboard, setLeaderboard] = useState<AnyRecord[]>([]);
@@ -73,7 +77,7 @@ export default function GamificationPage() {
   const [targetRatings, setTargetRatings] = useState<AnyRecord[]>([]);
   const [xpRank, setXpRank] = useState<AnyRecord | null>(null);
   const [profileId, setProfileId] = useState<number | null>(null);
-  const [ratingForm, setRatingForm] = useState({ targetType: 'course', targetId: '', score: '5', reviewText: '' });
+  const [ratingForm, setRatingForm] = useState({ userId: '', targetType: 'course', targetId: '', score: '5', reviewText: '' });
   const [targetForm, setTargetForm] = useState({ targetType: 'course', targetId: '' });
   const [xpForm, setXpForm] = useState({ userId: '', amount: '10', reason: 'manual_adjustment' });
   const [loading, setLoading] = useState(true);
@@ -103,14 +107,14 @@ export default function GamificationPage() {
       const profile = await getCurrentProfile().catch(() => null);
       const currentProfileId = getProfileId(profile);
       setProfileId(currentProfileId);
-      if (currentProfileId) {
+      if (currentProfileId && canManageGamification) {
         setXpForm((current) => ({ ...current, userId: current.userId || String(currentProfileId) }));
       }
 
       const [achievementRes, leaderboardRes, ratingsRes, studentAchievementRes, xpRankRes] = await Promise.allSettled([
         listAchievements(),
         getLeaderboard(20),
-        listRatings(),
+        canManageGamification ? listRatings() : Promise.resolve([]),
         currentProfileId ? getStudentAchievements(currentProfileId) : Promise.resolve([]),
         currentProfileId ? getXpRank(currentProfileId) : Promise.resolve(null),
       ]);
@@ -129,14 +133,24 @@ export default function GamificationPage() {
 
   useEffect(() => {
     void loadData();
-  }, []);
+  }, [canManageGamification]);
 
   async function handleCreateRating(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canManageGamification) {
+      setNotice("Rating yaratish uchun admin ruxsati kerak");
+      return;
+    }
+    if (!Number.isFinite(Number(ratingForm.userId)) || Number(ratingForm.userId) <= 0) {
+      setNotice("Rating yaratish uchun userId kiriting");
+      return;
+    }
+
     try {
       setSaving(true);
       setNotice(null);
       await createRating({
+        userId: Number(ratingForm.userId),
         targetType: ratingForm.targetType,
         targetId: ratingForm.targetId,
         score: Number(ratingForm.score),
@@ -153,6 +167,11 @@ export default function GamificationPage() {
   }
 
   async function handleDeleteRating(id: number) {
+    if (!canManageGamification) {
+      setNotice("Rating o'chirish uchun admin ruxsati kerak");
+      return;
+    }
+
     try {
       setSaving(true);
       await deleteRating(id);
@@ -167,6 +186,11 @@ export default function GamificationPage() {
 
   async function handleTargetRatings(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canManageGamification) {
+      setNotice("Target ratinglarini ko'rish uchun admin ruxsati kerak");
+      return;
+    }
+
     try {
       setSaving(true);
       setTargetRatings(await getRatingsByTarget(targetForm.targetType, targetForm.targetId));
@@ -180,6 +204,11 @@ export default function GamificationPage() {
 
   async function handleAddXp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canManageGamification) {
+      setNotice("XP qo'shish uchun admin ruxsati kerak");
+      return;
+    }
+
     try {
       setSaving(true);
       setNotice(null);
@@ -213,7 +242,7 @@ export default function GamificationPage() {
   return (
     <PageShell
       title="Gamification"
-      subtitle="XP, leaderboard, achievements va rating boshqaruvi"
+      subtitle={canManageGamification ? 'XP, leaderboard, achievements va rating boshqaruvi' : "Leaderboard, rank va yutuqlar"}
       action={
         <button onClick={() => void loadData()} className={secondaryButtonClass}>
           <RefreshCcw size={14} />
@@ -321,143 +350,168 @@ export default function GamificationPage() {
           </div>
         </section>
 
-        <section className="space-y-5">
-          <form onSubmit={handleCreateRating} className="app-card p-5">
-            <SectionTitle title="Rating yaratish" description="Course, book yoki boshqa target uchun baho qo'shing." icon={Star} />
-            <div className="grid gap-3">
-              <input
-                className={fieldClass}
-                value={ratingForm.targetType}
-                onChange={(event) => setRatingForm({ ...ratingForm, targetType: event.target.value })}
-                placeholder="targetType"
-                required
-              />
-              <input
-                className={fieldClass}
-                value={ratingForm.targetId}
-                onChange={(event) => setRatingForm({ ...ratingForm, targetId: event.target.value })}
-                placeholder="targetId"
-                required
-              />
-              <input
-                className={fieldClass}
-                type="number"
-                min="1"
-                max="5"
-                value={ratingForm.score}
-                onChange={(event) => setRatingForm({ ...ratingForm, score: event.target.value })}
-                placeholder="score"
-                required
-              />
-              <textarea
-                className={textareaClass}
-                value={ratingForm.reviewText}
-                onChange={(event) => setRatingForm({ ...ratingForm, reviewText: event.target.value })}
-                placeholder="Review text"
-              />
-              <button className={primaryButtonClass} disabled={saving}>
-                {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-                Saqlash
-              </button>
-            </div>
-          </form>
+        {canManageGamification ? (
+          <section className="space-y-5">
+            <form onSubmit={handleCreateRating} className="app-card p-5">
+              <SectionTitle title="Rating yaratish" description="Course, book yoki boshqa target uchun baho qo'shing." icon={Star} />
+              <div className="grid gap-3">
+                <input
+                  className={fieldClass}
+                  type="number"
+                  value={ratingForm.userId}
+                  onChange={(event) => setRatingForm({ ...ratingForm, userId: event.target.value })}
+                  placeholder="userId"
+                  required
+                />
+                <input
+                  className={fieldClass}
+                  value={ratingForm.targetType}
+                  onChange={(event) => setRatingForm({ ...ratingForm, targetType: event.target.value })}
+                  placeholder="targetType"
+                  required
+                />
+                <input
+                  className={fieldClass}
+                  value={ratingForm.targetId}
+                  onChange={(event) => setRatingForm({ ...ratingForm, targetId: event.target.value })}
+                  placeholder="targetId"
+                  required
+                />
+                <input
+                  className={fieldClass}
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={ratingForm.score}
+                  onChange={(event) => setRatingForm({ ...ratingForm, score: event.target.value })}
+                  placeholder="score"
+                  required
+                />
+                <textarea
+                  className={textareaClass}
+                  value={ratingForm.reviewText}
+                  onChange={(event) => setRatingForm({ ...ratingForm, reviewText: event.target.value })}
+                  placeholder="Review text"
+                />
+                <button className={primaryButtonClass} disabled={saving}>
+                  {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                  Saqlash
+                </button>
+              </div>
+            </form>
 
-          <form onSubmit={handleTargetRatings} className="app-card p-5">
-            <SectionTitle title="Target ratinglari" description="Muayyan target bo'yicha ratinglarni ko'ring." icon={Star} />
-            <div className="grid gap-3">
-              <input
-                className={fieldClass}
-                value={targetForm.targetType}
-                onChange={(event) => setTargetForm({ ...targetForm, targetType: event.target.value })}
-                placeholder="targetType"
-                required
-              />
-              <input
-                className={fieldClass}
-                value={targetForm.targetId}
-                onChange={(event) => setTargetForm({ ...targetForm, targetId: event.target.value })}
-                placeholder="targetId"
-                required
-              />
-              <button className={secondaryButtonClass} disabled={saving}>
-                Yuklash
-              </button>
-            </div>
-            {targetRatings.length ? <JsonBlock className="mt-4" data={targetRatings} /> : null}
-          </form>
+            <form onSubmit={handleTargetRatings} className="app-card p-5">
+              <SectionTitle title="Target ratinglari" description="Muayyan target bo'yicha ratinglarni ko'ring." icon={Star} />
+              <div className="grid gap-3">
+                <input
+                  className={fieldClass}
+                  value={targetForm.targetType}
+                  onChange={(event) => setTargetForm({ ...targetForm, targetType: event.target.value })}
+                  placeholder="targetType"
+                  required
+                />
+                <input
+                  className={fieldClass}
+                  value={targetForm.targetId}
+                  onChange={(event) => setTargetForm({ ...targetForm, targetId: event.target.value })}
+                  placeholder="targetId"
+                  required
+                />
+                <button className={secondaryButtonClass} disabled={saving}>
+                  Yuklash
+                </button>
+              </div>
+              {targetRatings.length ? <JsonBlock className="mt-4" data={targetRatings} /> : null}
+            </form>
 
-          <form onSubmit={handleAddXp} className="app-card p-5">
-            <SectionTitle title="XP qo'shish" description="Foydalanuvchiga manual XP adjustment yuborish." icon={Zap} />
-            <div className="grid gap-3">
-              <input
-                className={fieldClass}
-                type="number"
-                value={xpForm.userId}
-                onChange={(event) => setXpForm({ ...xpForm, userId: event.target.value })}
-                placeholder="userId"
-                required
-              />
-              <input
-                className={fieldClass}
-                type="number"
-                value={xpForm.amount}
-                onChange={(event) => setXpForm({ ...xpForm, amount: event.target.value })}
-                placeholder="amount"
-                required
-              />
-              <input
-                className={fieldClass}
-                value={xpForm.reason}
-                onChange={(event) => setXpForm({ ...xpForm, reason: event.target.value })}
-                placeholder="reason"
-              />
-              <button className={primaryButtonClass} disabled={saving}>
-                XP yuborish
-              </button>
-            </div>
-          </form>
+            <form onSubmit={handleAddXp} className="app-card p-5">
+              <SectionTitle title="XP qo'shish" description="Foydalanuvchiga manual XP adjustment yuborish." icon={Zap} />
+              <div className="grid gap-3">
+                <input
+                  className={fieldClass}
+                  type="number"
+                  value={xpForm.userId}
+                  onChange={(event) => setXpForm({ ...xpForm, userId: event.target.value })}
+                  placeholder="userId"
+                  required
+                />
+                <input
+                  className={fieldClass}
+                  type="number"
+                  value={xpForm.amount}
+                  onChange={(event) => setXpForm({ ...xpForm, amount: event.target.value })}
+                  placeholder="amount"
+                  required
+                />
+                <input
+                  className={fieldClass}
+                  value={xpForm.reason}
+                  onChange={(event) => setXpForm({ ...xpForm, reason: event.target.value })}
+                  placeholder="reason"
+                />
+                <button className={primaryButtonClass} disabled={saving}>
+                  XP yuborish
+                </button>
+              </div>
+            </form>
 
-          <div className="app-card p-5">
-            <SectionTitle title="Ratinglar" description="Oxirgi rating yozuvlari." icon={Star} />
-            <div className="space-y-3">
-              {ratings.map((item, index) => (
-                <article
-                  key={`${item?.id ?? index}`}
-                  className="rounded-lg border border-[var(--app-border)] bg-white p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <Badge tone={getScoreTone(item?.score)}>Score {item?.score ?? '-'}</Badge>
-                        <Badge tone="primary">ID {item?.id ?? '-'}</Badge>
-                      </div>
-                      <p className="truncate font-black text-[var(--app-text)]">
-                        {item?.targetType ?? 'target'} #{item?.targetId ?? '-'}
-                      </p>
-                      {item?.reviewText ? (
-                        <p className="mt-1 line-clamp-2 text-xs font-semibold text-[var(--app-muted)]">
-                          {item.reviewText}
+            <div className="app-card p-5">
+              <SectionTitle title="Ratinglar" description="Oxirgi rating yozuvlari." icon={Star} />
+              <div className="space-y-3">
+                {ratings.map((item, index) => (
+                  <article
+                    key={`${item?.id ?? index}`}
+                    className="rounded-lg border border-[var(--app-border)] bg-white p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <Badge tone={getScoreTone(item?.score)}>Score {item?.score ?? '-'}</Badge>
+                          <Badge tone="primary">ID {item?.id ?? '-'}</Badge>
+                        </div>
+                        <p className="truncate font-black text-[var(--app-text)]">
+                          {item?.targetType ?? 'target'} #{item?.targetId ?? '-'}
                         </p>
+                        {item?.reviewText ? (
+                          <p className="mt-1 line-clamp-2 text-xs font-semibold text-[var(--app-muted)]">
+                            {item.reviewText}
+                          </p>
+                        ) : null}
+                      </div>
+                      {item?.id ? (
+                        <button
+                          onClick={() => void handleDeleteRating(Number(item.id))}
+                          className={iconButtonClass}
+                          disabled={saving}
+                          title="Ratingni o'chirish"
+                          aria-label="Ratingni o'chirish"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       ) : null}
                     </div>
-                    {item?.id ? (
-                      <button
-                        onClick={() => void handleDeleteRating(Number(item.id))}
-                        className={iconButtonClass}
-                        disabled={saving}
-                        title="Ratingni o'chirish"
-                        aria-label="Ratingni o'chirish"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    ) : null}
-                  </div>
-                </article>
-              ))}
-              {!ratings.length ? <EmptyBlock title="Ratinglar yo'q" description="Hali rating yozuvlari kelmadi." /> : null}
+                  </article>
+                ))}
+                {!ratings.length ? <EmptyBlock title="Ratinglar yo'q" description="Hali rating yozuvlari kelmadi." /> : null}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : (
+          <section className="space-y-5">
+            <div className="app-card p-5">
+              <SectionTitle
+                title="Ko'rish rejimi"
+                description="Student, teacher va mentor rollari bu sahifada faqat leaderboard, rank va achievement ma'lumotlarini ko'radi."
+                icon={Star}
+              />
+              <EmptyBlock
+                title="Admin amallari yopiq"
+                description="Rating yaratish, rating o'chirish va XP qo'shish faqat admin va superadmin rollarida ko'rinadi hamda submit handlerlarda ham bloklanadi."
+                icon={Zap}
+              />
+            </div>
+          </section>
+        )}
       </div>
     </PageShell>
   );

@@ -1,19 +1,17 @@
-'use client';
+  'use client';
 
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { ArrowUpRight, BookOpen, CheckSquare, ChevronRight, ListTodo, Users, X } from 'lucide-react';
+import { ArrowUpRight, BookOpen, CheckSquare, ChevronRight, ListTodo, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { LessonCard } from '../LessonCard';
-import { useDashboard } from '@/hooks/useDashboard';
 import { useCourses } from '@/hooks/useCourses';
-import { PageEmptyState, PageErrorState, PageLoadingState } from '@/app/components/ui/PagePrimitives';
+import { PageErrorState, PageLoadingState } from '@/app/components/ui/PagePrimitives';
 
 export function StudentDashboard() {
   const t = useTranslations('DashboardStudent');
   const uiT = useTranslations('UiStates');
-  const { data, loading, error, refetch } = useDashboard();
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
   const router = useRouter();
   const {
@@ -23,21 +21,20 @@ export function StudentDashboard() {
     refetch: refetchCourses,
   } = useCourses({ page: 1, limit: 3 });
 
-  const studentGroups = Array.isArray(data?.myGroups) ? data.myGroups : [];
   const visibleCourses = Array.isArray(coursesData?.items) ? coursesData.items.slice(0, 3) : [];
 
-  if (loading || coursesLoading) {
+  if (coursesLoading) {
     return <PageLoadingState title={uiT('loadingTitle')} description={uiT('loadingDescription')} />;
   }
 
-  if (error || coursesError) {
+  if (coursesError) {
     return (
       <PageErrorState
         title={uiT('errorTitle')}
-        description={error || coursesError}
+        description={coursesError}
         retryLabel={uiT('retry')}
         onRetry={() => {
-          void Promise.all([refetch(), refetchCourses()]);
+          void refetchCourses();
         }}
       />
     );
@@ -45,51 +42,6 @@ export function StudentDashboard() {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 space-y-8 duration-500">
-      <section className="space-y-4">
-        <h2 className="flex items-center gap-2 px-1 text-[12px] font-black uppercase tracking-[0.15em] text-[var(--app-muted)]">
-          <Users size={14} className="text-[var(--app-primary)]" /> {t('myGroups')}
-        </h2>
-
-        {studentGroups.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            {studentGroups.map((group: any) => (
-              <button
-                key={group.id}
-                onClick={() => router.push('/groups')}
-                className="app-card flex items-center gap-4 p-5 text-left transition-all active:scale-[0.98] sm:p-6"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[var(--app-surface-soft)] text-lg font-black text-[var(--app-primary)] sm:h-14 sm:w-14">
-                  {(group.name || 'G').slice(0, 1).toUpperCase()}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-text)]">
-                    {group.name}
-                  </h3>
-                  <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[var(--app-muted)]">
-                    {t('mentor', { name: group.teacherName || 'Mentor' })}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-[var(--app-surface-soft)] px-2.5 py-1 text-[10px] font-bold text-[var(--app-muted)]">
-                      {group.lessons}
-                    </span>
-                    <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2.5 py-1 text-[10px] font-bold text-[var(--app-primary)]">
-                      {group.nextLesson}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="rounded-[12px] bg-[var(--app-surface-soft)] p-2.5 text-[var(--app-muted)]">
-                  <ChevronRight size={18} strokeWidth={3} />
-                </div>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <PageEmptyState title={t('myGroups')} description={t('emptyGroupsDescription')} />
-        )}
-      </section>
-
       <section className="space-y-5">
         <div className="flex items-center justify-between gap-3 px-1">
           <h2 className="text-[12px] font-black uppercase tracking-[0.15em] text-[var(--app-muted)]">

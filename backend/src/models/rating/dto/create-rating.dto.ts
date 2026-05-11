@@ -22,5 +22,5 @@ export class CreateRatingDto {
 
   @ApiPropertyOptional()
   @IsString()
-  comment?: string;
+  reviewText?: string;
 }

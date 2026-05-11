@@ -1,9 +1,16 @@
-import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { RolesGuard } from 'src/common/guards/role.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRole } from 'src/core/enums';
 
 @ApiTags('ratings')
+@ApiBearerAuth()
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
 @Controller('ratings')
 export class RatingController {
   constructor(private readonly service: RatingService) {}

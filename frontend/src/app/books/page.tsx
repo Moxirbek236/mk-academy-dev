@@ -45,6 +45,20 @@ const EMPTY_BOOK_FORM = {
 const fallbackCover =
   "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=80";
 
+const MAX_COVER_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_BOOK_FILE_BYTES = 500 * 1024 * 1024;
+
+function formatFileSize(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+function getFileSizeError(file: File | null, maxBytes: number, label: string) {
+  if (!file || file.size <= maxBytes) return null;
+
+  return `${label} hajmi ${formatFileSize(maxBytes)} dan oshmasligi kerak. Tanlangan fayl: ${formatFileSize(file.size)}.`;
+}
+
 export default function Books() {
   const { role } = useAuth();
   const canManageBooks = hasRoleCapability(role, "manage_books");
@@ -117,6 +131,18 @@ export default function Books() {
       return;
     }
 
+    const coverSizeError = getFileSizeError(form.coverImage, MAX_COVER_IMAGE_BYTES, "Cover image");
+    if (coverSizeError) {
+      setMutationError(coverSizeError);
+      return;
+    }
+
+    const bookSizeError = getFileSizeError(form.bookFile, MAX_BOOK_FILE_BYTES, "Kitob fayli");
+    if (bookSizeError) {
+      setMutationError(bookSizeError);
+      return;
+    }
+
     try {
       setCreating(true);
       setMutationError(null);
@@ -132,6 +158,11 @@ export default function Books() {
       setForm(EMPTY_BOOK_FORM);
       await fetchBooks();
     } catch (bookError) {
+      if (typeof bookError === "object" && bookError && "status" in bookError && bookError.status === 413) {
+        setMutationError("Fayl server limiti uchun juda katta. Iltimos, kichikroq PDF/DOC yuklang yoki faylni siqing.");
+        return;
+      }
+
       setMutationError(
         bookError instanceof Error
           ? bookError.message
@@ -355,12 +386,22 @@ export default function Books() {
                   type="file"
                   accept="image/png,image/jpeg,image/webp"
                   className="hidden"
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    const sizeError = getFileSizeError(file, MAX_COVER_IMAGE_BYTES, "Cover image");
+                    if (sizeError) {
+                      event.target.value = "";
+                      setMutationError(sizeError);
+                      setForm((current) => ({ ...current, coverImage: null }));
+                      return;
+                    }
+
+                    setMutationError(null);
                     setForm((current) => ({
                       ...current,
-                      coverImage: event.target.files?.[0] ?? null,
-                    }))
-                  }
+                      coverImage: file,
+                    }));
+                  }}
                 />
               </label>
 
@@ -373,12 +414,22 @@ export default function Books() {
                   type="file"
                   accept=".pdf,.zip,.doc,.docx,.xls,.xlsx,application/pdf"
                   className="hidden"
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    const sizeError = getFileSizeError(file, MAX_BOOK_FILE_BYTES, "Kitob fayli");
+                    if (sizeError) {
+                      event.target.value = "";
+                      setMutationError(sizeError);
+                      setForm((current) => ({ ...current, bookFile: null }));
+                      return;
+                    }
+
+                    setMutationError(null);
                     setForm((current) => ({
                       ...current,
-                      bookFile: event.target.files?.[0] ?? null,
-                    }))
-                  }
+                      bookFile: file,
+                    }));
+                  }}
                 />
               </label>
             </div>

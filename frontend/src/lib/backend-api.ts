@@ -1052,6 +1052,7 @@ export async function getVocabularyProgressById(id: number) {
 }
 
 export async function createRating(payload: {
+  userId: number;
   targetType: string;
   targetId: string | number;
   score: number;
