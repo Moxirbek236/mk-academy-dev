@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { resolve } from 'path';
+import { mkdirSync } from 'fs';
+import { dirname, isAbsolute, resolve } from 'path';
 
 function toSqliteFileUrl(filePath: string): string {
   return `file:${filePath.replace(/\\/g, '/')}`;
@@ -30,12 +31,35 @@ function resolveDatabaseUrl(): string {
   return 'file:./prisma/dev.db';
 }
 
+function ensureSqliteDirectory(databaseUrl: string): void {
+  if (!databaseUrl.startsWith('file:')) {
+    return;
+  }
+
+  const rawPath = databaseUrl.slice('file:'.length).split('?')[0];
+  if (!rawPath || rawPath === ':memory:' || rawPath === 'memory:') {
+    return;
+  }
+
+  const normalizedFsPath =
+    process.platform === 'win32' && /^\/[a-zA-Z]:\//.test(rawPath)
+      ? rawPath.slice(1)
+      : rawPath;
+
+  const absoluteFsPath = isAbsolute(normalizedFsPath)
+    ? normalizedFsPath
+    : resolve(process.cwd(), normalizedFsPath);
+
+  mkdirSync(dirname(absoluteFsPath), { recursive: true });
+}
+
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
 
   constructor() {
     const databaseUrl = resolveDatabaseUrl();
+    ensureSqliteDirectory(databaseUrl);
 
     super({
       log: ['warn', 'error'],

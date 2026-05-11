@@ -11,6 +11,22 @@ interface UseApiRequestOptions<T> {
   requestKey?: string | number | boolean | null;
 }
 
+type CacheEntry<T> = {
+  data: T;
+  updatedAt: number;
+};
+
+const requestCache = new Map<string, CacheEntry<unknown>>();
+const inFlightRequests = new Map<string, Promise<unknown>>();
+
+function normalizeCacheKey(requestKey: UseApiRequestOptions<unknown>['requestKey']) {
+  if (requestKey === null || requestKey === undefined || requestKey === false) {
+    return null;
+  }
+
+  return String(requestKey);
+}
+
 function normalizeRequestError(error: unknown) {
   if (error instanceof AppApiError) {
     return error.message;
@@ -26,26 +42,68 @@ export function useApiRequest<T>({
   request,
   requestKey = null,
 }: UseApiRequestOptions<T>) {
-  const [data, setData] = useState<T>(initialData);
-  const [loading, setLoading] = useState(enabled);
+  const cacheKey = normalizeCacheKey(requestKey);
+  const initialDataRef = useRef(initialData);
+  const cachedEntry = cacheKey ? (requestCache.get(cacheKey) as CacheEntry<T> | undefined) : undefined;
+  const [data, setData] = useState<T>(cachedEntry?.data ?? initialData);
+  const [loading, setLoading] = useState(enabled && !cachedEntry);
   const [error, setError] = useState<string | null>(null);
   const requestRef = useRef(request);
 
   requestRef.current = request;
 
-  const execute = useCallback(async () => {
-    setLoading(true);
+  const execute = useCallback(async (options?: { background?: boolean }) => {
+    const cacheExists = Boolean(cacheKey && requestCache.has(cacheKey));
+    const shouldKeepCurrentData = options?.background || cacheExists;
+
+    if (!shouldKeepCurrentData) {
+      setLoading(true);
+    }
     setError(null);
 
     try {
-      const response = await requestRef.current();
+      let response: T;
+
+      if (cacheKey) {
+        const existingRequest = inFlightRequests.get(cacheKey) as Promise<T> | undefined;
+        const requestPromise =
+          existingRequest ??
+          requestRef.current().finally(() => {
+            inFlightRequests.delete(cacheKey);
+          });
+
+        if (!existingRequest) {
+          inFlightRequests.set(cacheKey, requestPromise);
+        }
+
+        response = await requestPromise;
+      } else {
+        response = await requestRef.current();
+      }
+
       setData(response);
+      if (cacheKey) {
+        requestCache.set(cacheKey, {
+          data: response,
+          updatedAt: Date.now(),
+        });
+      }
     } catch (requestError) {
       setError(normalizeRequestError(requestError));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [cacheKey]);
+
+  useEffect(() => {
+    const nextCachedEntry = cacheKey
+      ? (requestCache.get(cacheKey) as CacheEntry<T> | undefined)
+      : undefined;
+
+    setData(nextCachedEntry?.data ?? initialDataRef.current);
+    setLoading(enabled && !nextCachedEntry);
+    setError(null);
+  }, [cacheKey, enabled]);
 
   useEffect(() => {
     if (!enabled) {
@@ -53,16 +111,18 @@ export function useApiRequest<T>({
       return;
     }
 
+    const hasCachedData = Boolean(cacheKey && requestCache.has(cacheKey));
+
     if (debounceMs > 0) {
       const timer = window.setTimeout(() => {
-        void execute();
+        void execute({ background: hasCachedData });
       }, debounceMs);
 
       return () => window.clearTimeout(timer);
     }
 
-    void execute();
-  }, [debounceMs, enabled, execute, requestKey]);
+    void execute({ background: hasCachedData });
+  }, [cacheKey, debounceMs, enabled, execute]);
 
   return {
     data,

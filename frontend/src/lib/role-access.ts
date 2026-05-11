@@ -1,4 +1,4 @@
-export type AppRole = 'superadmin' | 'admin' | 'teacher' | 'mentor' | 'student';
+export type AppRole = 'superadmin' | 'admin' | 'teacher' | 'mentor' | 'student' | 'global_user';
 export type RoleCapability =
   | 'view_users'
   | 'manage_users'
@@ -20,6 +20,7 @@ const ROLE_HOME_PATHS: Record<string, string> = {
   teacher: '/dashboard',
   mentor: '/dashboard',
   student: '/dashboard',
+  global_user: '/public-exam',
 };
 
 const RESTRICTED_PREFIXES: Array<{ prefix: string; roles: string[] }> = [
@@ -61,6 +62,7 @@ const ROLE_CAPABILITIES: Record<AppRole, RoleCapability[]> = {
   teacher: ['view_users', 'manage_books', 'manage_tasks', 'manage_tests'],
   mentor: ['view_users', 'manage_tasks', 'manage_tests'],
   student: [],
+  global_user: [],
 };
 
 function normalizeRole(role: string | null | undefined) {
@@ -70,7 +72,8 @@ function normalizeRole(role: string | null | undefined) {
     normalized === 'superadmin' ||
     normalized === 'admin' ||
     normalized === 'teacher' ||
-    normalized === 'mentor'
+    normalized === 'mentor' ||
+    normalized === 'global_user'
   ) {
     return normalized;
   }
@@ -80,6 +83,15 @@ function normalizeRole(role: string | null | undefined) {
 
 export function isRoleAllowedForPath(pathname: string, role: string | null | undefined) {
   const normalizedRole = normalizeRole(role);
+
+  if (normalizedRole === 'global_user') {
+    return (
+      pathname === '/public-exam' ||
+      pathname.startsWith('/public-exam/') ||
+      pathname === '/public-rating' ||
+      pathname.startsWith('/public-rating/')
+    );
+  }
 
   for (const rule of RESTRICTED_PREFIXES) {
     if (pathname === rule.prefix || pathname.startsWith(`${rule.prefix}/`)) {

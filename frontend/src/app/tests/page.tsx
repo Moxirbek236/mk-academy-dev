@@ -18,12 +18,16 @@ import { useCourses } from '@/hooks/useCourses';
 import { useTests } from '@/hooks/useTests';
 import {
   CEFR_LEVELS,
+  PUBLIC_EXAM_DIRECTIONS,
+  PUBLIC_EXAM_MODES,
   createQuestion,
   createTest,
   deleteQuestion,
   deleteTest,
   normalizeQuestionOptionItems,
   type CefrLevel,
+  type PublicExamDirection,
+  type PublicExamMode,
   type QuestionOption,
   type TestItem,
   type TestPayload,
@@ -65,6 +69,9 @@ type TestFormState = {
   maxAttempts: string;
   isAdaptive: boolean;
   isPublished: boolean;
+  isPublicExam: boolean;
+  publicExamType: PublicExamMode | '';
+  publicExamDirection: PublicExamDirection | '';
   questions: QuestionDraft[];
 };
 
@@ -97,6 +104,9 @@ const EMPTY_FORM: TestFormState = {
   maxAttempts: '3',
   isAdaptive: false,
   isPublished: true,
+  isPublicExam: false,
+  publicExamType: '',
+  publicExamDirection: '',
   questions: [],
 };
 
@@ -166,6 +176,10 @@ function toTestPayload(form: TestFormState): TestPayload {
     maxAttempts: Number.isFinite(maxAttempts) && maxAttempts > 0 ? maxAttempts : null,
     isAdaptive: form.isAdaptive,
     isPublished: form.isPublished,
+    isPublicExam: form.isPublicExam,
+    publicExamType: form.isPublicExam ? form.publicExamType : '',
+    publicExamDirection:
+      form.isPublicExam && form.publicExamType === 'TRACK' ? form.publicExamDirection : '',
     questions: form.questions.map(toQuestionPayload),
   };
 }
@@ -185,6 +199,9 @@ function toFormState(test: TestItem): TestFormState {
     maxAttempts: test.maxAttempts ? String(test.maxAttempts) : '',
     isAdaptive: Boolean(test.isAdaptive),
     isPublished: Boolean(test.isPublished),
+    isPublicExam: Boolean(test.isPublicExam),
+    publicExamType: (test.publicExamType as PublicExamMode | '') || '',
+    publicExamDirection: (test.publicExamDirection as PublicExamDirection | '') || '',
     questions:
       test.questions && test.questions.length > 0
         ? test.questions.map((question) => {
@@ -508,6 +525,21 @@ export default function TestsPage() {
                       {test.cefrLevel}
                     </span>
                   ) : null}
+                  {test.isPublicExam ? (
+                    <span className="rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-700">
+                      PUBLIC
+                    </span>
+                  ) : null}
+                  {test.publicExamType ? (
+                    <span className="rounded-md bg-indigo-50 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-indigo-700">
+                      {test.publicExamType}
+                    </span>
+                  ) : null}
+                  {test.publicExamDirection ? (
+                    <span className="rounded-md bg-violet-50 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-violet-700">
+                      {test.publicExamDirection}
+                    </span>
+                  ) : null}
                   <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                     {questionCount} savol
                   </span>
@@ -594,12 +626,50 @@ export default function TestsPage() {
                 className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
               />
               <select
+                value={form.publicExamType}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    publicExamType: event.target.value as PublicExamMode | '',
+                    publicExamDirection:
+                      event.target.value === 'TRACK' ? current.publicExamDirection : '',
+                  }))
+                }
+                disabled={!form.isPublicExam}
+                className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold disabled:opacity-50"
+              >
+                <option value="">Public mode tanlanmagan</option>
+                {PUBLIC_EXAM_MODES.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <select
                 value={form.cefrLevel}
                 onChange={(event) => setForm((current) => ({ ...current, cefrLevel: event.target.value as CefrLevel | '' }))}
                 className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold"
               >
                 <option value="">CEFR level</option>
                 {CEFR_LEVELS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={form.publicExamDirection}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    publicExamDirection: event.target.value as PublicExamDirection | '',
+                  }))
+                }
+                disabled={!form.isPublicExam || form.publicExamType !== 'TRACK'}
+                className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm font-semibold disabled:opacity-50"
+              >
+                <option value="">Yo'nalish tanlanmagan</option>
+                {PUBLIC_EXAM_DIRECTIONS.map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -650,7 +720,22 @@ export default function TestsPage() {
               />
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
+              <label className="flex items-center gap-3 rounded-[16px] border border-[var(--app-border)] px-4 py-3 text-sm font-bold text-[var(--app-text)]">
+                <input
+                  type="checkbox"
+                  checked={form.isPublicExam}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      isPublicExam: event.target.checked,
+                      publicExamType: event.target.checked ? current.publicExamType : '',
+                      publicExamDirection: event.target.checked ? current.publicExamDirection : '',
+                    }))
+                  }
+                />
+                Public exam
+              </label>
               <label className="flex items-center gap-3 rounded-[16px] border border-[var(--app-border)] px-4 py-3 text-sm font-bold text-[var(--app-text)]">
                 <input
                   type="checkbox"

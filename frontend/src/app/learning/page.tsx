@@ -26,24 +26,24 @@ export default function LearningPage() {
     <PageShell title="Darslar" subtitle="Sizning kurslaringiz">
       <div className="mb-6 flex flex-col gap-3 px-1 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 tracking-tight flex items-center gap-2">
+          <p className="mt-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest tracking-tight text-[var(--app-muted)]">
             <Sparkles size={12} className="text-[#2563eb]" /> Sizning kurslaringiz
           </p>
         </div>
-        <div className="flex w-fit items-center gap-2 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-2 text-amber-600 shadow-sm">
+        <div className="flex w-fit items-center gap-2 border border-[#f5d9a6] bg-[#fff2d9] px-4 py-2 text-[#c78736]">
           <Trophy size={18} strokeWidth={2.5} />
           <span className="text-[14px] font-black tracking-tighter">LVL 2</span>
         </div>
       </div>
 
       <div className="relative mb-8">
-        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--app-muted)]" />
         <input
           type="text"
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
           placeholder="Mavzu yoki dars bo'yicha qidirish..."
-          className="w-full rounded-[18px] border border-gray-100 bg-white py-3.5 pl-11 pr-4 text-sm font-semibold shadow-sm transition-all focus:border-[#2563eb] focus:outline-none sm:rounded-[24px] sm:py-4"
+          className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] transition-all focus:border-[var(--app-primary)] focus:outline-none sm:py-4"
         />
       </div>
 
@@ -65,25 +65,25 @@ export default function LearningPage() {
               <div
                 key={course.id}
                 onClick={() => course.isActive !== false && router.push(`/course/${course.id}`)}
-                className={`group flex cursor-pointer items-center gap-3 overflow-hidden rounded-[22px] border border-gray-100 bg-white p-4 shadow-sm transition-all hover:border-[#2563eb]/30 hover:shadow-xl active:scale-[0.98] sm:gap-5 sm:rounded-[38px] sm:p-6 ${
+                className={`group flex cursor-pointer items-center gap-3 overflow-hidden border border-[var(--app-border)] bg-[var(--app-surface)] p-4 transition-all hover:border-[color:color-mix(in_srgb,var(--app-secondary)_30%,var(--app-border))] hover:bg-[color:color-mix(in_srgb,var(--app-secondary)_8%,white)] active:scale-[0.98] sm:gap-5 sm:p-6 ${
                   course.isActive === false ? 'opacity-60 grayscale cursor-not-allowed' : ''
                 }`}
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-[#eff6ff] text-lg font-black text-[#2563eb] shadow-inner transition-all group-hover:rotate-6 group-hover:bg-[#2563eb] group-hover:text-white sm:h-16 sm:w-16 sm:rounded-[24px] sm:text-xl">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-[var(--app-border)] bg-[var(--app-surface-soft)] text-lg font-black text-[var(--app-primary)] transition-all group-hover:rotate-6 group-hover:bg-[var(--app-secondary)] group-hover:text-white sm:h-16 sm:w-16 sm:text-xl">
                   {course.isActive === false ? <Lock size={24} strokeWidth={2.5} /> : <BookOpen size={24} strokeWidth={2.5} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="truncate text-base font-extrabold tracking-tight text-[#111827] sm:text-lg">{course.title}</h3>
+                  <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-primary-dark)] sm:text-lg">{course.title}</h3>
                   <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
-                    <span className="text-[9px] font-black uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-md text-gray-500 whitespace-nowrap">
+                    <span className="bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-muted)] whitespace-nowrap">
                       {course.level || 'NO LEVEL'}
                     </span>
-                    <span className="text-[9px] font-black uppercase tracking-tighter bg-blue-50 px-2 py-0.5 rounded-md text-[#2563eb] whitespace-nowrap">
+                    <span className="bg-[color:color-mix(in_srgb,var(--app-secondary)_10%,white)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)] whitespace-nowrap">
                       {course.isActive === false ? 'Locked' : 'Open'}
                     </span>
                   </div>
                 </div>
-                <ChevronRight size={20} className="text-gray-300 group-hover:translate-x-1 transition-transform shrink-0" />
+                <ChevronRight size={20} className="shrink-0 text-[var(--app-muted)] transition-transform group-hover:translate-x-1 group-hover:text-[var(--app-primary)]" />
               </div>
             ))
           ) : (
@@ -98,7 +98,7 @@ export default function LearningPage() {
       )}
 
       <div className="mt-4 flex justify-center pb-10 text-center sm:mt-6 sm:pb-12">
-        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest tracking-tighter opacity-80">
+        <p className="text-[10px] font-black uppercase tracking-widest tracking-tighter text-[var(--app-muted)] opacity-80">
           MK ACADEMY LEARNING PATHWAY
         </p>
       </div>

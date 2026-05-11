@@ -57,45 +57,45 @@ export function SuperadminDashboard() {
       <div className="app-card bg-mesh relative mb-8 overflow-hidden p-8 text-[var(--app-text)]">
         <div className="relative z-10 mb-10 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="rounded-[16px] bg-[color:color-mix(in_srgb,var(--app-primary)_12%,white)] p-4 text-[var(--app-primary)] shadow-sm">
+            <div className="border border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-primary)_12%,white)] p-4 text-[var(--app-primary)]">
               <Crown size={30} />
             </div>
             <div>
               <h1 className="text-2xl font-black leading-tight tracking-tight">{t('title')}</h1>
               <p className="mt-1.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--app-muted)]">
-                <span className="h-2 w-2 rounded-full bg-[var(--app-primary)]" />
+                <span className="h-2 w-2 bg-[var(--app-primary)]" />
                 {t('status')}
               </p>
             </div>
           </div>
-          <button className="app-touch flex items-center justify-center rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] p-3.5 text-[var(--app-muted)] transition-all active:scale-95">
+          <button className="app-touch flex items-center justify-center border border-[var(--app-border)] bg-[var(--app-surface)] p-3.5 text-[var(--app-muted)] transition-all active:scale-95">
             <Command size={22} />
           </button>
         </div>
 
         <div className="relative z-10 grid grid-cols-2 gap-4">
-          <div className="group rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 transition-all">
+          <div className="group border border-[var(--app-border)] bg-[var(--app-surface)] p-6 transition-all">
             <p className="mb-5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-              <Globe size={13} className="text-blue-500" /> {t('globalLoad')}
+              <Globe size={13} className="text-[var(--app-primary)]" /> {t('globalLoad')}
             </p>
             <div className="flex items-baseline gap-2">
               <span className="origin-left text-3xl font-black tracking-tighter transition-transform group-hover:scale-105">
                 {data?.system?.uptime || 99}%
               </span>
-              <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">
+              <span className="border border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">
                 {t('stable')}
               </span>
             </div>
           </div>
-          <div className="group rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-6 transition-all">
+          <div className="group border border-[var(--app-border)] bg-[var(--app-surface)] p-6 transition-all">
             <p className="mb-5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
-              <Zap size={13} className="text-amber-500" /> {t('apiLatency')}
+              <Zap size={13} className="text-[var(--app-primary)]" /> {t('apiLatency')}
             </p>
             <div className="flex items-baseline gap-2">
               <span className="origin-left text-3xl font-black tracking-tighter transition-transform group-hover:scale-105">
                 {data?.system?.networkMs || 30}ms
               </span>
-              <span className="rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">
+              <span className="border border-[var(--app-border)] bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-primary)]">
                 {t('optimal')}
               </span>
             </div>
@@ -114,7 +114,7 @@ export function SuperadminDashboard() {
 
       <div className="mb-6 flex items-center justify-between px-2">
         <h2 className="px-1 text-[12px] font-black uppercase tracking-[0.15em] text-[var(--app-muted)]">{t('auditLogs')}</h2>
-        <button className="rounded-[12px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)]">
+        <button className="border border-[var(--app-border)] bg-[var(--app-surface)] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-all hover:bg-[var(--app-surface-soft)]">
           {t('exploreAll')}
         </button>
       </div>
@@ -123,12 +123,12 @@ export function SuperadminDashboard() {
         {alerts.map((alert: any, index: number) => (
           <div key={index} className="app-card flex items-center gap-5 p-5 transition-all active:scale-[0.98]">
             <div
-              className={`rounded-[14px] p-4 ${
+              className={`border border-[var(--app-border)] p-4 ${
                 alert.status === t('warning')
-                  ? 'bg-amber-100 text-amber-600'
+                  ? 'bg-[var(--app-surface-soft)] text-[var(--app-primary)]'
                   : alert.status === t('success')
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'bg-blue-100 text-blue-600'
+                    ? 'bg-[var(--app-surface-soft)] text-[var(--app-primary)]'
+                    : 'bg-[var(--app-surface-soft)] text-[var(--app-primary)]'
               }`}
             >
               <ShieldAlert size={26} strokeWidth={2.5} />
@@ -136,13 +136,13 @@ export function SuperadminDashboard() {
             <div className="min-w-0 flex-1">
               <h3 className="truncate text-[15px] font-extrabold leading-tight text-[var(--app-text)]">{alert.title}</h3>
               <div className="mt-2 flex items-center gap-2">
-                <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-muted)]">
+                <span className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-[var(--app-muted)]">
                   {alert.type}
                 </span>
                 <p className="text-[10px] font-bold text-[var(--app-muted)]">{alert.time}</p>
               </div>
             </div>
-            <button className="rounded-[14px] bg-[var(--app-surface-soft)] p-3.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
+            <button className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3.5 text-[var(--app-muted)] transition-all group-hover:text-[var(--app-primary)]">
               <PieChart size={20} strokeWidth={2.5} />
             </button>
           </div>
@@ -151,13 +151,13 @@ export function SuperadminDashboard() {
 
       <div className="mb-10 grid grid-cols-2 gap-4 pb-8">
         <button className="app-card flex flex-col items-center gap-5 overflow-hidden border border-[var(--app-border)] p-8 text-center transition-all active:scale-95">
-          <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-5 text-[var(--app-primary)]">
+          <div className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-5 text-[var(--app-primary)]">
             <PieChart size={30} strokeWidth={2.5} />
           </div>
           <span className="text-[11px] font-black uppercase leading-none tracking-[0.1em] text-[var(--app-text)]">{t('annualReport')}</span>
         </button>
         <button className="app-card flex flex-col items-center gap-5 overflow-hidden p-8 text-center transition-all active:scale-95">
-          <div className="rounded-[16px] bg-[var(--app-surface-soft)] p-5 text-[var(--app-muted)] shadow-inner">
+          <div className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-5 text-[var(--app-muted)]">
             <Globe size={30} strokeWidth={2.5} />
           </div>
           <span className="text-[11px] font-black uppercase leading-none tracking-[0.1em] text-[var(--app-text)]">{t('maintenance')}</span>
@@ -165,7 +165,7 @@ export function SuperadminDashboard() {
       </div>
 
       <div className="mb-12 mt-4 flex justify-center">
-        <button className="flex items-center gap-3 rounded-full border border-[var(--app-border)] px-6 py-3.5 text-[11px] font-black text-[var(--app-muted)] transition-all hover:bg-[var(--app-surface)] hover:text-[var(--app-text)]">
+        <button className="flex items-center gap-3 border border-[var(--app-border)] bg-white px-6 py-3.5 text-[11px] font-black text-[var(--app-muted)] transition-all hover:text-[var(--app-text)]">
           <HelpCircle size={16} className="text-[var(--app-primary)]" />
           <span className="uppercase tracking-widest opacity-80">{t('documentation')}</span>
         </button>

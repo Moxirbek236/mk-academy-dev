@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from 'next';
+import '../styles/index.css';
 import './globals.css';
 import ClientLayoutWrapper from './ClientLayoutWrapper';
-import { getLocale, getMessages } from 'next-intl/server';
 import { AppProviders } from './providers';
 import { getServerCenterBranding } from '@/lib/server-center-branding';
-import { defaultLocale } from '@/i18n/config';
+import { defaultLocale, defaultTimeZone } from '@/i18n/config';
 
 // Fix Node 25 experimental localStorage issue
 if (typeof window === 'undefined') {
@@ -19,6 +19,7 @@ const isCapacitorExport = process.env.CAPACITOR_EXPORT === 'true';
 
 async function getLayoutLocale() {
   if (isCapacitorExport) return defaultLocale;
+  const { getLocale } = await import('next-intl/server');
   return getLocale();
 }
 
@@ -27,6 +28,7 @@ async function getLayoutMessages() {
     return (await import(`../messages/${defaultLocale}.json`)).default;
   }
 
+  const { getMessages } = await import('next-intl/server');
   return getMessages();
 }
 
@@ -34,7 +36,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#2563eb',
+  themeColor: '#202734',
   colorScheme: 'light dark',
 };
 
@@ -73,11 +75,12 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="h-full" suppressHydrationWarning>
       <body
-        className="min-h-full antialiased bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[#2563eb] selection:text-white"
+        className="min-h-full antialiased bg-[var(--app-bg)] text-[var(--app-text)] selection:bg-[#202734] selection:text-[#f2f2f0]"
         suppressHydrationWarning
       >
         <AppProviders
           locale={locale}
+          timeZone={defaultTimeZone}
           messages={messages}
           centerBranding={centerBranding}
         >

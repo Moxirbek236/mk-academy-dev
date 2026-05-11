@@ -54,9 +54,9 @@ export function SectionHeader({
 }
 
 const STAT_TONE_STYLES = {
-  primary: 'bg-[color:color-mix(in_srgb,var(--app-primary)_10%,transparent)] text-[var(--app-primary)]',
-  accent: 'bg-[color:color-mix(in_srgb,var(--app-accent)_16%,transparent)] text-[var(--app-accent)]',
-  info: 'bg-blue-50 text-blue-600',
+  primary: 'bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)] text-[var(--app-primary)]',
+  accent: 'bg-[color:color-mix(in_srgb,var(--app-accent)_10%,white)] text-[var(--app-accent)]',
+  info: 'bg-[var(--app-surface-soft)] text-[var(--app-primary)]',
   muted: 'bg-[var(--app-surface-soft)] text-[var(--app-muted)]',
 } as const;
 
@@ -76,11 +76,11 @@ export function StatCard({
   return (
     <div className="app-card p-4 sm:p-5">
       <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4 sm:gap-4">
-        <div className={`rounded-[14px] p-2.5 sm:p-3 ${STAT_TONE_STYLES[tone]}`}>
+        <div className={`border border-[var(--app-border)] p-2.5 sm:p-3 ${STAT_TONE_STYLES[tone]}`}>
           <Icon size={20} strokeWidth={2.5} />
         </div>
         {hint ? (
-          <span className="rounded-full bg-[var(--app-surface-soft)] px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+          <span className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
             {hint}
           </span>
         ) : null}
@@ -101,7 +101,7 @@ export function PageLoadingState({
   return (
     <div className="app-card overflow-hidden p-5 sm:p-6">
       <div className="mb-4 flex items-center gap-3 sm:mb-5">
-        <div className="rounded-[14px] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)]">
+        <div className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)]">
           <Loader2 size={18} className="animate-spin" />
         </div>
         <div>
@@ -113,10 +113,10 @@ export function PageLoadingState({
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
-            <div className="h-11 w-11 animate-pulse rounded-[14px] bg-[var(--app-surface-soft)]" />
-            <div className="mt-4 h-3 w-24 animate-pulse rounded-full bg-[var(--app-surface-soft)]" />
-            <div className="mt-3 h-6 w-20 animate-pulse rounded-full bg-[var(--app-surface-soft)]" />
+          <div key={index} className="border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
+            <div className="h-11 w-11 animate-pulse bg-[var(--app-surface-soft)]" />
+            <div className="mt-4 h-3 w-24 animate-pulse bg-[var(--app-surface-soft)]" />
+            <div className="mt-3 h-6 w-20 animate-pulse bg-[var(--app-surface-soft)]" />
           </div>
         ))}
       </div>
@@ -137,7 +137,7 @@ export function PageErrorState({
 }) {
   return (
     <div className="app-card flex flex-col items-center px-5 py-8 text-center sm:px-6 sm:py-10">
-      <div className="rounded-[18px] bg-red-50 p-4 text-red-500">
+      <div className="border border-red-200 bg-red-50 p-4 text-red-600">
         <AlertTriangle size={24} strokeWidth={2.5} />
       </div>
       <h3 className="mt-4 text-lg font-black tracking-tight text-[var(--app-text)]">{title}</h3>
@@ -146,7 +146,7 @@ export function PageErrorState({
       ) : null}
       <button
         onClick={onRetry}
-        className="mt-5 rounded-[16px] bg-[var(--app-primary)] px-5 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+        className="mt-5 border border-[var(--app-primary)] bg-[var(--app-primary)] px-5 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
       >
         {retryLabel}
       </button>
@@ -165,7 +165,7 @@ export function PageEmptyState({
 }) {
   return (
     <div className="app-card flex flex-col items-center px-5 py-10 text-center sm:px-6 sm:py-12">
-      <div className="rounded-[18px] bg-[var(--app-surface-soft)] p-4 text-[var(--app-muted)]">
+      <div className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-4 text-[var(--app-muted)]">
         <Inbox size={24} strokeWidth={2.5} />
       </div>
       <h3 className="mt-4 text-lg font-black tracking-tight text-[var(--app-text)]">{title}</h3>

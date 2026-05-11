@@ -1,8 +1,16 @@
 import api from "@/lib/api";
 
-export type AppRole = "superadmin" | "admin" | "teacher" | "mentor" | "student";
-export type UserDirectoryRole = "STUDENT" | "TEACHER" | "ADMIN";
-export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+export type AppRole = 'superadmin' | 'admin' | 'teacher' | 'mentor' | 'student' | 'global_user';
+export type UserDirectoryRole = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'GLOBAL_USER';
+export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+export type PublicExamMode = 'LEVEL' | 'TRACK';
+export type PublicExamDirection =
+  | 'VOCABULARY'
+  | 'WRITING'
+  | 'SPEAKING'
+  | 'READING'
+  | 'LISTENING'
+  | 'GRAMMAR';
 export type TaskType =
   | "READING"
   | "WRITING"
@@ -13,7 +21,16 @@ export type TaskType =
   | "TEST";
 export type LeadStatus = "NEW" | "CONTACTED" | "ENROLLED" | "REJECTED";
 
-export const CEFR_LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+export const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+export const PUBLIC_EXAM_MODES: PublicExamMode[] = ['LEVEL', 'TRACK'];
+export const PUBLIC_EXAM_DIRECTIONS: PublicExamDirection[] = [
+  'VOCABULARY',
+  'WRITING',
+  'SPEAKING',
+  'READING',
+  'LISTENING',
+  'GRAMMAR',
+];
 export const TASK_TYPES: TaskType[] = [
   "READING",
   "WRITING",
@@ -109,6 +126,9 @@ export type TestPayload = {
   maxAttempts?: number | null;
   isAdaptive?: boolean;
   isPublished?: boolean;
+  isPublicExam?: boolean;
+  publicExamType?: PublicExamMode | '';
+  publicExamDirection?: PublicExamDirection | '';
   questions?: TestQuestionPayload[];
 };
 
@@ -133,8 +153,11 @@ export type TestListQuery = ListQuery & {
   courseId?: number | null;
   cefrLevel?: CefrLevel | "";
   type?: string;
-  isPublished?: boolean | "";
-  isActive?: boolean | "";
+  isPublished?: boolean | '';
+  isActive?: boolean | '';
+  isPublicExam?: boolean | '';
+  publicExamType?: PublicExamMode | '';
+  publicExamDirection?: PublicExamDirection | '';
 };
 
 export type TestAttemptSubmitPayload = {
@@ -178,6 +201,9 @@ export type TestItem = {
   maxAttempts?: number | null;
   isAdaptive?: boolean;
   isPublished?: boolean;
+  isPublicExam?: boolean;
+  publicExamType?: PublicExamMode | string | null;
+  publicExamDirection?: PublicExamDirection | string | null;
   isActive?: boolean;
   course?: { id: number; title: string; level?: string | null } | null;
   createdBy?: {
@@ -187,6 +213,74 @@ export type TestItem = {
   } | null;
   questions?: TestQuestion[];
   _count?: { questions?: number; attempts?: number };
+};
+
+export type PublicExamCatalogItem = {
+  id: number;
+  title: string;
+  description?: string | null;
+  type?: string | null;
+  cefrLevel?: string | null;
+  publicExamType?: PublicExamMode | string | null;
+  publicExamDirection?: PublicExamDirection | string | null;
+  passingScore?: number;
+  duration?: number | null;
+  questionCount?: number;
+};
+
+export type PublicExamCatalogResponse = {
+  data: PublicExamCatalogItem[];
+  filters: {
+    modes: PublicExamMode[];
+    levels: string[];
+    directions: string[];
+  };
+};
+
+export type PublicExamSubmitPayload = {
+  participantName: string;
+  selectedMode: PublicExamMode;
+  selectedLevel?: CefrLevel;
+  selectedDirection?: PublicExamDirection;
+  answers: Record<string, unknown> | Array<Record<string, unknown>>;
+  timeSpentSeconds?: number;
+};
+
+export type PublicExamResult = {
+  id: number;
+  participantName: string;
+  score: number;
+  maxScore: number;
+  percentage: number;
+  passed: boolean;
+  estimatedLevel?: string | null;
+  selectedMode: string;
+  selectedLevel?: string | null;
+  selectedDirection?: string | null;
+  rank?: number;
+  submittedAt?: string;
+  test?: {
+    id: number;
+    title: string;
+    cefrLevel?: string | null;
+    publicExamType?: string | null;
+    publicExamDirection?: string | null;
+  };
+};
+
+export type PublicExamRatingItem = {
+  rank: number;
+  participantName: string;
+  level?: string | null;
+  selectedMode?: string | null;
+  selectedLevel?: string | null;
+  selectedDirection?: string | null;
+  percentage: number;
+  score: number;
+  maxScore: number;
+  testId?: number;
+  testTitle?: string | null;
+  submittedAt?: string;
 };
 
 export type TestAttempt = {
@@ -263,10 +357,11 @@ export type NotificationFeed = {
 function normalizeRole(role?: string | null): AppRole {
   const value = role?.toLowerCase();
   if (
-    value === "superadmin" ||
-    value === "admin" ||
-    value === "teacher" ||
-    value === "mentor"
+    value === 'superadmin' ||
+    value === 'admin' ||
+    value === 'teacher' ||
+    value === 'mentor' ||
+    value === 'global_user'
   ) {
     return value;
   }
@@ -1037,10 +1132,11 @@ function normalizeTestListQuery(query: TestListQuery = {}) {
   if (query.courseId) params.courseId = query.courseId;
   if (query.cefrLevel) params.cefrLevel = query.cefrLevel;
   if (query.type?.trim()) params.type = query.type.trim();
-  if (typeof query.isPublished === "boolean")
-    params.isPublished = String(query.isPublished);
-  if (typeof query.isActive === "boolean")
-    params.isActive = String(query.isActive);
+  if (typeof query.isPublished === 'boolean') params.isPublished = String(query.isPublished);
+  if (typeof query.isActive === 'boolean') params.isActive = String(query.isActive);
+  if (typeof query.isPublicExam === 'boolean') params.isPublicExam = String(query.isPublicExam);
+  if (query.publicExamType) params.publicExamType = query.publicExamType;
+  if (query.publicExamDirection) params.publicExamDirection = query.publicExamDirection;
 
   return params;
 }
@@ -1074,6 +1170,19 @@ function normalizeTestPayload(payload: Partial<TestPayload>) {
     Number(payload.maxAttempts) <= 0
   ) {
     normalized.maxAttempts = null;
+  }
+
+  if (payload.publicExamType === '') {
+    normalized.publicExamType = null;
+  }
+
+  if (payload.publicExamDirection === '') {
+    normalized.publicExamDirection = null;
+  }
+
+  if (payload.isPublicExam === false) {
+    normalized.publicExamType = null;
+    normalized.publicExamDirection = null;
   }
 
   return normalized;
@@ -1301,6 +1410,23 @@ export function validateTestPayload(payload: Partial<TestPayload>) {
     errors.push("Urinishlar soni 1 dan kam bo'lmasligi kerak");
   }
 
+  if (payload.isPublicExam) {
+    const mode = String(payload.publicExamType || '').toUpperCase();
+    if (!mode) {
+      errors.push('Public exam uchun mode tanlanishi kerak (LEVEL yoki TRACK)');
+    } else if (mode !== 'LEVEL' && mode !== 'TRACK') {
+      errors.push('Public exam mode faqat LEVEL yoki TRACK bo‘lishi kerak');
+    }
+
+    if (mode === 'LEVEL' && !payload.cefrLevel) {
+      errors.push('LEVEL public exam uchun CEFR level tanlanishi kerak');
+    }
+
+    if (mode === 'TRACK' && !payload.publicExamDirection) {
+      errors.push('TRACK public exam uchun yo‘nalish tanlanishi kerak');
+    }
+  }
+
   payload.questions?.forEach((question, index) => {
     errors.push(...validateQuestionPayload(question, index));
   });
@@ -1468,6 +1594,56 @@ export async function getMyTestAttempts() {
 export async function getStudentTestAttempts(studentId: number) {
   const response = await api.get(`/test-attempts/student/${studentId}`);
   return unwrapApiData<TestAttempt[]>(response.data) ?? [];
+}
+
+export async function listPublicExams(query: {
+  mode?: PublicExamMode;
+  level?: CefrLevel | '';
+  direction?: PublicExamDirection | '';
+  search?: string;
+  limit?: number;
+} = {}) {
+  const params: Record<string, unknown> = {};
+  if (query.mode) params.mode = query.mode;
+  if (query.level) params.level = query.level;
+  if (query.direction) params.direction = query.direction;
+  if (query.search?.trim()) params.search = query.search.trim();
+  if (query.limit) params.limit = query.limit;
+
+  const response = await api.get('/public-exams/catalog', { params });
+  return response.data as PublicExamCatalogResponse;
+}
+
+export async function getPublicExamById(id: number) {
+  const response = await api.get(`/public-exams/${id}`);
+  return unwrapApiData<TestItem>(response.data);
+}
+
+export async function submitPublicExam(testId: number, payload: PublicExamSubmitPayload) {
+  const response = await api.post(`/public-exams/${testId}/submit`, payload);
+  return unwrapApiData<PublicExamResult>(response.data);
+}
+
+export async function getPublicExamRatings(query: {
+  mode?: PublicExamMode;
+  level?: CefrLevel | '';
+  direction?: PublicExamDirection | '';
+  testId?: number;
+  limit?: number;
+} = {}) {
+  const params: Record<string, unknown> = {};
+  if (query.mode) params.mode = query.mode;
+  if (query.level) params.level = query.level;
+  if (query.direction) params.direction = query.direction;
+  if (query.testId) params.testId = query.testId;
+  if (query.limit) params.limit = query.limit;
+
+  const response = await api.get('/public-exams/ratings', { params });
+  const payload = response.data;
+  return {
+    items: unwrapApiData<PublicExamRatingItem[]>(payload) ?? [],
+    meta: payload?.meta ?? null,
+  };
 }
 
 export async function createLead(payload: LeadPayload) {

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type AppRole = 'superadmin' | 'admin' | 'teacher' | 'mentor' | 'student';
+export type AppRole = 'superadmin' | 'admin' | 'teacher' | 'mentor' | 'student' | 'global_user';
 export type NavigationSurface = 'sidebar' | 'bottom';
 
 export interface NavigationItem {
@@ -24,7 +24,7 @@ export interface NavigationItem {
 type NavigationConfig = Record<NavigationSurface, NavigationItem[]>;
 
 const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
-    superadmin: {
+  superadmin: {
     sidebar: [
       { path: '/dashboard', icon: Home, labelKey: 'dashboard' },
       { path: '/leads', icon: MessageCircle, labelKey: 'leads' },
@@ -120,6 +120,16 @@ const ROLE_NAVIGATION: Record<AppRole, NavigationConfig> = {
       { path: '/books', icon: Book, labelKey: 'books' },
       { path: '/results', icon: LayoutGrid, labelKey: 'rating' },
       { path: '/settings', icon: SettingsIcon, labelKey: 'profile' },
+    ],
+  },
+  global_user: {
+    sidebar: [
+      { path: '/public-exam', icon: ClipboardCheck, labelKey: 'tests' },
+      { path: '/public-rating', icon: LayoutGrid, labelKey: 'rating' },
+    ],
+    bottom: [
+      { path: '/public-exam', icon: ClipboardCheck, labelKey: 'tests' },
+      { path: '/public-rating', icon: LayoutGrid, labelKey: 'rating' },
     ],
   },
 };

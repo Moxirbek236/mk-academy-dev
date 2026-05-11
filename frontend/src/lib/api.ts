@@ -1,4 +1,4 @@
-import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosHeaders, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import { buildGetCacheKey, getCachedGetResponse, normalizeHeaders, setCachedGetResponse } from '@/lib/offline/cache';
 import { OFFLINE_BANNER_MESSAGE, OFFLINE_MUTATION_MESSAGE } from '@/lib/offline/constants';
 import { AppApiError, normalizeApiError } from '@/lib/offline/errors';
@@ -30,16 +30,9 @@ function setAuthorizationHeader(
   config: ApiRequestConfig,
   token: string,
 ) {
-  if (!config.headers) {
-    config.headers = new axios.AxiosHeaders();
-  }
-
-  if (typeof (config.headers as { set?: (name: string, value: string) => void }).set === 'function') {
-    (config.headers as { set: (name: string, value: string) => void }).set('Authorization', `Bearer ${token}`);
-    return;
-  }
-
-  (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+  const headers = AxiosHeaders.from(config.headers ?? {});
+  headers.set('Authorization', `Bearer ${token}`);
+  config.headers = headers;
 }
 
 function getCacheScope(token: string | null): string {
@@ -193,7 +186,12 @@ api.interceptors.response.use(
 
     if (axios.isAxiosError(error) && error.response?.status === 401 && typeof window !== 'undefined') {
       const currentPath = stripLocaleFromPathname(window.location.pathname);
-      if (currentPath !== '/login' && currentPath !== '/landing') {
+      if (
+        currentPath !== '/login' &&
+        currentPath !== '/landing' &&
+        currentPath !== '/public-exam' &&
+        currentPath !== '/public-rating'
+      ) {
         await clearStoredAuth();
         window.location.href = '/landing';
       }

@@ -162,9 +162,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-[24px] border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm">
+    <div className="overflow-hidden border border-[var(--app-border)] bg-[var(--app-surface)]">
       <div className="flex items-center gap-3 border-b border-[var(--app-border)] bg-[var(--app-surface-soft)] px-5 py-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[var(--app-primary)]/10 text-[var(--app-primary)]">
+        <div className="flex h-9 w-9 items-center justify-center border border-[var(--app-border)] bg-white text-[var(--app-primary)]">
           <Icon size={18} strokeWidth={2.5} />
         </div>
         <h2 className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--app-text)]">
@@ -202,10 +202,10 @@ function Field({
 }
 
 const inputCls =
-  "w-full rounded-[14px] border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm font-bold text-[var(--app-text)] placeholder:text-[var(--app-muted)] outline-none transition-all focus:border-[var(--app-primary)] focus:ring-2 focus:ring-[var(--app-primary)]/15";
+  "w-full border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm font-bold text-[var(--app-text)] placeholder:text-[var(--app-muted)] outline-none transition-all focus:border-[var(--app-primary)] focus:ring-2 focus:ring-[var(--app-primary)]/15";
 
 const textareaCls =
-  "w-full resize-none rounded-[14px] border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm font-bold text-[var(--app-text)] placeholder:text-[var(--app-muted)] outline-none transition-all focus:border-[var(--app-primary)] focus:ring-2 focus:ring-[var(--app-primary)]/15";
+  "w-full resize-none border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm font-bold text-[var(--app-text)] placeholder:text-[var(--app-muted)] outline-none transition-all focus:border-[var(--app-primary)] focus:ring-2 focus:ring-[var(--app-primary)]/15";
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function LandingSettingsPage() {
@@ -325,7 +325,7 @@ export default function LandingSettingsPage() {
   if (!isSuperAdmin && !loading) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
-        <div className="rounded-[20px] bg-red-50 p-5 text-red-400">
+        <div className="border border-[#f0b7ae] bg-[#fff3f0] p-5 text-[#a53b27]">
           <AlertCircle size={32} />
         </div>
         <h2 className="text-base font-black text-[var(--app-text)]">
@@ -336,7 +336,7 @@ export default function LandingSettingsPage() {
         </p>
         <button
           onClick={() => router.back()}
-          className="mt-2 rounded-2xl bg-[var(--app-primary)] px-6 py-3 text-xs font-black uppercase tracking-widest text-white active:scale-95"
+          className="mt-2 border border-[var(--app-primary)] bg-[var(--app-primary)] px-6 py-3 text-xs font-black uppercase tracking-widest text-white active:scale-95"
         >
           Orqaga
         </button>
@@ -362,7 +362,7 @@ export default function LandingSettingsPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] transition-all active:scale-90"
+            className="flex h-10 w-10 items-center justify-center border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] transition-all active:scale-90"
           >
             <ChevronLeft size={20} />
           </button>
@@ -378,7 +378,7 @@ export default function LandingSettingsPage() {
 
         <button
           onClick={() => void loadSettings()}
-          className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)] transition-all hover:text-[var(--app-primary)] active:scale-90"
+          className="flex h-10 w-10 items-center justify-center border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)] transition-all hover:text-[var(--app-primary)] active:scale-90"
           title="Qayta yuklash"
         >
           <RefreshCw size={16} />
@@ -387,13 +387,13 @@ export default function LandingSettingsPage() {
 
       {/* ── Save feedback ── */}
       {saveStatus === "success" && (
-        <div className="mb-5 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400">
+        <div className="mb-5 flex items-center gap-2 border border-[#9cd7be] bg-[#eefaf4] px-4 py-3 text-sm font-bold text-[#1e6c4d]">
           <CheckCircle2 size={16} />
           Muvaffaqiyatli saqlandi!
         </div>
       )}
       {saveStatus === "error" && errorMsg && (
-        <div className="mb-5 flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+        <div className="mb-5 flex items-center gap-2 border border-[#f0b7ae] bg-[#fff3f0] px-4 py-3 text-sm font-bold text-[#a53b27]">
           <AlertCircle size={16} />
           {errorMsg}
         </div>
@@ -478,7 +478,7 @@ export default function LandingSettingsPage() {
                   <button
                     onClick={() => removePoint(i)}
                     disabled={form.aboutPoints.length <= 1}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-red-50 text-red-400 transition-all hover:bg-red-500 hover:text-white active:scale-90 disabled:opacity-40"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#f0b7ae] bg-[#fff3f0] text-[#a53b27] transition-all hover:bg-[#a53b27] hover:text-white active:scale-90 disabled:opacity-40"
                   >
                     <Trash2 size={15} />
                   </button>
@@ -486,7 +486,7 @@ export default function LandingSettingsPage() {
               ))}
               <button
                 onClick={addPoint}
-                className="flex items-center gap-2 rounded-[12px] border border-dashed border-[var(--app-border)] px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-all hover:border-[var(--app-primary)] hover:text-[var(--app-primary)] active:scale-95"
+                className="flex items-center gap-2 border border-dashed border-[var(--app-border)] px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-all hover:border-[var(--app-primary)] hover:text-[var(--app-primary)] active:scale-95"
               >
                 <Plus size={14} />
                 Nuqta qo'shish
@@ -501,7 +501,7 @@ export default function LandingSettingsPage() {
             {form.teamMembers.map((member, i) => (
               <div
                 key={i}
-                className="relative rounded-[16px] border border-[var(--app-border)] bg-[var(--app-bg)] p-4"
+                className="relative border border-[var(--app-border)] bg-[var(--app-bg)] p-4"
               >
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
@@ -510,7 +510,7 @@ export default function LandingSettingsPage() {
                   <button
                     onClick={() => removeTeamMember(i)}
                     disabled={form.teamMembers.length <= 1}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-400 transition-all hover:bg-red-500 hover:text-white active:scale-90 disabled:opacity-40"
+                    className="flex h-7 w-7 items-center justify-center border border-[#f0b7ae] bg-[#fff3f0] text-[#a53b27] transition-all hover:bg-[#a53b27] hover:text-white active:scale-90 disabled:opacity-40"
                   >
                     <Trash2 size={12} />
                   </button>
@@ -554,7 +554,7 @@ export default function LandingSettingsPage() {
             ))}
             <button
               onClick={addTeamMember}
-              className="flex w-full items-center justify-center gap-2 rounded-[14px] border border-dashed border-[var(--app-border)] py-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-all hover:border-[var(--app-primary)] hover:text-[var(--app-primary)] active:scale-95"
+              className="flex w-full items-center justify-center gap-2 border border-dashed border-[var(--app-border)] py-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-all hover:border-[var(--app-primary)] hover:text-[var(--app-primary)] active:scale-95"
             >
               <Plus size={14} />
               Mentor qo&apos;shish
@@ -568,7 +568,7 @@ export default function LandingSettingsPage() {
             {form.courseTracks.map((track, i) => (
               <div
                 key={i}
-                className="rounded-[16px] border border-[var(--app-border)] bg-[var(--app-bg)] p-4"
+                className="border border-[var(--app-border)] bg-[var(--app-bg)] p-4"
               >
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
@@ -577,7 +577,7 @@ export default function LandingSettingsPage() {
                   <button
                     onClick={() => removeCourseTrack(i)}
                     disabled={form.courseTracks.length <= 1}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-400 transition-all hover:bg-red-500 hover:text-white active:scale-90 disabled:opacity-40"
+                    className="flex h-7 w-7 items-center justify-center border border-[#f0b7ae] bg-[#fff3f0] text-[#a53b27] transition-all hover:bg-[#a53b27] hover:text-white active:scale-90 disabled:opacity-40"
                   >
                     <Trash2 size={12} />
                   </button>
@@ -621,7 +621,7 @@ export default function LandingSettingsPage() {
             ))}
             <button
               onClick={addCourseTrack}
-              className="flex w-full items-center justify-center gap-2 rounded-[14px] border border-dashed border-[var(--app-border)] py-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-all hover:border-[var(--app-primary)] hover:text-[var(--app-primary)] active:scale-95"
+              className="flex w-full items-center justify-center gap-2 border border-dashed border-[var(--app-border)] py-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)] transition-all hover:border-[var(--app-primary)] hover:text-[var(--app-primary)] active:scale-95"
             >
               <Plus size={14} />
               Kurs yo&apos;nalishi qo&apos;shish
@@ -757,7 +757,7 @@ export default function LandingSettingsPage() {
           <button
             onClick={() => void handleSave()}
             disabled={saving}
-            className="flex items-center gap-2 rounded-[16px] bg-[var(--app-primary)] px-8 py-3.5 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-[var(--app-primary)]/25 transition-all active:scale-95 disabled:opacity-60"
+            className="flex items-center gap-2 border border-[var(--app-primary)] bg-[var(--app-primary)] px-8 py-3.5 text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95 disabled:opacity-60"
           >
             {saving ? (
               <Loader2 size={16} className="animate-spin" />

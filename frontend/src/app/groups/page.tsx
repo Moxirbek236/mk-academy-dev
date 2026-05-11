@@ -110,7 +110,7 @@ export default function GroupsPage() {
         canManageGroups ? (
           <button
             onClick={openCreateModal}
-            className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+            className="bg-[var(--app-primary)] p-3 text-white transition-transform active:scale-95"
           >
             <PlusCircle size={20} strokeWidth={2.5} />
           </button>
@@ -124,12 +124,12 @@ export default function GroupsPage() {
           placeholder="Guruhlarni qidirish..."
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
-          className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none sm:rounded-[18px] sm:py-3.5"
+          className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] py-3 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] transition-all focus:border-[var(--app-primary)] focus:outline-none sm:py-3.5"
         />
       </div>
 
       {mutationError ? (
-        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <div className="mb-4 border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
           {mutationError}
         </div>
       ) : null}
@@ -150,20 +150,20 @@ export default function GroupsPage() {
           {groups.map((group: any) => (
             <div key={group.id} className="app-card group flex flex-col gap-4 p-4 sm:p-5">
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--app-surface-soft)] text-base font-black text-[var(--app-primary)] sm:h-14 sm:w-14 sm:rounded-[18px] sm:text-lg">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-[var(--app-surface-soft)] text-base font-black text-[var(--app-primary)] sm:h-14 sm:w-14 sm:text-lg">
                   {group.name?.charAt(0) || 'G'}
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-base font-extrabold tracking-tight text-[var(--app-text)] sm:text-lg">{group.name}</h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                    <span className="bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                       {group.teacher?.fullName || 'Teacher'}
                     </span>
-                    <span className="rounded-md bg-[var(--app-primary)]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-primary)]">
+                    <span className="bg-[var(--app-primary)]/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-primary)]">
                       <Users size={10} className="mr-1 inline-flex" />
                       {group._count?.members || 0}
                     </span>
-                    <span className="rounded-md bg-amber-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-amber-700">
+                    <span className="bg-amber-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-amber-700">
                       {group.inviteCode}
                     </span>
                   </div>
@@ -175,7 +175,7 @@ export default function GroupsPage() {
               ) : null}
 
               <div className={`grid gap-2 ${canManageGroups ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1'}`}>
-                <div className="flex items-center justify-center gap-2 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)]">
+                <div className="flex items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)]">
                   <ChevronRight size={14} />
                   Ko'rish
                 </div>
@@ -184,14 +184,14 @@ export default function GroupsPage() {
                   <>
                     <button
                       onClick={() => openEditModal(group)}
-                      className="flex items-center justify-center gap-2 rounded-[14px] bg-amber-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                      className="flex items-center justify-center gap-2 bg-amber-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
                     >
                       <Pencil size={14} />
                       Tahrirlash
                     </button>
                     <button
                       onClick={() => void handleDelete(group.id)}
-                      className="flex items-center justify-center gap-2 rounded-[14px] bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                      className="flex items-center justify-center gap-2 bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
                     >
                       <Trash2 size={14} />
                       O'chirish

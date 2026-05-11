@@ -11,5 +11,6 @@ export function useBooks(enabled = true) {
     enabled,
     initialData: [] as any[],
     request,
+    requestKey: 'books:list',
   });
 }

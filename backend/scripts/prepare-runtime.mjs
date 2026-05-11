@@ -1,6 +1,7 @@
+import 'dotenv/config';
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, mkdirSync } from 'node:fs';
+import { dirname, isAbsolute, resolve } from 'node:path';
 
 function toSqliteFileUrl(filePath) {
   return `file:${filePath.replace(/\\/g, '/')}`;
@@ -32,6 +33,28 @@ function resolveDatabaseUrl() {
   }
 
   return 'file:./prisma/dev.db';
+}
+
+function ensureSqliteDirectory(databaseUrl) {
+  if (!databaseUrl.startsWith('file:')) {
+    return;
+  }
+
+  const rawPath = databaseUrl.slice('file:'.length).split('?')[0];
+  if (!rawPath || rawPath === ':memory:' || rawPath === 'memory:') {
+    return;
+  }
+
+  const normalizedFsPath =
+    process.platform === 'win32' && /^\/[a-zA-Z]:\//.test(rawPath)
+      ? rawPath.slice(1)
+      : rawPath;
+
+  const absoluteFsPath = isAbsolute(normalizedFsPath)
+    ? normalizedFsPath
+    : resolve(process.cwd(), normalizedFsPath);
+
+  mkdirSync(dirname(absoluteFsPath), { recursive: true });
 }
 
 function runCommand(command, args) {
@@ -71,6 +94,7 @@ function quoteForCmd(value) {
 
 const databaseUrl = resolveDatabaseUrl();
 process.env.DATABASE_URL = databaseUrl;
+ensureSqliteDirectory(databaseUrl);
 const prismaCommand = 'npx';
 const isSqlite = databaseUrl.startsWith('file:');
 const generatedClientPath = resolve(
@@ -78,7 +102,7 @@ const generatedClientPath = resolve(
   'node_modules',
   '.prisma',
   'client',
-  'query_engine-windows.dll.node',
+  'index.js',
 );
 const shouldGenerateClient =
   process.env.FORCE_PRISMA_GENERATE === '1' || !existsSync(generatedClientPath);

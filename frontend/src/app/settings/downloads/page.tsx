@@ -35,7 +35,7 @@ export default function DownloadsPage() {
       action={
         <button
           onClick={() => router.push(localizePath(locale, '/settings'))}
-          className="flex items-center gap-2 rounded-[8px] border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
+          className="flex items-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
         >
           <ArrowLeft size={14} />
           {t('back')}
@@ -49,7 +49,7 @@ export default function DownloadsPage() {
           return (
             <div key={item.key} className="app-card flex flex-col gap-5 p-5 sm:p-6">
               <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[8px] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-[var(--app-border)] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
                   <Icon size={24} strokeWidth={2.5} />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -62,7 +62,7 @@ export default function DownloadsPage() {
                 </div>
               </div>
 
-              <div className="rounded-[8px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3">
+              <div className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3">
                 <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                   {t('fileLabel')}
                 </p>
@@ -75,7 +75,7 @@ export default function DownloadsPage() {
                 href={item.url}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-3 rounded-[8px] bg-[var(--app-primary)] px-5 py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+                className="flex items-center justify-center gap-3 border border-[var(--app-primary)] bg-[var(--app-primary)] px-5 py-4 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
               >
                 <Download size={18} />
                 {item.key === 'ios' ? t('install') : t('download')}
@@ -102,10 +102,10 @@ export default function DownloadsPage() {
         })}
       </div>
 
-      <div className="mt-5 rounded-[8px] border border-[var(--app-border)] bg-[var(--app-surface)] p-5 sm:p-6">
+      <div className="mt-5 border border-[var(--app-border)] bg-[var(--app-surface)] p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-[var(--app-border)] bg-[var(--app-surface-soft)] text-[var(--app-primary)]">
               <RefreshCw size={20} strokeWidth={2.5} />
             </div>
             <div>
@@ -121,7 +121,7 @@ export default function DownloadsPage() {
             href={APP_DOWNLOADS.releaseUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[8px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
+            className="inline-flex shrink-0 items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
           >
             <Github size={16} />
             {t('release')}

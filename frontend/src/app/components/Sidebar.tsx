@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { ThemeToggle } from './ThemeToggle';
 import { NotificationBell } from './notifications/NotificationBell';
 import { stripLocaleFromPathname } from '@/i18n/pathname';
 import { localizePath } from '@/i18n/localizedPath';
@@ -36,10 +35,11 @@ export function Sidebar({ role }: SidebarProps) {
   }
 
   return (
-    <div className="fixed left-0 top-0 z-[60] hidden h-screen w-72 flex-col border-r border-[var(--app-border)] bg-[var(--app-surface)] shadow-[8px_0_24px_-24px_rgba(15,23,42,0.35)] lg:flex">
-      <div className="p-6 xl:p-8">
+    <aside className="fixed inset-y-0 left-0 z-[120] hidden h-dvh w-72 overflow-hidden border-r border-[var(--app-border)] bg-[var(--sidebar)] lg:block">
+      <div className="flex h-full flex-col overflow-hidden overscroll-none">
+      <div className="shrink-0 border-b border-[var(--app-border)] p-6 xl:p-8">
         <div className="flex items-start gap-3">
-          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-[14px] border border-[var(--app-border)] shadow-sm">
+          <div className="h-10 w-10 shrink-0 overflow-hidden border border-[var(--app-border)] bg-white">
             <img 
               src={centerBranding.logoUrl}
               alt={centerBranding.shortName}
@@ -58,11 +58,13 @@ export function Sidebar({ role }: SidebarProps) {
         <div className="mt-5 flex flex-wrap items-stretch gap-2">
           <NotificationBell className="shrink-0" />
           <LanguageSwitcher className="min-w-0 flex-1 basis-[calc(50%-0.25rem)] border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
-          <ThemeToggle className="min-w-0 flex-1 basis-[calc(50%-0.25rem)] border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]" />
+          <div className="min-w-0 flex-1 basis-[calc(50%-0.25rem)] border border-[var(--app-border)] bg-white px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[var(--app-primary)]">
+            Light UI
+          </div>
         </div>
       </div>
 
-      <nav className="flex-1 px-4 mt-6">
+      <nav className="mt-6 flex-1 overflow-y-auto overscroll-contain px-4 pb-6">
         <div className="space-y-1.5">
           {navItems.map((item) => {
             const isActive =
@@ -76,10 +78,10 @@ export function Sidebar({ role }: SidebarProps) {
                 key={item.path} 
                 href={localizedHref}
                 prefetch={false}
-                className={`flex items-center gap-4 px-5 py-3.5 rounded-[16px] transition-all group ${
+                className={`flex items-center gap-4 border px-5 py-3.5 transition-all group ${
                   isActive 
-                    ? 'border border-[color:color-mix(in_srgb,var(--app-primary)_20%,var(--app-border))] bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)] text-[var(--app-primary)]'
-                    : 'text-[var(--app-muted)] hover:bg-[var(--app-surface-soft)] hover:text-[var(--app-text)]'
+                    ? 'border-[color:color-mix(in_srgb,var(--app-primary)_26%,var(--app-border))] bg-white text-[var(--app-primary)]'
+                    : 'border-transparent text-[var(--app-muted)] hover:border-[var(--app-border)] hover:bg-white hover:text-[var(--app-text)]'
                 }`}
               >
                 <Icon size={22} strokeWidth={isActive ? 2.4 : 2} className="transition-transform group-hover:scale-105" />
@@ -92,24 +94,25 @@ export function Sidebar({ role }: SidebarProps) {
         </div>
       </nav>
 
-      <div className="p-6 mt-auto">
-        <div className="mb-6 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-5">
+      <div className="mt-auto shrink-0 p-6">
+        <div className="mb-6 border border-[var(--app-border)] bg-white p-5">
           <p className="mb-1.5 text-center text-[10px] font-black uppercase tracking-widest leading-none text-[var(--app-primary)]">
             {systemHealthy ? t('statusHealthy') : commonT('systemStatus')}
           </p>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[color:color-mix(in_srgb,var(--app-primary)_14%,transparent)]">
-             <div className={`h-full rounded-full ${systemHealthy ? 'w-full bg-[var(--app-primary)]' : 'w-2/5 bg-amber-500'}`} />
+          <div className="h-1.5 w-full overflow-hidden bg-[color:color-mix(in_srgb,var(--app-primary)_10%,white)]">
+             <div className={`h-full ${systemHealthy ? 'w-full bg-[var(--app-primary)]' : 'w-2/5 bg-[#b42318]'}`} />
           </div>
         </div>
         
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-4 px-6 py-4 text-[13px] font-extrabold text-red-500 transition-all group rounded-[16px] hover:bg-red-50 dark:hover:bg-red-950/20"
+          className="w-full flex items-center gap-4 border border-transparent px-6 py-4 text-[13px] font-extrabold text-red-600 transition-all group hover:border-red-200 hover:bg-white"
         >
           <LogOut size={20} className="group-hover:translate-x-1 transition-transform" />
           {commonT('logout')}
         </button>
       </div>
-    </div>
+      </div>
+    </aside>
   );
 }

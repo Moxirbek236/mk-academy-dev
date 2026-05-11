@@ -168,7 +168,7 @@ export default function UsersPage() {
               <button
                 key={option.role}
                 onClick={() => setCreateRole(option.role)}
-                className="rounded-[14px] bg-[var(--app-primary)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+                className="bg-[var(--app-primary)] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
               >
                 {option.label}
               </button>
@@ -185,14 +185,14 @@ export default function UsersPage() {
             placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none sm:rounded-[18px] sm:py-3.5"
+            className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] py-3 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] transition-all focus:border-[var(--app-primary)] focus:outline-none sm:py-3.5"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setRoleFilter(undefined)}
-            className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${!roleFilter ? 'bg-[var(--app-primary)] text-white' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+            className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${!roleFilter ? 'bg-[var(--app-primary)] text-white' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
           >
             Barchasi
           </button>
@@ -200,7 +200,7 @@ export default function UsersPage() {
             <button
               key={item}
               onClick={() => setRoleFilter(item)}
-              className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${roleFilter === item ? 'bg-[var(--app-primary)] text-white' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${roleFilter === item ? 'bg-[var(--app-primary)] text-white' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
             >
               {item}
             </button>
@@ -210,19 +210,19 @@ export default function UsersPage() {
             <>
               <button
                 onClick={() => setActiveFilter(undefined)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === undefined ? 'bg-[var(--app-surface-soft)] text-[var(--app-text)]' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+                className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === undefined ? 'bg-[var(--app-surface-soft)] text-[var(--app-text)]' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
               >
                 Holat: barchasi
               </button>
               <button
                 onClick={() => setActiveFilter(true)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === true ? 'bg-blue-50 text-blue-700' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+                className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === true ? 'bg-blue-50 text-blue-700' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
               >
                 Faol
               </button>
               <button
                 onClick={() => setActiveFilter(false)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === false ? 'bg-red-50 text-red-700' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+                className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${activeFilter === false ? 'bg-red-50 text-red-700' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
               >
                 Nofaol
               </button>
@@ -232,7 +232,7 @@ export default function UsersPage() {
       </div>
 
       {mutationError ? (
-        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <div className="mb-4 border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
           {mutationError}
         </div>
       ) : null}
@@ -255,7 +255,7 @@ export default function UsersPage() {
           {users.map((user: any, index: number) => (
             <div key={user.id || index} className="app-card flex flex-col gap-4 overflow-hidden p-4 transition-all sm:p-5">
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--app-surface-soft)] text-base font-black text-[var(--app-primary)] sm:h-14 sm:w-14 sm:rounded-[18px] sm:text-lg">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-[var(--app-surface-soft)] text-base font-black text-[var(--app-primary)] sm:h-14 sm:w-14 sm:text-lg">
                   {user.fullName?.charAt(0) || 'U'}
                 </div>
 
@@ -264,16 +264,16 @@ export default function UsersPage() {
                     {user.fullName || t('newUser')}
                   </h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${ROLE_BADGES[user.role] || 'bg-[var(--app-surface-soft)] text-[var(--app-muted)]'}`}>
+                    <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${ROLE_BADGES[user.role] || 'bg-[var(--app-surface-soft)] text-[var(--app-muted)]'}`}>
                       {user.role}
                     </span>
                     {user.cefrLevel ? (
-                      <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                      <span className="bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                         {user.cefrLevel}
                       </span>
                     ) : null}
                     <span
-                      className={`rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${
+                      className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${
                         user.isActive ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'
                       }`}
                     >
@@ -286,7 +286,7 @@ export default function UsersPage() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => void handleOpenDetails(user.id)}
-                  className="flex items-center justify-center gap-2 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
+                  className="flex items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-text)] transition-transform active:scale-95"
                 >
                   {detailLoading && selectedUser?.id !== user.id ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
                   Detail
@@ -295,7 +295,7 @@ export default function UsersPage() {
                 {canManageUsers ? (
                   <button
                     onClick={() => void handleToggleActive(user)}
-                    className={`flex items-center justify-center gap-2 rounded-[14px] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 ${
+                    className={`flex items-center justify-center gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 ${
                       user.isActive ? 'bg-red-500' : 'bg-blue-500'
                     }`}
                   >
@@ -303,7 +303,7 @@ export default function UsersPage() {
                     {user.isActive ? "O'chirish" : 'Faollashtirish'}
                   </button>
                 ) : (
-                  <div className="flex items-center justify-center gap-2 rounded-[14px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  <div className="flex items-center justify-center gap-2 border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                     <Shield size={14} />
                     Read only
                   </div>

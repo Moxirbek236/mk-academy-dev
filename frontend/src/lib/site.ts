@@ -27,11 +27,11 @@ const MULTILINGUAL_SEO_KEYWORDS = [
   "ingliz tili o'rganish",
   'IELTS tayyorlov',
   'online ingliz tili',
-  'курсы английского языка',
-  'английский язык',
-  'центр английского языка',
-  'подготовка к IELTS',
-  'онлайн обучение английскому',
+  'kursy angliyskogo yazyka',
+  'angliyskiy yazyk',
+  'tsentr angliyskogo yazyka',
+  'podgotovka k IELTS',
+  'onlayn obuchenie angliyskomu',
 ];
 
 export const PRIVATE_ROBOTS_PATHS = [

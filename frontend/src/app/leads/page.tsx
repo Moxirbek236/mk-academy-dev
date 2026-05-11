@@ -93,7 +93,7 @@ export default function LeadsPage() {
           onClick={() => {
             void refetch();
           }}
-          className="rounded-[16px] bg-[var(--app-primary)] p-3 text-white shadow-lg shadow-black/10 transition-transform active:scale-95"
+          className="bg-[var(--app-primary)] p-3 text-white transition-transform active:scale-95"
         >
           <RefreshCw size={20} strokeWidth={2.5} />
         </button>
@@ -107,7 +107,7 @@ export default function LeadsPage() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Lead qidirish..."
-            className="w-full rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] shadow-sm transition-all focus:border-[var(--app-primary)] focus:outline-none"
+            className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] py-3.5 pl-11 pr-4 text-sm font-semibold text-[var(--app-text)] transition-all focus:border-[var(--app-primary)] focus:outline-none"
           />
         </div>
 
@@ -116,7 +116,7 @@ export default function LeadsPage() {
             <button
               key={item}
               onClick={() => setFilter(item)}
-              className={`rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${filter === item ? 'bg-[var(--app-primary)] text-white' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
+              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${filter === item ? 'bg-[var(--app-primary)] text-white' : 'border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-muted)]'}`}
             >
               {item}
             </button>
@@ -125,7 +125,7 @@ export default function LeadsPage() {
       </div>
 
       {mutationError ? (
-        <div className="mb-4 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+        <div className="mb-4 border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
           {mutationError}
         </div>
       ) : null}
@@ -152,20 +152,20 @@ export default function LeadsPage() {
             return (
             <div key={lead.id} className="app-card flex flex-col gap-4 p-5">
               <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-[var(--app-surface-soft)] text-lg font-black text-[var(--app-primary)]">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center bg-[var(--app-surface-soft)] text-lg font-black text-[var(--app-primary)]">
                   {lead.fullName?.charAt(0) || 'L'}
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-lg font-extrabold tracking-tight text-[var(--app-text)]">{lead.fullName}</h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="rounded-md bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                    <span className="bg-[var(--app-surface-soft)] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                       {lead.phone}
                     </span>
-                    <span className="rounded-md bg-amber-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-amber-700">
+                    <span className="bg-amber-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-amber-700">
                       {lead.status}
                     </span>
                     {lead.isPublished ? (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-blue-700">
+                      <span className="inline-flex items-center gap-1 bg-blue-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-blue-700">
                         <Eye size={11} />
                         Landing
                       </span>
@@ -178,7 +178,7 @@ export default function LeadsPage() {
                   onClick={() => void handleStatusChange(lead.id, 'CONTACTED')} 
                   title="Bog'lanildi" 
                   disabled={!canManageLeads}
-                  className="flex items-center justify-center gap-2 rounded-[14px] bg-amber-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                  className="flex items-center justify-center gap-2 bg-amber-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
                 >
                    <Clock size={14} />
                    Bog'lanildi
@@ -186,7 +186,7 @@ export default function LeadsPage() {
                 <button
                   onClick={() => void handleStatusChange(lead.id, 'ENROLLED')}
                   disabled={!canManageLeads}
-                  className="flex items-center justify-center gap-2 rounded-[14px] bg-blue-600 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                  className="flex items-center justify-center gap-2 bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
                 >
                   <CheckCircle2 size={14} />
                   Enrolled
@@ -194,7 +194,7 @@ export default function LeadsPage() {
                 <button
                   onClick={() => void handleStatusChange(lead.id, 'REJECTED')}
                   disabled={!canManageLeads}
-                  className="flex items-center justify-center gap-2 rounded-[14px] bg-slate-700 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                  className="flex items-center justify-center gap-2 bg-[var(--app-primary-dark)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
                 >
                   <XCircle size={14} />
                   Rejected
@@ -202,7 +202,7 @@ export default function LeadsPage() {
                 <button
                   onClick={() => void handleDelete(lead.id)}
                   disabled={!canManageLeads}
-                  className="flex items-center justify-center gap-2 rounded-[14px] bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
+                  className="flex items-center justify-center gap-2 bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95"
                 >
                   <Trash2 size={14} />
                   Delete
@@ -210,7 +210,7 @@ export default function LeadsPage() {
               </div>
               </div>
 
-              <div className="rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-4">
+              <div className="border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-4">
                 <div className="mb-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                   <MessageSquare size={14} className="text-[var(--app-primary)]" />
                   Kurs savoli
@@ -220,7 +220,7 @@ export default function LeadsPage() {
                 </p>
               </div>
 
-              <div className="rounded-[18px] border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
+              <div className="border border-[var(--app-border)] bg-[var(--app-surface)] p-4">
                 <label className="mb-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
                   Admin javobi
                 </label>
@@ -234,7 +234,7 @@ export default function LeadsPage() {
                   }
                   rows={3}
                   disabled={!canManageLeads}
-                  className="w-full resize-none rounded-[16px] border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-sm font-semibold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)]"
+                  className="w-full resize-none border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-sm font-semibold text-[var(--app-text)] outline-none transition-all focus:border-[var(--app-primary)]"
                   placeholder="Savolga qisqa va aniq javob yozing..."
                 />
                 <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -256,7 +256,7 @@ export default function LeadsPage() {
                   <button
                     onClick={() => void handleAnswerSubmit(lead)}
                     disabled={!canManageLeads || answeringId === lead.id}
-                    className="inline-flex items-center justify-center gap-2 rounded-[14px] bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 bg-[var(--app-primary)] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 disabled:opacity-60"
                   >
                     {answeringId === lead.id ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                     Javobni saqlash
