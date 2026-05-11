@@ -1,7 +1,18 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { BookOpen, Edit3, Loader2, Plus, RefreshCcw, Search, Trash2 } from 'lucide-react';
+import {
+  BookOpen,
+  ClipboardList,
+  Edit3,
+  Layers3,
+  Loader2,
+  Plus,
+  RefreshCcw,
+  Search,
+  Trash2,
+  TrendingUp,
+} from 'lucide-react';
 import {
   addWordListItem,
   createVocabulary,
@@ -23,15 +34,21 @@ import {
   type WordListPayload,
 } from '@/lib/backend-api';
 import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
+import {
+  Badge,
+  CompactStat,
+  EmptyBlock,
+  JsonBlock,
+  NoticeBanner,
+  SectionTitle,
+  fieldClass,
+  iconButtonClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  textareaClass,
+} from '@/app/components/ui/DataDisplay';
 
 type AnyRecord = Record<string, any>;
-
-const inputClass =
-  'w-full border border-[var(--app-border)] bg-white px-3 py-2.5 text-sm font-semibold text-[var(--app-text)] outline-none transition-colors focus:border-[var(--app-primary)]';
-const buttonClass =
-  'inline-flex items-center justify-center gap-2 border border-[var(--app-primary)] bg-[var(--app-primary)] px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 disabled:opacity-60';
-const ghostButtonClass =
-  'inline-flex items-center justify-center gap-2 border border-[var(--app-border)] bg-white px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-colors hover:bg-[var(--app-secondary)] disabled:opacity-60';
 
 const emptyVocabularyForm = {
   word: '',
@@ -58,6 +75,13 @@ function getItemTitle(item: AnyRecord) {
   return item?.title ?? item?.name ?? item?.word ?? item?.vocabulary?.word ?? `#${item?.id ?? '-'}`;
 }
 
+function itemIncludes(item: AnyRecord, search: string) {
+  const normalized = search.trim().toLowerCase();
+  if (!normalized) return true;
+
+  return JSON.stringify(item).toLowerCase().includes(normalized);
+}
+
 export default function VocabularyAdminPage() {
   const [vocabularies, setVocabularies] = useState<AnyRecord[]>([]);
   const [wordLists, setWordLists] = useState<AnyRecord[]>([]);
@@ -67,6 +91,8 @@ export default function VocabularyAdminPage() {
   const [progressDetail, setProgressDetail] = useState<AnyRecord | null>(null);
   const [selectedVocabularyId, setSelectedVocabularyId] = useState<number | null>(null);
   const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null);
+  const [vocabularySearch, setVocabularySearch] = useState('');
+  const [wordListSearch, setWordListSearch] = useState('');
   const [vocabularyForm, setVocabularyForm] = useState(emptyVocabularyForm);
   const [wordListForm, setWordListForm] = useState(emptyWordListForm);
   const [itemVocabularyId, setItemVocabularyId] = useState('');
@@ -79,12 +105,22 @@ export default function VocabularyAdminPage() {
 
   const stats = useMemo(
     () => [
-      ['Vocabulary', vocabularies.length],
-      ['Word lists', wordLists.length],
-      ['List items', wordListItems.length],
-      ['Due reviews', dueReviews.length],
+      { label: 'Vocabulary', value: vocabularies.length, icon: BookOpen, tone: 'primary' as const },
+      { label: 'Word lists', value: wordLists.length, icon: ClipboardList, tone: 'success' as const },
+      { label: 'List items', value: wordListItems.length, icon: Layers3, tone: 'warning' as const },
+      { label: 'Due reviews', value: dueReviews.length, icon: TrendingUp, tone: 'muted' as const },
     ],
     [dueReviews.length, vocabularies.length, wordListItems.length, wordLists.length],
+  );
+
+  const filteredVocabularies = useMemo(
+    () => vocabularies.filter((item) => itemIncludes(item, vocabularySearch)),
+    [vocabularies, vocabularySearch],
+  );
+
+  const filteredWordLists = useMemo(
+    () => wordLists.filter((item) => itemIncludes(item, wordListSearch)),
+    [wordLists, wordListSearch],
   );
 
   async function loadData() {
@@ -325,113 +361,331 @@ export default function VocabularyAdminPage() {
   return (
     <PageShell
       title="Vocabulary admin"
-      subtitle="Vocabulary, word-list va vocabulary-progress APIlari"
+      subtitle="So'zlar, word-listlar va takrorlash progressi"
       action={
-        <button onClick={() => void loadData()} className={ghostButtonClass}>
+        <button onClick={() => void loadData()} className={secondaryButtonClass}>
           <RefreshCcw size={14} />
           Yangilash
         </button>
       }
     >
-      {notice ? <div className="mb-4 border border-[var(--app-border)] bg-[var(--app-secondary)] px-4 py-3 text-sm font-bold text-[var(--app-primary)]">{notice}</div> : null}
+      <NoticeBanner message={notice} />
 
       <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map(([label, value]) => (
-          <div key={label} className="app-card p-4">
-            <BookOpen size={20} className="text-[var(--app-primary)]" />
-            <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">{label}</p>
-            <p className="mt-1 text-2xl font-black text-[var(--app-text)]">{value}</p>
-          </div>
+        {stats.map((stat) => (
+          <CompactStat key={stat.label} {...stat} />
         ))}
       </div>
 
       <div className="grid gap-5 xl:grid-cols-2">
         <section className="space-y-5">
           <form onSubmit={handleSaveVocabulary} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">{selectedVocabularyId ? 'Vocabulary tahrirlash' : 'Vocabulary yaratish'}</h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <input className={inputClass} value={vocabularyForm.word} onChange={(e) => setVocabularyForm({ ...vocabularyForm, word: e.target.value })} placeholder="word" required />
-              <input className={inputClass} value={vocabularyForm.translation} onChange={(e) => setVocabularyForm({ ...vocabularyForm, translation: e.target.value })} placeholder="translation" required />
-              <input className={inputClass} type="number" value={vocabularyForm.difficulty} onChange={(e) => setVocabularyForm({ ...vocabularyForm, difficulty: e.target.value })} placeholder="difficulty" />
-              <input className={inputClass} type="number" value={vocabularyForm.courseId} onChange={(e) => setVocabularyForm({ ...vocabularyForm, courseId: e.target.value })} placeholder="courseId" />
-              <textarea className={`${inputClass} min-h-24 md:col-span-2`} value={vocabularyForm.exampleSentence} onChange={(e) => setVocabularyForm({ ...vocabularyForm, exampleSentence: e.target.value })} placeholder="exampleSentence" />
+            <SectionTitle
+              title={selectedVocabularyId ? 'Vocabulary tahrirlash' : 'Vocabulary yaratish'}
+              description="Asosiy so'z, tarjima, misol gap va kurs bog'lanishini kiriting."
+              icon={BookOpen}
+            />
+            <div className="grid gap-3 md:grid-cols-2">
+              <input
+                className={fieldClass}
+                value={vocabularyForm.word}
+                onChange={(event) => setVocabularyForm({ ...vocabularyForm, word: event.target.value })}
+                placeholder="word"
+                required
+              />
+              <input
+                className={fieldClass}
+                value={vocabularyForm.translation}
+                onChange={(event) => setVocabularyForm({ ...vocabularyForm, translation: event.target.value })}
+                placeholder="translation"
+                required
+              />
+              <input
+                className={fieldClass}
+                type="number"
+                value={vocabularyForm.difficulty}
+                onChange={(event) => setVocabularyForm({ ...vocabularyForm, difficulty: event.target.value })}
+                placeholder="difficulty"
+              />
+              <input
+                className={fieldClass}
+                type="number"
+                value={vocabularyForm.courseId}
+                onChange={(event) => setVocabularyForm({ ...vocabularyForm, courseId: event.target.value })}
+                placeholder="courseId"
+              />
+              <textarea
+                className={`${textareaClass} md:col-span-2`}
+                value={vocabularyForm.exampleSentence}
+                onChange={(event) => setVocabularyForm({ ...vocabularyForm, exampleSentence: event.target.value })}
+                placeholder="exampleSentence"
+              />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button className={buttonClass} disabled={saving}>{saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Saqlash</button>
-              {selectedVocabularyId ? <button type="button" className={ghostButtonClass} onClick={() => { setSelectedVocabularyId(null); setVocabularyForm(emptyVocabularyForm); }}>Bekor qilish</button> : null}
+              <button className={primaryButtonClass} disabled={saving}>
+                {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                Saqlash
+              </button>
+              {selectedVocabularyId ? (
+                <button
+                  type="button"
+                  className={secondaryButtonClass}
+                  onClick={() => {
+                    setSelectedVocabularyId(null);
+                    setVocabularyForm(emptyVocabularyForm);
+                  }}
+                >
+                  Bekor qilish
+                </button>
+              ) : null}
             </div>
           </form>
 
           <div className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Vocabulary ro'yxati</h2>
-            <div className="mt-4 space-y-2">
-              {vocabularies.map((item, index) => (
-                <div key={`${item?.id ?? index}`} className="flex items-center justify-between gap-3 border border-[var(--app-border)] bg-white p-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-black text-[var(--app-text)]">{item?.word}</p>
-                    <p className="text-xs font-semibold text-[var(--app-muted)]">{item?.translation}</p>
+            <SectionTitle title="Vocabulary ro'yxati" description="So'zlarni qidiring, tahrirlang yoki o'chiring." icon={ClipboardList} />
+            <div className="relative mb-4">
+              <Search
+                size={17}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--app-muted)]"
+              />
+              <input
+                className={`${fieldClass} pl-10`}
+                value={vocabularySearch}
+                onChange={(event) => setVocabularySearch(event.target.value)}
+                placeholder="Vocabulary ichidan qidirish"
+              />
+            </div>
+            <div className="space-y-3">
+              {filteredVocabularies.map((item, index) => (
+                <article
+                  key={`${item?.id ?? index}`}
+                  className="rounded-lg border border-[var(--app-border)] bg-white p-4 transition-all hover:border-[var(--app-primary)]/35"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <Badge tone="primary">ID {item?.id ?? '-'}</Badge>
+                        <Badge tone="warning">Level {item?.difficulty ?? 1}</Badge>
+                      </div>
+                      <p className="truncate text-base font-black text-[var(--app-text)]">{item?.word ?? '-'}</p>
+                      <p className="mt-1 truncate text-sm font-semibold text-[var(--app-muted)]">{item?.translation ?? '-'}</p>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      {item?.id ? (
+                        <button
+                          className={iconButtonClass}
+                          onClick={() => void editVocabulary(Number(item.id))}
+                          title="Tahrirlash"
+                          aria-label="Vocabulary tahrirlash"
+                        >
+                          <Edit3 size={16} />
+                        </button>
+                      ) : null}
+                      {item?.id ? (
+                        <button
+                          className={iconButtonClass}
+                          onClick={() => void removeVocabulary(Number(item.id))}
+                          title="O'chirish"
+                          aria-label="Vocabulary o'chirish"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    {item?.id ? <button className={ghostButtonClass} onClick={() => void editVocabulary(Number(item.id))}><Edit3 size={14} /></button> : null}
-                    {item?.id ? <button className={ghostButtonClass} onClick={() => void removeVocabulary(Number(item.id))}><Trash2 size={14} /></button> : null}
-                  </div>
-                </div>
+                </article>
               ))}
+              {!filteredVocabularies.length ? (
+                <EmptyBlock title="Vocabulary topilmadi" description="Qidiruvni tozalang yoki yangi so'z qo'shing." />
+              ) : null}
             </div>
           </div>
         </section>
 
         <section className="space-y-5">
           <form onSubmit={handleSaveWordList} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">{selectedWordListId ? 'Word list tahrirlash' : 'Word list yaratish'}</h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <input className={inputClass} value={wordListForm.title} onChange={(e) => setWordListForm({ ...wordListForm, title: e.target.value })} placeholder="title" />
-              <input className={inputClass} value={wordListForm.name} onChange={(e) => setWordListForm({ ...wordListForm, name: e.target.value })} placeholder="name" />
-              <input className={inputClass} type="number" value={wordListForm.studentId} onChange={(e) => setWordListForm({ ...wordListForm, studentId: e.target.value })} placeholder="studentId" />
-              <label className="flex items-center gap-2 border border-[var(--app-border)] bg-white px-3 py-2.5 text-sm font-bold text-[var(--app-text)]">
-                <input type="checkbox" checked={wordListForm.isPublic} onChange={(e) => setWordListForm({ ...wordListForm, isPublic: e.target.checked })} />
-                Public
+            <SectionTitle
+              title={selectedWordListId ? 'Word list tahrirlash' : 'Word list yaratish'}
+              description="Studentga tegishli yoki public listlarni boshqaring."
+              icon={Layers3}
+            />
+            <div className="grid gap-3 md:grid-cols-2">
+              <input
+                className={fieldClass}
+                value={wordListForm.title}
+                onChange={(event) => setWordListForm({ ...wordListForm, title: event.target.value })}
+                placeholder="title"
+              />
+              <input
+                className={fieldClass}
+                value={wordListForm.name}
+                onChange={(event) => setWordListForm({ ...wordListForm, name: event.target.value })}
+                placeholder="name"
+              />
+              <input
+                className={fieldClass}
+                type="number"
+                value={wordListForm.studentId}
+                onChange={(event) => setWordListForm({ ...wordListForm, studentId: event.target.value })}
+                placeholder="studentId"
+              />
+              <label className="flex min-h-11 items-center gap-3 rounded-lg border border-[var(--app-border)] bg-white px-3 py-2.5 text-sm font-bold text-[var(--app-text)]">
+                <input
+                  type="checkbox"
+                  checked={wordListForm.isPublic}
+                  onChange={(event) => setWordListForm({ ...wordListForm, isPublic: event.target.checked })}
+                  className="h-4 w-4 accent-[var(--app-primary)]"
+                />
+                Public list
               </label>
-              <textarea className={`${inputClass} min-h-24 md:col-span-2`} value={wordListForm.description} onChange={(e) => setWordListForm({ ...wordListForm, description: e.target.value })} placeholder="description" />
+              <textarea
+                className={`${textareaClass} md:col-span-2`}
+                value={wordListForm.description}
+                onChange={(event) => setWordListForm({ ...wordListForm, description: event.target.value })}
+                placeholder="description"
+              />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button className={buttonClass} disabled={saving}>Saqlash</button>
-              {selectedWordListId ? <button type="button" className={ghostButtonClass} onClick={() => { setSelectedWordListId(null); setWordListItems([]); setWordListForm(emptyWordListForm); }}>Bekor qilish</button> : null}
+              <button className={primaryButtonClass} disabled={saving}>
+                Saqlash
+              </button>
+              {selectedWordListId ? (
+                <button
+                  type="button"
+                  className={secondaryButtonClass}
+                  onClick={() => {
+                    setSelectedWordListId(null);
+                    setWordListItems([]);
+                    setWordListForm(emptyWordListForm);
+                  }}
+                >
+                  Bekor qilish
+                </button>
+              ) : null}
             </div>
           </form>
 
           <div className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Word lists</h2>
-            <div className="mt-4 space-y-2">
-              {wordLists.map((item, index) => (
-                <div key={`${item?.id ?? index}`} className="flex items-center justify-between gap-3 border border-[var(--app-border)] bg-white p-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-black text-[var(--app-text)]">{getItemTitle(item)}</p>
-                    <p className="text-xs font-semibold text-[var(--app-muted)]">ID: {item?.id ?? '-'}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    {item?.id ? <button className={ghostButtonClass} onClick={() => void selectWordList(Number(item.id))}><Search size={14} /></button> : null}
-                    {item?.id ? <button className={ghostButtonClass} onClick={() => void removeWordList(Number(item.id))}><Trash2 size={14} /></button> : null}
-                  </div>
-                </div>
-              ))}
+            <SectionTitle title="Word lists" description="Listni tanlasangiz itemlari pastda ochiladi." icon={ClipboardList} />
+            <div className="relative mb-4">
+              <Search
+                size={17}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--app-muted)]"
+              />
+              <input
+                className={`${fieldClass} pl-10`}
+                value={wordListSearch}
+                onChange={(event) => setWordListSearch(event.target.value)}
+                placeholder="Word list ichidan qidirish"
+              />
+            </div>
+            <div className="space-y-3">
+              {filteredWordLists.map((item, index) => {
+                const selected = selectedWordListId === Number(item?.id);
+
+                return (
+                  <article
+                    key={`${item?.id ?? index}`}
+                    className={`rounded-lg border p-4 transition-all ${
+                      selected
+                        ? 'border-[var(--app-primary)] bg-[color:color-mix(in_srgb,var(--app-primary)_7%,white)]'
+                        : 'border-[var(--app-border)] bg-white hover:border-[var(--app-primary)]/35'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <Badge tone={item?.isPublic ? 'success' : 'muted'}>
+                            {item?.isPublic ? 'Public' : 'Private'}
+                          </Badge>
+                          <Badge tone="primary">ID {item?.id ?? '-'}</Badge>
+                        </div>
+                        <p className="truncate text-base font-black text-[var(--app-text)]">{getItemTitle(item)}</p>
+                        <p className="mt-1 truncate text-xs font-semibold text-[var(--app-muted)]">
+                          Student: {item?.studentId ?? '-'}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 gap-2">
+                        {item?.id ? (
+                          <button
+                            className={iconButtonClass}
+                            onClick={() => void selectWordList(Number(item.id))}
+                            title="Listni ochish"
+                            aria-label="Word listni ochish"
+                          >
+                            <Search size={16} />
+                          </button>
+                        ) : null}
+                        {item?.id ? (
+                          <button
+                            className={iconButtonClass}
+                            onClick={() => void removeWordList(Number(item.id))}
+                            title="O'chirish"
+                            aria-label="Word list o'chirish"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+              {!filteredWordLists.length ? (
+                <EmptyBlock title="Word list topilmadi" description="Yangi list yarating yoki qidiruvni o'zgartiring." />
+              ) : null}
             </div>
           </div>
 
           <div className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Word list itemlari</h2>
-            <form onSubmit={handleAddItem} className="mt-4 flex gap-2">
-              <input className={inputClass} type="number" value={itemVocabularyId} onChange={(e) => setItemVocabularyId(e.target.value)} placeholder="vocabularyId" disabled={!selectedWordListId} required />
-              <button className={buttonClass} disabled={!selectedWordListId || saving}><Plus size={14} /></button>
+            <SectionTitle
+              title="Word list itemlari"
+              description={selectedWordListId ? `Tanlangan list ID: ${selectedWordListId}` : 'Avval word list tanlang.'}
+              icon={BookOpen}
+            />
+            <form onSubmit={handleAddItem} className="grid gap-3 sm:grid-cols-[1fr_auto]">
+              <input
+                className={fieldClass}
+                type="number"
+                value={itemVocabularyId}
+                onChange={(event) => setItemVocabularyId(event.target.value)}
+                placeholder="vocabularyId"
+                disabled={!selectedWordListId}
+                required
+              />
+              <button className={primaryButtonClass} disabled={!selectedWordListId || saving}>
+                <Plus size={14} />
+                Qo'shish
+              </button>
             </form>
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-3">
               {wordListItems.map((item, index) => (
-                <div key={`${item?.id ?? item?.vocabularyId ?? index}`} className="flex items-center justify-between gap-3 border border-[var(--app-border)] bg-white p-3">
-                  <p className="font-black text-[var(--app-text)]">{getItemTitle(item)}</p>
-                  <button className={ghostButtonClass} onClick={() => void removeItem(item)}><Trash2 size={14} /></button>
+                <div
+                  key={`${item?.id ?? item?.vocabularyId ?? index}`}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-[var(--app-border)] bg-white p-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-black text-[var(--app-text)]">{getItemTitle(item)}</p>
+                    <p className="text-xs font-semibold text-[var(--app-muted)]">
+                      Vocabulary ID: {item?.vocabularyId ?? item?.vocabulary?.id ?? item?.id ?? '-'}
+                    </p>
+                  </div>
+                  <button
+                    className={iconButtonClass}
+                    onClick={() => void removeItem(item)}
+                    title="Listdan olib tashlash"
+                    aria-label="Word list itemni olib tashlash"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               ))}
-              {!wordListItems.length ? <p className="text-sm font-semibold text-[var(--app-muted)]">Word list tanlang yoki item qo'shing.</p> : null}
+              {!wordListItems.length ? (
+                <EmptyBlock
+                  title="Itemlar yo'q"
+                  description="Word list tanlang yoki vocabulary ID orqali yangi item qo'shing."
+                />
+              ) : null}
             </div>
           </div>
         </section>
@@ -439,21 +693,39 @@ export default function VocabularyAdminPage() {
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
         <form onSubmit={loadStudentProgress} className="app-card p-5">
-          <h2 className="text-base font-black text-[var(--app-text)]">Student vocabulary progress</h2>
-          <div className="mt-4 flex gap-2">
-            <input className={inputClass} type="number" value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="studentId" required />
-            <button className={buttonClass} disabled={saving}>Yuklash</button>
+          <SectionTitle title="Student vocabulary progress" icon={TrendingUp} />
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <input
+              className={fieldClass}
+              type="number"
+              value={studentId}
+              onChange={(event) => setStudentId(event.target.value)}
+              placeholder="studentId"
+              required
+            />
+            <button className={secondaryButtonClass} disabled={saving}>
+              Yuklash
+            </button>
           </div>
-          {studentProgress.length ? <pre className="mt-4 max-h-72 overflow-auto border border-[var(--app-border)] bg-white p-3 text-xs">{JSON.stringify(studentProgress, null, 2)}</pre> : null}
+          {studentProgress.length ? <JsonBlock className="mt-4" data={studentProgress} /> : null}
         </form>
 
         <form onSubmit={loadProgressDetail} className="app-card p-5">
-          <h2 className="text-base font-black text-[var(--app-text)]">Progress detail</h2>
-          <div className="mt-4 flex gap-2">
-            <input className={inputClass} type="number" value={progressId} onChange={(e) => setProgressId(e.target.value)} placeholder="progressId" required />
-            <button className={buttonClass} disabled={saving}>Yuklash</button>
+          <SectionTitle title="Progress detail" icon={ClipboardList} />
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <input
+              className={fieldClass}
+              type="number"
+              value={progressId}
+              onChange={(event) => setProgressId(event.target.value)}
+              placeholder="progressId"
+              required
+            />
+            <button className={secondaryButtonClass} disabled={saving}>
+              Yuklash
+            </button>
           </div>
-          <pre className="mt-4 max-h-72 overflow-auto border border-[var(--app-border)] bg-white p-3 text-xs">{JSON.stringify({ dueReviews, progressDetail }, null, 2)}</pre>
+          <JsonBlock className="mt-4" data={{ dueReviews, progressDetail }} />
         </form>
       </div>
     </PageShell>

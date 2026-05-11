@@ -1,87 +1,231 @@
 'use client';
-import { ArrowLeft, Share2, Bookmark, Menu, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+
+import {
+  ArrowLeft,
+  Bookmark,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  FileText,
+  Loader2,
+  Maximize2,
+  Share2,
+} from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { getBookById } from '@/lib/backend-api';
+import {
+  Badge,
+  EmptyBlock,
+  iconButtonClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from '@/app/components/ui/DataDisplay';
+
+const fallbackCover =
+  'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=700&q=80';
+
+function getFileUrl(book: any) {
+  return book?.fileUrl ?? book?.bookFileUrl ?? book?.file?.url ?? book?.documentUrl ?? '';
+}
 
 export default function BookViewerClient() {
   const router = useRouter();
+  const params = useParams();
+  const rawId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const bookId = Number(rawId);
+  const [book, setBook] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [totalPages] = useState(380);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadBook() {
+      if (!Number.isFinite(bookId)) {
+        setError("Kitob ID noto'g'ri");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getBookById(bookId);
+        if (active) setBook(data);
+      } catch (loadError) {
+        if (active) {
+          setError(loadError instanceof Error ? loadError.message : "Kitobni yuklab bo'lmadi");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void loadBook();
+
+    return () => {
+      active = false;
+    };
+  }, [bookId]);
+
+  const fileUrl = getFileUrl(book);
+  const totalPages = useMemo(() => {
+    const value = Number(book?.pages ?? book?.pageCount ?? 120);
+    return Number.isFinite(value) && value > 0 ? value : 120;
+  }, [book]);
+  const progress = Math.round((page / totalPages) * 100);
+  const title = book?.title ?? (Number.isFinite(bookId) ? `Kitob #${bookId}` : 'Kitob');
 
   return (
-    <div className="fixed inset-0 bg-[#f9f9f9] z-[60] flex flex-col animate-in fade-in slide-in-from-right-4 duration-500">
-      {/* Viewer Header */}
-      <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => router.back()} 
-            className="p-2 rounded-xl bg-gray-50 text-gray-700 active:scale-95 transition-all"
-          >
-            <ChevronLeft size={22} strokeWidth={2.5} />
-          </button>
-          <div>
-            <h2 className="text-sm font-extrabold text-gray-900 line-clamp-1">English Grammar in Use</h2>
-            <p className="text-[10px] font-bold text-gray-400">P. {page} of {totalPages}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <button className="p-2 text-gray-400"><Bookmark size={18} strokeWidth={2.5} /></button>
-          <button className="p-2 text-gray-400"><Share2 size={18} strokeWidth={2.5} /></button>
-          <button className="p-2 text-gray-400"><Menu size={18} strokeWidth={2.5} /></button>
-        </div>
-      </div>
-
-      {/* Reader Body (Iframe Mock) */}
-      <div className="flex-1 overflow-hidden relative flex flex-col items-center justify-center bg-[#E5E5E5] p-4">
-        {/* Actual Book Content (Iframe for PDF/Web view) */}
-        <div className="w-full h-full bg-white rounded-xl shadow-lg overflow-hidden relative">
-          <div className="absolute inset-0 flex flex-col p-10">
-            <h1 className="text-2xl font-serif font-bold mb-6">Unit 1: Present Continuous</h1>
-            <p className="font-serif leading-relaxed text-gray-700 mb-4">
-              A) Study this example situation:<br/><br/>
-              Sarah is in her car. She is on her way to work. <b>She is driving</b> to work.
-              This means: she is driving now, at the time of speaking. The action is not finished.
-            </p>
-            <div className="bg-[#FFF9ED] p-4 rounded-xl border border-[#FDEBCE] mt-4">
-              <p className="text-sm font-serif italic text-gray-600">
-                Am/is/are + -ing is the present continuous:
-                <br/>I am driving
-                <br/>he/she/it is working
-                <br/>we/you/they are doing
-              </p>
+    <div className="fixed inset-0 z-[60] flex flex-col bg-[var(--app-bg)] animate-fade-up">
+      <header className="app-top-safe border-b border-[var(--app-border)] bg-white">
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className={iconButtonClass}
+              title="Orqaga"
+              aria-label="Orqaga qaytish"
+            >
+              <ArrowLeft size={18} strokeWidth={2.5} />
+            </button>
+            <div className="min-w-0">
+              <h1 className="truncate text-sm font-black text-[var(--app-text)] sm:text-base">
+                {title}
+              </h1>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                {book?.cefrLevel ? <Badge tone="primary">{book.cefrLevel}</Badge> : null}
+                <span className="truncate text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                  {book?.author || 'MK Academy'}
+                </span>
+              </div>
             </div>
-            <p className="font-serif leading-relaxed text-gray-700 mt-6">
-              B) I am doing something = I’m in the middle of doing it; I’ve started doing it and I haven't finished yet:
-            </p>
           </div>
-          
-          <div className="absolute bottom-4 right-4 p-2 bg-[#2563eb] text-white rounded-lg shadow-lg">
-             <Maximize2 size={16} />
-          </div>
-        </div>
-      </div>
 
-      {/* Viewer Footer */}
-      <div className="bg-white px-6 py-5 border-t border-gray-100 flex items-center justify-between shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
-        <button 
-          onClick={() => setPage(Math.max(1, page - 1))}
-          className="flex items-center gap-1 text-[11px] font-extrabold text-gray-400 hover:text-gray-900 transition-colors"
-        >
-          <ChevronLeft size={16} strokeWidth={3} /> Oldingisi
-        </button>
-        <div className="flex flex-col items-center gap-1.5">
-           <div className="flex gap-1 h-1 w-24 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-[#2563eb] rounded-full" style={{ width: `${(page / totalPages) * 100}%` }} />
-           </div>
-           <span className="text-[10px] font-black text-gray-900 tracking-tighter uppercase">{Math.round((page / totalPages) * 100)}% o&apos;qildi</span>
+          <div className="flex shrink-0 items-center gap-2">
+            <button className={iconButtonClass} title="Bookmark" aria-label="Bookmark">
+              <Bookmark size={17} strokeWidth={2.5} />
+            </button>
+            <button className={iconButtonClass} title="Ulashish" aria-label="Ulashish">
+              <Share2 size={17} strokeWidth={2.5} />
+            </button>
+            {fileUrl ? (
+              <a
+                href={fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={iconButtonClass}
+                title="Yangi oynada ochish"
+                aria-label="Kitob faylini yangi oynada ochish"
+              >
+                <ExternalLink size={17} strokeWidth={2.5} />
+              </a>
+            ) : null}
+          </div>
         </div>
-        <button 
-          onClick={() => setPage(Math.min(totalPages, page + 1))}
-          className="flex items-center gap-1 text-[11px] font-extrabold text-[#2563eb] hover:text-[#1d4ed8] transition-colors"
-        >
-          Keyingisi <ChevronRight size={16} strokeWidth={3} />
-        </button>
-      </div>
+      </header>
+
+      <main className="min-h-0 flex-1 overflow-hidden bg-[var(--app-surface-soft)] p-3 sm:p-5">
+        {loading ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="app-card flex items-center gap-3 px-5 py-4">
+              <Loader2 className="animate-spin text-[var(--app-primary)]" size={22} />
+              <span className="text-sm font-black text-[var(--app-text)]">Kitob yuklanmoqda</span>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="flex h-full items-center justify-center">
+            <EmptyBlock title="Kitob yuklanmadi" description={error} icon={FileText} />
+          </div>
+        ) : fileUrl ? (
+          <div className="h-full overflow-hidden rounded-lg border border-[var(--app-border)] bg-white shadow-[var(--shadow-premium)]">
+            <iframe
+              src={fileUrl}
+              title={title}
+              className="h-full w-full bg-white"
+            />
+          </div>
+        ) : (
+          <div className="mx-auto grid h-full max-w-6xl gap-5 overflow-auto lg:grid-cols-[0.8fr_1.2fr]">
+            <div className="app-card overflow-hidden">
+              <img
+                src={book?.coverImageUrl || fallbackCover}
+                alt={title}
+                className="aspect-[3/4] h-full min-h-[420px] w-full object-cover"
+              />
+            </div>
+            <div className="app-card flex flex-col justify-center p-6 sm:p-8">
+              <Badge tone="warning">Preview</Badge>
+              <h2 className="mt-4 text-2xl font-black tracking-tight text-[var(--app-text)] sm:text-3xl">
+                {title}
+              </h2>
+              <p className="mt-2 text-sm font-black uppercase tracking-widest text-[var(--app-muted)]">
+                {book?.author || 'MK Academy'}
+              </p>
+              <p className="mt-6 max-w-2xl text-sm font-semibold leading-7 text-[var(--app-muted)]">
+                {book?.description ||
+                  "Bu kitob uchun fayl linki hali backenddan kelmadi. Fayl biriktirilganda shu viewer ichida ochiladi."}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button onClick={() => router.back()} className={secondaryButtonClass}>
+                  <ChevronLeft size={14} />
+                  Kutubxonaga qaytish
+                </button>
+                {book?.coverImageUrl ? (
+                  <a href={book.coverImageUrl} target="_blank" rel="noreferrer" className={primaryButtonClass}>
+                    <Maximize2 size={14} />
+                    Cover ochish
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <footer className="border-t border-[var(--app-border)] bg-white px-4 py-3 sm:px-6">
+        {fileUrl ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs font-semibold text-[var(--app-muted)]">
+              Fayl viewer ichida ochildi. PDF boshqaruvlari browser tomonidan ko'rsatiladi.
+            </p>
+            <a href={fileUrl} target="_blank" rel="noreferrer" className={secondaryButtonClass}>
+              <ExternalLink size={14} />
+              Yangi oynada ochish
+            </a>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-4">
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              className={secondaryButtonClass}
+            >
+              <ChevronLeft size={16} strokeWidth={3} />
+              Oldingisi
+            </button>
+            <div className="min-w-[8rem] flex-1 text-center sm:max-w-xs">
+              <div className="h-2 overflow-hidden rounded-full bg-[var(--app-surface-soft)]">
+                <div
+                  className="h-full rounded-full bg-[var(--app-primary)]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="mt-2 block text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">
+                {progress}% o'qildi
+              </span>
+            </div>
+            <button
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              className={primaryButtonClass}
+            >
+              Keyingisi
+              <ChevronRight size={16} strokeWidth={3} />
+            </button>
+          </div>
+        )}
+      </footer>
     </div>
   );
 }

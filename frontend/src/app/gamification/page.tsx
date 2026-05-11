@@ -1,7 +1,17 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Award, Loader2, Medal, Plus, RefreshCcw, Star, Trash2, Trophy } from 'lucide-react';
+import {
+  Award,
+  Loader2,
+  Medal,
+  Plus,
+  RefreshCcw,
+  Star,
+  Trash2,
+  Trophy,
+  Zap,
+} from 'lucide-react';
 import {
   addXp,
   createRating,
@@ -15,15 +25,21 @@ import {
   listRatings,
 } from '@/lib/backend-api';
 import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
+import {
+  Badge,
+  CompactStat,
+  EmptyBlock,
+  JsonBlock,
+  NoticeBanner,
+  SectionTitle,
+  fieldClass,
+  iconButtonClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  textareaClass,
+} from '@/app/components/ui/DataDisplay';
 
 type AnyRecord = Record<string, any>;
-
-const inputClass =
-  'w-full border border-[var(--app-border)] bg-white px-3 py-2.5 text-sm font-semibold text-[var(--app-text)] outline-none transition-colors focus:border-[var(--app-primary)]';
-const buttonClass =
-  'inline-flex items-center justify-center gap-2 border border-[var(--app-primary)] bg-[var(--app-primary)] px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 disabled:opacity-60';
-const ghostButtonClass =
-  'inline-flex items-center justify-center gap-2 border border-[var(--app-border)] bg-white px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-colors hover:bg-[var(--app-secondary)] disabled:opacity-60';
 
 function getId(item: AnyRecord) {
   return Number(item?.id ?? item?.userId ?? item?.studentId ?? 0);
@@ -36,6 +52,17 @@ function getTitle(item: AnyRecord, fallback: string) {
 function getProfileId(profile: AnyRecord | null) {
   const direct = Number(profile?.id ?? profile?.userId ?? profile?.studentId);
   return Number.isFinite(direct) && direct > 0 ? direct : null;
+}
+
+function getPoints(item: AnyRecord) {
+  return Number(item?.xp ?? item?.points ?? item?.score ?? 0);
+}
+
+function getScoreTone(score: unknown) {
+  const value = Number(score);
+  if (value >= 4) return 'success' as const;
+  if (value >= 3) return 'warning' as const;
+  return 'muted' as const;
 }
 
 export default function GamificationPage() {
@@ -56,13 +83,16 @@ export default function GamificationPage() {
 
   const stats = useMemo(
     () => [
-      { label: 'Achievements', value: achievements.length, icon: Award },
-      { label: 'Mening yutuqlarim', value: studentAchievements.length, icon: Medal },
-      { label: 'Leaderboard', value: leaderboard.length, icon: Trophy },
-      { label: 'Ratings', value: ratings.length, icon: Star },
+      { label: 'Achievements', value: achievements.length, icon: Award, tone: 'primary' as const },
+      { label: 'Mening yutuqlarim', value: studentAchievements.length, icon: Medal, tone: 'success' as const },
+      { label: 'Leaderboard', value: leaderboard.length, icon: Trophy, tone: 'warning' as const },
+      { label: 'Ratings', value: ratings.length, icon: Star, tone: 'muted' as const },
     ],
     [achievements.length, leaderboard.length, ratings.length, studentAchievements.length],
   );
+
+  const currentRank = xpRank?.rank ?? xpRank?.position ?? xpRank?.place ?? '-';
+  const currentXp = xpRank?.xp ?? xpRank?.points ?? xpRank?.score ?? '-';
 
   async function loadData() {
     try {
@@ -183,78 +213,149 @@ export default function GamificationPage() {
   return (
     <PageShell
       title="Gamification"
-      subtitle="Achievements, leaderboard, rating va XP boshqaruvi"
+      subtitle="XP, leaderboard, achievements va rating boshqaruvi"
       action={
-        <button onClick={() => void loadData()} className={ghostButtonClass}>
+        <button onClick={() => void loadData()} className={secondaryButtonClass}>
           <RefreshCcw size={14} />
           Yangilash
         </button>
       }
     >
-      {notice ? (
-        <div className="mb-4 border border-[var(--app-border)] bg-[var(--app-secondary)] px-4 py-3 text-sm font-bold text-[var(--app-primary)]">
-          {notice}
-        </div>
-      ) : null}
+      <NoticeBanner message={notice} />
 
       <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="app-card p-4">
-            <Icon className="text-[var(--app-primary)]" size={22} />
-            <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">{label}</p>
-            <p className="mt-1 text-2xl font-black text-[var(--app-text)]">{value}</p>
-          </div>
+        {stats.map((stat) => (
+          <CompactStat key={stat.label} {...stat} />
         ))}
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <section className="space-y-5">
           <div className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Leaderboard</h2>
-            <div className="mt-4 space-y-2">
-              {leaderboard.map((item, index) => (
-                <div key={`${getId(item)}-${index}`} className="flex items-center justify-between border border-[var(--app-border)] bg-white px-4 py-3">
-                  <div>
-                    <p className="font-black text-[var(--app-text)]">#{index + 1} {getTitle(item, 'User')}</p>
-                    <p className="text-xs font-semibold text-[var(--app-muted)]">ID: {getId(item) || '-'}</p>
-                  </div>
-                  <p className="text-lg font-black text-[var(--app-primary)]">{item?.xp ?? item?.points ?? item?.score ?? 0}</p>
-                </div>
-              ))}
-              {!leaderboard.length ? <p className="text-sm font-semibold text-[var(--app-muted)]">Leaderboard bo'sh.</p> : null}
+            <SectionTitle
+              title="Leaderboard"
+              description="Eng faol foydalanuvchilar reytingi va XP ko'rsatkichlari."
+              icon={Trophy}
+            />
+            <div className="space-y-3">
+              {leaderboard.map((item, index) => {
+                const points = getPoints(item);
+                const width = Math.min(100, Math.max(8, points));
+
+                return (
+                  <article
+                    key={`${getId(item)}-${index}`}
+                    className="rounded-lg border border-[var(--app-border)] bg-white p-4 transition-all hover:border-[var(--app-primary)]/35"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-soft)] text-sm font-black text-[var(--app-primary)]">
+                          #{index + 1}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate font-black text-[var(--app-text)]">{getTitle(item, 'User')}</p>
+                          <p className="text-xs font-semibold text-[var(--app-muted)]">ID: {getId(item) || '-'}</p>
+                        </div>
+                      </div>
+                      <Badge tone={index < 3 ? 'warning' : 'primary'}>{points} XP</Badge>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--app-surface-soft)]">
+                      <div
+                        className="h-full rounded-full bg-[var(--app-primary)] transition-all"
+                        style={{ width: `${width}%` }}
+                      />
+                    </div>
+                  </article>
+                );
+              })}
+              {!leaderboard.length ? <EmptyBlock title="Leaderboard bo'sh" description="Hali XP yozuvlari kelmadi." /> : null}
             </div>
           </div>
 
           <div className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Achievements</h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <SectionTitle
+              title="Achievements"
+              description="Platformadagi yutuqlar va ularning shartlari."
+              icon={Award}
+            />
+            <div className="grid gap-3 md:grid-cols-2">
               {achievements.map((item, index) => (
-                <div key={`${item?.id ?? index}`} className="border border-[var(--app-border)] bg-white p-4">
-                  <p className="font-black text-[var(--app-text)]">{getTitle(item, 'Achievement')}</p>
-                  <p className="mt-1 text-sm font-semibold text-[var(--app-muted)]">{item?.description ?? item?.condition ?? 'Tavsif yoq'}</p>
-                </div>
+                <article
+                  key={`${item?.id ?? index}`}
+                  className="rounded-lg border border-[var(--app-border)] bg-white p-4"
+                >
+                  <div className="mb-3 flex items-center gap-3">
+                    <span className="rounded-lg border border-amber-100 bg-amber-50 p-2 text-amber-700">
+                      <Medal size={17} strokeWidth={2.5} />
+                    </span>
+                    <p className="min-w-0 truncate font-black text-[var(--app-text)]">{getTitle(item, 'Achievement')}</p>
+                  </div>
+                  <p className="line-clamp-3 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+                    {item?.description ?? item?.condition ?? "Tavsif yo'q"}
+                  </p>
+                </article>
               ))}
-              {!achievements.length ? <p className="text-sm font-semibold text-[var(--app-muted)]">Achievementlar topilmadi.</p> : null}
+              {!achievements.length ? (
+                <EmptyBlock className="md:col-span-2" title="Achievementlar topilmadi" description="Backenddan yutuqlar ro'yxati kelmadi." />
+              ) : null}
             </div>
           </div>
 
           <div className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Mening rankim</h2>
-            <pre className="mt-4 overflow-auto border border-[var(--app-border)] bg-white p-4 text-xs font-semibold text-[var(--app-text)]">
-              {JSON.stringify({ profileId, xpRank, studentAchievements }, null, 2)}
-            </pre>
+            <SectionTitle title="Mening rankim" description="Joriy profilning XP va yutuqlar kesimi." icon={Zap} />
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-lg border border-[var(--app-border)] bg-white p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Profile ID</p>
+                <p className="mt-1 text-xl font-black text-[var(--app-text)]">{profileId ?? '-'}</p>
+              </div>
+              <div className="rounded-lg border border-[var(--app-border)] bg-white p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Rank</p>
+                <p className="mt-1 text-xl font-black text-[var(--app-text)]">{currentRank}</p>
+              </div>
+              <div className="rounded-lg border border-[var(--app-border)] bg-white p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">XP</p>
+                <p className="mt-1 text-xl font-black text-[var(--app-text)]">{currentXp}</p>
+              </div>
+            </div>
+            <JsonBlock className="mt-4" data={{ profileId, xpRank, studentAchievements }} />
           </div>
         </section>
 
         <section className="space-y-5">
           <form onSubmit={handleCreateRating} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Rating yaratish</h2>
-            <div className="mt-4 grid gap-3">
-              <input className={inputClass} value={ratingForm.targetType} onChange={(e) => setRatingForm({ ...ratingForm, targetType: e.target.value })} placeholder="targetType" required />
-              <input className={inputClass} value={ratingForm.targetId} onChange={(e) => setRatingForm({ ...ratingForm, targetId: e.target.value })} placeholder="targetId" required />
-              <input className={inputClass} type="number" min="1" max="5" value={ratingForm.score} onChange={(e) => setRatingForm({ ...ratingForm, score: e.target.value })} placeholder="score" required />
-              <textarea className={`${inputClass} min-h-24`} value={ratingForm.reviewText} onChange={(e) => setRatingForm({ ...ratingForm, reviewText: e.target.value })} placeholder="Review text" />
-              <button className={buttonClass} disabled={saving}>
+            <SectionTitle title="Rating yaratish" description="Course, book yoki boshqa target uchun baho qo'shing." icon={Star} />
+            <div className="grid gap-3">
+              <input
+                className={fieldClass}
+                value={ratingForm.targetType}
+                onChange={(event) => setRatingForm({ ...ratingForm, targetType: event.target.value })}
+                placeholder="targetType"
+                required
+              />
+              <input
+                className={fieldClass}
+                value={ratingForm.targetId}
+                onChange={(event) => setRatingForm({ ...ratingForm, targetId: event.target.value })}
+                placeholder="targetId"
+                required
+              />
+              <input
+                className={fieldClass}
+                type="number"
+                min="1"
+                max="5"
+                value={ratingForm.score}
+                onChange={(event) => setRatingForm({ ...ratingForm, score: event.target.value })}
+                placeholder="score"
+                required
+              />
+              <textarea
+                className={textareaClass}
+                value={ratingForm.reviewText}
+                onChange={(event) => setRatingForm({ ...ratingForm, reviewText: event.target.value })}
+                placeholder="Review text"
+              />
+              <button className={primaryButtonClass} disabled={saving}>
                 {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
                 Saqlash
               </button>
@@ -262,41 +363,98 @@ export default function GamificationPage() {
           </form>
 
           <form onSubmit={handleTargetRatings} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Target ratinglarini ko'rish</h2>
-            <div className="mt-4 grid gap-3">
-              <input className={inputClass} value={targetForm.targetType} onChange={(e) => setTargetForm({ ...targetForm, targetType: e.target.value })} placeholder="targetType" required />
-              <input className={inputClass} value={targetForm.targetId} onChange={(e) => setTargetForm({ ...targetForm, targetId: e.target.value })} placeholder="targetId" required />
-              <button className={ghostButtonClass} disabled={saving}>Yuklash</button>
+            <SectionTitle title="Target ratinglari" description="Muayyan target bo'yicha ratinglarni ko'ring." icon={Star} />
+            <div className="grid gap-3">
+              <input
+                className={fieldClass}
+                value={targetForm.targetType}
+                onChange={(event) => setTargetForm({ ...targetForm, targetType: event.target.value })}
+                placeholder="targetType"
+                required
+              />
+              <input
+                className={fieldClass}
+                value={targetForm.targetId}
+                onChange={(event) => setTargetForm({ ...targetForm, targetId: event.target.value })}
+                placeholder="targetId"
+                required
+              />
+              <button className={secondaryButtonClass} disabled={saving}>
+                Yuklash
+              </button>
             </div>
-            {targetRatings.length ? <pre className="mt-4 overflow-auto border border-[var(--app-border)] bg-white p-3 text-xs">{JSON.stringify(targetRatings, null, 2)}</pre> : null}
+            {targetRatings.length ? <JsonBlock className="mt-4" data={targetRatings} /> : null}
           </form>
 
           <form onSubmit={handleAddXp} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">XP qo'shish</h2>
-            <div className="mt-4 grid gap-3">
-              <input className={inputClass} type="number" value={xpForm.userId} onChange={(e) => setXpForm({ ...xpForm, userId: e.target.value })} placeholder="userId" required />
-              <input className={inputClass} type="number" value={xpForm.amount} onChange={(e) => setXpForm({ ...xpForm, amount: e.target.value })} placeholder="amount" required />
-              <input className={inputClass} value={xpForm.reason} onChange={(e) => setXpForm({ ...xpForm, reason: e.target.value })} placeholder="reason" />
-              <button className={buttonClass} disabled={saving}>XP yuborish</button>
+            <SectionTitle title="XP qo'shish" description="Foydalanuvchiga manual XP adjustment yuborish." icon={Zap} />
+            <div className="grid gap-3">
+              <input
+                className={fieldClass}
+                type="number"
+                value={xpForm.userId}
+                onChange={(event) => setXpForm({ ...xpForm, userId: event.target.value })}
+                placeholder="userId"
+                required
+              />
+              <input
+                className={fieldClass}
+                type="number"
+                value={xpForm.amount}
+                onChange={(event) => setXpForm({ ...xpForm, amount: event.target.value })}
+                placeholder="amount"
+                required
+              />
+              <input
+                className={fieldClass}
+                value={xpForm.reason}
+                onChange={(event) => setXpForm({ ...xpForm, reason: event.target.value })}
+                placeholder="reason"
+              />
+              <button className={primaryButtonClass} disabled={saving}>
+                XP yuborish
+              </button>
             </div>
           </form>
 
           <div className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Ratinglar</h2>
-            <div className="mt-4 space-y-2">
+            <SectionTitle title="Ratinglar" description="Oxirgi rating yozuvlari." icon={Star} />
+            <div className="space-y-3">
               {ratings.map((item, index) => (
-                <div key={`${item?.id ?? index}`} className="flex items-center justify-between gap-3 border border-[var(--app-border)] bg-white p-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-black text-[var(--app-text)]">{item?.targetType ?? 'target'} #{item?.targetId ?? '-'}</p>
-                    <p className="text-xs font-semibold text-[var(--app-muted)]">Score: {item?.score ?? '-'}</p>
+                <article
+                  key={`${item?.id ?? index}`}
+                  className="rounded-lg border border-[var(--app-border)] bg-white p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <Badge tone={getScoreTone(item?.score)}>Score {item?.score ?? '-'}</Badge>
+                        <Badge tone="primary">ID {item?.id ?? '-'}</Badge>
+                      </div>
+                      <p className="truncate font-black text-[var(--app-text)]">
+                        {item?.targetType ?? 'target'} #{item?.targetId ?? '-'}
+                      </p>
+                      {item?.reviewText ? (
+                        <p className="mt-1 line-clamp-2 text-xs font-semibold text-[var(--app-muted)]">
+                          {item.reviewText}
+                        </p>
+                      ) : null}
+                    </div>
+                    {item?.id ? (
+                      <button
+                        onClick={() => void handleDeleteRating(Number(item.id))}
+                        className={iconButtonClass}
+                        disabled={saving}
+                        title="Ratingni o'chirish"
+                        aria-label="Ratingni o'chirish"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    ) : null}
                   </div>
-                  {item?.id ? (
-                    <button onClick={() => void handleDeleteRating(Number(item.id))} className={ghostButtonClass} disabled={saving}>
-                      <Trash2 size={14} />
-                    </button>
-                  ) : null}
-                </div>
+                </article>
               ))}
+              {!ratings.length ? <EmptyBlock title="Ratinglar yo'q" description="Hali rating yozuvlari kelmadi." /> : null}
             </div>
           </div>
         </section>

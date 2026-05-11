@@ -1,7 +1,18 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
-import { ClipboardList, Edit3, Loader2, RefreshCcw, Search, Trash2 } from 'lucide-react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import {
+  CalendarClock,
+  CheckCircle2,
+  ClipboardList,
+  Edit3,
+  GraduationCap,
+  Loader2,
+  RefreshCcw,
+  Search,
+  Trash2,
+  Users,
+} from 'lucide-react';
 import {
   deleteGroupAssignment,
   getGroupAssignmentById,
@@ -12,18 +23,41 @@ import {
   updateGroupAssignment,
 } from '@/lib/backend-api';
 import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
+import {
+  Badge,
+  CompactStat,
+  EmptyBlock,
+  JsonBlock,
+  NoticeBanner,
+  SectionTitle,
+  fieldClass,
+  iconButtonClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from '@/app/components/ui/DataDisplay';
 
 type AnyRecord = Record<string, any>;
 
-const inputClass =
-  'w-full border border-[var(--app-border)] bg-white px-3 py-2.5 text-sm font-semibold text-[var(--app-text)] outline-none transition-colors focus:border-[var(--app-primary)]';
-const buttonClass =
-  'inline-flex items-center justify-center gap-2 border border-[var(--app-primary)] bg-[var(--app-primary)] px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white transition-transform active:scale-95 disabled:opacity-60';
-const ghostButtonClass =
-  'inline-flex items-center justify-center gap-2 border border-[var(--app-border)] bg-white px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-[var(--app-primary)] transition-colors hover:bg-[var(--app-secondary)] disabled:opacity-60';
-
 function getAssignmentTitle(item: AnyRecord) {
   return item?.task?.title ?? item?.test?.title ?? item?.title ?? `Assignment #${item?.id ?? '-'}`;
+}
+
+function getGroupLabel(item: AnyRecord) {
+  return item?.group?.name ?? item?.groupName ?? item?.groupId ?? '-';
+}
+
+function formatDate(value: unknown) {
+  if (!value) return 'Muddatsiz';
+
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  return new Intl.DateTimeFormat('uz-UZ', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
 }
 
 export default function AssignmentsPage() {
@@ -43,6 +77,36 @@ export default function AssignmentsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  const stats = useMemo(
+    () => [
+      {
+        label: 'Jami assignment',
+        value: assignments.length,
+        icon: ClipboardList,
+        tone: 'primary' as const,
+      },
+      {
+        label: 'Majburiy',
+        value: assignments.filter((item) => Boolean(item?.isRequired)).length,
+        icon: CheckCircle2,
+        tone: 'success' as const,
+      },
+      {
+        label: 'Muddati bor',
+        value: assignments.filter((item) => Boolean(item?.dueDate)).length,
+        icon: CalendarClock,
+        tone: 'warning' as const,
+      },
+      {
+        label: 'Memberlar',
+        value: groupMembers.length,
+        icon: Users,
+        tone: 'muted' as const,
+      },
+    ],
+    [assignments, groupMembers.length],
+  );
 
   async function loadAssignments(filter = groupName) {
     try {
@@ -174,90 +238,237 @@ export default function AssignmentsPage() {
   return (
     <PageShell
       title="Biriktirishlar"
-      subtitle="Group assignment, teacher groups, group members va group-course detali"
+      subtitle="Guruh topshiriqlari, muddatlar va yordamchi endpointlar"
       action={
-        <button onClick={() => void loadAssignments()} className={ghostButtonClass}>
+        <button onClick={() => void loadAssignments()} className={secondaryButtonClass}>
           <RefreshCcw size={14} />
           Yangilash
         </button>
       }
     >
-      {notice ? <div className="mb-4 border border-[var(--app-border)] bg-[var(--app-secondary)] px-4 py-3 text-sm font-bold text-[var(--app-primary)]">{notice}</div> : null}
+      <NoticeBanner message={notice} />
 
-      <form onSubmit={handleFilter} className="mb-5 flex flex-col gap-2 sm:flex-row">
-        <input className={inputClass} value={groupName} onChange={(event) => setGroupName(event.target.value)} placeholder="groupName bo'yicha qidirish" />
-        <button className={buttonClass}><Search size={14} /> Qidirish</button>
+      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <CompactStat key={stat.label} {...stat} />
+        ))}
+      </div>
+
+      <form
+        onSubmit={handleFilter}
+        className="mb-5 grid gap-3 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3 sm:grid-cols-[1fr_auto]"
+      >
+        <div className="relative">
+          <Search
+            size={17}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--app-muted)]"
+            strokeWidth={2.5}
+          />
+          <input
+            className={`${fieldClass} pl-10`}
+            value={groupName}
+            onChange={(event) => setGroupName(event.target.value)}
+            placeholder="Guruh nomi bo'yicha qidirish"
+          />
+        </div>
+        <button className={primaryButtonClass}>
+          <Search size={14} />
+          Qidirish
+        </button>
       </form>
 
-      <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+      <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
         <section className="app-card p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <ClipboardList size={18} className="text-[var(--app-primary)]" />
-            <h2 className="text-base font-black text-[var(--app-text)]">Assignment ro'yxati</h2>
-          </div>
-          <div className="space-y-2">
-            {assignments.map((item, index) => (
-              <div key={`${item?.id ?? index}`} className="flex items-center justify-between gap-3 border border-[var(--app-border)] bg-white p-3">
-                <div className="min-w-0">
-                  <p className="truncate font-black text-[var(--app-text)]">{getAssignmentTitle(item)}</p>
-                  <p className="text-xs font-semibold text-[var(--app-muted)]">
-                    Group: {item?.group?.name ?? item?.groupName ?? item?.groupId ?? '-'} · ID: {item?.id ?? '-'}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  {item?.id ? <button className={ghostButtonClass} onClick={() => void loadAssignmentDetail(Number(item.id))}><Edit3 size={14} /></button> : null}
-                  {item?.id ? <button className={ghostButtonClass} onClick={() => void removeAssignment(Number(item.id))}><Trash2 size={14} /></button> : null}
-                </div>
-              </div>
-            ))}
-            {!assignments.length ? <p className="text-sm font-semibold text-[var(--app-muted)]">Assignment topilmadi.</p> : null}
+          <SectionTitle
+            title="Assignment ro'yxati"
+            description="Topshiriqlarni tanlang, muddatini yangilang yoki keraksizini olib tashlang."
+            icon={ClipboardList}
+          />
+
+          <div className="space-y-3">
+            {assignments.map((item, index) => {
+              const id = Number(item?.id);
+              const selected = Number(assignmentId) === id;
+
+              return (
+                <article
+                  key={`${item?.id ?? index}`}
+                  className={`rounded-lg border p-4 transition-all ${
+                    selected
+                      ? 'border-[var(--app-primary)] bg-[color:color-mix(in_srgb,var(--app-primary)_7%,white)]'
+                      : 'border-[var(--app-border)] bg-white hover:border-[var(--app-primary)]/35'
+                  }`}
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <Badge tone={item?.isRequired ? 'success' : 'muted'}>
+                          {item?.isRequired ? 'Majburiy' : 'Ixtiyoriy'}
+                        </Badge>
+                        <Badge tone="primary">ID {item?.id ?? '-'}</Badge>
+                      </div>
+                      <h3 className="truncate text-base font-black text-[var(--app-text)]">
+                        {getAssignmentTitle(item)}
+                      </h3>
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-[var(--app-muted)]">
+                        <span>Group: {getGroupLabel(item)}</span>
+                        <span>Deadline: {formatDate(item?.dueDate)}</span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {item?.id ? (
+                        <button
+                          className={iconButtonClass}
+                          onClick={() => void loadAssignmentDetail(Number(item.id))}
+                          title="Tahrirlash"
+                          aria-label="Assignmentni tahrirlash"
+                        >
+                          <Edit3 size={16} />
+                        </button>
+                      ) : null}
+                      {item?.id ? (
+                        <button
+                          className={iconButtonClass}
+                          onClick={() => void removeAssignment(Number(item.id))}
+                          title="O'chirish"
+                          aria-label="Assignmentni o'chirish"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+
+            {!assignments.length ? (
+              <EmptyBlock
+                title="Assignment topilmadi"
+                description="Qidiruvni tozalang yoki boshqa guruh nomi bilan tekshirib ko'ring."
+              />
+            ) : null}
           </div>
         </section>
 
         <section className="space-y-5">
           <form onSubmit={handleUpdateAssignment} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Assignment detali va update</h2>
-            <div className="mt-4 grid gap-3">
-              <input className={inputClass} type="number" value={assignmentId} onChange={(event) => setAssignmentId(event.target.value)} placeholder="assignmentId" required />
-              <input className={inputClass} type="datetime-local" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
-              <label className="flex items-center gap-2 border border-[var(--app-border)] bg-white px-3 py-2.5 text-sm font-bold text-[var(--app-text)]">
-                <input type="checkbox" checked={isRequired} onChange={(event) => setIsRequired(event.target.checked)} />
-                Majburiy
+            <SectionTitle
+              title="Assignment detali"
+              description="Tanlangan assignment uchun muddat va majburiylik holatini yangilang."
+              icon={CalendarClock}
+            />
+
+            <div className="grid gap-3">
+              <input
+                className={fieldClass}
+                type="number"
+                value={assignmentId}
+                onChange={(event) => setAssignmentId(event.target.value)}
+                placeholder="assignmentId"
+                required
+              />
+              <input
+                className={fieldClass}
+                type="datetime-local"
+                value={dueDate}
+                onChange={(event) => setDueDate(event.target.value)}
+              />
+              <label className="flex min-h-11 items-center gap-3 rounded-lg border border-[var(--app-border)] bg-white px-3 py-2.5 text-sm font-bold text-[var(--app-text)]">
+                <input
+                  type="checkbox"
+                  checked={isRequired}
+                  onChange={(event) => setIsRequired(event.target.checked)}
+                  className="h-4 w-4 accent-[var(--app-primary)]"
+                />
+                Majburiy assignment
               </label>
               <div className="flex flex-wrap gap-2">
-                <button type="button" className={ghostButtonClass} onClick={() => void loadAssignmentDetail(Number(assignmentId))} disabled={!assignmentId || saving}>Detail</button>
-                <button className={buttonClass} disabled={!assignmentId || saving}>{saving ? <Loader2 size={14} className="animate-spin" /> : null} Update</button>
+                <button
+                  type="button"
+                  className={secondaryButtonClass}
+                  onClick={() => void loadAssignmentDetail(Number(assignmentId))}
+                  disabled={!assignmentId || saving}
+                >
+                  Detail
+                </button>
+                <button className={primaryButtonClass} disabled={!assignmentId || saving}>
+                  {saving ? <Loader2 size={14} className="animate-spin" /> : null}
+                  Update
+                </button>
               </div>
             </div>
-            {detail ? <pre className="mt-4 max-h-80 overflow-auto border border-[var(--app-border)] bg-white p-3 text-xs">{JSON.stringify(detail, null, 2)}</pre> : null}
+
+            {detail ? (
+              <div className="mt-4 space-y-3">
+                <div className="rounded-lg border border-[var(--app-border)] bg-white p-4">
+                  <p className="text-sm font-black text-[var(--app-text)]">
+                    {getAssignmentTitle(detail)}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-[var(--app-muted)]">
+                    Group: {getGroupLabel(detail)} | Deadline: {formatDate(detail?.dueDate)}
+                  </p>
+                </div>
+                <JsonBlock data={detail} />
+              </div>
+            ) : null}
           </form>
 
-          <form onSubmit={handleTeacherGroups} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Teacher guruhlari</h2>
-            <div className="mt-4 flex gap-2">
-              <input className={inputClass} type="number" value={teacherId} onChange={(event) => setTeacherId(event.target.value)} placeholder="teacherId" required />
-              <button className={buttonClass} disabled={saving}>Yuklash</button>
-            </div>
-            {teacherGroups.length ? <pre className="mt-4 max-h-64 overflow-auto border border-[var(--app-border)] bg-white p-3 text-xs">{JSON.stringify(teacherGroups, null, 2)}</pre> : null}
-          </form>
+          <div className="grid gap-5">
+            <form onSubmit={handleTeacherGroups} className="app-card p-5">
+              <SectionTitle title="Teacher guruhlari" icon={GraduationCap} />
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                <input
+                  className={fieldClass}
+                  type="number"
+                  value={teacherId}
+                  onChange={(event) => setTeacherId(event.target.value)}
+                  placeholder="teacherId"
+                  required
+                />
+                <button className={secondaryButtonClass} disabled={saving}>
+                  Yuklash
+                </button>
+              </div>
+              {teacherGroups.length ? <JsonBlock className="mt-4" data={teacherGroups} /> : null}
+            </form>
 
-          <form onSubmit={handleGroupMembers} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Group members duplicate endpoint</h2>
-            <div className="mt-4 flex gap-2">
-              <input className={inputClass} type="number" value={groupId} onChange={(event) => setGroupId(event.target.value)} placeholder="groupId" required />
-              <button className={buttonClass} disabled={saving}>Yuklash</button>
-            </div>
-            {groupMembers.length ? <pre className="mt-4 max-h-64 overflow-auto border border-[var(--app-border)] bg-white p-3 text-xs">{JSON.stringify(groupMembers, null, 2)}</pre> : null}
-          </form>
+            <form onSubmit={handleGroupMembers} className="app-card p-5">
+              <SectionTitle title="Group memberlari" icon={Users} />
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                <input
+                  className={fieldClass}
+                  type="number"
+                  value={groupId}
+                  onChange={(event) => setGroupId(event.target.value)}
+                  placeholder="groupId"
+                  required
+                />
+                <button className={secondaryButtonClass} disabled={saving}>
+                  Yuklash
+                </button>
+              </div>
+              {groupMembers.length ? <JsonBlock className="mt-4" data={groupMembers} /> : null}
+            </form>
 
-          <form onSubmit={handleGroupCourse} className="app-card p-5">
-            <h2 className="text-base font-black text-[var(--app-text)]">Group-course detali</h2>
-            <div className="mt-4 flex gap-2">
-              <input className={inputClass} type="number" value={groupCourseId} onChange={(event) => setGroupCourseId(event.target.value)} placeholder="groupCourseId" required />
-              <button className={buttonClass} disabled={saving}>Yuklash</button>
-            </div>
-            {groupCourse ? <pre className="mt-4 max-h-64 overflow-auto border border-[var(--app-border)] bg-white p-3 text-xs">{JSON.stringify(groupCourse, null, 2)}</pre> : null}
-          </form>
+            <form onSubmit={handleGroupCourse} className="app-card p-5">
+              <SectionTitle title="Group-course detali" icon={ClipboardList} />
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                <input
+                  className={fieldClass}
+                  type="number"
+                  value={groupCourseId}
+                  onChange={(event) => setGroupCourseId(event.target.value)}
+                  placeholder="groupCourseId"
+                  required
+                />
+                <button className={secondaryButtonClass} disabled={saving}>
+                  Yuklash
+                </button>
+              </div>
+              {groupCourse ? <JsonBlock className="mt-4" data={groupCourse} /> : null}
+            </form>
+          </div>
         </section>
       </div>
     </PageShell>

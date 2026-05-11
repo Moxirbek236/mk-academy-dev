@@ -1,9 +1,29 @@
 'use client';
+
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, BookOpen, Brain, Lock, PlusCircle, Search, Volume2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft, Volume2, Search, PlusCircle, Lock, Loader2 } from 'lucide-react';
 import { listVocabularies } from '@/lib/backend-api';
+import { PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
+import {
+  Badge,
+  CompactStat,
+  EmptyBlock,
+  fieldClass,
+  iconButtonClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from '@/app/components/ui/DataDisplay';
+
+type VocabularyWord = {
+  id: number;
+  en: string;
+  uz: string;
+  type: string;
+  pronunciation?: string;
+};
 
 export default function VocabularyClient() {
   const router = useRouter();
@@ -12,9 +32,7 @@ export default function VocabularyClient() {
   const [playing, setPlaying] = useState<number | null>(null);
   const [loadingWords, setLoadingWords] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [words, setWords] = useState<
-    Array<{ id: number; en: string; uz: string; type: string; pronunciation?: string }>
-  >([]);
+  const [words, setWords] = useState<VocabularyWord[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -33,7 +51,7 @@ export default function VocabularyClient() {
                 en: item.word,
                 uz: item.translation,
                 pronunciation: item.pronunciation,
-                type: 'word',
+                type: item.partOfSpeech ?? 'word',
               }))
             : [],
         );
@@ -64,105 +82,144 @@ export default function VocabularyClient() {
     );
   }, [searchTerm, words]);
 
-  const handlePlay = (idx: number) => {
-    setPlaying(idx);
-    setTimeout(() => setPlaying(null), 1000);
+  const stats = useMemo(
+    () => [
+      { label: "Jami so'z", value: words.length, icon: BookOpen, tone: 'primary' as const },
+      { label: "Ko'rinmoqda", value: filteredWords.length, icon: Search, tone: 'success' as const },
+      {
+        label: 'Talaffuz',
+        value: words.filter((word) => Boolean(word.pronunciation)).length,
+        icon: Volume2,
+        tone: 'warning' as const,
+      },
+    ],
+    [filteredWords.length, words],
+  );
+
+  const handlePlay = (wordId: number) => {
+    setPlaying(wordId);
+    window.setTimeout(() => setPlaying(null), 900);
   };
 
-  if (authLoading || loadingWords) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#2563eb]" size={40} /></div>;
+  if (authLoading || loadingWords) {
+    return (
+      <PageShell title="Vocabulary" subtitle="So'zlar yuklanmoqda">
+        <PageLoadingState title="Vocabulary yuklanmoqda" description="Unit uchun so'zlar olinmoqda" />
+      </PageShell>
+    );
+  }
 
   if (role !== 'student') {
     return (
-      <div className="pb-8 h-full flex flex-col items-center justify-center pt-20 text-center animate-in zoom-in-95 duration-500">
-        <div className="w-24 h-24 bg-red-100 text-red-600 rounded-[32px] flex items-center justify-center shadow-lg border-4 border-white mb-6">
-          <Lock size={40} strokeWidth={2.5} />
+      <PageShell title="Vocabulary" subtitle="Faqat student akkauntlari uchun">
+        <div className="app-card mx-auto flex max-w-xl flex-col items-center px-6 py-10 text-center">
+          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 text-rose-600">
+            <Lock size={34} strokeWidth={2.5} />
+          </div>
+          <h2 className="mt-5 text-xl font-black tracking-tight text-[var(--app-text)]">Ruxsat taqiqlangan</h2>
+          <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+            Leksika va darsliklar student hisobiga ega foydalanuvchilar uchun mo'ljallangan.
+          </p>
+          <button onClick={() => router.push('/')} className={`${primaryButtonClass} mt-6`}>
+            <ArrowLeft size={15} />
+            Portalga qaytish
+          </button>
         </div>
-        <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tighter uppercase">Ruxsat Taqiqlangan</h2>
-        <p className="text-gray-500 font-bold px-12 mb-10 leading-relaxed text-sm">
-          Leksika va darsliklar faqat <span className="text-[#2563eb]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
-        </p>
-        <button 
-          onClick={() => router.push('/')}
-          className="bg-[#2563eb] text-white font-black py-4 px-10 rounded-[24px] shadow-xl shadow-[#2563eb]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
-        >
-          <ArrowLeft size={16} strokeWidth={3} /> Portalga Qaytish
-        </button>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="pb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Top Action Bar */}
-      <div className="flex items-center gap-3 mb-6">
-        <button 
-          onClick={() => router.back()} 
-          className="p-2.5 rounded-full bg-white shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-gray-100 text-gray-700 hover:bg-gray-50 active:scale-95 transition-all"
-        >
-          <ArrowLeft size={20} strokeWidth={2.5} />
-        </button>
-        <div className="flex-1">
-          <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">Unit {id} Words</h2>
-          <p className="text-xs font-bold text-[#2563eb] uppercase tracking-wider mt-0.5">{filteredWords.length} ta so&apos;z</p>
+    <PageShell
+      title={`Unit ${id} vocabulary`}
+      subtitle="So'zlarni qidiring, eshiting va takrorlashga o'ting"
+      action={
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => router.back()} className={secondaryButtonClass}>
+            <ArrowLeft size={14} />
+            Orqaga
+          </button>
+          <Link href="/vocabulary-practice" className={primaryButtonClass}>
+            <Brain size={14} />
+            Practice
+          </Link>
+        </div>
+      }
+    >
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        {stats.map((stat) => (
+          <CompactStat key={stat.label} {...stat} />
+        ))}
+      </div>
+
+      <div className="mb-5 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3">
+        <div className="relative">
+          <Search
+            size={18}
+            strokeWidth={2.5}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--app-muted)]"
+          />
+          <input
+            type="text"
+            placeholder="So'z yoki tarjima bo'yicha qidirish"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            className={`${fieldClass} pl-10`}
+          />
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative mb-6">
-        <Search size={18} strokeWidth={2.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input 
-          type="text" 
-          placeholder="Qidirish..." 
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.target.value)}
-          className="w-full bg-white border border-gray-200 rounded-[20px] py-3.5 pl-11 pr-4 text-sm font-semibold focus:outline-none focus:border-[#2563eb] focus:ring-4 focus:ring-[#2563eb]/10 transition-all shadow-sm"
-        />
-      </div>
-
-      {/* Word List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 pb-12">
-        {filteredWords.length > 0 ? filteredWords.map((word, idx) => (
-          <div 
-            key={word.id} 
-            className="group bg-white p-6 rounded-[38px] border border-gray-100 shadow-sm flex items-center gap-5 hover:border-[#2563eb]/30 hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
-          >
-            {/* Play Button */}
-            <button 
-              onClick={(e) => { e.stopPropagation(); handlePlay(idx); }}
-              className={`p-4 rounded-[22px] shrink-0 transition-all active:scale-90 shadow-inner ${
-                playing === idx 
-                  ? 'bg-[#2563eb] text-white shadow-xl scale-110 rotate-6' 
-                  : 'bg-[#eff6ff] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white'
-              }`}
+      <div className="grid grid-cols-1 gap-3 pb-12 md:grid-cols-2">
+        {filteredWords.length > 0 ? (
+          filteredWords.map((word) => (
+            <article
+              key={word.id}
+              className="group rounded-lg border border-[var(--app-border)] bg-white p-4 transition-all hover:border-[var(--app-primary)]/40 hover:shadow-[var(--shadow-premium)]"
             >
-              <Volume2 size={24} strokeWidth={2.5} className={playing === idx ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'} />
-            </button>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handlePlay(word.id);
+                  }}
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border transition-all active:scale-95 ${
+                    playing === word.id
+                      ? 'border-[var(--app-primary)] bg-[var(--app-primary)] text-white'
+                      : 'border-[var(--app-border)] bg-[var(--app-surface-soft)] text-[var(--app-primary)] group-hover:border-[var(--app-primary)]/40'
+                  }`}
+                  title="Talaffuz"
+                  aria-label="So'z talaffuzini eshitish"
+                >
+                  <Volume2 size={22} strokeWidth={2.5} className={playing === word.id ? 'animate-pulse' : ''} />
+                </button>
 
-            {/* Word Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-1.5">
-                <h3 className="font-extrabold text-[#111827] text-lg tracking-tight truncate">{word.en}</h3>
-                <span className="text-[9px] px-2 py-0.5 rounded-md flex-shrink-0 bg-gray-50 text-gray-400 font-black uppercase tracking-widest border border-gray-100">
-                  {word.type}
-                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <Badge tone="primary">{word.type}</Badge>
+                    {word.pronunciation ? <Badge tone="muted">{word.pronunciation}</Badge> : null}
+                  </div>
+                  <h3 className="truncate text-lg font-black tracking-tight text-[var(--app-text)]">{word.en}</h3>
+                  <p className="mt-1 truncate text-sm font-semibold text-[var(--app-muted)]">{word.uz}</p>
+                </div>
+
+                <button
+                  className={iconButtonClass}
+                  title="Listga qo'shish"
+                  aria-label="So'zni listga qo'shish"
+                >
+                  <PlusCircle size={18} strokeWidth={2.5} />
+                </button>
               </div>
-              <p className="text-sm text-gray-500 font-bold truncate tracking-tight">{word.uz}</p>
-              {word.pronunciation ? (
-                <p className="mt-1 text-xs font-semibold text-gray-400 truncate">{word.pronunciation}</p>
-              ) : null}
-            </div>
-
-            {/* Add to favorites */}
-            <button className="text-gray-200 hover:text-amber-500 transition-all p-2 group-hover:scale-110 active:scale-90 shrink-0">
-               <PlusCircle size={24} strokeWidth={2.5} className="drop-shadow-sm" />
-            </button>
-          </div>
-        )) : (
-          <div className="md:col-span-2 rounded-[28px] border border-dashed border-gray-200 bg-white p-8 text-center text-sm font-semibold text-gray-500">
-            Bu unit uchun hozircha vocabulary topilmadi.
-          </div>
+            </article>
+          ))
+        ) : (
+          <EmptyBlock
+            className="md:col-span-2"
+            title="Vocabulary topilmadi"
+            description="Bu unit uchun hozircha so'z yo'q yoki qidiruv natija bermadi."
+          />
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }
