@@ -1,330 +1,235 @@
-﻿'use client';
-import { ArrowLeft, CheckCircle2, ChevronRight, AlertCircle, RefreshCcw, Loader2, Trophy, Star, Sparkles } from 'lucide-react';
-import { useRouter, useParams } from 'next/navigation';
-import { useLocale } from 'next-intl';
-import { useState } from 'react';
+'use client';
+
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, CheckCircle2, ClipboardList, Lock, Send } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { Lock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
-import { localizePath } from '@/i18n/localizedPath';
-import { useExamSecurity } from '@/hooks/useExamSecurity';
-import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
-import { getRoleHomePath } from '@/lib/role-access';
+import { getCurrentProfile, getStudentTasks, submitStudentTask } from '@/lib/backend-api';
+import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
+import {
+  Badge,
+  EmptyBlock,
+  NoticeBanner,
+  SectionTitle,
+  fieldClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  textareaClass,
+} from '@/app/components/ui/DataDisplay';
+
+type AnyRecord = Record<string, any>;
+
+function getProfileId(profile: AnyRecord | null) {
+  const id = Number(profile?.user?.id ?? profile?.id ?? profile?.studentId);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+function getTask(item: AnyRecord) {
+  return item?.task ?? item;
+}
+
+function getTaskId(item: AnyRecord) {
+  const id = Number(item?.task?.id ?? item?.taskId ?? item?.id);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+function getStatusTone(status: unknown) {
+  const normalized = String(status || '').toUpperCase();
+  if (normalized === 'GRADED' || normalized === 'COMPLETED') return 'success' as const;
+  if (normalized === 'SUBMITTED') return 'warning' as const;
+  return 'muted' as const;
+}
 
 export default function TasksClient() {
   const router = useRouter();
-  const locale = useLocale();
   const { id } = useParams();
+  const unitId = Number(id);
   const { role, loading: authLoading } = useAuth();
-  const { centerBranding } = useCenterBranding();
-  
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [showResult, setShowResult] = useState(false);
-  const [isWrong, setIsWrong] = useState(false);
-  const { privacyVisible, watermarkText } = useExamSecurity({
-    enabled: !authLoading && role === 'student',
-    watermarkLabel: `${centerBranding.shortName} Exam | Unit ${String(id)}`,
-  });
+  const [profileId, setProfileId] = useState<number | null>(null);
+  const [tasks, setTasks] = useState<AnyRecord[]>([]);
+  const [submissions, setSubmissions] = useState<Record<number, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [savingTaskId, setSavingTaskId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const questions = [
-    {
-      type: 'multiple_choice',
-      q: 'Choose the correct synonym for "Accomplish".',
-      options: ['Fail', 'Achieve', 'Destroy', 'Delay'],
-      correct: 1,
-      fact: '"Accomplish" means to complete something successfully.'
-    },
-    {
-      type: 'fill_in_blank',
-      q: 'She tried to _______ him to join the team.',
-      options: ['Determine', 'Hypothesis', 'Persuade', 'Generate'],
-      correct: 2,
-      fact: '"Persuade" means to convince someone.'
-    },
-    {
-      type: 'multiple_choice',
-      q: 'Which word means "very important"?',
-      options: ['Fascinating', 'Significant', 'Accomplish', 'Hypothesis'],
-      correct: 1,
-      fact: '"Significant" often refers to importance or meaning.'
-    }
-  ];
-
-  const handleNext = () => {
-    if (selected === questions[currentStep].correct) {
-      if (currentStep < questions.length - 1) {
-        setCurrentStep(prev => prev + 1);
-        setSelected(null);
-        setIsWrong(false);
-      } else {
-        setShowResult(true);
-        confetti({
-          particleCount: 150,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#2563eb', '#60a5fa', '#ffffff']
-        });
+  async function loadTasks() {
+    try {
+      setLoading(true);
+      setError(null);
+      const profile = await getCurrentProfile();
+      const currentProfileId = getProfileId(profile);
+      if (!currentProfileId) {
+        throw new Error('Student profile topilmadi');
       }
-    } else {
-      setIsWrong(true);
-      setTimeout(() => setIsWrong(false), 500);
+
+      setProfileId(currentProfileId);
+      setTasks(await getStudentTasks(currentProfileId));
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : 'Vazifalar yuklanmadi');
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
-  const handleRestart = () => {
-    setCurrentStep(0);
-    setSelected(null);
-    setShowResult(false);
-    setIsWrong(false);
-  };
+  useEffect(() => {
+    if (!authLoading && role === 'student') {
+      void loadTasks();
+    } else if (!authLoading) {
+      setLoading(false);
+    }
+  }, [authLoading, role]);
 
-  if (authLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-[#2563eb]" size={40} /></div>;
+  const unitTasks = useMemo(() => {
+    if (!Number.isFinite(unitId)) return tasks;
+    return tasks.filter((item) => Number(getTask(item)?.courseId) === unitId);
+  }, [tasks, unitId]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>, item: AnyRecord) {
+    event.preventDefault();
+    const taskId = getTaskId(item);
+    if (!profileId || !taskId) {
+      setNotice('Task yoki student ID topilmadi');
+      return;
+    }
+
+    const content = submissions[taskId]?.trim();
+    if (!content) {
+      setNotice('Javob matnini kiriting');
+      return;
+    }
+
+    try {
+      setSavingTaskId(taskId);
+      setNotice(null);
+      await submitStudentTask(profileId, taskId, content);
+      setSubmissions((current) => ({ ...current, [taskId]: '' }));
+      await loadTasks();
+      setNotice('Vazifa yuborildi');
+    } catch (submitError) {
+      setNotice(submitError instanceof Error ? submitError.message : 'Vazifa yuborilmadi');
+    } finally {
+      setSavingTaskId(null);
+    }
+  }
+
+  if (authLoading || loading) {
+    return (
+      <PageShell title="Unit tasks" subtitle="Vazifalar yuklanmoqda">
+        <PageLoadingState title="Vazifalar yuklanmoqda" description="Student task endpointi tekshirilmoqda" />
+      </PageShell>
+    );
+  }
 
   if (role !== 'student') {
     return (
-      <div className="pb-8 h-full flex flex-col items-center justify-center pt-20 text-center animate-in zoom-in-95 duration-500">
-        <motion.div 
-          initial={{ scale: 0 }} 
-          animate={{ scale: 1 }}
-          className="w-24 h-24 bg-red-100 text-red-600 rounded-[32px] flex items-center justify-center shadow-lg border-4 border-white mb-6"
-        >
-          <Lock size={40} strokeWidth={2.5} />
-        </motion.div>
-        <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tighter uppercase">Ruxsat Taqiqlangan</h2>
-        <p className="text-gray-500 font-bold px-12 mb-10 leading-relaxed text-sm">
-          Tests va vazifalar faqat <span className="text-[#2563eb]">Student</span> hisobiga ega foydalanuvchilar uchun mo&apos;ljallangan.
-        </p>
-        <button 
-          onClick={() => router.push(localizePath(locale, getRoleHomePath(role)))}
-          className="bg-[#2563eb] text-white font-black py-4 px-10 rounded-[28px] shadow-xl shadow-[#2563eb]/20 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-widest text-[11px]"
-        >
-          <ArrowLeft size={16} strokeWidth={3} /> Portalga Qaytish
-        </button>
-      </div>
-    );
-  }
-
-  if (showResult) {
-    return (
-      <div className="pb-8 min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
-        <motion.div 
-          initial={{ scale: 0, rotate: -20 }}
-          animate={{ scale: 1, rotate: 0 }}
-          className="w-32 h-32 bg-blue-50 text-blue-500 rounded-[48px] flex items-center justify-center shadow-2xl shadow-blue-500/20 border-4 border-white mb-8 relative"
-        >
-          <Trophy size={64} strokeWidth={2.5} className="z-10" />
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: 'linear' }} className="absolute inset-0 border-4 border-dashed border-blue-200 rounded-[48px]" />
-        </motion.div>
-        
-        <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tighter">Perfect Score!</h2>
-        <p className="text-gray-500 font-bold max-w-xs mb-10 leading-relaxed">
-          Tabriklaymiz! Siz <span className="text-[#2563eb]">Unit {id}</span> bo&apos;yicha barcha vazifalarni 100% natija bilan yakunladingiz. +50 XP kiritildi.
-        </p>
-
-        <div className="flex flex-col w-full gap-4 max-w-xs">
-          <button 
-            onClick={() => router.push(localizePath(locale, getRoleHomePath(role)))}
-            className="w-full bg-[#2563eb] text-white font-black py-5 rounded-[32px] shadow-xl shadow-[#2563eb]/30 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
-          >
-            Darslarga qaytish <ChevronRight size={18} strokeWidth={3} />
-          </button>
-          <button 
-            onClick={handleRestart}
-            className="w-full bg-gray-100 text-gray-500 font-black py-4 rounded-[32px] active:scale-95 transition-all uppercase tracking-widest text-[10px]"
-          >
-            Takrorlash <RefreshCcw size={14} className="inline ml-1" />
+      <PageShell title="Unit tasks" subtitle="Faqat student akkauntlari uchun">
+        <div className="app-card mx-auto flex max-w-xl flex-col items-center px-6 py-10 text-center">
+          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 text-rose-600">
+            <Lock size={34} strokeWidth={2.5} />
+          </div>
+          <h2 className="mt-5 text-xl font-black tracking-tight text-[var(--app-text)]">Ruxsat taqiqlangan</h2>
+          <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+            Vazifalar faqat student hisobiga ega foydalanuvchilar uchun mo'ljallangan.
+          </p>
+          <button onClick={() => router.push('/')} className={`${primaryButtonClass} mt-6`}>
+            <ArrowLeft size={15} />
+            Portalga qaytish
           </button>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
-  const progressPercentage = ((currentStep + 1) / questions.length) * 100;
-  const isCorrect = selected === questions[currentStep].correct;
+  if (error) {
+    return (
+      <PageShell title="Unit tasks" subtitle="Xatolik">
+        <PageErrorState title="Vazifalar yuklanmadi" description={error} retryLabel="Qayta urinish" onRetry={() => void loadTasks()} />
+      </PageShell>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-2xl px-1 pb-[calc(14rem+env(safe-area-inset-bottom))] lg:pt-6">
-      <div className="pointer-events-none fixed inset-0 z-[70] opacity-[0.18] [mask-image:radial-gradient(circle_at_center,black,transparent_78%)]">
-        <div className="absolute inset-x-[-20%] top-[18%] -rotate-[18deg] text-center text-[18px] font-black uppercase tracking-[0.45em] text-blue-900/70">
-          {watermarkText}
-        </div>
-        <div className="absolute inset-x-[-20%] top-[58%] rotate-[16deg] text-center text-[18px] font-black uppercase tracking-[0.45em] text-blue-900/60">
-          {watermarkText}
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {privacyVisible && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/96 px-6 text-center text-white backdrop-blur-md"
-          >
-            <div className="max-w-md rounded-[36px] border border-white/10 bg-white/5 p-8 shadow-2xl">
-              <p className="text-[11px] font-black uppercase tracking-[0.35em] text-blue-300">
-                Privacy Shield
-              </p>
-              <h3 className="mt-4 text-3xl font-black tracking-tight">
-                Exam content vaqtincha yashirildi
-              </h3>
-              <p className="mt-4 text-sm font-bold leading-relaxed text-slate-300">
-                Fokus boshqa oynaga o&apos;tgani uchun sahifa yopildi. Examga qaytsangiz kontent yana ko&apos;rinadi.
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Premium Gamified Header */}
-      <div className="flex items-center gap-5 mb-10">
-        <button 
-          onClick={() => router.back()} 
-          className="shrink-0 rounded-2xl border border-gray-100 bg-white p-3 shadow-xl shadow-gray-200/50 transition-all hover:text-gray-900 active:scale-90 text-gray-400 sm:p-4"
-        >
-          <ArrowLeft size={24} strokeWidth={3} />
+    <PageShell
+      title={`Unit ${id} tasks`}
+      subtitle="Biriktirilgan vazifalarni ko'ring va javob yuboring"
+      action={
+        <button onClick={() => router.back()} className={secondaryButtonClass}>
+          <ArrowLeft size={14} />
+          Orqaga
         </button>
-        <div className="flex-1">
-           <div className="flex items-center justify-between mb-3 px-1">
-              <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-[0.1em] flex items-center gap-1.5">
-                <Sparkles size={12} fill="currentColor" /> Quiz Mode
-              </span>
-              <span className="text-[12px] font-black text-gray-300 tracking-tighter">PROGRESS: {Math.round(progressPercentage)}%</span>
-           </div>
-           <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden border border-gray-50 relative">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPercentage}%` }}
-                className="h-full bg-gradient-to-r from-blue-400 to-[#2563eb] rounded-full shadow-[0_0_15px_rgba(37,99,235,0.35)]"
-              />
-           </div>
+      }
+    >
+      <NoticeBanner message={notice} />
+
+      <div className="app-card p-5">
+        <SectionTitle
+          title="Vazifalar"
+          description="Bu sahifa endi demo savollar emas, backenddan kelgan student tasklar bilan ishlaydi."
+          icon={ClipboardList}
+        />
+        <div className="space-y-4">
+          {unitTasks.map((item) => {
+            const task = getTask(item);
+            const taskId = getTaskId(item);
+            const status = item?.status ?? 'PENDING';
+            const alreadySubmitted = ['SUBMITTED', 'GRADED', 'COMPLETED'].includes(String(status).toUpperCase());
+
+            return (
+              <article key={`${item?.id ?? taskId}`} className="rounded-lg border border-[var(--app-border)] bg-white p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      <Badge tone={getStatusTone(status)}>{String(status)}</Badge>
+                      {task?.type ? <Badge tone="primary">{task.type}</Badge> : null}
+                      {task?.maxScore ? <Badge tone="muted">{task.maxScore} ball</Badge> : null}
+                    </div>
+                    <h2 className="text-base font-black text-[var(--app-text)]">{task?.title ?? `Task #${taskId ?? '-'}`}</h2>
+                    {task?.description ? (
+                      <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">{task.description}</p>
+                    ) : null}
+                    {task?.instructions ? (
+                      <p className="mt-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3 text-xs font-semibold leading-relaxed text-[var(--app-muted)]">
+                        {task.instructions}
+                      </p>
+                    ) : null}
+                  </div>
+                  {alreadySubmitted ? (
+                    <div className="flex shrink-0 items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-700">
+                      <CheckCircle2 size={15} />
+                      Yuborilgan
+                    </div>
+                  ) : null}
+                </div>
+
+                <form onSubmit={(event) => void handleSubmit(event, item)} className="mt-4 grid gap-3">
+                  <textarea
+                    value={taskId ? submissions[taskId] ?? '' : ''}
+                    onChange={(event) => {
+                      if (!taskId) return;
+                      setSubmissions((current) => ({ ...current, [taskId]: event.target.value }));
+                    }}
+                    className={textareaClass}
+                    placeholder="Javobingizni yozing yoki havola yuboring"
+                    disabled={alreadySubmitted || !taskId}
+                  />
+                  <button className={primaryButtonClass} disabled={alreadySubmitted || !taskId || savingTaskId === taskId}>
+                    <Send size={14} />
+                    {savingTaskId === taskId ? 'Yuborilmoqda' : 'Yuborish'}
+                  </button>
+                </form>
+              </article>
+            );
+          })}
+
+          {!unitTasks.length ? (
+            <EmptyBlock
+              title="Bu unit uchun vazifa yo'q"
+              description="Backendda sizga biriktirilgan student task topilmadi yoki task courseId bu unitga mos emas."
+            />
+          ) : null}
         </div>
       </div>
-
-      {/* Ultra-Realism: Question Context */}
-      <AnimatePresence mode="wait">
-        <motion.div 
-          key={currentStep}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="mb-7 sm:mb-8"
-        >
-          <div className="group relative mb-6 rounded-[34px] border border-gray-100 bg-white p-6 shadow-2xl shadow-gray-200/50 sm:mb-8 sm:rounded-[48px] sm:p-10">
-            <div className="absolute right-6 top-5 text-amber-500 transition-transform group-hover:rotate-12 sm:right-10 sm:top-8"><Star size={24} fill="currentColor" /></div>
-            <div className="mb-6 flex items-center gap-3 sm:mb-8 sm:gap-4">
-               <div className="w-12 h-12 rounded-[22px] bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl shadow-inner">
-                  {currentStep + 1}
-               </div>
-               <span className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-400 sm:text-[11px] sm:tracking-[0.2em]">
-                 {questions[currentStep].type === 'fill_in_blank' ? 'Gapni To\'ldiring' : 'Sinonim Tanlang'}
-               </span>
-            </div>
-            <h3 className="px-1 text-[24px] font-extrabold leading-tight tracking-tight text-[#111827] sm:text-[28px] md:text-[32px]">
-              {questions[currentStep].q.split('"').map((part, i) => (
-                i % 2 === 1 
-                  ? <span key={i} className="text-[#2563eb] border-b-4 border-blue-100 pb-1 rounded-sm">"{part}"</span> 
-                  : <span key={i}>{part}</span>
-              ))}
-            </h3>
-          </div>
-
-          {/* Options Grid */}
-          <div className="grid grid-cols-1 gap-5">
-            {questions[currentStep].options.map((option, idx) => {
-              const isSelected = selected === idx;
-              const isCorrectOption = idx === questions[currentStep].correct;
-
-              return (
-                <motion.button 
-                  whileTap={{ scale: 0.98 }}
-                  key={idx}
-                  onClick={() => {
-                    setSelected(idx);
-                    setIsWrong(idx !== questions[currentStep].correct);
-                  }}
-                  className={`group relative flex items-center justify-between overflow-hidden rounded-[30px] border-[3px] p-5 text-left transition-all sm:rounded-[38px] sm:p-7
-                    ${isSelected && isCorrectOption ? 'border-blue-500 bg-blue-50/50 shadow-xl shadow-blue-500/10' : ''}
-                    ${isSelected && !isCorrectOption ? 'border-red-400 bg-red-50 text-red-600 shadow-xl shadow-red-500/10 animate-shake' : ''}
-                    ${!isSelected ? 'border-gray-100 bg-white text-gray-800 hover:border-[#2563eb]/30 hover:bg-blue-50/20 active:scale-95' : ''}
-                  `}
-                >
-                  <div className="flex items-center gap-5 relative z-10">
-                     <span className={`flex h-8 w-8 items-center justify-center rounded-xl border-2 text-sm font-black transition-all ${isSelected ? 'border-transparent bg-white' : 'border-gray-100 bg-gray-50 group-hover:bg-white'}`}>{idx + 1}</span>
-                     <span className={`text-base font-black md:text-lg ${isSelected && isCorrectOption ? 'text-blue-700' : ''}`}>{option}</span>
-                  </div>
-                  
-                  <div className="relative z-10 shrink-0">
-                    {isSelected && isCorrectOption && <CheckCircle2 size={28} strokeWidth={3.5} className="text-blue-500" />}
-                    {isSelected && !isCorrectOption && <AlertCircle size={28} strokeWidth={3.5} className="text-red-400" />}
-                    {!isSelected && <div className="w-8 h-8 rounded-full border-[3px] border-gray-100 group-hover:border-blue-200 transition-colors bg-gray-50" />}
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-      </AnimatePresence>
-
-      <style jsx>{`
-        .animate-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake {
-          10%, 90% { transform: translate3d(-1px, 0, 0); }
-          20%, 80% { transform: translate3d(2px, 0, 0); }
-          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-          40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-      `}</style>
-
-      {/* Fact & Action Area - Responsive Bottom Panel */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center bg-gradient-to-t from-gray-50/90 to-transparent px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm sm:p-6">
-         <AnimatePresence>
-            {selected !== null && (
-               <motion.div 
-                 initial={{ opacity: 0, y: 100 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 exit={{ opacity: 0, y: 100 }}
-                 className={`relative flex w-full max-w-2xl flex-col gap-4 overflow-hidden rounded-[34px] border-b-2 border-t-4 bg-white/95 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.15)] backdrop-blur-3xl sm:gap-6 sm:rounded-[48px] sm:p-7 ${
-                    isCorrect ? 'bg-white/95 border-blue-500 border-b-blue-50' : 'bg-white/95 border-red-500 border-b-red-50'
-                 }`}
-               >
-                  {/* Decorative blur */}
-                  <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-[40px] opacity-10 ${isCorrect ? 'bg-blue-500' : 'bg-red-500'}`} />
-                  
-                  <div className="relative z-10 flex items-center gap-3 sm:gap-5">
-                     <div className={`rounded-[20px] p-3.5 shadow-inner sm:rounded-[26px] sm:p-5 ${isCorrect ? 'bg-blue-50 text-blue-500' : 'bg-red-50 text-red-500'}`}>
-                        {isCorrect ? <Sparkles size={26} strokeWidth={2.5} /> : <AlertCircle size={26} strokeWidth={2.5} />}
-                     </div>
-                     <div className="flex-1 min-w-0">
-                        <p className={`text-lg font-black tracking-tight sm:text-xl ${isCorrect ? 'text-blue-600' : 'text-red-500'}`}>
-                           {isCorrect ? 'Barakalla! To&apos;g&apos;ri javob.' : 'Xato! Diqqatli bo&apos;ling.'}
-                        </p>
-                        <p className="text-[13px] font-bold text-gray-500 line-clamp-1">{questions[currentStep].fact}</p>
-                     </div>
-                  </div>
-                  <button 
-                    onClick={handleNext}
-                    disabled={!isCorrect}
-                    className={`group relative w-full rounded-[28px] py-4 text-[11px] font-black uppercase tracking-[0.22em] transition-all shadow-2xl sm:rounded-[32px] sm:py-5 sm:text-sm sm:tracking-[0.25em] ${
-                       isCorrect ? 'bg-[#2563eb] text-white shadow-[#2563eb]/30 active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed shadow-none'
-                    }`}
-                  >
-                     <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                     KEYINGISI <ChevronRight size={22} className="inline ml-1" strokeWidth={3.5} />
-                  </button>
-               </motion.div>
-            )}
-         </AnimatePresence>
-      </div>
-
-      <div className="mt-12 text-center opacity-30 pb-32">
-         <p className="text-[10px] font-black uppercase tracking-[0.6em] text-gray-400">
-           {`${centerBranding.shortName.toUpperCase()} EXAM ENGINE • PREMIUM ASSESSMENT`}
-         </p>
-      </div>
-    </div>
+    </PageShell>
   );
 }
-

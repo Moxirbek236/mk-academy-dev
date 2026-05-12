@@ -2,62 +2,62 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, Save } from 'lucide-react';
+import { ArrowLeft, Phone, Save } from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
 import { updateCurrentProfile } from '@/lib/backend-api';
 import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
 import { NoticeBanner, fieldClass, primaryButtonClass, secondaryButtonClass } from '@/app/components/ui/DataDisplay';
 
-function normalizeEmail(profile: any) {
-  return profile?.email ?? profile?.profile?.email ?? '';
+function normalizePhone(profile: any) {
+  return profile?.user?.phone ?? profile?.profile?.phone ?? profile?.phone ?? '';
 }
 
-export default function EmailSettingsPage() {
+export default function PhoneSettingsPage() {
   const router = useRouter();
   const { data: profile, loading, error, refetch } = useProfile();
-  const currentEmail = useMemo(() => normalizeEmail(profile), [profile]);
-  const [email, setEmail] = useState('');
+  const currentPhone = useMemo(() => normalizePhone(profile), [profile]);
+  const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    setEmail(currentEmail);
-  }, [currentEmail]);
+    setPhone(currentPhone);
+  }, [currentPhone]);
 
   async function handleSave() {
-    const nextEmail = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
-      setNotice("To'g'ri email manzil kiriting");
+    const normalized = phone.replace(/\s+/g, '');
+    if (!/^\+?\d{9,15}$/.test(normalized)) {
+      setNotice("Telefon raqamni +998901234567 formatida kiriting");
       return;
     }
-    if (nextEmail === currentEmail) {
-      setNotice("Email o'zgarmagan");
+    if (normalized === currentPhone) {
+      setNotice("Telefon raqam o'zgarmagan");
       return;
     }
 
     try {
       setSaving(true);
       setNotice(null);
-      await updateCurrentProfile({ email: nextEmail });
+      await updateCurrentProfile({ phone: normalized });
       await refetch();
-      setNotice('Email yangilandi');
+      setNotice('Telefon raqam yangilandi');
     } catch (saveError) {
-      setNotice(saveError instanceof Error ? saveError.message : 'Email saqlanmadi');
+      setNotice(saveError instanceof Error ? saveError.message : 'Telefon raqam saqlanmadi');
     } finally {
       setSaving(false);
     }
   }
 
-  if (loading) return <PageLoadingState title="Email yuklanmoqda" description="Profil ma'lumotlari olinmoqda" />;
+  if (loading) return <PageLoadingState title="Telefon yuklanmoqda" description="Profil ma'lumotlari olinmoqda" />;
 
   if (error) {
-    return <PageErrorState title="Emailni olishda xatolik" description={error} retryLabel="Qayta urinish" onRetry={() => void refetch()} />;
+    return <PageErrorState title="Telefonni olishda xatolik" description={error} retryLabel="Qayta urinish" onRetry={() => void refetch()} />;
   }
 
   return (
     <PageShell
-      title="Email manzil"
-      subtitle="Profilingizga biriktirilgan emailni yangilang"
+      title="Telefon raqam"
+      subtitle="Profilingizdagi aloqa raqamini yangilang"
       action={
         <button onClick={() => router.push('/settings')} className={secondaryButtonClass}>
           <ArrowLeft size={14} />
@@ -69,23 +69,22 @@ export default function EmailSettingsPage() {
       <div className="app-card mx-auto max-w-xl p-5 sm:p-6">
         <div className="mb-5 flex items-center gap-3">
           <span className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3 text-[var(--app-primary)]">
-            <Mail size={20} strokeWidth={2.5} />
+            <Phone size={20} strokeWidth={2.5} />
           </span>
           <div>
-            <h2 className="text-base font-black text-[var(--app-text)]">Email</h2>
-            <p className="text-xs font-semibold text-[var(--app-muted)]">Login va bildirishnomalar uchun ishlatiladi.</p>
+            <h2 className="text-base font-black text-[var(--app-text)]">Telefon</h2>
+            <p className="text-xs font-semibold text-[var(--app-muted)]">Login va aloqa uchun asosiy raqam.</p>
           </div>
         </div>
         <input
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
           className={fieldClass}
-          placeholder="name@example.com"
+          placeholder="+998901234567"
         />
         <button
           onClick={() => void handleSave()}
-          disabled={saving || email.trim() === currentEmail}
+          disabled={saving || phone.replace(/\s+/g, '') === currentPhone}
           className={`${primaryButtonClass} mt-4 w-full`}
         >
           <Save size={14} />

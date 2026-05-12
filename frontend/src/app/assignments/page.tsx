@@ -60,6 +60,17 @@ function formatDate(value: unknown) {
   }).format(date);
 }
 
+function parsePositiveId(value: string) {
+  const id = Number(value);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+function normalizeDueDate(value: string) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
 export default function AssignmentsPage() {
   const [assignments, setAssignments] = useState<AnyRecord[]>([]);
   const [detail, setDetail] = useState<AnyRecord | null>(null);
@@ -147,14 +158,25 @@ export default function AssignmentsPage() {
 
   async function handleUpdateAssignment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const id = parsePositiveId(assignmentId);
+    if (!id) {
+      setNotice("Assignment ID noto'g'ri");
+      return;
+    }
+    const nextDueDate = normalizeDueDate(dueDate);
+    if (dueDate && !nextDueDate) {
+      setNotice("Deadline formati noto'g'ri");
+      return;
+    }
+
     try {
       setSaving(true);
-      await updateGroupAssignment(Number(assignmentId), {
-        dueDate: dueDate || null,
+      await updateGroupAssignment(id, {
+        dueDate: nextDueDate,
         isRequired,
       });
       setAssignments(await listGroupAssignments(groupName));
-      setDetail(await getGroupAssignmentById(Number(assignmentId)));
+      setDetail(await getGroupAssignmentById(id));
       setNotice("Assignment yangilandi");
     } catch (updateError) {
       setNotice(updateError instanceof Error ? updateError.message : "Assignment yangilanmadi");
@@ -164,6 +186,8 @@ export default function AssignmentsPage() {
   }
 
   async function removeAssignment(id: number) {
+    if (!window.confirm("Assignmentni o'chirishni tasdiqlaysizmi?")) return;
+
     try {
       setSaving(true);
       await deleteGroupAssignment(id);
@@ -387,7 +411,14 @@ export default function AssignmentsPage() {
                 <button
                   type="button"
                   className={secondaryButtonClass}
-                  onClick={() => void loadAssignmentDetail(Number(assignmentId))}
+                  onClick={() => {
+                    const id = parsePositiveId(assignmentId);
+                    if (!id) {
+                      setNotice("Assignment ID noto'g'ri");
+                      return;
+                    }
+                    void loadAssignmentDetail(id);
+                  }}
                   disabled={!assignmentId || saving}
                 >
                   Detail

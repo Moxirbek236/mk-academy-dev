@@ -83,23 +83,23 @@ export class UserProfileService {
     }
 
     let passHash = userProfile.user.passwordHash;
-    if (payload.passwordHash) {
-      const passHash = await bcrypt.hash(payload.passwordHash, 10);
+    if (payload.passwordHash?.trim()) {
+      passHash = await bcrypt.hash(payload.passwordHash.trim(), 10);
     }
 
     let fullname = userProfile.user.fullName;
-    if (payload.fullName) {
-      fullname = payload.fullName
+    if (payload.fullName?.trim()) {
+      fullname = payload.fullName.trim()
     }
 
     let telefon = userProfile.user.phone;
-    if (payload.phone) {
-      telefon = payload.phone
+    if (payload.phone?.trim()) {
+      telefon = payload.phone.trim()
     }
 
     let pochta = userProfile.email;
-    if (payload.email) {
-      pochta = payload.email
+    if (payload.email?.trim()) {
+      pochta = payload.email.trim()
     }
 
     let tugulgan = userProfile.dateOfBirth;
@@ -108,8 +108,8 @@ export class UserProfileService {
     }
 
     let til = userProfile.language;
-    if (payload.language) {
-      til = payload.language
+    if (payload.language?.trim()) {
+      til = payload.language.trim().toUpperCase()
     }
 
     await this.prisma.user.update({
@@ -126,7 +126,7 @@ export class UserProfileService {
       where: { id: userProfile.id },
       data: {
         userId: currentUser.id,
-        email: userProfile.email,
+        email: pochta,
         dateOfBirth: tugulgan,
         language: til
       },

@@ -79,7 +79,19 @@ function itemIncludes(item: AnyRecord, search: string) {
   const normalized = search.trim().toLowerCase();
   if (!normalized) return true;
 
-  return JSON.stringify(item).toLowerCase().includes(normalized);
+  return [
+    item?.id,
+    item?.word,
+    item?.translation,
+    item?.title,
+    item?.name,
+    item?.description,
+    item?.studentId,
+    item?.vocabulary?.word,
+    item?.vocabulary?.translation,
+  ]
+    .filter((value) => value !== undefined && value !== null)
+    .some((value) => String(value).toLowerCase().includes(normalized));
 }
 
 export default function VocabularyAdminPage() {
@@ -136,6 +148,14 @@ export default function VocabularyAdminPage() {
       if (vocabularyRes.status === 'fulfilled') setVocabularies(vocabularyRes.value);
       if (listRes.status === 'fulfilled') setWordLists(listRes.value);
       if (dueRes.status === 'fulfilled') setDueReviews(dueRes.value);
+      const failedSections = [
+        vocabularyRes.status === 'rejected' ? 'vocabulary' : null,
+        listRes.status === 'rejected' ? 'word lists' : null,
+        dueRes.status === 'rejected' ? 'due reviews' : null,
+      ].filter(Boolean);
+      if (failedSections.length) {
+        setNotice(`${failedSections.join(', ')} yuklanmadi`);
+      }
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Vocabulary ma'lumotlarini yuklab bo'lmadi");
     } finally {
@@ -212,6 +232,8 @@ export default function VocabularyAdminPage() {
   }
 
   async function removeVocabulary(id: number) {
+    if (!window.confirm("Vocabulary o'chirishni tasdiqlaysizmi?")) return;
+
     try {
       setSaving(true);
       await deleteVocabulary(id);
@@ -268,6 +290,8 @@ export default function VocabularyAdminPage() {
   }
 
   async function removeWordList(id: number) {
+    if (!window.confirm("Word list o'chirishni tasdiqlaysizmi?")) return;
+
     try {
       setSaving(true);
       await deleteWordList(id);
@@ -303,7 +327,13 @@ export default function VocabularyAdminPage() {
 
   async function removeItem(item: AnyRecord) {
     if (!selectedWordListId) return;
-    const vocabularyId = Number(item?.vocabularyId ?? item?.vocabulary?.id ?? item?.id);
+    const vocabularyId = Number(item?.vocabularyId ?? item?.vocabulary?.id);
+    if (!Number.isFinite(vocabularyId) || vocabularyId <= 0) {
+      setNotice("Word list itemida vocabularyId topilmadi");
+      return;
+    }
+    if (!window.confirm("So'zni listdan olib tashlashni tasdiqlaysizmi?")) return;
+
     try {
       setSaving(true);
       await removeWordListItem(selectedWordListId, vocabularyId);

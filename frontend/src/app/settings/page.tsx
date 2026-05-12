@@ -44,6 +44,10 @@ export default function SettingsPage() {
   const { role } = useAuth();
   const { centerBranding } = useCenterBranding();
   const { data: profile, loading, error, refetch } = useProfile();
+  const profileName = profile?.user?.fullName || profile?.fullName || t("loading");
+  const profileEmail = profile?.email || profile?.profile?.email || t("loading");
+  const profilePhone = profile?.user?.phone || profile?.profile?.phone || profile?.phone || "+998 -- --- -- --";
+  const profileLanguage = profile?.language || profile?.profile?.language || "UZ";
 
   const handleLogout = () => {
     void logout().catch(() => undefined).finally(() => clearStoredAuth()).finally(() => {
@@ -58,19 +62,19 @@ export default function SettingsPage() {
         {
           icon: User,
           label: t("profileSettings"),
-          value: profile?.fullName || t("loading"),
+          value: profileName,
           path: "/settings/profile",
         },
         {
           icon: Mail,
           label: t("emailAddress"),
-          value: profile?.email || t("loading"),
+          value: profileEmail,
           path: "/settings/email",
         },
         {
           icon: Phone,
           label: t("phoneNumber"),
-          value: profile?.phone || "+998 -- --- -- --",
+          value: profilePhone,
           path: "/settings/phone",
         },
       ],
@@ -131,9 +135,9 @@ export default function SettingsPage() {
           icon: Globe,
           label: t("language"),
           value:
-            profile?.language === "RU"
+            profileLanguage === "RU"
               ? t("languages.ru")
-              : profile?.language === "EN"
+              : profileLanguage === "EN"
               ? t("languages.en")
               : t("languages.uz"),
           path: "/settings/language",

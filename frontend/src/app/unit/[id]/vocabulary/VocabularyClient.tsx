@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, BookOpen, Brain, Lock, PlusCircle, Search, Volume2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Brain, Check, Lock, PlusCircle, Search, Volume2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { listVocabularies } from '@/lib/backend-api';
-import { PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
+import { PageErrorState, PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
 import {
   Badge,
   CompactStat,
@@ -23,6 +23,7 @@ type VocabularyWord = {
   uz: string;
   type: string;
   pronunciation?: string;
+  audioUrl?: string;
 };
 
 export default function VocabularyClient() {
@@ -33,6 +34,9 @@ export default function VocabularyClient() {
   const [loadingWords, setLoadingWords] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [words, setWords] = useState<VocabularyWord[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const favoritesKey = `mk-academy:vocabulary:favorites:${String(id)}`;
 
   useEffect(() => {
     let active = true;
@@ -51,13 +55,16 @@ export default function VocabularyClient() {
                 en: item.word,
                 uz: item.translation,
                 pronunciation: item.pronunciation,
+                audioUrl: item.audioUrl,
                 type: item.partOfSpeech ?? 'word',
               }))
             : [],
         );
-      } catch {
+        setError(null);
+      } catch (loadError) {
         if (active) {
           setWords([]);
+          setError(loadError instanceof Error ? loadError.message : "Vocabulary yuklanmadi");
         }
       } finally {
         if (active) {
@@ -72,6 +79,15 @@ export default function VocabularyClient() {
       active = false;
     };
   }, [id]);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(favoritesKey);
+      setFavorites(stored ? JSON.parse(stored) : []);
+    } catch {
+      setFavorites([]);
+    }
+  }, [favoritesKey]);
 
   const filteredWords = useMemo(() => {
     const normalized = searchTerm.trim().toLowerCase();
@@ -96,7 +112,28 @@ export default function VocabularyClient() {
     [filteredWords.length, words],
   );
 
-  const handlePlay = (wordId: number) => {
+  const toggleFavorite = (wordId: number) => {
+    setFavorites((current) => {
+      const next = current.includes(wordId)
+        ? current.filter((id) => id !== wordId)
+        : [...current, wordId];
+      window.localStorage.setItem(favoritesKey, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const handlePlay = (word: VocabularyWord) => {
+    if (word.audioUrl) {
+      const audio = new Audio(word.audioUrl);
+      void audio.play().catch(() => undefined);
+    } else if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(word.en);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    const wordId = word.id;
     setPlaying(wordId);
     window.setTimeout(() => setPlaying(null), 900);
   };
@@ -125,6 +162,19 @@ export default function VocabularyClient() {
             Portalga qaytish
           </button>
         </div>
+      </PageShell>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageShell title="Vocabulary" subtitle="Xatolik">
+        <PageErrorState
+          title="Vocabulary yuklanmadi"
+          description={error}
+          retryLabel="Qayta urinish"
+          onRetry={() => window.location.reload()}
+        />
       </PageShell>
     );
   }
@@ -180,7 +230,7 @@ export default function VocabularyClient() {
                 <button
                   onClick={(event) => {
                     event.stopPropagation();
-                    handlePlay(word.id);
+                    handlePlay(word);
                   }}
                   className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border transition-all active:scale-95 ${
                     playing === word.id
@@ -197,6 +247,7 @@ export default function VocabularyClient() {
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <Badge tone="primary">{word.type}</Badge>
                     {word.pronunciation ? <Badge tone="muted">{word.pronunciation}</Badge> : null}
+                    {favorites.includes(word.id) ? <Badge tone="success">Saved</Badge> : null}
                   </div>
                   <h3 className="truncate text-lg font-black tracking-tight text-[var(--app-text)]">{word.en}</h3>
                   <p className="mt-1 truncate text-sm font-semibold text-[var(--app-muted)]">{word.uz}</p>
@@ -204,10 +255,15 @@ export default function VocabularyClient() {
 
                 <button
                   className={iconButtonClass}
-                  title="Listga qo'shish"
-                  aria-label="So'zni listga qo'shish"
+                  onClick={() => toggleFavorite(word.id)}
+                  title="Local listga saqlash"
+                  aria-label="So'zni local listga saqlash"
                 >
-                  <PlusCircle size={18} strokeWidth={2.5} />
+                  {favorites.includes(word.id) ? (
+                    <Check size={18} strokeWidth={2.5} />
+                  ) : (
+                    <PlusCircle size={18} strokeWidth={2.5} />
+                  )}
                 </button>
               </div>
             </article>

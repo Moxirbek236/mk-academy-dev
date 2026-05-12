@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Brain, CheckCircle2, ChevronLeft, RotateCcw, Volume2, XCircle } from 'lucide-react';
+import { Brain, CheckCircle2, ChevronLeft, Lock, RotateCcw, Volume2, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { listVocabularies } from '@/lib/backend-api';
+import { getDueVocabularyReviews, listVocabularies, submitVocabularyReview } from '@/lib/backend-api';
+import { useAuth } from '@/hooks/useAuth';
 import { PageLoadingState, PageShell } from '@/app/components/ui/PagePrimitives';
 import {
   Badge,
@@ -13,33 +14,60 @@ import {
 } from '@/app/components/ui/DataDisplay';
 
 export default function VocabularyPracticePage() {
+  const { role, loading: authLoading } = useAuth();
   const [words, setWords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showTranslation, setShowTranslation] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
+    if (authLoading) return;
+    if (role !== 'student') {
+      setLoading(false);
+      return;
+    }
+
     const fetchWords = async () => {
       try {
+        const dueReviews = await getDueVocabularyReviews();
+        const dueWords = Array.isArray(dueReviews)
+          ? dueReviews.map((item: any) => item?.vocabulary ?? item).filter((item: any) => item?.id)
+          : [];
+
+        if (dueWords.length) {
+          setWords(dueWords);
+          return;
+        }
+
         const data = await listVocabularies({ limit: 100 });
         setWords(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error(err);
+        setNotice(err instanceof Error ? err.message : "So'zlarni yuklab bo'lmadi");
       } finally {
         setLoading(false);
       }
     };
     void fetchWords();
-  }, []);
+  }, [authLoading, role]);
 
   const progress = useMemo(() => {
     if (!words.length) return 0;
     return ((currentIndex + 1) / words.length) * 100;
   }, [currentIndex, words.length]);
 
-  const handleNext = (_quality: number) => {
+  const handleNext = async (quality: number) => {
+    const currentWord = words[currentIndex];
+    if (currentWord?.id) {
+      try {
+        await submitVocabularyReview({ vocabularyId: Number(currentWord.id), quality });
+      } catch (reviewError) {
+        setNotice(reviewError instanceof Error ? reviewError.message : 'Progress saqlanmadi');
+      }
+    }
+
     if (currentIndex < words.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setShowTranslation(false);
@@ -48,10 +76,30 @@ export default function VocabularyPracticePage() {
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <PageShell title="Vocabulary practice" subtitle="Mashq yuklanmoqda">
         <PageLoadingState title="So'zlar yuklanmoqda" description="Takrorlash kartalari tayyorlanmoqda" />
+      </PageShell>
+    );
+  }
+
+  if (role !== 'student') {
+    return (
+      <PageShell title="Vocabulary practice" subtitle="Faqat student akkauntlari uchun">
+        <div className="app-card mx-auto flex max-w-xl flex-col items-center px-6 py-10 text-center">
+          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 text-rose-600">
+            <Lock size={34} strokeWidth={2.5} />
+          </div>
+          <h2 className="mt-5 text-xl font-black tracking-tight text-[var(--app-text)]">Ruxsat taqiqlangan</h2>
+          <p className="mt-2 text-sm font-semibold leading-relaxed text-[var(--app-muted)]">
+            Vocabulary review progressi faqat student hisobiga yoziladi.
+          </p>
+          <button onClick={() => router.back()} className={`${primaryButtonClass} mt-6`}>
+            <ChevronLeft size={15} />
+            Orqaga
+          </button>
+        </div>
       </PageShell>
     );
   }
@@ -123,6 +171,12 @@ export default function VocabularyPracticePage() {
       }
     >
       <div className="mx-auto max-w-2xl">
+        {notice ? (
+          <div className="mb-4 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-3 text-sm font-bold text-[var(--app-primary)]">
+            {notice}
+          </div>
+        ) : null}
+
         <div className="mb-5 rounded-lg border border-[var(--app-border)] bg-white p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <Badge tone="primary">Progress</Badge>
@@ -181,7 +235,7 @@ export default function VocabularyPracticePage() {
           <button
             onClick={(event) => {
               event.stopPropagation();
-              handleNext(1);
+              void handleNext(1);
             }}
             className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border border-rose-100 bg-rose-50 p-4 text-rose-600 transition-all active:scale-95"
           >
@@ -191,7 +245,7 @@ export default function VocabularyPracticePage() {
           <button
             onClick={(event) => {
               event.stopPropagation();
-              handleNext(5);
+              void handleNext(5);
             }}
             className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-emerald-700 transition-all active:scale-95"
           >

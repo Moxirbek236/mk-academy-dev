@@ -8,6 +8,7 @@ import { updateCurrentProfile } from '@/lib/backend-api';
 import { PageErrorState, PageLoadingState } from '@/app/components/ui/PagePrimitives';
 import { disableSecureScreen, enableSecureScreen } from '@/lib/screen-security';
 import { useCenterBranding } from '@/app/components/branding/CenterBrandingProvider';
+import { NoticeBanner } from '@/app/components/ui/DataDisplay';
 
 export default function ProfileSettingsPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function ProfileSettingsPage() {
   const [fullName, setFullName] = useState('');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const { data: profile, loading, error, refetch } = useProfile();
 
   useEffect(() => {
@@ -40,14 +42,25 @@ export default function ProfileSettingsPage() {
   }, [normalizedProfile.fullName]);
 
   async function handleSave() {
+    const nextFullName = fullName.trim();
+    if (nextFullName.length < 2) {
+      setNotice("To'liq ism kamida 2 ta belgidan iborat bo'lishi kerak");
+      return;
+    }
+    if (nextFullName === normalizedProfile.fullName) {
+      setNotice("Ism o'zgarmagan");
+      return;
+    }
+
     try {
       setSaving(true);
-      await updateCurrentProfile({ fullName });
+      setNotice(null);
+      await updateCurrentProfile({ fullName: nextFullName });
       await refetch();
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (profileError) {
-      console.error(profileError);
+      setNotice(profileError instanceof Error ? profileError.message : 'Profil saqlanmadi');
     } finally {
       setSaving(false);
     }
@@ -90,6 +103,8 @@ export default function ProfileSettingsPage() {
         </div>
       </div>
 
+      <NoticeBanner message={notice} />
+
       <div className="mb-8 flex flex-col gap-6 border border-[var(--app-border)] bg-[var(--app-surface)] p-4 sm:gap-8 sm:p-8">
         <div className="flex flex-col items-center gap-5">
           <div className="flex h-20 w-20 items-center justify-center border border-[var(--app-border)] bg-[var(--app-primary)] text-3xl font-black text-white sm:h-28 sm:w-28 sm:text-4xl">
@@ -124,7 +139,7 @@ export default function ProfileSettingsPage() {
 
       <button
         onClick={() => void handleSave()}
-        disabled={saving}
+        disabled={saving || fullName.trim() === normalizedProfile.fullName}
         className={`mx-auto flex w-full max-w-md items-center justify-center gap-3 border border-[var(--app-primary)] p-3.5 font-black tracking-tight text-white transition-all active:scale-[0.98] sm:p-5 ${
           success ? 'bg-[var(--app-primary)]' : 'bg-[var(--app-primary)] hover:bg-[var(--app-secondary)]'
         }`}

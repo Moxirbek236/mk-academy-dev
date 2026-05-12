@@ -52,7 +52,7 @@ function getTitle(item: AnyRecord, fallback: string) {
 }
 
 function getProfileId(profile: AnyRecord | null) {
-  const direct = Number(profile?.id ?? profile?.userId ?? profile?.studentId);
+  const direct = Number(profile?.user?.id ?? profile?.userId ?? profile?.studentId ?? profile?.id);
   return Number.isFinite(direct) && direct > 0 ? direct : null;
 }
 
@@ -141,8 +141,21 @@ export default function GamificationPage() {
       setNotice("Rating yaratish uchun admin ruxsati kerak");
       return;
     }
-    if (!Number.isFinite(Number(ratingForm.userId)) || Number(ratingForm.userId) <= 0) {
+    const userId = Number(ratingForm.userId);
+    const score = Number(ratingForm.score);
+    const targetType = ratingForm.targetType.trim();
+    const targetId = ratingForm.targetId.trim();
+
+    if (!Number.isFinite(userId) || userId <= 0) {
       setNotice("Rating yaratish uchun userId kiriting");
+      return;
+    }
+    if (!targetType || !targetId) {
+      setNotice("Target type va target ID to'ldirilishi kerak");
+      return;
+    }
+    if (!Number.isFinite(score) || score < 1 || score > 5) {
+      setNotice("Rating score 1 dan 5 gacha bo'lishi kerak");
       return;
     }
 
@@ -150,11 +163,11 @@ export default function GamificationPage() {
       setSaving(true);
       setNotice(null);
       await createRating({
-        userId: Number(ratingForm.userId),
-        targetType: ratingForm.targetType,
-        targetId: ratingForm.targetId,
-        score: Number(ratingForm.score),
-        reviewText: ratingForm.reviewText || undefined,
+        userId,
+        targetType,
+        targetId,
+        score,
+        reviewText: ratingForm.reviewText.trim() || undefined,
       });
       setRatingForm((current) => ({ ...current, reviewText: '' }));
       setRatings(await listRatings());
@@ -169,6 +182,9 @@ export default function GamificationPage() {
   async function handleDeleteRating(id: number) {
     if (!canManageGamification) {
       setNotice("Rating o'chirish uchun admin ruxsati kerak");
+      return;
+    }
+    if (!window.confirm("Ratingni o'chirishni tasdiqlaysizmi?")) {
       return;
     }
 
@@ -190,10 +206,16 @@ export default function GamificationPage() {
       setNotice("Target ratinglarini ko'rish uchun admin ruxsati kerak");
       return;
     }
+    const targetType = targetForm.targetType.trim();
+    const targetId = targetForm.targetId.trim();
+    if (!targetType || !targetId) {
+      setNotice("Target type va target ID kiriting");
+      return;
+    }
 
     try {
       setSaving(true);
-      setTargetRatings(await getRatingsByTarget(targetForm.targetType, targetForm.targetId));
+      setTargetRatings(await getRatingsByTarget(targetType, targetId));
       setNotice("Target ratinglari yuklandi");
     } catch (targetError) {
       setNotice(targetError instanceof Error ? targetError.message : "Target ratinglari yuklanmadi");
@@ -208,12 +230,22 @@ export default function GamificationPage() {
       setNotice("XP qo'shish uchun admin ruxsati kerak");
       return;
     }
+    const userId = Number(xpForm.userId);
+    const amount = Number(xpForm.amount);
+    if (!Number.isFinite(userId) || userId <= 0) {
+      setNotice("XP uchun userId kiriting");
+      return;
+    }
+    if (!Number.isFinite(amount) || amount < 1 || amount > 10000) {
+      setNotice("XP miqdori 1 dan 10000 gacha bo'lishi kerak");
+      return;
+    }
 
     try {
       setSaving(true);
       setNotice(null);
-      await addXp(Number(xpForm.userId), { amount: Number(xpForm.amount), reason: xpForm.reason || undefined });
-      setXpRank(await getXpRank(Number(xpForm.userId)));
+      await addXp(userId, { amount, reason: xpForm.reason.trim() || undefined });
+      setXpRank(await getXpRank(userId));
       setLeaderboard(await getLeaderboard(20));
       setNotice("XP so'rovi yuborildi");
     } catch (xpError) {
@@ -334,7 +366,7 @@ export default function GamificationPage() {
             <SectionTitle title="Mening rankim" description="Joriy profilning XP va yutuqlar kesimi." icon={Zap} />
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-lg border border-[var(--app-border)] bg-white p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">Profile ID</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--app-muted)]">User ID</p>
                 <p className="mt-1 text-xl font-black text-[var(--app-text)]">{profileId ?? '-'}</p>
               </div>
               <div className="rounded-lg border border-[var(--app-border)] bg-white p-4">
